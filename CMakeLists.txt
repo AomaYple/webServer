@@ -10,6 +10,7 @@ target_sources(${PROJECT_NAME}
         PRIVATE
             main.cpp
             log/Log.cpp
+            src/Buffer.cpp
         )
 
 target_include_directories(${PROJECT_NAME}
