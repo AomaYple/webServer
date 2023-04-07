@@ -11,7 +11,7 @@ using std::string, std::string_view, std::to_string, std::source_location;
 Client::Client(int fileDescriptor, std::string information) : self(fileDescriptor), timeout(0), information(std::move(information)) {}
 
 Client::Client(Client &&client) noexcept : self(client.self), timeout(0), information(std::move(client.information)),
-                                           sendBuffer(std::move(client.sendBuffer)), receiveBuffer(std::move(client.receiveBuffer)) {
+        sendBuffer(std::move(client.sendBuffer)), receiveBuffer(std::move(client.receiveBuffer)) {
     client.self = -1;
     client.timeout = 0;
 }
