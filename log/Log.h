@@ -13,7 +13,7 @@ enum class Level {
 
 class Log {
 public:
-    static auto add(std::source_location &sourceLocation, Level &level, std::string_view &data) -> void;
+    static auto add(const std::source_location &sourceLocation, const Level &level, const std::string_view &data) -> void;
 
     static auto stopWork() -> void;
 private:
@@ -27,7 +27,7 @@ private:
 
     Log() = default;
 
-    auto addLog(std::source_location &sourceLocation, Level &level, std::string_view &data) -> void;
+    auto addLog(const std::source_location &sourceLocation, const Level &level, const std::string_view &data) -> void;
 
     auto stopWorkLog() -> void;
 };
