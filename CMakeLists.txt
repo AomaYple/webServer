@@ -12,6 +12,8 @@ target_sources(${PROJECT_NAME}
             src/Buffer.cpp
             src/Client.cpp
             src/Log.cpp
+            src/Server.cpp
+            src/Timer.cpp
         )
 
 target_include_directories(${PROJECT_NAME}

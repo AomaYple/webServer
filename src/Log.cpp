@@ -64,7 +64,6 @@ auto Log::addLog(const source_location &sourceLocation, const Level &level, cons
     if (!this->stop) {
         {
             lock_guard<mutex> lockGuard {this->lock};
-
             this->inputLog.emplace(system_clock::now(), get_id(), sourceLocation, level, data);
         }
 

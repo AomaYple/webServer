@@ -99,11 +99,6 @@ auto Client::read() -> string {
     return data;
 }
 
-auto Client::shutdown(source_location sourceLocation) -> void {
-    if (::shutdown(this->self, SHUT_RDWR) == -1)
-        Log::add(sourceLocation, Level::ERROR, this->information + " shutdown error: " + strerror(errno));
-}
-
 auto Client::get() const -> int {
     return this->self;
 }
@@ -118,9 +113,10 @@ auto Client::setExpire(unsigned int time) -> void {
 
 Client::~Client() {
     if (this->self != -1) {
+        if (shutdown(this->self, SHUT_RDWR) == -1)
+            Log::add(source_location::current(), Level::ERROR, this->information + " shutdown error: " + strerror(errno));
+
         if (close(this->self) == -1)
             Log::add(source_location::current(), Level::ERROR, this->information + " close error: " + strerror(errno));
-        else
-            Log::add(source_location::current(), Level::INFO, this->information + " is closed");
     }
 }

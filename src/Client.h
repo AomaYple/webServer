@@ -21,9 +21,7 @@ public:
 
     auto write(const std::string_view &data) -> void;
 
-    auto read() -> std::string;
-
-    auto shutdown(std::source_location sourceLocation = std::source_location::current()) -> void;
+    [[nodiscard]] auto read() -> std::string;
 
     [[nodiscard]] auto get() const -> int;
 
