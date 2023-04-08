@@ -11,6 +11,7 @@ target_sources(${PROJECT_NAME}
             main.cpp
             src/Buffer.cpp
             src/Client.cpp
+            src/Http.cpp
             src/Log.cpp
             src/Server.cpp
             src/Timer.cpp
