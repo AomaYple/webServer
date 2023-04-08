@@ -64,12 +64,12 @@ Http::Http() {
     this->webpages.emplace("", "Content-Length: 0\n\n");
 
     for (auto &filePath : directory_iterator("web")) {
-        ifstream file {filePath.path()};
+        ifstream file {filePath.path().string()};
         stringstream stream;
 
         stream << file.rdbuf();
 
-        this->webpages.emplace(filePath.path().string(), "Content-Length: " + to_string(stream.str().size()) + "\n\n" + stream.str());
+        this->webpages.emplace(filePath.path().string().substr(4), "Content-Length: " + to_string(stream.str().size()) + "\n\n" + stream.str());
 
         file.close();
     }

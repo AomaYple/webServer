@@ -2,7 +2,7 @@
 
 using std::string_view, std::pair;
 
-Buffer::Buffer(unsigned int size) : self(size), start(0), end(0) {}
+Buffer::Buffer() : self(1024), start(0), end(0) {}
 
 Buffer::Buffer(Buffer &&buffer) noexcept : self(std::move(buffer.self)), start(buffer.start), end(buffer.end) {
     buffer.start = buffer.end = 0;
