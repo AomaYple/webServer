@@ -59,7 +59,3 @@ auto Buffer::adjustRead(unsigned int size) -> void {
     if (this->start == this->end)
         this->start = this->end = 0;
 }
-
-auto Buffer::empty() const -> bool {
-    return this->start == this->end;
-}

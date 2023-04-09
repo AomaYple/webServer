@@ -30,4 +30,14 @@ private:
     auto addLog(const std::source_location &sourceLocation, const Level &level, const std::string_view &data) -> void;
 
     auto stopWorkLog() -> void;
+
+    static auto handleTime(const std::chrono::system_clock::time_point &timePoint) -> std::string;
+
+    static auto handleThreadId(const std::thread::id &id) -> std::string;
+
+    static auto handleSourceLocation(const std::source_location &sourceLocation) -> std::string;
+
+    static auto handleLogLevel(const Level &level) -> std::string;
+
+    static auto handleLogInformation(const std::string_view &data) -> std::string;
 };

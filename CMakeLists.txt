@@ -12,9 +12,11 @@ target_sources(${PROJECT_NAME}
             src/Buffer.cpp
             src/Client.cpp
             src/Epoll.cpp
+            src/EventLoop.cpp
             src/Http.cpp
             src/Log.cpp
             src/Server.cpp
+            src/ThreadPool.cpp
             src/Timer.cpp
         )
 

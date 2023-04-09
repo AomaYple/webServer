@@ -1,12 +1,11 @@
 #include "Http.h"
-#include "Log.h"
 
 #include <fstream>
 #include <filesystem>
 #include <regex>
 
 using std::string, std::to_string, std::pair, std::ifstream, std::stringstream, std::filesystem::directory_iterator,
-    std::regex, std::smatch, std::regex_search;
+    std::filesystem::current_path, std::regex, std::smatch, std::regex_search;
 
 Http Http::http;
 
@@ -63,8 +62,9 @@ auto Http::analysis(const string &request) -> pair<string, bool> {
 Http::Http() {
     this->webpages.emplace("", "Content-Length: 0\n\n");
 
-    for (auto &filePath : directory_iterator("web")) {
+    for (auto &filePath : directory_iterator(current_path().string() + "/../web")) {
         ifstream file {filePath.path().string()};
+
         stringstream stream;
 
         stream << file.rdbuf();

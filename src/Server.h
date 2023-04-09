@@ -4,8 +4,6 @@
 
 #include <memory>
 
-#include <arpa/inet.h>
-
 class Server {
 public:
     explicit Server(unsigned short port, std::source_location sourceLocation = std::source_location::current());
@@ -23,6 +21,4 @@ public:
     ~Server();
 private:
     int self, idleFileDescriptor;
-    sockaddr_in address;
-    socklen_t addressLength;
 };

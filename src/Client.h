@@ -25,6 +25,8 @@ public:
 
     [[nodiscard]] auto get() const -> int;
 
+    [[nodiscard]] auto getInformation() const -> std::string_view;
+
     [[nodiscard]] auto getExpire() const -> unsigned int;
 
     auto setExpire(unsigned int time) -> void;

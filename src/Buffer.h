@@ -22,8 +22,6 @@ public:
     auto adjustWrite(unsigned int size) -> void;
 
     auto adjustRead(unsigned int size) -> void;
-
-    [[nodiscard]] auto empty() const -> bool;
 private:
     std::vector<char> self;
     unsigned int start, end;

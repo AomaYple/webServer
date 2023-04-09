@@ -4,8 +4,9 @@
 #include <cstring>
 
 #include <sys/timerfd.h>
+#include <unordered_map>
 
-using std::string, std::unordered_map, std::shared_ptr, std::source_location;
+using std::string, std::vector, std::unordered_map, std::shared_ptr, std::source_location;
 
 Timer::Timer(source_location sourceLocation) : self(timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK)), now(0) {
     if (this->self == -1)
@@ -50,23 +51,33 @@ auto Timer::remove(shared_ptr<Client> &client) -> void {
     this->table.erase(client->get());
 }
 
-auto Timer::handleRead(unordered_map<int, shared_ptr<Client>> &clients, source_location sourceLocation) -> void {
+auto Timer::handleRead( std::source_location sourceLocation) -> vector<int> {
     uint64_t number {0};
+
+    vector<int> fileDescriptors;
+
     if (read(this->self, &number, sizeof(number)) == sizeof(number)) {
         while (number > 0) {
             auto &list {this->wheel[this->now++]};
 
+            if (this->now >= this->wheel.size())
+                this->now -= this->wheel.size();
+
             while (!list.empty()) {
                 int fileDescriptor {list.back()->get()};
+
                 list.pop_back();
                 this->table.erase(fileDescriptor);
-                clients.erase(fileDescriptor);
+
+                fileDescriptors.emplace_back(fileDescriptor);
             }
 
             --number;
         }
     } else
         Log::add(sourceLocation, Level::ERROR, "Timer read error: " + string(strerror(errno)));
+
+    return fileDescriptors;
 }
 
 auto Timer::get() const -> int {

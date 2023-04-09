@@ -1,10 +1,11 @@
 #include "Log.h"
 
-#include <fstream>
+#include <iostream>
+#include <filesystem>
 #include <iomanip>
 
-using std::string_view, std::ofstream, std::ios, std::get, std::put_time, std::this_thread::get_id, std::mutex, std::lock_guard,
-    std::atomic_ref, std::chrono::system_clock, std::source_location;
+using std::cout, std::string, std::string_view, std::stringstream, std::get, std::put_time, std::thread, std::this_thread::get_id,
+    std::mutex, std::lock_guard, std::atomic_ref, std::chrono::system_clock, std::source_location;
 
 Log Log::log;
 
@@ -17,8 +18,6 @@ auto Log::stopWork() -> void {
 }
 
 Log::Log() : work([this] {
-    ofstream file {"log.log", ios::trunc};
-
     while (!this->stop) {
         this->notice.wait(false);
         this->notice.clear();
@@ -29,35 +28,23 @@ Log::Log() : work([this] {
         }
 
         while (!this->outputLog.empty()) {
-            auto &log {this->outputLog.front()};
+            auto &element {this->outputLog.front()};
 
-            time_t now {system_clock::to_time_t(get<0>(log))};
-            file << put_time(localtime(&now), "%F %T ");
+            string time {handleTime(get<0>(element))},
 
-            file << get<1>(log) << " ";
+                threadId {handleThreadId(get<1>(element))},
 
-            source_location &sourceLocation {get<2>(log)};
-            file << sourceLocation.file_name() << ":" << sourceLocation.line() << ":" << sourceLocation.function_name() << " ";
+                sourceLocation {handleSourceLocation(get<2>(element))},
 
-            switch (get<3>(log)) {
-                case Level::INFO:
-                    file << "INFO ";
-                    break;
-                case Level::WARN:
-                    file << "WARN ";
-                    break;
-                case Level::ERROR:
-                    file << "ERROR ";
-                    break;
-            }
+                logLevel {handleLogLevel(get<3>(element))},
 
-            file << get<4>(log) << "\n";
+                logInformation {handleLogInformation(get<4>(element))};
+
+            cout << time << threadId << sourceLocation << logLevel << logInformation;
 
             this->outputLog.pop();
         }
     }
-
-    file.close();
 }) {}
 
 auto Log::addLog(const source_location &sourceLocation, const Level &level, const string_view &data) -> void {
@@ -75,4 +62,55 @@ auto Log::addLog(const source_location &sourceLocation, const Level &level, cons
 auto Log::stopWorkLog() -> void {
     atomic_ref<bool> atomicStop {this->stop};
     atomicStop = true;
+}
+
+auto Log::handleTime(const system_clock::time_point &timePoint) -> string {
+    stringstream stringStream;
+
+    time_t now {system_clock::to_time_t(timePoint)};
+    stringStream << put_time(localtime(&now), "%F %T ");
+
+    return stringStream.str();
+}
+
+auto Log::handleThreadId(const thread::id &id) -> string {
+    stringstream stringStream;
+
+    stringStream << id << " ";
+
+    return stringStream.str();
+}
+
+auto Log::handleSourceLocation(const source_location &sourceLocation) -> string {
+    stringstream stringStream;
+
+    stringStream << sourceLocation.file_name() << ":" << sourceLocation.line() << ":" << sourceLocation.function_name() << " ";
+
+    return stringStream.str();
+}
+
+auto Log::handleLogLevel(const Level &level) -> string {
+    stringstream stringStream;
+
+    switch (level) {
+        case Level::INFO:
+            stringStream << "INFO ";
+            break;
+        case Level::WARN:
+            stringStream << "WARN ";
+            break;
+        case Level::ERROR:
+            stringStream << "ERROR ";
+            break;
+    }
+
+    return stringStream.str();
+}
+
+auto Log::handleLogInformation(const string_view &data) -> string {
+    stringstream stringStream;
+
+    stringStream << data << "\n";
+
+    return stringStream.str();
 }

@@ -103,6 +103,10 @@ auto Client::get() const -> int {
     return this->self;
 }
 
+auto Client::getInformation() const -> string_view {
+    return this->information;
+}
+
 auto Client::getExpire() const -> unsigned int {
     return this->timeout;
 }
@@ -118,5 +122,7 @@ Client::~Client() {
 
         if (close(this->self) == -1)
             Log::add(source_location::current(), Level::ERROR, this->information + " close error: " + strerror(errno));
+        else
+            Log::add(source_location::current(), Level::INFO, this->information + " is closed");
     }
 }

@@ -23,7 +23,7 @@ public:
 
     auto remove(std::shared_ptr<Client> &client) -> void;
 
-    auto handleRead(std::unordered_map<int, std::shared_ptr<Client>> &clients, std::source_location sourceLocation = std::source_location::current()) -> void;
+    [[nodiscard]] auto handleRead(std::source_location sourceLocation = std::source_location::current()) -> std::vector<int>;
 
     auto get() const -> int;
 

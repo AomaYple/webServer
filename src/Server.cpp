@@ -3,12 +3,13 @@
 
 #include <cstring>
 
+#include <arpa/inet.h>
 #include <fcntl.h>
 
-using std::string, std::string_view, std::to_string, std::vector, std::shared_ptr, std::make_shared, std::source_location;
+using std::string, std::to_string, std::vector, std::shared_ptr, std::make_shared, std::source_location;
 
 Server::Server(unsigned short port, std::source_location sourceLocation) : self(socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)),
-                                                                           idleFileDescriptor(open("/dev/null", O_RDONLY)), address({}), addressLength(sizeof(address)) {
+        idleFileDescriptor(open("/dev/null", O_RDONLY)) {
     if (this->self == -1)
         Log::add(sourceLocation, Level::ERROR, "Server create error: " + string(strerror(errno)));
 
@@ -19,37 +20,33 @@ Server::Server(unsigned short port, std::source_location sourceLocation) : self(
     if (setsockopt(this->self, SOL_SOCKET, SO_REUSEPORT, &option, sizeof(option)) == -1)
         Log::add(sourceLocation, Level::ERROR, "Server reusePort error: " + string(strerror(errno)));
 
-    this->address.sin_family = AF_INET;
-    this->address.sin_port = htons(port);
+    sockaddr_in address {};
+    socklen_t addressLength {sizeof(address)};
 
-    if (inet_pton(AF_INET, "127.0.0.1", &this->address.sin_addr) != 1)
+    address.sin_family = AF_INET;
+    address.sin_port = htons(port);
+
+    if (inet_pton(AF_INET, "127.0.0.1", &address.sin_addr) != 1)
         Log::add(sourceLocation, Level::ERROR, "Server translate ipAddress error: " + string(strerror(errno)));
 
-    if (::bind(this->self, reinterpret_cast<sockaddr *>(&this->address), this->addressLength) == -1)
+    if (::bind(this->self, reinterpret_cast<sockaddr *>(&address), addressLength) == -1)
         Log::add(sourceLocation, Level::ERROR, "Server bind error: " + string(strerror(errno)));
 
     if (::listen(this->self, SOMAXCONN) == -1)
         Log::add(sourceLocation, Level::ERROR, "Server listen error: " + string(strerror(errno)));
 }
 
-Server::Server(Server &&server) noexcept : self(server.self), idleFileDescriptor(server.idleFileDescriptor), address(server.address),
-                                           addressLength(server.addressLength) {
+Server::Server(Server &&server) noexcept : self(server.self), idleFileDescriptor(server.idleFileDescriptor) {
     server.self = -1;
     server.idleFileDescriptor = -1;
-    server.address = {};
-    server.addressLength = 0;
 }
 
 auto Server::operator=(Server &&server) noexcept -> Server & {
     if (this != &server) {
         this->self = server.self;
         this->idleFileDescriptor = server.idleFileDescriptor;
-        this->address = server.address;
-        this->addressLength = server.addressLength;
         server.self = -1;
         server.idleFileDescriptor = -1;
-        server.address = {};
-        server.addressLength = 0;
     }
     return *this;
 }
@@ -58,18 +55,19 @@ auto Server::accept(source_location sourceLocation) -> vector<shared_ptr<Client>
     vector<shared_ptr<Client>> clients;
 
     while (true) {
-        this->address = {};
-        this->addressLength = {sizeof(this->address)};
-        int fileDescriptor {accept4(this->self, reinterpret_cast<sockaddr *>(&this->address), &this->addressLength,
+        sockaddr_in address = {};
+        socklen_t addressLength {sizeof(address)};
+
+        int fileDescriptor {accept4(this->self, reinterpret_cast<sockaddr *>(&address), &addressLength,
                                     SOCK_NONBLOCK)};
 
         if (fileDescriptor != -1) {
             string information(INET_ADDRSTRLEN, 0);
 
-            if (inet_ntop(AF_INET, &this->address.sin_addr, information.data(), information.size()) == nullptr)
+            if (inet_ntop(AF_INET, &address.sin_addr, information.data(), information.size()) == nullptr)
                 Log::add(sourceLocation,Level::ERROR, "Client translate ipAddress error: " + string(strerror(errno)));
 
-            information += ":" + to_string(ntohs(this->address.sin_port));
+            information += ":" + to_string(ntohs(address.sin_port));
 
             Log::add(sourceLocation, Level::INFO, "new client " + information);
 
