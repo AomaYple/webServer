@@ -9,7 +9,7 @@ EventLoop::EventLoop(unsigned short port, bool startThread) : server(port), func
     this->epoll.add(this->socketEpoll.get(), EPOLLET | EPOLLIN);
 
     this->timeEpoll.add(this->timer.get(), EPOLLET | EPOLLIN);
-    this->socketEpoll.add(this->server.get(), EPOLLET | EPOLLIN);
+    this->socketEpoll.add(this->server.get(), EPOLLIN);
 
     while (true) {
         auto events {this->epoll.poll()};

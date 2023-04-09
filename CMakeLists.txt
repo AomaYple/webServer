@@ -4,6 +4,8 @@ project(WebServer)
 
 set(CMAKE_CXX_STANDARD 23)
 
+set(CMAKE_BUILD_TYPE "Release")
+
 add_executable(${PROJECT_NAME} "")
 
 target_sources(${PROJECT_NAME}

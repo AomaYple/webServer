@@ -6,7 +6,7 @@
 
 class ThreadPool {
 public:
-    explicit ThreadPool(unsigned short port, bool stopLog = false);
+    explicit ThreadPool(unsigned short port, bool stopLog = false, bool writeFile = false);
 private:
     std::vector<EventLoop> eventLoops;
 };

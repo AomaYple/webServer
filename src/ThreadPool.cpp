@@ -1,10 +1,15 @@
 #include "ThreadPool.h"
 #include "Log.h"
 
+#include <filesystem>
+
 #include <sys/sysinfo.h>
 
-ThreadPool::ThreadPool(unsigned short port, bool stopLog) {
+ThreadPool::ThreadPool(unsigned short port, bool stopLog, bool writeFile) {
     int threadNumber {get_nprocs() - 2};
+
+    if (writeFile)
+        Log::writeToFile();
 
     if (stopLog) {
         Log::stopWork();

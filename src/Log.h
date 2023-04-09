@@ -15,10 +15,12 @@ public:
     static auto add(const std::source_location &sourceLocation, const Level &level, const std::string_view &data) -> void;
 
     static auto stopWork() -> void;
+
+    static auto writeToFile() -> void;
 private:
     std::queue<std::tuple<std::chrono::system_clock::time_point, std::thread::id, std::source_location, Level, std::string>>
             inputLog, outputLog;
-    bool stop {false};
+    bool stop {false}, writeFile {false};
     std::mutex lock;
     std::atomic_flag notice;
     std::jthread work;
@@ -30,6 +32,8 @@ private:
     auto addLog(const std::source_location &sourceLocation, const Level &level, const std::string_view &data) -> void;
 
     auto stopWorkLog() -> void;
+
+    auto writeToFileLog() -> void;
 
     static auto handleTime(const std::chrono::system_clock::time_point &timePoint) -> std::string;
 

@@ -1,11 +1,13 @@
 #include "Log.h"
 
 #include <iostream>
+#include <fstream>
 #include <filesystem>
 #include <iomanip>
 
-using std::cout, std::string, std::string_view, std::stringstream, std::get, std::put_time, std::thread, std::this_thread::get_id,
-    std::mutex, std::lock_guard, std::atomic_ref, std::chrono::system_clock, std::source_location;
+using std::cout, std::string, std::string_view, std::stringstream, std::ofstream, std::get, std::filesystem::current_path,
+    std::put_time, std::thread, std::this_thread::get_id, std::mutex, std::lock_guard, std::atomic_ref, std::chrono::system_clock,
+    std::source_location;
 
 Log Log::log;
 
@@ -17,8 +19,16 @@ auto Log::stopWork() -> void {
     log.stopWorkLog();
 }
 
+auto Log::writeToFile() -> void {
+    log.writeToFileLog();
+}
+
 Log::Log() : work([this] {
     while (!this->stop) {
+        ofstream file;
+        if (this->writeFile)
+            file.open(current_path().string() + "/log.log");
+
         this->notice.wait(false);
         this->notice.clear();
 
@@ -40,10 +50,16 @@ Log::Log() : work([this] {
 
                 logInformation {handleLogInformation(get<4>(element))};
 
-            cout << time << threadId << sourceLocation << logLevel << logInformation;
+            if (!this->writeFile)
+                cout << time << threadId << sourceLocation << logLevel << logInformation;
+            else
+                file << time << threadId << sourceLocation << logLevel << logInformation;
 
             this->outputLog.pop();
         }
+
+        if (this->writeFile)
+            file.close();
     }
 }) {}
 
@@ -62,6 +78,11 @@ auto Log::addLog(const source_location &sourceLocation, const Level &level, cons
 auto Log::stopWorkLog() -> void {
     atomic_ref<bool> atomicStop {this->stop};
     atomicStop = true;
+}
+
+auto Log::writeToFileLog() -> void {
+    atomic_ref<bool> atomicWriteFile {this->writeFile};
+    atomicWriteFile = true;
 }
 
 auto Log::handleTime(const system_clock::time_point &timePoint) -> string {
