@@ -29,7 +29,7 @@ public:
 
     [[nodiscard]] auto getExpire() const -> unsigned int;
 
-    auto setExpire(unsigned int time) -> void;
+    auto setExpire(unsigned int newTimeout) -> void;
 
     ~Client();
 private:

@@ -4,31 +4,36 @@
 
 using std::string, std::shared_ptr, std::jthread, std::source_location;
 
-EventLoop::EventLoop(unsigned short port, bool startThread) : server(port), function([this] {
-    this->epoll.add(this->timeEpoll.get(), EPOLLET | EPOLLIN);
-    this->epoll.add(this->socketEpoll.get(), EPOLLET | EPOLLIN);
+EventLoop::EventLoop(unsigned short port, bool startThread) : server(port) {
+    auto function {[this] {
+        this->epoll.add(this->timeEpoll.get(), EPOLLET | EPOLLIN);
+        this->epoll.add(this->socketEpoll.get(), EPOLLET | EPOLLIN);
 
-    this->timeEpoll.add(this->timer.get(), EPOLLET | EPOLLIN);
-    this->socketEpoll.add(this->server.get(), EPOLLIN);
+        this->timeEpoll.add(this->timer.get(), EPOLLET | EPOLLIN);
+        this->socketEpoll.add(this->server.get(), EPOLLIN);
 
-    while (true) {
-        auto events {this->epoll.poll()};
+        while (true) {
+            auto events {this->epoll.poll()};
 
-        for (auto event {events.first.begin()}; event != events.first.begin() + events.second; ++event) {
-            if (event->data.fd == this->timeEpoll.get())
-                this->handleTimeEvent();
-            else
-                this->handleSocketEvent();
+            for (auto event {events.first.begin()}; event != events.first.begin() + events.second; ++event) {
+                if (event->data.fd == this->timeEpoll.get())
+                    this->handleTimeEvent();
+                else
+                    this->handleSocketEvent();
+            }
         }
-    }
-}), startThread(startThread) {
+    }};
+
+    if (startThread)
+        this->work = jthread(function);
+    else
+        function();
 }
 
 
 EventLoop::EventLoop(EventLoop &&eventLoop) noexcept : server(std::move(eventLoop.server)), epoll(std::move(eventLoop.epoll)),
         timeEpoll(std::move(eventLoop.timeEpoll)), socketEpoll(std::move(eventLoop.socketEpoll)), timer(std::move(eventLoop.timer)),
-        clientTable(std::move(eventLoop.clientTable)), startThread(eventLoop.startThread), function(std::move(eventLoop.function)),
-        work(std::move(eventLoop.work)) {}
+        table(std::move(eventLoop.table)), work(std::move(eventLoop.work)) {}
 
 auto EventLoop::operator=(EventLoop &&eventLoop) noexcept -> EventLoop & {
     if (this != &eventLoop) {
@@ -37,19 +42,10 @@ auto EventLoop::operator=(EventLoop &&eventLoop) noexcept -> EventLoop & {
         this->timeEpoll = std::move(eventLoop.timeEpoll);
         this->socketEpoll = std::move(eventLoop.socketEpoll);
         this->timer = std::move(eventLoop.timer);
-        this->clientTable = std::move(eventLoop.clientTable);
-        this->startThread = eventLoop.startThread;
-        this->function = std::move(eventLoop.function);
+        this->table = std::move(eventLoop.table);
         this->work = std::move(eventLoop.work);
     }
     return *this;
-}
-
-auto EventLoop::loop() -> void {
-    if (this->startThread)
-        this->work = jthread(this->function);
-    else
-        this->function();
 }
 
 auto EventLoop::handleTimeEvent() -> void {
@@ -59,7 +55,7 @@ auto EventLoop::handleTimeEvent() -> void {
         auto fileDescriptors {this->timer.handleRead()};
 
         for (int fileDescriptor : fileDescriptors)
-            this->clientTable.erase(fileDescriptor);
+            this->table.erase(fileDescriptor);
     }
 }
 
@@ -76,14 +72,14 @@ auto EventLoop::handleSocketEvent() -> void {
 
 auto EventLoop::handleServerEvent() -> void {
     for (auto &client : this->server.accept()) {
-        this->clientTable.emplace(client->get(), client);
+        this->table.emplace(client->get(), client);
 
         this->socketEpoll.add(client->get(), EPOLLET | EPOLLRDHUP | EPOLLIN);
     }
 }
 
 auto EventLoop::handleClientEvent(int fileDescriptor, uint32_t event) -> void {
-    shared_ptr<Client> client {this->clientTable[fileDescriptor]};
+    shared_ptr<Client> client {this->table[fileDescriptor]};
 
     if (event & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
         this->removeClient(client);
@@ -99,7 +95,7 @@ auto EventLoop::removeClient(shared_ptr<Client> &client) -> void {
     if (client->getExpire() != 0)
         this->timer.remove(client);
 
-    this->clientTable.erase(client->get());
+    this->table.erase(client->get());
 }
 
 auto EventLoop::handleClientReceivableEvent(shared_ptr<Client> &client) -> void {

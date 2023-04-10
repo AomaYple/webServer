@@ -4,7 +4,6 @@
 #include "Epoll.h"
 #include "Timer.h"
 
-#include <functional>
 #include <thread>
 
 class EventLoop {
@@ -16,16 +15,11 @@ public:
     EventLoop(EventLoop &&eventLoop) noexcept;
 
     auto operator=(EventLoop &&eventLoop) noexcept -> EventLoop &;
-
-    auto loop() -> void;
 private:
     Server server;
     Epoll epoll, timeEpoll, socketEpoll;
     Timer timer;
-
-    std::unordered_map<int, std::shared_ptr<Client>> clientTable;
-    bool startThread;
-    std::function<void ()> function;
+    std::unordered_map<int, std::shared_ptr<Client>> table;
     std::jthread work;
 
     auto handleTimeEvent() -> void;

@@ -6,7 +6,7 @@
 #include <sys/socket.h>
 #include <sys/epoll.h>
 
-using std::string, std::string_view, std::to_string, std::source_location;
+using std::string, std::string_view, std::source_location;
 
 Client::Client(int fileDescriptor, std::string information) : self(fileDescriptor), timeout(0), information(std::move(information)) {}
 
@@ -111,8 +111,8 @@ auto Client::getExpire() const -> unsigned int {
     return this->timeout;
 }
 
-auto Client::setExpire(unsigned int time) -> void {
-    this->timeout = time;
+auto Client::setExpire(unsigned int newTimeout) -> void {
+    this->timeout = newTimeout;
 }
 
 Client::~Client() {

@@ -3,7 +3,6 @@
 #include "Client.h"
 
 #include <array>
-#include <list>
 #include <unordered_map>
 #include <memory>
 
@@ -31,6 +30,6 @@ public:
 private:
     int self;
     unsigned int now;
-    std::array<std::list<std::shared_ptr<Client>>, 3600> wheel;
+    std::array<std::unordered_map<int, std::shared_ptr<Client>>, 3600> wheel;
     std::unordered_map<int ,unsigned int> table;
 };

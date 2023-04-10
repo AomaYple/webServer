@@ -1,26 +1,25 @@
 #include "ThreadPool.h"
+#include "EventLoop.h"
 #include "Log.h"
 
-#include <filesystem>
+#include <list>
 
 #include <sys/sysinfo.h>
 
-ThreadPool::ThreadPool(unsigned short port, bool stopLog, bool writeFile) {
-    int threadNumber {get_nprocs() - 2};
+using std::vector;
 
-    if (writeFile)
-        Log::writeToFile();
+ThreadPool::ThreadPool(unsigned short port, bool stopLog) {
+    int threadNumber {get_nprocs() - 2};
 
     if (stopLog) {
         Log::stopWork();
         ++threadNumber;
     }
 
-    for (unsigned int i; i < threadNumber; ++i) {
-        this->eventLoops.emplace_back(port);
-        this->eventLoops.back().loop();
-    }
+    std::list<EventLoop> eventLoops;
+
+    for (unsigned int i {0}; i < threadNumber; ++i)
+        eventLoops.emplace_back(port, true);
 
     EventLoop eventLoop {port};
-    eventLoop.loop();
 }

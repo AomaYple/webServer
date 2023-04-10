@@ -4,9 +4,8 @@
 #include <cstring>
 
 #include <sys/timerfd.h>
-#include <unordered_map>
 
-using std::string, std::vector, std::unordered_map, std::shared_ptr, std::source_location;
+using std::string, std::vector, std::shared_ptr, std::source_location;
 
 Timer::Timer(source_location sourceLocation) : self(timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK)), now(0) {
     if (this->self == -1)
@@ -34,10 +33,12 @@ auto Timer::operator=(Timer &&timer) noexcept -> Timer & {
 
 auto Timer::add(const shared_ptr<Client>& client) -> void {
     unsigned int location {this->now + client->getExpire()};
-    if (location > this->wheel.size() - 1)
+
+    if (location >= this->wheel.size())
         location -= this->wheel.size();
 
-    this->wheel.at(location).emplace_back(client);
+    this->wheel.at(location).emplace(client->get(), client);
+
     this->table.emplace(client->get(), location);
 }
 
@@ -47,7 +48,8 @@ auto Timer::reset(shared_ptr<Client> &client) -> void {
 }
 
 auto Timer::remove(shared_ptr<Client> &client) -> void {
-    this->wheel[this->table.at(client->get())].remove(client);
+    this->wheel[this->table.at(client->get())].erase(client->get());
+
     this->table.erase(client->get());
 }
 
@@ -58,18 +60,17 @@ auto Timer::handleRead( std::source_location sourceLocation) -> vector<int> {
 
     if (read(this->self, &number, sizeof(number)) == sizeof(number)) {
         while (number > 0) {
-            auto &list {this->wheel[this->now++]};
+            auto &subTable {this->wheel[this->now++]};
 
             if (this->now >= this->wheel.size())
                 this->now -= this->wheel.size();
 
-            while (!list.empty()) {
-                int fileDescriptor {list.back()->get()};
+            while (!subTable.empty()) {
+                auto element {subTable.begin()};
 
-                list.pop_back();
-                this->table.erase(fileDescriptor);
+                fileDescriptors.emplace_back(element->first);
 
-                fileDescriptors.emplace_back(fileDescriptor);
+                subTable.erase(element);
             }
 
             --number;

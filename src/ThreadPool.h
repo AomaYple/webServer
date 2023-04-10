@@ -1,12 +1,10 @@
 #pragma once
 
-#include "EventLoop.h"
-
-#include <vector>
-
 class ThreadPool {
 public:
-    explicit ThreadPool(unsigned short port, bool stopLog = false, bool writeFile = false);
-private:
-    std::vector<EventLoop> eventLoops;
+    explicit ThreadPool(unsigned short port, bool stopLog = false);
+
+    ThreadPool(const ThreadPool &threadPool) = delete;
+
+    ThreadPool(ThreadPool &&threadPool) = delete;
 };

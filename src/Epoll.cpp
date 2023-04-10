@@ -47,8 +47,10 @@ auto Epoll::poll(bool block, source_location sourceLocation) -> pair<const vecto
     int eventNumber {epoll_wait(this->self, this->epollEvents.data(), static_cast<int>(this->epollEvents.size()),
                                 block ? -1 : 0)};
 
-    if (eventNumber == -1)
+    if (eventNumber == -1) {
+        eventNumber = 0;
         Log::add(sourceLocation, Level::ERROR, "Epoll poll error: " + string(strerror(errno)));
+    }
     else if (eventNumber == this->epollEvents.size())
         this->epollEvents.resize(this->epollEvents.size() * 2);
 

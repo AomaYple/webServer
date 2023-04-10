@@ -4,8 +4,8 @@
 #include <filesystem>
 #include <regex>
 
-using std::string, std::to_string, std::pair, std::ifstream, std::stringstream, std::filesystem::directory_iterator, std::filesystem::current_path,
-    std::regex, std::smatch, std::regex_search;
+using std::string, std::to_string, std::pair, std::ifstream, std::stringstream, std::filesystem::directory_iterator,
+    std::filesystem::current_path, std::regex, std::smatch, std::regex_search;
 
 Http Http::http;
 
@@ -72,7 +72,5 @@ Http::Http() {
         stream << file.rdbuf();
 
         this->webpages.emplace(filePath.path().string().substr(path.size()), "Content-Length: " + to_string(stream.str().size()) + "\n\n" + stream.str());
-
-        file.close();
     }
 }

@@ -2,9 +2,7 @@ cmake_minimum_required(VERSION 3.26.3)
 
 project(WebServer)
 
-set(CMAKE_CXX_STANDARD 23)
-
-set(CMAKE_BUILD_TYPE "Release")
+set(CMAKE_CXX_STANDARD 20)
 
 add_executable(${PROJECT_NAME} "")
 
