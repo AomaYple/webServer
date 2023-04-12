@@ -5,7 +5,7 @@
 
 class Buffer {
 public:
-    explicit Buffer();
+    Buffer();
 
     Buffer(const Buffer &buffer) = default;
 

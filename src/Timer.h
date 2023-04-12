@@ -8,7 +8,7 @@
 
 class Timer {
 public:
-    explicit Timer(std::source_location sourceLocation = std::source_location::current());
+    explicit Timer(const std::source_location &sourceLocation = std::source_location::current());
 
     Timer(const Timer &timer) = delete;
 
@@ -16,20 +16,22 @@ public:
 
     auto operator=(Timer &&timer) noexcept -> Timer &;
 
-    auto add(const std::shared_ptr<Client>& client) -> void;
+    auto add(const std::shared_ptr<Client> &client) -> void;
 
-    auto reset(std::shared_ptr<Client> &client) -> void;
+    auto find(int fileDescriptor) -> std::shared_ptr<Client>;
 
-    auto remove(std::shared_ptr<Client> &client) -> void;
+    auto reset(const std::shared_ptr<Client> &client) -> void;
 
-    [[nodiscard]] auto handleRead(std::source_location sourceLocation = std::source_location::current()) -> std::vector<int>;
+    auto remove(const std::shared_ptr<Client> &client) -> void;
+
+    auto handleReadableEvent(const std::source_location &sourceLocation = std::source_location::current()) -> void;
 
     auto get() const -> int;
 
     ~Timer();
 private:
     int self;
-    unsigned int now;
-    std::array<std::unordered_map<int, std::shared_ptr<Client>>, 3600> wheel;
-    std::unordered_map<int ,unsigned int> table;
+    unsigned short now;
+    std::array<std::unordered_map<int, std::shared_ptr<Client>>, 61> wheel;
+    std::unordered_map<int, unsigned short> location;
 };

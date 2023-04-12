@@ -8,29 +8,41 @@
 
 using std::string, std::string_view, std::source_location;
 
-Client::Client(int fileDescriptor, std::string information) : self(fileDescriptor), timeout(0), information(std::move(information)) {}
+Client::Client(int fileDescriptor, std::string information, unsigned short timeout, const std::source_location &sourceLocation) :
+        self(fileDescriptor), event(EPOLLIN), timeout(timeout), keepAlive(false), information(std::move(information)) {
+    linger linger {1, 5};
 
-Client::Client(Client &&client) noexcept : self(client.self), timeout(0), information(std::move(client.information)),
-        sendBuffer(std::move(client.sendBuffer)), receiveBuffer(std::move(client.receiveBuffer)) {
+    if (setsockopt(this->self, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) == -1)
+        Log::add(sourceLocation, Level::ERROR, this->information + " location linger error: " + strerror(errno));
+}
+
+Client::Client(Client &&client) noexcept : self(client.self), event(client.event), timeout(client.timeout), keepAlive(client.keepAlive),
+        information(std::move(client.information)), sendBuffer(std::move(client.sendBuffer)), receiveBuffer(std::move(client.receiveBuffer)) {
     client.self = -1;
+    client.event = 0;
     client.timeout = 0;
+    client.keepAlive = false;
 }
 
 auto Client::operator=(Client &&client) noexcept -> Client & {
     if (this != &client) {
         this->self = client.self;
+        this->event = client.event;
         this->timeout = client.timeout;
+        this->keepAlive = client.keepAlive;
         this->information = std::move(client.information);
         this->sendBuffer = std::move(client.sendBuffer);
         this->receiveBuffer = std::move(client.receiveBuffer);
         client.self = -1;
+        client.event = 0;
         client.timeout = 0;
+        client.keepAlive = false;
     }
     return *this;
 }
 
-auto Client::send(std::source_location sourceLocation) -> uint32_t {
-    uint32_t event {this->timeout == 0 ? 0 : EPOLLET | EPOLLRDHUP | EPOLLIN};
+auto Client::send(const std::source_location &sourceLocation) -> void {
+    this->event = this->keepAlive ? EPOLLIN : 0;
 
     string_view data {this->sendBuffer.read()};
     ssize_t allSentBytes {0};
@@ -44,8 +56,8 @@ auto Client::send(std::source_location sourceLocation) -> uint32_t {
             break;
         } else {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                event = EPOLLET | EPOLLOUT;
-                Log::add(sourceLocation, Level::WARN, " too much data can not be sent to " + this->information);
+                event = EPOLLOUT;
+                Log::add(sourceLocation, Level::INFO, " too much data can not be sent to " + this->information);
             } else {
                 event = 0;
                 Log::add(sourceLocation, Level::ERROR, this->information + " send error: " + strerror(errno));
@@ -57,12 +69,10 @@ auto Client::send(std::source_location sourceLocation) -> uint32_t {
 
     if (allSentBytes > 0)
         this->sendBuffer.adjustRead(allSentBytes);
-
-    return event;
 }
 
-auto Client::receive(std::source_location sourceLocation) -> uint32_t {
-    uint32_t event {EPOLLET | EPOLLOUT};
+auto Client::receive(const std::source_location &sourceLocation) -> void {
+    this->event = EPOLLOUT;
 
     ssize_t allReceivedBytes {0};
 
@@ -84,11 +94,9 @@ auto Client::receive(std::source_location sourceLocation) -> uint32_t {
             break;
         }
     }
-
-    return event;
 }
 
-auto Client::write(const std::string_view &data) -> void {
+auto Client::write(const string_view &data) -> void {
     this->sendBuffer.write(data);
 }
 
@@ -103,25 +111,27 @@ auto Client::get() const -> int {
     return this->self;
 }
 
+auto Client::getEvent() const -> uint32_t {
+    return this->event;
+}
+
+auto Client::setKeepAlive() -> void {
+    this->keepAlive = true;
+}
+
+auto Client::getTimeout() const -> unsigned short {
+    return this->timeout;
+}
+
 auto Client::getInformation() const -> string_view {
     return this->information;
 }
 
-auto Client::getExpire() const -> unsigned int {
-    return this->timeout;
-}
-
-auto Client::setExpire(unsigned int newTimeout) -> void {
-    this->timeout = newTimeout;
-}
-
 Client::~Client() {
     if (this->self != -1) {
-        if (shutdown(this->self, SHUT_RDWR) == -1)
-            Log::add(source_location::current(), Level::ERROR, this->information + " shutdown error: " + strerror(errno));
-
         if (close(this->self) == -1)
-            Log::add(source_location::current(), Level::ERROR, this->information + " close error: " + strerror(errno));
+            Log::add(source_location::current(), Level::ERROR, this->information + " close error: "
+                    + strerror(errno));
         else
             Log::add(source_location::current(), Level::INFO, this->information + " is closed");
     }

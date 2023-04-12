@@ -16,7 +16,7 @@ auto Log::stopWork() -> void {
     log.stopWorkLog();
 }
 
-Log::Log() : work([this] {
+Log::Log() : stop(false), work([this] {
     while (!this->stop) {
         this->notice.wait(false);
         this->notice.clear();
@@ -39,7 +39,7 @@ Log::Log() : work([this] {
 
                 logInformation {handleLogInformation(get<4>(element))};
 
-                cout << time << threadId << sourceLocation << logLevel << logInformation;
+            cout << time << threadId << sourceLocation << logLevel << logInformation;
 
             this->outputLog.pop();
         }
@@ -94,9 +94,6 @@ auto Log::handleLogLevel(const Level &level) -> string {
     switch (level) {
         case Level::INFO:
             stringStream << "INFO ";
-            break;
-        case Level::WARN:
-            stringStream << "WARN ";
             break;
         case Level::ERROR:
             stringStream << "ERROR ";

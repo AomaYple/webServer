@@ -6,7 +6,7 @@
 
 class Server {
 public:
-    explicit Server(unsigned short port, std::source_location sourceLocation = std::source_location::current());
+    explicit Server(unsigned short port, const std::source_location &sourceLocation = std::source_location::current());
 
     Server(const Server &server) = delete;
 

@@ -7,7 +7,8 @@
 
 class Client {
 public:
-    Client(int fileDescriptor, std::string information);
+    Client(int fileDescriptor, std::string information, unsigned short timeout = 15,
+           const std::source_location &sourceLocation = std::source_location::current());
 
     Client(const Client &client) = delete;
 
@@ -15,9 +16,9 @@ public:
 
     auto operator=(Client &&client) noexcept -> Client &;
 
-    [[nodiscard]] auto send(std::source_location sourceLocation = std::source_location::current()) -> uint32_t;
+    auto send(const std::source_location &sourceLocation = std::source_location::current()) -> void;
 
-    [[nodiscard]] auto receive(std::source_location sourceLocation = std::source_location::current()) -> uint32_t;
+    auto receive(const std::source_location &sourceLocation = std::source_location::current()) -> void;
 
     auto write(const std::string_view &data) -> void;
 
@@ -25,16 +26,20 @@ public:
 
     [[nodiscard]] auto get() const -> int;
 
+    [[nodiscard]] auto getEvent() const -> uint32_t;
+
+    auto setKeepAlive() -> void;
+
+    [[nodiscard]] auto getTimeout() const -> unsigned short;
+
     [[nodiscard]] auto getInformation() const -> std::string_view;
-
-    [[nodiscard]] auto getExpire() const -> unsigned int;
-
-    auto setExpire(unsigned int newTimeout) -> void;
 
     ~Client();
 private:
     int self;
-    unsigned int timeout;
+    uint32_t event;
+    unsigned short timeout;
+    bool keepAlive;
     std::string information;
     Buffer sendBuffer, receiveBuffer;
 };

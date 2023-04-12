@@ -6,19 +6,18 @@
 
 #include <sys/sysinfo.h>
 
-using std::vector;
+using std::list;
 
 ThreadPool::ThreadPool(unsigned short port, bool stopLog) {
-    int threadNumber {get_nprocs() - 2};
+    unsigned short threadNumber {static_cast<unsigned short>(get_nprocs() - 2)};
 
     if (stopLog) {
         Log::stopWork();
         ++threadNumber;
     }
 
-    std::list<EventLoop> eventLoops;
-
-    for (unsigned int i {0}; i < threadNumber; ++i)
+    list<EventLoop> eventLoops;
+    for (unsigned short i {0}; i < threadNumber; ++i)
         eventLoops.emplace_back(port, true);
 
     EventLoop eventLoop {port};

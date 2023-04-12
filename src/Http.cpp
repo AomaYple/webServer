@@ -71,6 +71,7 @@ Http::Http() {
 
         stream << file.rdbuf();
 
-        this->webpages.emplace(filePath.path().string().substr(path.size()), "Content-Length: " + to_string(stream.str().size()) + "\n\n" + stream.str());
+        this->webpages.emplace(filePath.path().string().substr(path.size()), "Content-Length: " + to_string(stream.str().size())
+            + "\n\n" + stream.str());
     }
 }

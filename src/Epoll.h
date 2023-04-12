@@ -7,7 +7,7 @@
 
 class Epoll {
 public:
-    explicit Epoll(std::source_location sourceLocation = std::source_location::current());
+    explicit Epoll(const std::source_location &sourceLocation = std::source_location::current());
 
     Epoll(const Epoll &epoll) = delete;
 
@@ -15,12 +15,10 @@ public:
 
     auto operator=(Epoll &&epoll) noexcept -> Epoll &;
 
-    auto add(int fileDescriptor, uint32_t event, std::source_location sourceLocation = std::source_location::current()) const -> void;
+    [[nodiscard]] auto poll(bool block = true, const std::source_location &sourceLocation = std::source_location::current())
+    -> std::pair<const std::vector<epoll_event> &, unsigned short>;
 
-    auto mod(int fileDescriptor, uint32_t event, std::source_location sourceLocation = std::source_location::current()) const -> void;
-
-    [[nodiscard]] auto poll(bool block = true, std::source_location sourceLocation = std::source_location::current())
-    -> std::pair<const std::vector<epoll_event> &, unsigned int>;
+    auto add(int fileDescriptor, uint32_t event, const std::source_location &sourceLocation = std::source_location::current()) const -> void;
 
     [[nodiscard]] auto get() const -> int;
 

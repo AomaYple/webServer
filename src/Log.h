@@ -6,7 +6,6 @@
 
 enum class Level {
     INFO,
-    WARN,
     ERROR
 };
 
@@ -18,7 +17,7 @@ public:
 private:
     std::queue<std::tuple<std::chrono::system_clock::time_point, std::thread::id, std::source_location, Level, std::string>>
             inputLog, outputLog;
-    bool stop {false};
+    bool stop;
     std::mutex lock;
     std::atomic_flag notice;
     std::jthread work;
