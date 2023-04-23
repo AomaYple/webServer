@@ -15,44 +15,39 @@ auto Http::analysis(const string &request) -> pair<string, bool> {
 
     string protocol, statusCode, connection, content;
 
-    if (regex_search(request, result, regex("HTTP/(.+)"))) {
-        if (result.str(1) == "1.1") {
-            protocol = "HTTP/1.1 ";
-            connection = "Connection: keep-alive\n";
-            response.second = true;
-        } else if (result.str(1) == "1.0") {
+    if (regex_search(request, result, regex("GET /(.*) HTTP/(.+)\r"))) {
+        auto findResult {http.webpages.find(result.str(1))};
+
+        if (findResult != http.webpages.end()) {
+            statusCode = "200 OK\r\n";
+            content = findResult->second;
+        }
+        else {
+            statusCode = "404 Not Found\r\n";
+            content = "Content-Length: 0\r\n\r\n";
+        }
+
+         if (result[2].str() == "1.0") {
             protocol = "HTTP/1.0 ";
-            connection = "Connection: close\n";
             response.second = false;
-        } else
-            return {"HTTP/1.0 505 HTTP Version Not Supported\n"
-                    "Content-Length: 0\n\n", false};
+         } else if (result[2].str() == "1.1") {
+             protocol = "HTTP/1.1 ";
+             response.second = true;
+         }
+
     } else
         return {"HTTP/1.0 500 Internal Server Error\n"
                 "Content-Length: 0\n\n", false};
 
-    if (regex_search(request, result, regex("Connection: (.+)"))) {
+    if (regex_search(request, result, regex("Connection: (.+)\r"))) {
         if (result.str(1) == "keep-alive") {
-            connection = "Connection: keep-alive\n";
+            connection = "Connection: keep-alive\r\n";
             response.second = true;
         } else if (result.str(1) == "close") {
-            connection = "Connection: close\n";
+            connection = "Connection: close\r\n";
             response.second = false;
         }
     }
-
-    if (regex_search(request, result, regex("GET /(.*) "))) {
-        auto findResult {http.webpages.find(result.str(1))};
-        if (findResult != http.webpages.end()) {
-            statusCode = "200 OK\n";
-            content = findResult->second;
-        }
-        else
-            return {"HTTP/1.0 404 Not Found\n"
-                    "Content-Length: 0\n\n", false};
-    } else
-        return {"HTTP/1.0 500 Internal Server Error\n"
-                "Content-Length: 0\n\n", false};
 
     response.first = protocol + statusCode + connection + content;
 
@@ -60,7 +55,7 @@ auto Http::analysis(const string &request) -> pair<string, bool> {
 }
 
 Http::Http() {
-    this->webpages.emplace("", "Content-Length: 0\n\n");
+    this->webpages.emplace("", "Content-Length: 0\r\n\r\n");
 
     string path {current_path().string() + "/../web/"};
 
@@ -72,6 +67,6 @@ Http::Http() {
         stream << file.rdbuf();
 
         this->webpages.emplace(filePath.path().string().substr(path.size()), "Content-Length: " + to_string(stream.str().size())
-            + "\n\n" + stream.str());
+            + "\r\n\r\n" + stream.str());
     }
 }
