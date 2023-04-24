@@ -7,7 +7,7 @@
 
 class Client {
 public:
-    Client(int fileDescriptor, std::string information, unsigned short timeout = 15,
+    Client(int fileDescriptor, std::string information, unsigned short timeout = 60,
            const std::source_location &sourceLocation = std::source_location::current());
 
     Client(const Client &client) = delete;

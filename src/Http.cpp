@@ -27,13 +27,13 @@ auto Http::analysis(const string &request) -> pair<string, bool> {
             content = "Content-Length: 0\r\n\r\n";
         }
 
-         if (result[2].str() == "1.0") {
+        if (result[2].str() == "1.0") {
             protocol = "HTTP/1.0 ";
             response.second = false;
-         } else if (result[2].str() == "1.1") {
-             protocol = "HTTP/1.1 ";
-             response.second = true;
-         }
+        } else if (result[2].str() == "1.1") {
+            protocol = "HTTP/1.1 ";
+            response.second = true;
+        }
 
     } else
         return {"HTTP/1.0 500 Internal Server Error\n"
