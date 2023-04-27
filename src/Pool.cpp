@@ -1,4 +1,4 @@
-#include "ThreadPool.h"
+#include "Pool.h"
 #include "EventLoop.h"
 #include "Log.h"
 
@@ -8,7 +8,7 @@
 
 using std::list;
 
-ThreadPool::ThreadPool(unsigned short port, bool stopLog) {
+Pool::Pool(unsigned short port, bool stopLog) {
     unsigned short threadNumber {static_cast<unsigned short>(get_nprocs() - 2)};
 
     if (stopLog) {
