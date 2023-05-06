@@ -8,8 +8,7 @@
 
 using std::string, std::to_string, std::vector, std::shared_ptr, std::make_shared, std::source_location;
 
-Server::Server(unsigned short port, const source_location &sourceLocation) : self(socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK,
-                                                                                         0)),
+Server::Server(unsigned short port, const source_location &sourceLocation) : self(socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)),
         idleFileDescriptor(open("/dev/null", O_RDONLY)) {
     if (this->self == -1)
         Log::add(sourceLocation, Level::ERROR, "Server create error: " + string(strerror(errno)));
@@ -78,11 +77,15 @@ auto Server::accept(source_location sourceLocation) -> vector<shared_ptr<Client>
                 break;
             if (errno == EMFILE) {
                 close(this->idleFileDescriptor);
+
                 this->idleFileDescriptor = ::accept(this->self, nullptr, nullptr);
+
                 close(this->idleFileDescriptor);
+
                 this->idleFileDescriptor = open("/dev/null", O_RDONLY);
             } else {
                 Log::add(sourceLocation, Level::ERROR, "Server accept error: " + string(strerror(errno)));
+
                 break;
             }
         }
@@ -97,8 +100,8 @@ auto Server::get() const -> int {
 
 Server::~Server() {
     if (this->idleFileDescriptor != -1 && close(this->idleFileDescriptor) == -1)
-        Log::add(source_location::current(), Level::ERROR, "Server close idleFileDescriptor error: "
-                + string(strerror(errno)));
+        Log::add(source_location::current(), Level::ERROR,
+                 "Server close idleFileDescriptor error: " + string(strerror(errno)));
 
     if (this->self != -1 && close(this->self) == -1)
         Log::add(source_location::current(), Level::ERROR, "Server close error: " + string(strerror(errno)));

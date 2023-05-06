@@ -16,19 +16,17 @@ public:
 
     auto operator=(Client &&client) noexcept -> Client &;
 
-    auto send(const std::source_location &sourceLocation = std::source_location::current()) -> void;
-
     auto receive(const std::source_location &sourceLocation = std::source_location::current()) -> void;
 
-    auto write(const std::string_view &data) -> void;
+    auto send(const std::source_location &sourceLocation = std::source_location::current()) -> void;
 
     [[nodiscard]] auto read() -> std::string;
 
+    auto write(const std::string_view &data) -> void;
+
     [[nodiscard]] auto get() const -> int;
 
-    [[nodiscard]] auto getEvent() const -> uint32_t;
-
-    auto setKeepAlive() -> void;
+    [[nodiscard]] auto getEvent() const -> unsigned int;
 
     [[nodiscard]] auto getTimeout() const -> unsigned short;
 
@@ -37,9 +35,8 @@ public:
     ~Client();
 private:
     int self;
-    uint32_t event;
+    unsigned int event;
     unsigned short timeout;
-    bool keepAlive;
     std::string information;
     Buffer sendBuffer, receiveBuffer;
 };

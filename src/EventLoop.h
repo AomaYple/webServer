@@ -15,7 +15,7 @@ public:
     EventLoop(EventLoop &&eventLoop) noexcept;
 
     auto operator=(EventLoop &&eventLoop) noexcept -> EventLoop &;
-
+private:
     auto handleServerEvent() -> void;
 
     auto handleClientEvent(int fileDescriptor, uint32_t event) -> void;
@@ -23,7 +23,7 @@ public:
     auto handleClientReceivableEvent(const std::shared_ptr<Client> &client) -> void;
 
     auto handleClientSendableEvent(const std::shared_ptr<Client> &client) -> void;
-private:
+
     Server server;
     Timer timer;
     Epoll epoll;

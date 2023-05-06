@@ -57,12 +57,13 @@ auto EventLoop::handleClientEvent(int fileDescriptor, uint32_t event) -> void {
         if (event & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
             this->timer.remove(client);
         else if (event & (EPOLLIN | EPOLLOUT)) {
-            if (event & EPOLLIN && client->getEvent() & EPOLLIN)
+            if (event & EPOLLIN && client->getEvent() == EPOLLIN)
                 this->handleClientReceivableEvent(client);
-            if (event & EPOLLOUT && client->getEvent() & EPOLLOUT)
+            if (event & EPOLLOUT && client->getEvent() == EPOLLOUT)
                 this->handleClientSendableEvent(client);
-        } else {
-            Log::add(source_location::current(), Level::INFO, string(client->getInformation()) + " unknown event");
+        }
+        else {
+            Log::add(source_location::current(), Level::ERROR, string(client->getInformation()) + " unknown event");
 
             this->timer.remove(client);
         }
@@ -75,12 +76,7 @@ auto EventLoop::handleClientReceivableEvent(const shared_ptr<Client> &client) ->
     if (client->getEvent() != 0) {
         this->timer.reset(client);
 
-        auto response {Http::analysis(client->read())};
-
-        client->write(response.first);
-
-        if (response.second)
-            client->setKeepAlive();
+        client->write(Http::analysis(client->read()));
     } else
         this->timer.remove(client);
 }

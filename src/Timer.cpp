@@ -5,7 +5,7 @@
 
 #include <sys/timerfd.h>
 
-using std::string, std::shared_ptr, std::invalid_argument, std::source_location;
+using std::string, std::shared_ptr, std::source_location;
 
 Timer::Timer(const source_location &sourceLocation) : self(timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK)),
         now(0) {
@@ -35,9 +35,6 @@ auto Timer::operator=(Timer &&timer) noexcept -> Timer & {
 }
 
 auto Timer::add(const shared_ptr<Client> &client) -> void {
-    if (client->getTimeout() >= this->wheel.size())
-        throw invalid_argument("time parameter is too large");
-
     unsigned short clientLocation {static_cast<unsigned short>(this->now + client->getTimeout())};
 
     if (clientLocation >= this->wheel.size())
@@ -58,9 +55,6 @@ auto Timer::find(int fileDescriptor) -> shared_ptr<Client> {
 }
 
 auto Timer::reset(const shared_ptr<Client> &client) -> void {
-    if (client->getTimeout() >= this->wheel.size())
-        throw invalid_argument("time parameter is too large");
-
     unsigned short clientLocation {static_cast<unsigned short>(this->now + client->getTimeout())};
 
     if (clientLocation >= this->wheel.size())

@@ -16,7 +16,7 @@ public:
     auto operator=(Epoll &&epoll) noexcept -> Epoll &;
 
     [[nodiscard]] auto poll(bool block = true, const std::source_location &sourceLocation = std::source_location::current())
-    -> std::pair<const std::vector<epoll_event> &, unsigned short>;
+        -> std::pair<const std::vector<epoll_event> &, unsigned short>;
 
     auto add(int fileDescriptor, uint32_t event, const std::source_location &sourceLocation = std::source_location::current()) const -> void;
 
