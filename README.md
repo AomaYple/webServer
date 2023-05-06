@@ -2,5 +2,5 @@
 测试环境：Arch WSL 8核16GB  
 [wrk](https://github.com/wg/wrk)是github上拥有34.2k star的项目  
 wrk是一个现代的HTTP基准测试工具，在单个多核CPU上运行时能够产生巨大的负载。它将多线程设计与可扩展的事件通知系统（如epoll和kqueue）相结合。  
-并发能力测试，RQS：1010069.32  
-[!image](images/test.png)  
+并发能力测试，RPS：1010069.32  
+![image](images/test.png)  
