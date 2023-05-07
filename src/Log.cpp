@@ -2,9 +2,12 @@
 
 #include <iostream>
 #include <iomanip>
+#include <format>
 
-using std::cout, std::string, std::string_view, std::get, std::ostringstream, std::put_time, std::this_thread::get_id,
-    std::mutex, std::lock_guard, std::atomic_ref, std::chrono::system_clock, std::source_location;
+using std::cout, std::string, std::string_view, std::array, std::get, std::ostringstream, std::put_time, std::this_thread::get_id,
+    std::mutex, std::lock_guard, std::atomic_ref, std::chrono::system_clock, std::source_location, std::format;
+
+constexpr array<string_view, 2> levels {"INFO", "ERROR"};
 
 auto Log::add(const source_location &sourceLocation, const Level &level, const string_view &data) -> void {
     log.addLog(sourceLocation, level, data);
@@ -29,24 +32,12 @@ Log::Log() : stop(false), work([this] {
 
             ostringstream stream;
             time_t now {system_clock::to_time_t(get<0>(element))};
-            stream << put_time(localtime(&now), "%F %T ") << " ";
+            stream << put_time(localtime(&now), "%F %T ") << " " << get<1>(element) << " ";
             cout << stream.str();
 
-            cout << get<1>(element) << " ";
-
             source_location sourceLocation {get<2>(element)};
-            cout << sourceLocation.file_name() << ":" << sourceLocation.line() << ":" << sourceLocation.function_name() << " ";
-
-            switch (get<3>(element)) {
-                case Level::INFO:
-                    cout << "INFO ";
-                    break;
-                case Level::ERROR:
-                    cout << "ERROR ";
-                    break;
-            }
-
-            cout << get<4>(element) << "\n";
+            cout << format("{}:{}:{}:{} {} {}\n", sourceLocation.file_name(), sourceLocation.line(), sourceLocation.column(),
+                           sourceLocation.function_name(), levels[static_cast<int>(get<3>(element))], get<4>(element));
 
             this->outputLog.pop();
         }

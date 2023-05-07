@@ -50,20 +50,25 @@ auto EventLoop::handleServerEvent() -> void {
     }
 }
 
-auto EventLoop::handleClientEvent(int fileDescriptor, uint32_t event) -> void {
+auto EventLoop::handleClientEvent(int fileDescriptor, uint32_t event, source_location sourceLocation) -> void {
     auto client {this->timer.find(fileDescriptor)};
 
     if (client != nullptr) {
         if (event & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
             this->timer.remove(client);
-        else if (event & (EPOLLIN | EPOLLOUT)) {
-            if (event & EPOLLIN && client->getEvent() == EPOLLIN)
-                this->handleClientReceivableEvent(client);
+        else if (event & EPOLLIN && client->getEvent() == EPOLLIN) {
+            this->handleClientReceivableEvent(client);
+
             if (event & EPOLLOUT && client->getEvent() == EPOLLOUT)
                 this->handleClientSendableEvent(client);
+        } else if (event & EPOLLOUT && client->getEvent() == EPOLLOUT) {
+            this->handleClientSendableEvent(client);
+
+            if (event & EPOLLIN && client->getEvent() == EPOLLIN)
+                this->handleClientReceivableEvent(client);
         }
         else {
-            Log::add(source_location::current(), Level::ERROR, string(client->getInformation()) + " unknown event");
+            Log::add(sourceLocation, Level::ERROR, string(client->getInformation()) + " unknown event");
 
             this->timer.remove(client);
         }

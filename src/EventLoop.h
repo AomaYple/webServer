@@ -18,7 +18,7 @@ public:
 private:
     auto handleServerEvent() -> void;
 
-    auto handleClientEvent(int fileDescriptor, uint32_t event) -> void;
+    auto handleClientEvent(int fileDescriptor, uint32_t event, std::source_location sourceLocation = std::source_location::current()) -> void;
 
     auto handleClientReceivableEvent(const std::shared_ptr<Client> &client) -> void;
 
