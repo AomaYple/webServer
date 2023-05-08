@@ -20,9 +20,9 @@ private:
 
     auto handleClientEvent(int fileDescriptor, uint32_t event, std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto handleClientReceivableEvent(const std::shared_ptr<Client> &client) -> void;
+    auto handleClientReceivableEvent(std::shared_ptr<Client> &client) -> void;
 
-    auto handleClientSendableEvent(const std::shared_ptr<Client> &client) -> void;
+    auto handleClientSendableEvent(std::shared_ptr<Client> &client) -> void;
 
     Server server;
     Timer timer;

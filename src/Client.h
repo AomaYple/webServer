@@ -32,11 +32,14 @@ public:
 
     [[nodiscard]] auto getInformation() const -> std::string_view;
 
+    auto setKeepAlive(bool value) -> void;
+
     ~Client();
 private:
     int self;
     unsigned int event;
     unsigned short timeout;
+    bool keepAlive;
     std::string information;
     Buffer sendBuffer, receiveBuffer;
 };

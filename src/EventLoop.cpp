@@ -61,7 +61,7 @@ auto EventLoop::handleClientEvent(int fileDescriptor, uint32_t event, source_loc
 
             if (event & EPOLLOUT && client->getEvent() == EPOLLOUT)
                 this->handleClientSendableEvent(client);
-        } else if (event & EPOLLOUT && client->getEvent() == EPOLLOUT) {
+        } else if (event & EPOLLOUT && client->getEvent() == EPOLLOUT ) {
             this->handleClientSendableEvent(client);
 
             if (event & EPOLLIN && client->getEvent() == EPOLLIN)
@@ -75,18 +75,22 @@ auto EventLoop::handleClientEvent(int fileDescriptor, uint32_t event, source_loc
     }
 }
 
-auto EventLoop::handleClientReceivableEvent(const shared_ptr<Client> &client) -> void {
+auto EventLoop::handleClientReceivableEvent(shared_ptr<Client> &client) -> void {
     client->receive();
 
     if (client->getEvent() != 0) {
         this->timer.reset(client);
 
-        client->write(Http::analysis(client->read()));
+        auto response {Http::analysis(client->read())};
+        if (!response.second)
+            client->setKeepAlive(false);
+
+        client->write(response.first);
     } else
         this->timer.remove(client);
 }
 
-auto EventLoop::handleClientSendableEvent(const shared_ptr<Client> &client) -> void {
+auto EventLoop::handleClientSendableEvent(shared_ptr<Client> &client) -> void {
     client->send();
 
     if (client->getEvent() != 0)
