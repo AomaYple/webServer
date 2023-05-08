@@ -39,7 +39,7 @@ auto Client::operator=(Client &&client) noexcept -> Client & {
     return *this;
 }
 
-auto Client::receive(const std::source_location &sourceLocation) -> void {
+auto Client::receive(const source_location &sourceLocation) -> void {
     this->event = EPOLLOUT;
 
     ssize_t allReceivedBytes {0};
@@ -64,7 +64,7 @@ auto Client::receive(const std::source_location &sourceLocation) -> void {
     }
 }
 
-auto Client::send(const std::source_location &sourceLocation) -> void {
+auto Client::send(const source_location &sourceLocation) -> void {
     this->event = this->keepAlive ? EPOLLIN : 0;
 
     string_view data {this->sendBuffer.read()};
