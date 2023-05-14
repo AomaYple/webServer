@@ -69,7 +69,7 @@ Http::Http() {
                                "Content-Length: " + to_string(stream.str().size()) + "\r\n\r\n" + stream.str());
     }
 
-    this->webpages.emplace("", this->webpages["index.html"]);
+    this->webpages.emplace("", "Content-Length: 0\r\n\r\n");
 }
 
 Http Http::http;
