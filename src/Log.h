@@ -21,10 +21,6 @@ public:
 private:
     Log();
 
-    auto addLog(const std::source_location &sourceLocation, const Level &level, const std::string_view &data) -> void;
-
-    auto stopWorkLog() -> void;
-
     static Log log;
 
     std::queue<std::tuple<std::chrono::system_clock::time_point, std::jthread::id, std::source_location, Level, std::string>>

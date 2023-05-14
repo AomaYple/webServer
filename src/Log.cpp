@@ -10,11 +10,20 @@ using std::cout, std::string, std::string_view, std::array, std::get, std::ostri
 constexpr array<string_view, 2> levels {"INFO", "ERROR"};
 
 auto Log::add(const source_location &sourceLocation, const Level &level, const string_view &data) -> void {
-    log.addLog(sourceLocation, level, data);
+    if (!log.stop) {
+        {
+            lock_guard<mutex> lockGuard {log.lock};
+            log.inputLog.emplace(system_clock::now(), get_id(), sourceLocation, level, data);
+        }
+
+        log.notice.test_and_set();
+        log.notice.notify_one();
+    }
 }
 
 auto Log::stopWork() -> void {
-    log.stopWorkLog();
+    atomic_ref<bool> atomicStop {log.stop};
+    atomicStop = true;
 }
 
 Log::Log() : stop(false), work([this] {
@@ -43,22 +52,5 @@ Log::Log() : stop(false), work([this] {
         }
     }
 }) {}
-
-auto Log::addLog(const source_location &sourceLocation, const Level &level, const string_view &data) -> void {
-    if (!this->stop) {
-        {
-            lock_guard<mutex> lockGuard {this->lock};
-            this->inputLog.emplace(system_clock::now(), get_id(), sourceLocation, level, data);
-        }
-
-        this->notice.test_and_set();
-        this->notice.notify_one();
-    }
-}
-
-auto Log::stopWorkLog() -> void {
-    atomic_ref<bool> atomicStop {this->stop};
-    atomicStop = true;
-}
 
 Log Log::log;
