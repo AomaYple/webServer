@@ -11,7 +11,7 @@ enum class Level {
 
 class Log {
 public:
-    static auto add(const std::source_location &sourceLocation, const Level &level, const std::string_view &data) -> void;
+    static auto add(std::source_location sourceLocation, Level level, std::string_view data) -> void;
 
     static auto stopWork() -> void;
 
@@ -21,10 +21,17 @@ public:
 private:
     Log();
 
+    struct Message {
+        std::chrono::system_clock::time_point time;
+        std::jthread::id threadId;
+        std::source_location sourceLocation;
+        Level level;
+        std::string information;
+    };
+
     static Log log;
 
-    std::queue<std::tuple<std::chrono::system_clock::time_point, std::jthread::id, std::source_location, Level, std::string>>
-            inputLog, outputLog;
+    std::queue<Message> inputLog, outputLog;
     bool stop;
     std::mutex lock;
     std::atomic_flag notice;

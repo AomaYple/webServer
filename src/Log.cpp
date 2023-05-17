@@ -9,11 +9,11 @@ using std::cout, std::string, std::string_view, std::array, std::get, std::ostri
 
 constexpr array<string_view, 2> levels {"INFO", "ERROR"};
 
-auto Log::add(const source_location &sourceLocation, const Level &level, const string_view &data) -> void {
+auto Log::add(source_location sourceLocation, Level level, string_view data) -> void {
     if (!log.stop) {
         {
             lock_guard<mutex> lockGuard {log.lock};
-            log.inputLog.emplace(system_clock::now(), get_id(), sourceLocation, level, data);
+            log.inputLog.emplace(system_clock::now(), get_id(), sourceLocation, level, string {data});
         }
 
         log.notice.test_and_set();
@@ -37,16 +37,16 @@ Log::Log() : stop(false), work([this] {
         }
 
         while (!this->outputLog.empty()) {
-            auto &element {this->outputLog.front()};
+            auto &message {this->outputLog.front()};
 
             ostringstream stream;
-            time_t now {system_clock::to_time_t(get<0>(element))};
-            stream << put_time(localtime(&now), "%F %T ") << " " << get<1>(element) << " ";
+            time_t now {system_clock::to_time_t(message.time)};
+            stream << put_time(localtime(&now), "%F %T ") << " " << message.threadId << " ";
             cout << stream.str();
 
-            source_location sourceLocation {get<2>(element)};
-            cout << format("{}:{}:{}:{} {} {}\n", sourceLocation.file_name(), sourceLocation.line(), sourceLocation.column(),
-                           sourceLocation.function_name(), levels[static_cast<int>(get<3>(element))], get<4>(element));
+            cout << format("{}:{}:{}:{} {} {}\n", message.sourceLocation.file_name(), message.sourceLocation.line(),
+                           message.sourceLocation.column(), message.sourceLocation.function_name(), levels[static_cast<int>(message.level)],
+                           message.information);
 
             this->outputLog.pop();
         }
