@@ -68,7 +68,7 @@ auto EventLoop::handleClientEvent(int fileDescriptor, uint32_t event, source_loc
                 this->handleClientReceivableEvent(client);
         }
         else {
-            Log::add(sourceLocation, Level::ERROR, string(client->getInformation()) + " unknown event");
+            Log::add(sourceLocation, Level::ERROR, string {client->getInformation()} + " unknown event");
 
             this->timer.remove(client);
         }

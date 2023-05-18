@@ -1,6 +1,5 @@
 #pragma once
 
-#include <queue>
 #include <thread>
 #include <source_location>
 
@@ -11,7 +10,7 @@ enum class Level {
 
 class Log {
 public:
-    static auto add(std::source_location sourceLocation, Level level, std::string_view data) -> void;
+    static auto add(std::source_location sourceLocation, Level level, std::string &&information) -> void;
 
     static auto stopWork() -> void;
 
@@ -21,19 +20,44 @@ public:
 private:
     Log();
 
-    struct Message {
-        std::chrono::system_clock::time_point time;
-        std::jthread::id threadId;
-        std::source_location sourceLocation;
-        Level level;
-        std::string information;
+    struct Node {
+        struct Message {
+            Message();
+
+            Message(std::chrono::system_clock::time_point time, std::jthread::id threadId, std::source_location sourceLocation,
+                    Level level, std::string &&information);
+
+            Message(const Message &message) = default;
+
+            Message(Message &&message) noexcept;
+
+            auto operator=(Message &&message) noexcept -> Message &;
+            std::chrono::system_clock::time_point time;
+            std::jthread::id threadId;
+            std::source_location sourceLocation;
+            Level level;
+            std::string information;
+        };
+
+        Node();
+
+        Node(Message &&data, Node *next);
+
+        Node(const Node &node) = delete;
+
+        Node(Node &&node) noexcept;
+
+        auto operator=(Node &&node) noexcept -> Node &;
+
+        Message data;
+        Node *next;
     };
 
     static Log log;
 
-    std::queue<Message> inputLog, outputLog;
+    Node *head;
+    std::atomic<Node *> tail;
     bool stop;
-    std::mutex lock;
     std::atomic_flag notice;
     std::jthread work;
 };
