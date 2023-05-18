@@ -1,0 +1,32 @@
+#ifndef WEBSERVER_BUFFER_H
+#define WEBSERVER_BUFFER_H
+
+#include <string_view>
+#include <vector>
+
+class Buffer {
+ public:
+  Buffer();
+
+  Buffer(const Buffer& buffer) = default;
+
+  Buffer(Buffer&& buffer) noexcept;
+
+  auto operator=(Buffer&& buffer) noexcept -> Buffer&;
+
+  auto write(const std::string_view& data) -> void;
+
+  auto read() -> std::string_view;
+
+  auto writableData() -> std::pair<char*, unsigned int>;
+
+  auto adjustWrite(unsigned int size) -> void;
+
+  auto adjustRead(unsigned int size) -> void;
+
+ private:
+  std::vector<char> self;
+  unsigned int start, end;
+};
+
+#endif  //WEBSERVER_BUFFER_H
