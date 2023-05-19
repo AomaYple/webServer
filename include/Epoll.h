@@ -1,5 +1,4 @@
-#ifndef WEBSERVER_EPOLL_H
-#define WEBSERVER_EPOLL_H
+#pragma once
 
 #include <sys/epoll.h>
 
@@ -7,32 +6,25 @@
 #include <vector>
 
 class Epoll {
- public:
-  explicit Epoll(const std::source_location& sourceLocation =
-                     std::source_location::current());
+public:
+    explicit Epoll(const std::source_location &sourceLocation = std::source_location::current());
 
-  Epoll(const Epoll& epoll) = delete;
+    Epoll(const Epoll &epoll) = delete;
 
-  Epoll(Epoll&& epoll) noexcept;
+    Epoll(Epoll &&epoll) noexcept;
 
-  auto operator=(Epoll&& epoll) noexcept -> Epoll&;
+    auto operator=(Epoll &&epoll) noexcept -> Epoll &;
 
-  [[nodiscard]] auto poll(bool block = true,
-                          const std::source_location& sourceLocation =
-                              std::source_location::current())
-      -> std::pair<const std::vector<epoll_event>&, unsigned short>;
+    [[nodiscard]] auto poll(bool block = true,
+                            const std::source_location &sourceLocation = std::source_location::current())
+        -> std::pair<const std::vector<epoll_event> &, unsigned short>;
 
-  auto add(int newFileDescriptor, uint32_t event,
-           const std::source_location& sourceLocation =
-               std::source_location::current()) const -> void;
+    auto add(int newFileDescriptor, uint32_t event,
+             const std::source_location &sourceLocation = std::source_location::current()) const -> void;
 
-  [[nodiscard]] auto get() const -> int;
+    ~Epoll();
 
-  ~Epoll();
-
- private:
-  int fileDescriptor;
-  std::vector<epoll_event> epollEvents;
+private:
+    int fileDescriptor;
+    std::vector<epoll_event> epollEvents;
 };
-
-#endif  //WEBSERVER_EPOLL_H

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26.3)
+cmake_minimum_required(VERSION 3.26.4)
 
 project(WebServer)
 
@@ -8,19 +8,19 @@ add_executable(${PROJECT_NAME} "")
 
 target_sources(${PROJECT_NAME}
         PRIVATE
-            main.cpp
-            src/Buffer.cpp
-            src/Client.cpp
-            src/Epoll.cpp
-            src/EventLoop.cpp
-            src/Http.cpp
-            src/Log.cpp
-            src/Server.cpp
-            src/Pool.cpp
-            src/Timer.cpp
+        main.cpp
+        src/Buffer.cpp
+        src/Client.cpp
+        src/Epoll.cpp
+        src/EventLoop.cpp
+        src/Http.cpp
+        src/Log.cpp
+        src/Server.cpp
+        src/Pool.cpp
+        src/Timer.cpp
         )
 
 target_include_directories(${PROJECT_NAME}
         PRIVATE
-            include
+        include
         )
