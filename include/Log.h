@@ -30,6 +30,7 @@ private:
             Message(Message &&message) noexcept;
 
             auto operator=(Message &&message) noexcept -> Message &;
+
             std::chrono::system_clock::time_point time;
             std::jthread::id threadId;
             std::source_location sourceLocation;
@@ -51,7 +52,7 @@ private:
         Node *next;
     };
 
-    static Log log;
+    static Log instance;
 
     Node *head;
     std::atomic<Node *> tail;

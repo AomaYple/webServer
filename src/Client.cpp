@@ -1,140 +1,107 @@
 #include "Client.h"
 
-#include <sys/epoll.h>
-#include <sys/socket.h>
+#include "Buffer.h"
+#include "Submission.h"
 
-#include <cstring>
+Client::Client(int socket, Ring &ring, Buffer &buffer)
+    : self{socket}, event{Event::RECEIVE}, timeout{60}, keepAlive{true} {
+    this->time(ring);
 
-#include "Log.h"
-
-using std::string, std::string_view, std::source_location;
-
-Client::Client(int fileDescriptor, string information, unsigned short timeout, const source_location &sourceLocation)
-    : socket{fileDescriptor}, event{EPOLLIN}, timeout{timeout}, keepAlive{true}, information{std::move(information)} {
-    linger linger{1, 5};
-
-    if (setsockopt(this->socket, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) == -1)
-        Log::add(sourceLocation, Level::ERROR, this->information + " location linger error: " + strerror(errno));
+    this->receive(ring, buffer);
 }
 
 Client::Client(Client &&client) noexcept
-    : socket{client.socket},
+    : self{client.self},
       event{client.event},
       timeout{client.timeout},
       keepAlive{client.keepAlive},
-      information{std::move(client.information)},
-      sendBuffer{std::move(client.sendBuffer)},
-      receiveBuffer{std::move(client.receiveBuffer)} {
-    client.socket = -1;
-    client.event = 0;
-    client.timeout = 0;
+      sendData{std::move(client.sendData)} {
+    client.self = -1;
 }
 
 auto Client::operator=(Client &&client) noexcept -> Client & {
     if (this != &client) {
-        this->socket = client.socket;
+        this->self = client.self;
         this->event = client.event;
         this->timeout = client.timeout;
         this->keepAlive = client.keepAlive;
-        this->information = std::move(client.information);
-        this->sendBuffer = std::move(client.sendBuffer);
-        this->receiveBuffer = std::move(client.receiveBuffer);
-        client.socket = -1;
-        client.event = 0;
-        client.timeout = 0;
+        this->sendData = std::move(client.sendData);
+        client.self = -1;
     }
     return *this;
 }
 
-auto Client::receive(const source_location &sourceLocation) -> void {
-    this->event = EPOLLOUT;
+auto Client::getEvent() const -> Event { return this->event; }
 
-    ssize_t allReceivedBytes{0};
+auto Client::setEvent(Event newEvent) -> void { this->event = newEvent; }
 
-    while (true) {
-        auto data{this->receiveBuffer.writableData()};
+auto Client::getKeepAlive() const -> bool { return this->keepAlive; }
 
-        ssize_t receivedBytes{::read(this->socket, data.first, data.second)};
+auto Client::setKeepAlive(bool option) -> void { this->keepAlive = option; }
 
-        if (receivedBytes > 0) {
-            allReceivedBytes += receivedBytes;
+auto Client::updateTime(Ring &ring) -> void {
+    Submission submission{ring};
 
-            this->receiveBuffer.adjustWrite(receivedBytes);
-        } else if (receivedBytes == 0) {
-            this->event = 0;
+    submission.setData(this);
+    submission.setFlags(IOSQE_IO_LINK | IOSQE_CQE_SKIP_SUCCESS);
 
-            break;
-        } else {
-            if (errno != EAGAIN && errno != EWOULDBLOCK) {
-                this->event = 0;
-
-                Log::add(sourceLocation, Level::ERROR, this->information + " receive error: " + strerror(errno));
-            }
-
-            break;
-        }
-    }
+    __kernel_timespec timespec{this->timeout, 0};
+    submission.updateTime(&timespec, reinterpret_cast<unsigned long long>(this), 0);
 }
 
-auto Client::send(const source_location &sourceLocation) -> void {
-    this->event = this->keepAlive ? EPOLLIN : 0;
+auto Client::receive(Ring &ring, Buffer &buffer) -> void {
+    this->updateTime(ring);
 
-    string_view data{this->sendBuffer.read()};
+    this->event = Event::RECEIVE;
 
-    ssize_t allSentBytes{0};
+    Submission submission{ring};
 
-    while (allSentBytes < data.size()) {
-        ssize_t sentBytes{::write(this->socket, data.data() + allSentBytes, data.size() - allSentBytes)};
+    submission.setData(this);
+    submission.setFlags(IOSQE_FIXED_FILE | IOSQE_BUFFER_SELECT);
+    submission.setBufferId(buffer.getId());
 
-        if (sentBytes > 0)
-            allSentBytes += sentBytes;
-        else if (sentBytes == 0) {
-            this->event = 0;
-
-            break;
-        } else {
-            if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                this->event = EPOLLOUT;
-
-                Log::add(sourceLocation, Level::INFO, " too much data can not be sent to " + this->information);
-            } else {
-                this->event = 0;
-
-                Log::add(sourceLocation, Level::ERROR, this->information + " send error: " + strerror(errno));
-            }
-
-            break;
-        }
-    }
-
-    if (allSentBytes > 0) this->sendBuffer.adjustRead(allSentBytes);
+    submission.receive(this->self, nullptr, 0, IORING_RECVSEND_POLL_FIRST);
 }
 
-auto Client::read() -> string {
-    string data{this->receiveBuffer.read()};
+auto Client::send(std::string &&data, Ring &ring) -> void {
+    this->sendData = std::move(data);
 
-    this->receiveBuffer.adjustRead(data.size());
+    this->event = Event::SEND;
 
-    return data;
+    Submission submission{ring};
+
+    submission.setData(this);
+    submission.setFlags(IOSQE_FIXED_FILE);
+
+    submission.send(this->self, this->sendData.data(), this->sendData.size(), 0, 0);
 }
 
-auto Client::write(const string_view &data) -> void { this->sendBuffer.write(data); }
+auto Client::close(Ring &ring) -> void {
+    this->cancel(ring);
 
-auto Client::get() const -> int { return this->socket; }
+    this->event = Event::CLOSE;
 
-auto Client::getEvent() const -> unsigned int { return this->event; }
+    Submission submission{ring};
 
-auto Client::getTimeout() const -> unsigned short { return this->timeout; }
+    submission.setData(this);
 
-auto Client::getInformation() const -> string_view { return this->information; }
+    submission.close(this->self);
+}
 
-auto Client::setKeepAlive(bool value) -> void { this->keepAlive = value; }
+auto Client::time(Ring &ring) -> void {
+    Submission submission{ring};
 
-Client::~Client() {
-    if (this->socket != -1) {
-        if (close(this->socket) == -1)
-            Log::add(source_location::current(), Level::ERROR, this->information + " close error: " + strerror(errno));
-        else
-            Log::add(source_location::current(), Level::INFO, this->information + " is closed");
-    }
+    submission.setData(this);
+
+    __kernel_timespec timespec{this->timeout, 0};
+    submission.time(&timespec, 0, 0);
+}
+
+auto Client::cancel(Ring &ring) -> void {
+    Submission submission{ring};
+
+    submission.setData(this);
+    submission.setFlags(IOSQE_IO_LINK | IOSQE_CQE_SKIP_SUCCESS);
+
+    submission.cancel(this, IORING_ASYNC_CANCEL_ALL);
 }

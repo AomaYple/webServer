@@ -5,48 +5,48 @@
 #include <iostream>
 
 using std::cout, std::string, std::array, std::ostringstream, std::put_time, std::jthread, std::this_thread::get_id,
-    std::atomic_ref, std::memory_order_relaxed, std::memory_order_release, std::chrono::system_clock,
-    std::source_location, std::format;
+    std::atomic_ref, std::memory_order_relaxed, std::memory_order_acquire, std::memory_order_release,
+    std::chrono::system_clock, std::source_location, std::format;
 
 constexpr array<string, 2> levels{"INFO", "ERROR"};
 
 auto Log::add(source_location sourceLocation, Level level, string &&information) -> void {
-    if (!log.stop) {
-        Node *newNode{new Node{}}, *oldTail{log.tail.load(memory_order_relaxed)};
+    if (!instance.stop) {
+        Node *newNode{new Node{}}, *oldTail{instance.tail.load(memory_order_relaxed)};
 
-        while (!log.tail.compare_exchange_weak(oldTail, newNode, memory_order_release, memory_order_relaxed))
+        while (!instance.tail.compare_exchange_weak(oldTail, newNode, memory_order_release, memory_order_relaxed))
             ;
 
         oldTail->data = Node::Message(system_clock::now(), get_id(), sourceLocation, level, std::move(information));
         oldTail->next = newNode;
 
-        log.notice.test_and_set();
-        log.notice.notify_one();
+        instance.notice.test_and_set(memory_order_release);
+        instance.notice.notify_one();
     }
 }
 
 auto Log::stopWork() -> void {
-    atomic_ref<bool> atomicStop{log.stop};
+    atomic_ref<bool> atomicStop{instance.stop};
     atomicStop = true;
 }
 
 Log::Log()
     : head{new Node{}}, stop{false}, work{[this] {
           while (!this->stop) {
-              this->notice.wait(false);
-              this->notice.clear();
+              this->notice.wait(false, memory_order_acquire);
+              this->notice.clear(memory_order_release);
 
               while (this->head != this->tail.load(memory_order_relaxed)) {
-                  auto &data{this->head->data};
+                  auto &item{this->head->data};
 
                   ostringstream stream;
-                  time_t now{system_clock::to_time_t(data.time)};
-                  stream << put_time(localtime(&now), "%F %T ") << " " << data.threadId << " ";
+                  time_t now{system_clock::to_time_t(item.time)};
+                  stream << put_time(localtime(&now), "%F %T ") << " " << item.threadId << " ";
                   cout << stream.str();
 
-                  cout << format("{}:{}:{}:{} {} {}\n", data.sourceLocation.file_name(), data.sourceLocation.line(),
-                                 data.sourceLocation.column(), data.sourceLocation.function_name(),
-                                 levels[static_cast<int>(data.level)], data.information);
+                  cout << format("{}:{}:{}:{} {} {}\n", item.sourceLocation.file_name(), item.sourceLocation.line(),
+                                 item.sourceLocation.column(), item.sourceLocation.function_name(),
+                                 levels[static_cast<int>(item.level)], item.information);
 
                   Node *oldHead{this->head};
                   this->head = this->head->next;
@@ -98,8 +98,9 @@ auto Log::Node::operator=(Node &&node) noexcept -> Node & {
     if (this != &node) {
         this->data = std::move(node.data);
         this->next = node.next;
+        node.next = nullptr;
     }
     return *this;
 }
 
-Log Log::log;
+Log Log::instance;

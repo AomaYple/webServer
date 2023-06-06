@@ -1,29 +1,33 @@
 #pragma once
 
-#include <string_view>
-#include <vector>
+#include <memory>
+
+#include "Ring.h"
 
 class Buffer {
 public:
-    Buffer();
+    explicit Buffer(std::shared_ptr<Ring> &ioUserRing);
 
-    Buffer(const Buffer &buffer) = default;
+    Buffer(const Buffer &buffer) = delete;
 
     Buffer(Buffer &&buffer) noexcept;
 
     auto operator=(Buffer &&buffer) noexcept -> Buffer &;
 
-    auto write(const std::string_view &data) -> void;
+    [[nodiscard]] auto getId() const -> unsigned short;
 
-    auto read() -> std::string_view;
+    auto getData(unsigned short index, unsigned long size) -> std::string;
 
-    auto writableData() -> std::pair<char *, unsigned int>;
+    auto advanceBufferCompletion(int number) -> void;
 
-    auto adjustWrite(unsigned int size) -> void;
-
-    auto adjustRead(unsigned int size) -> void;
+    ~Buffer();
 
 private:
-    std::vector<char> self;
-    unsigned int start, end;
+    static thread_local bool instance;
+
+    io_uring_buf_ring *self;
+    std::vector<std::vector<char>> buffers;
+    unsigned short id, offset;
+    int mask;
+    std::shared_ptr<Ring> ring;
 };

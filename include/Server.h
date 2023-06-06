@@ -1,12 +1,15 @@
 #pragma once
 
-#include <memory>
+#include <arpa/inet.h>
 
-#include "Client.h"
+#include <source_location>
+#include <string>
+
+class Ring;
 
 class Server {
 public:
-    explicit Server(unsigned short port, const std::source_location &sourceLocation = std::source_location::current());
+    Server(unsigned short port, Ring &ring);
 
     Server(const Server &server) = delete;
 
@@ -14,13 +17,12 @@ public:
 
     auto operator=(Server &&server) noexcept -> Server &;
 
-    [[nodiscard]] auto accept(std::source_location sourceLocation = std::source_location::current())
-        -> std::vector<std::shared_ptr<Client>>;
-
-    [[nodiscard]] auto get() const -> int;
+    auto accept(Ring &ring) -> void;
 
     ~Server();
 
 private:
-    int socket, idleFileDescriptor;
+    static thread_local bool instance;
+
+    int self;
 };

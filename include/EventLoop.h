@@ -1,33 +1,22 @@
 #pragma once
 
-#include <thread>
-
-#include "Epoll.h"
+#include "Buffer.h"
+#include "Ring.h"
 #include "Server.h"
-#include "Timer.h"
 
 class EventLoop {
 public:
-    explicit EventLoop(unsigned short port, bool startThread = false);
+    explicit EventLoop(unsigned short port);
 
     EventLoop(const EventLoop &eventLoop) = delete;
 
-    EventLoop(EventLoop &&eventLoop) noexcept;
+    EventLoop(EventLoop &&eventLoop) = delete;
 
-    auto operator=(EventLoop &&eventLoop) noexcept -> EventLoop &;
+    auto loop() -> void;
 
 private:
-    auto handleServerEvent() -> void;
-
-    auto handleClientEvent(int fileDescriptor, uint32_t event,
-                           std::source_location sourceLocation = std::source_location::current()) -> void;
-
-    auto handleClientReceivableEvent(std::shared_ptr<Client> &client) -> void;
-
-    auto handleClientSendableEvent(std::shared_ptr<Client> &client) -> void;
-
+    std::shared_ptr<Ring> ring;
+    Buffer buffer;
     Server server;
-    Timer timer;
-    Epoll epoll;
-    std::jthread work;
+    std::function<auto()->void> task;
 };

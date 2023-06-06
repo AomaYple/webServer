@@ -1,14 +1,15 @@
 #pragma once
 
-#include <source_location>
 #include <string>
 
-#include "Buffer.h"
+enum class Event { RECEIVE, SEND, CLOSE };
+
+class Buffer;
+class Ring;
 
 class Client {
 public:
-    Client(int fileDescriptor, std::string information, unsigned short timeout = 60,
-           const std::source_location &sourceLocation = std::source_location::current());
+    Client(int socket, Ring &ring, Buffer &buffer);
 
     Client(const Client &client) = delete;
 
@@ -16,31 +17,30 @@ public:
 
     auto operator=(Client &&client) noexcept -> Client &;
 
-    auto receive(const std::source_location &sourceLocation = std::source_location::current()) -> void;
+    [[nodiscard]] auto getEvent() const -> Event;
 
-    auto send(const std::source_location &sourceLocation = std::source_location::current()) -> void;
+    auto setEvent(Event newEvent) -> void;
 
-    [[nodiscard]] auto read() -> std::string;
+    [[nodiscard]] auto getKeepAlive() const -> bool;
 
-    auto write(const std::string_view &data) -> void;
+    auto setKeepAlive(bool option) -> void;
 
-    [[nodiscard]] auto get() const -> int;
+    auto updateTime(Ring &ring) -> void;
 
-    [[nodiscard]] auto getEvent() const -> unsigned int;
+    auto receive(Ring &ring, Buffer &buffer) -> void;
 
-    [[nodiscard]] auto getTimeout() const -> unsigned short;
+    auto send(std::string &&data, Ring &ring) -> void;
 
-    [[nodiscard]] auto getInformation() const -> std::string_view;
-
-    auto setKeepAlive(bool value) -> void;
-
-    ~Client();
+    auto close(Ring &ring) -> void;
 
 private:
-    int socket;
-    unsigned int event;
+    auto time(Ring &ring) -> void;
+
+    auto cancel(Ring &ring) -> void;
+
+    int self;
+    Event event;
     unsigned short timeout;
     bool keepAlive;
-    std::string information;
-    Buffer sendBuffer, receiveBuffer;
+    std::string sendData;
 };

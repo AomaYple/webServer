@@ -1,6 +1,1 @@
-#include "Pool.h"
-
-int main() {
-    Pool pool{9999};
-    return 0;
-}
+int main() { return 0; }

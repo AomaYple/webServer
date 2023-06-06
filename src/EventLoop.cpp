@@ -1,100 +1,41 @@
 #include "EventLoop.h"
 
-#include "Http.h"
+#include <cstring>
+
+#include "Client.h"
+#include "Completion.h"
 #include "Log.h"
+#include "Submission.h"
 
-using std::string, std::shared_ptr, std::jthread, std::source_location;
+using std::string, std::make_shared, std::source_location;
 
-EventLoop::EventLoop(unsigned short port, bool startThread) : server{port} {
-    auto function{[this] {
-        this->epoll.add(this->server.get(), EPOLLIN);
-        this->epoll.add(this->timer.get(), EPOLLIN);
+EventLoop::EventLoop(unsigned short port)
+    : ring{make_shared<Ring>()}, buffer{ring}, server{port, *ring}, task{[this] {
+          while (true) {
+              auto result{this->ring->forEach([this](const Completion& completion) -> bool {
+                  bool useBuffer{false};
 
-        while (true) {
-            auto events{this->epoll.poll()};
+                  int result{completion.getResult()};
+                  void* data{completion.getData()};
+                  unsigned int flags{completion.getFlags()};
 
-            for (auto event{events.first.begin()}; event != events.first.begin() + events.second; ++event) {
-                if (event->data.fd == this->timer.get())
-                    this->timer.handleReadableEvent();
-                else if (event->data.fd == this->server.get())
-                    this->handleServerEvent();
-                else
-                    this->handleClientEvent(event->data.fd, event->events);
-            }
-        }
-    }};
+                  if (data == &this->server) {
+                      if (result >= 0)
+                          Client* client{new Client{result, *this->ring, this->buffer}};
+                      else
+                          Log::add(source_location::current(), Level::ERROR,
+                                   "server accept error: " + string{std::strerror(std::abs(result))});
 
-    if (startThread)
-        this->work = jthread(function);
-    else
-        function();
-}
+                      if (!(flags | IORING_CQE_F_MORE)) this->server.accept(*this->ring);
+                  } else {
+                  }
 
-EventLoop::EventLoop(EventLoop &&eventLoop) noexcept
-    : server{std::move(eventLoop.server)},
-      timer{std::move(eventLoop.timer)},
-      epoll{std::move(eventLoop.epoll)},
-      work{std::move(eventLoop.work)} {}
+                  return useBuffer;
+              })};
 
-auto EventLoop::operator=(EventLoop &&eventLoop) noexcept -> EventLoop & {
-    if (this != &eventLoop) {
-        this->server = std::move(eventLoop.server);
-        this->timer = std::move(eventLoop.timer);
-        this->epoll = std::move(eventLoop.epoll);
-        this->work = std::move(eventLoop.work);
-    }
-    return *this;
-}
+              this->buffer.advanceBufferCompletion(result.first);
+              this->ring->advanceCompletion(result.second);
+          }
+      }} {}
 
-auto EventLoop::handleServerEvent() -> void {
-    for (auto &client : this->server.accept()) {
-        this->timer.add(client);
-
-        this->epoll.add(client->get(), EPOLLET | EPOLLRDHUP | EPOLLIN | EPOLLOUT);
-    }
-}
-
-auto EventLoop::handleClientEvent(int fileDescriptor, uint32_t event, source_location sourceLocation) -> void {
-    auto client{this->timer.find(fileDescriptor)};
-
-    if (client != nullptr) {
-        if (event & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
-            this->timer.remove(client);
-        else if (event & EPOLLIN && client->getEvent() == EPOLLIN) {
-            this->handleClientReceivableEvent(client);
-
-            if (event & EPOLLOUT && client->getEvent() == EPOLLOUT) this->handleClientSendableEvent(client);
-        } else if (event & EPOLLOUT && client->getEvent() == EPOLLOUT) {
-            this->handleClientSendableEvent(client);
-
-            if (event & EPOLLIN && client->getEvent() == EPOLLIN) this->handleClientReceivableEvent(client);
-        } else {
-            Log::add(sourceLocation, Level::ERROR, string{client->getInformation()} + " unknown event");
-
-            this->timer.remove(client);
-        }
-    }
-}
-
-auto EventLoop::handleClientReceivableEvent(shared_ptr<Client> &client) -> void {
-    client->receive();
-
-    if (client->getEvent() != 0) {
-        this->timer.reset(client);
-
-        auto response{Http::analysis(client->read())};
-        if (!response.second) client->setKeepAlive(false);
-
-        client->write(response.first);
-    } else
-        this->timer.remove(client);
-}
-
-auto EventLoop::handleClientSendableEvent(shared_ptr<Client> &client) -> void {
-    client->send();
-
-    if (client->getEvent() != 0)
-        this->timer.reset(client);
-    else
-        this->timer.remove(client);
-}
+auto EventLoop::loop() -> void { this->task(); }
