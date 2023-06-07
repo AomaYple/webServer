@@ -5,13 +5,12 @@
 
 #include <cstring>
 
-#include "Completion.h"
 #include "Log.h"
 
-using std::string, std::vector, std::pair, std::function, std::runtime_error, std::numeric_limits, std::mutex,
-    std::lock_guard, std::ranges::find_if, std::source_location;
+using std::string, std::vector, std::runtime_error, std::mutex, std::lock_guard, std::ranges::find_if,
+        std::source_location;
 
-constexpr unsigned int entries{2048};
+constexpr unsigned int ringEntries{2048};
 
 mutex Ring::lock{};
 vector<int> Ring::cpus{vector<int>(get_nprocs(), -1)};
@@ -37,7 +36,7 @@ Ring::Ring() : self{} {
         }
     }
 
-    int returnValue{io_uring_queue_init_params(entries, &this->self, &params)};
+    int returnValue{io_uring_queue_init_params(ringEntries, &this->self, &params)};
     if (returnValue != 0) throw runtime_error("ring initialize error: " + string{std::strerror(std::abs(returnValue))});
 
     {
@@ -55,73 +54,14 @@ Ring::Ring() : self{} {
     this->registerFileDescriptors();
 }
 
-Ring::Ring(Ring&& ring) noexcept : self{ring.self} { ring.self = {}; }
+Ring::Ring(Ring &&ring) noexcept: self{ring.self} { ring.self = {}; }
 
-auto Ring::operator=(Ring&& ring) noexcept -> Ring& {
+auto Ring::operator=(Ring &&ring) noexcept -> Ring & {
     if (this != &ring) {
         this->self = ring.self;
         ring.self = {};
     }
     return *this;
-}
-
-auto Ring::registerBuffer(io_uring_buf_reg& reg) -> void {
-    int returnValue{io_uring_register_buf_ring(&this->self, &reg, 0)};
-    if (returnValue != 0)
-        throw runtime_error("ring register buffer error: " + string{std::strerror(std::abs(returnValue))});
-}
-
-auto Ring::unregisterBuffer(int bufferId) -> void {
-    int returnValue{io_uring_unregister_buf_ring(&this->self, bufferId)};
-    if (returnValue != 0)
-        throw runtime_error("ring unregister buffer error: " + string{std::strerror(std::abs(returnValue))});
-}
-
-auto Ring::forEach(const function<auto(const Completion&)->bool>& task) -> pair<int, unsigned int> {
-    this->submitWait();
-
-    pair<int, unsigned int> result;
-
-    io_uring_cqe* completion{nullptr};
-
-    this->getSubmission();
-
-    io_uring_for_each_cqe(&this->self, result.second, completion) {
-        if (task(Completion(completion))) ++result.first;
-    }
-
-    return result;
-}
-
-auto Ring::getSubmission() -> io_uring_sqe* {
-    io_uring_sqe* submission{io_uring_get_sqe(&this->self)};
-
-    if (submission == nullptr) throw runtime_error("ring no available submission");
-
-    return submission;
-}
-
-auto Ring::advanceBufferCompletion(io_uring_buf_ring* buffer, int number) -> void {
-    io_uring_buf_ring_cq_advance(&this->self, buffer, number);
-}
-
-auto Ring::advanceCompletion(unsigned int number) -> void { io_uring_cq_advance(&this->self, number); }
-
-Ring::~Ring() {
-    io_uring_queue_exit(&this->self);
-
-    {
-        lock_guard lockGuard{Ring::lock};
-
-        auto result{find_if(Ring::cpus, [this](int i) { return i == this->self.ring_fd; })};
-
-        if (result != Ring::cpus.end())
-            *result = -1;
-        else
-            Log::add(source_location::current(), Level::ERROR, "can not find fileDescriptor in cpus");
-    }
-
-    Ring::instance = false;
 }
 
 auto Ring::registerFileDescriptor() -> void {
@@ -155,7 +95,55 @@ auto Ring::registerFileDescriptors() -> void {
         throw runtime_error("ring register fileDescriptors error: " + string{std::strerror(std::abs(returnValue))});
 }
 
-auto Ring::submitWait() -> void {
-    int returnValue{io_uring_submit_and_wait(&this->self, 1)};
-    if (returnValue < 0) throw runtime_error("ring submit wait error: " + string{std::strerror(std::abs(returnValue))});
+auto Ring::registerBuffer(io_uring_buf_reg &reg) -> void {
+    int returnValue{io_uring_register_buf_ring(&this->self, &reg, 0)};
+    if (returnValue != 0)
+        throw runtime_error("ring register buffer error: " + string{std::strerror(std::abs(returnValue))});
+}
+
+auto Ring::unregisterBuffer(int bufferId) -> void {
+    int returnValue{io_uring_unregister_buf_ring(&this->self, bufferId)};
+    if (returnValue != 0)
+        throw runtime_error("ring unregister buffer error: " + string{std::strerror(std::abs(returnValue))});
+}
+
+auto Ring::getCompletion() -> io_uring_cqe * {
+    io_uring_cqe *completion{nullptr};
+
+    int returnValue{io_uring_wait_cqe(&this->self, &completion)};
+    if (returnValue != 0)
+        throw runtime_error("ring get completion error: " + string{std::strerror(std::abs(returnValue))});
+
+    return completion;
+}
+
+auto Ring::consumeCompletion(io_uring_cqe *completion) -> void { io_uring_cqe_seen(&this->self, completion); }
+
+auto Ring::getSubmission() -> io_uring_sqe * {
+    io_uring_sqe *submission{io_uring_get_sqe(&this->self)};
+    if (submission == nullptr) throw runtime_error("ring no available submission");
+
+    return submission;
+}
+
+auto Ring::submit() -> void {
+    int returnValue{io_uring_submit(&this->self)};
+    if (returnValue < 0) throw runtime_error("ring submit error: " + string{std::strerror(std::abs(returnValue))});
+}
+
+Ring::~Ring() {
+    io_uring_queue_exit(&this->self);
+
+    {
+        lock_guard lockGuard{Ring::lock};
+
+        auto result{find_if(Ring::cpus, [this](int i) { return i == this->self.ring_fd; })};
+
+        if (result != Ring::cpus.end())
+            *result = -1;
+        else
+            Log::add(source_location::current(), Level::ERROR, "ring can not find fileDescriptor in cpus");
+    }
+
+    Ring::instance = false;
 }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Buffer.h"
-#include "Ring.h"
 #include "Server.h"
 
 class EventLoop {
@@ -18,5 +17,4 @@ private:
     std::shared_ptr<Ring> ring;
     Buffer buffer;
     Server server;
-    std::function<auto()->void> task;
 };

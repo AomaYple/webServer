@@ -3,7 +3,9 @@
 #include <source_location>
 #include <thread>
 
-enum class Level { INFO, ERROR };
+enum class Level {
+    INFO, ERROR
+};
 
 class Log {
 public:

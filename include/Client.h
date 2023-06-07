@@ -1,15 +1,14 @@
 #pragma once
 
-#include <string>
+#include <memory>
 
-enum class Event { RECEIVE, SEND, CLOSE };
+#include "Ring.h"
 
 class Buffer;
-class Ring;
 
 class Client {
 public:
-    Client(int socket, Ring &ring, Buffer &buffer);
+    Client(int socket, std::shared_ptr<Ring> &ring, Buffer &buffer, unsigned short timeout = 60);
 
     Client(const Client &client) = delete;
 
@@ -17,30 +16,36 @@ public:
 
     auto operator=(Client &&client) noexcept -> Client &;
 
-    [[nodiscard]] auto getEvent() const -> Event;
+private:
+    auto time() -> void;
 
-    auto setEvent(Event newEvent) -> void;
-
+public:
     [[nodiscard]] auto getKeepAlive() const -> bool;
 
     auto setKeepAlive(bool option) -> void;
 
-    auto updateTime(Ring &ring) -> void;
+    auto updateTime() -> void;
 
-    auto receive(Ring &ring, Buffer &buffer) -> void;
+    auto receive(Buffer &buffer) -> void;
 
-    auto send(std::string &&data, Ring &ring) -> void;
+    auto send(std::string &&data) -> void;
 
-    auto close(Ring &ring) -> void;
+    auto write(std::string &&data) -> void;
+
+    auto read() -> std::string;
 
 private:
-    auto time(Ring &ring) -> void;
+    auto cancel() -> void;
 
-    auto cancel(Ring &ring) -> void;
+    auto close() -> void;
 
+public:
+    ~Client();
+
+private:
     int self;
-    Event event;
     unsigned short timeout;
     bool keepAlive;
-    std::string sendData;
+    std::string receivedData, unSendData;
+    std::shared_ptr<Ring> ring;
 };

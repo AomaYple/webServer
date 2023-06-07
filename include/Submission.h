@@ -1,12 +1,12 @@
 #pragma once
 
-#include <liburing.h>
+#include <memory>
 
-class Ring;
+#include "Ring.h"
 
 class Submission {
 public:
-    explicit Submission(Ring &ring);
+    explicit Submission(std::shared_ptr<Ring> &ring);
 
     Submission(const Submission &submission) = delete;
 
@@ -14,17 +14,19 @@ public:
 
     auto operator=(Submission &&submission) noexcept -> Submission &;
 
-    auto setData(void *data) -> void;
+    auto setData(unsigned long long data) -> void;
 
     auto setFlags(unsigned int flags) -> void;
 
     auto setBufferId(unsigned short id) -> void;
 
+private:
+    auto judgeUsed() -> void;
+
+public:
     auto time(__kernel_timespec *time, unsigned int count, unsigned int flags) -> void;
 
     auto updateTime(__kernel_timespec *time, unsigned long long data, unsigned int flags) -> void;
-
-    auto removeTime(unsigned long long data, unsigned int flags) -> void;
 
     auto accept(int socket, sockaddr *address, socklen_t *addressLength, int flags) -> void;
 
@@ -32,13 +34,14 @@ public:
 
     auto send(int socket, const void *buffer, unsigned long length, int flags, int zeroCopyFlags) -> void;
 
+    auto cancel(int fileDescriptor, int flags) -> void;
+
     auto close(int fileIndex) -> void;
 
-    auto cancel(void *data, int flags) -> void;
+    ~Submission();
 
 private:
-    auto judgeUsed() -> void;
-
     io_uring_sqe *self;
     bool used;
+    std::shared_ptr<Ring> ring;
 };

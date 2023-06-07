@@ -5,6 +5,8 @@ project(WebServer)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
+
 add_executable(${PROJECT_NAME} "")
 
 target_sources(${PROJECT_NAME} PRIVATE
@@ -12,6 +14,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/Buffer.cpp
         src/Client.cpp
         src/Completion.cpp
+        src/Event.cpp
         src/EventLoop.cpp
         src/Http.cpp
         src/Log.cpp

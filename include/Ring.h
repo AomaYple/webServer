@@ -2,10 +2,7 @@
 
 #include <liburing.h>
 
-#include <functional>
 #include <vector>
-
-class Completion;
 
 class Ring {
 public:
@@ -17,20 +14,6 @@ public:
 
     auto operator=(Ring &&ring) noexcept -> Ring &;
 
-    auto registerBuffer(io_uring_buf_reg &reg) -> void;
-
-    auto unregisterBuffer(int bufferId) -> void;
-
-    auto forEach(const std::function<auto(const Completion &)->bool> &task) -> std::pair<int, unsigned int>;
-
-    auto getSubmission() -> io_uring_sqe *;
-
-    auto advanceBufferCompletion(io_uring_buf_ring *buffer, int number) -> void;
-
-    auto advanceCompletion(unsigned int number) -> void;
-
-    ~Ring();
-
 private:
     auto registerFileDescriptor() -> void;
 
@@ -38,8 +21,22 @@ private:
 
     auto registerFileDescriptors() -> void;
 
-    auto submitWait() -> void;
+public:
+    auto registerBuffer(io_uring_buf_reg &reg) -> void;
 
+    auto unregisterBuffer(int bufferId) -> void;
+
+    auto getCompletion() -> io_uring_cqe *;
+
+    auto consumeCompletion(io_uring_cqe *completion) -> void;
+
+    auto getSubmission() -> io_uring_sqe *;
+
+    auto submit() -> void;
+
+    ~Ring();
+
+private:
     static std::mutex lock;
     static std::vector<int> cpus;
 

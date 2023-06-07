@@ -5,7 +5,7 @@
 #include <regex>
 
 using std::string, std::to_string, std::pair, std::ifstream, std::ostringstream, std::regex, std::smatch,
-    std::regex_search, std::filesystem::directory_iterator, std::filesystem::current_path;
+        std::regex_search, std::filesystem::directory_iterator, std::filesystem::current_path;
 
 auto Http::analysis(const string &request) -> pair<string, bool> {
     pair<string, bool> response;
@@ -23,9 +23,9 @@ auto Http::analysis(const string &request) -> pair<string, bool> {
             response.second = false;
         } else
             return {
-                "HTTP/1.1 505 HTTP Version Not Supported\r\nContent-Length: "
-                "0\r\n\r\n",
-                true};
+                    "HTTP/1.1 505 HTTP Version Not Supported\r\nContent-Length: "
+                    "0\r\n\r\n",
+                    true};
 
         if (result.str(1) == "GET") {
             auto findResult{http.webpages.find(result.str(2))};
@@ -59,7 +59,7 @@ auto Http::analysis(const string &request) -> pair<string, bool> {
 Http::Http() {
     string path{current_path().string() + "/../web/"};
 
-    for (auto &filePath : directory_iterator(path)) {
+    for (auto &filePath: directory_iterator(path)) {
         ifstream file{filePath.path().string()};
 
         ostringstream stream;

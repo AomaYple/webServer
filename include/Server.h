@@ -2,14 +2,13 @@
 
 #include <arpa/inet.h>
 
-#include <source_location>
-#include <string>
+#include <memory>
 
 class Ring;
 
 class Server {
 public:
-    Server(unsigned short port, Ring &ring);
+    Server(unsigned short port, std::shared_ptr<Ring> &ring);
 
     Server(const Server &server) = delete;
 
@@ -17,7 +16,7 @@ public:
 
     auto operator=(Server &&server) noexcept -> Server &;
 
-    auto accept(Ring &ring) -> void;
+    auto accept(std::shared_ptr<Ring> &ring) const -> void;
 
     ~Server();
 

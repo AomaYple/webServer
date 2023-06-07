@@ -4,38 +4,52 @@
 
 #include "Client.h"
 #include "Completion.h"
+#include "Http.h"
 #include "Log.h"
-#include "Submission.h"
 
 using std::string, std::make_shared, std::source_location;
 
-EventLoop::EventLoop(unsigned short port)
-    : ring{make_shared<Ring>()}, buffer{ring}, server{port, *ring}, task{[this] {
-          while (true) {
-              auto result{this->ring->forEach([this](const Completion& completion) -> bool {
-                  bool useBuffer{false};
+EventLoop::EventLoop(unsigned short port) : ring{make_shared<Ring>()}, buffer{ring}, server{port, ring} {}
 
-                  int result{completion.getResult()};
-                  void* data{completion.getData()};
-                  unsigned int flags{completion.getFlags()};
+auto EventLoop::loop() -> void {
+    while (true) {
+        Completion completion{this->ring};
 
-                  if (data == &this->server) {
-                      if (result >= 0)
-                          Client* client{new Client{result, *this->ring, this->buffer}};
-                      else
-                          Log::add(source_location::current(), Level::ERROR,
-                                   "server accept error: " + string{std::strerror(std::abs(result))});
+        int result{completion.getResult()};
+        void *data{completion.getData()};
+        unsigned int flags{completion.getFlags()};
 
-                      if (!(flags | IORING_CQE_F_MORE)) this->server.accept(*this->ring);
-                  } else {
-                  }
+        if (data != nullptr) {
+            if (data == &this->server) {
+                if (result >= 0)
+                    Client *client{new Client{result, this->ring, this->buffer}};
+                else
+                    Log::add(source_location::current(), Level::ERROR, std::strerror(std::abs(result)));
 
-                  return useBuffer;
-              })};
+                if (!(flags | IORING_CQE_F_MORE)) this->server.accept(this->ring);
+            } else {
+                Client *client{static_cast<Client *>(data)};
 
-              this->buffer.advanceBufferCompletion(result.first);
-              this->ring->advanceCompletion(result.second);
-          }
-      }} {}
+                if (flags | IORING_CQE_F_BUFFER) {
+                    if (result > 0) {
+                        if (!(flags | IORING_CQE_F_MORE)) {
+                            string request{this->buffer.update(flags >> IORING_CQE_BUFFER_SHIFT, result)};
 
-auto EventLoop::loop() -> void { this->task(); }
+                            auto response{Http::analysis(request)};
+
+                            if (response.second) client->setKeepAlive(true);
+                        }
+                        client->send(std::move(response.first));
+                    } else {
+                        Log::add(source_location::current(), Level::ERROR,
+                                 "client receive error: " + string{std::strerror(std::abs(result))});
+
+                        delete client;
+                    }
+                } else {
+                }
+            }
+        } else
+            Log::add(source_location::current(), Level::ERROR, std::strerror(std::abs(result)));
+    }
+}
