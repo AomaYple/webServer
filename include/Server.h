@@ -1,27 +1,30 @@
 #pragma once
 
-#include <arpa/inet.h>
-
 #include <memory>
 
-class Ring;
+#include "Ring.h"
 
 class Server {
 public:
-    Server(unsigned short port, std::shared_ptr<Ring> &ring);
+    Server(unsigned short port, const std::shared_ptr<Ring> &ring);
 
-    Server(const Server &server) = delete;
+    Server(const Server &other) = delete;
 
-    Server(Server &&server) noexcept;
+    Server(Server &&other) noexcept;
 
-    auto operator=(Server &&server) noexcept -> Server &;
+    auto operator=(Server &&other) noexcept -> Server &;
 
-    auto accept(std::shared_ptr<Ring> &ring) const -> void;
+    auto accept() -> void;
 
     ~Server();
 
 private:
-    static thread_local bool instance;
+    auto setSocketOption() const -> void;
+
+    auto bind(unsigned short port) const -> void;
+
+    auto listen() const -> void;
 
     int self;
+    std::shared_ptr<Ring> ring;
 };

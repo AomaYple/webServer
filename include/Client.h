@@ -4,11 +4,11 @@
 
 #include "Ring.h"
 
-class Buffer;
+class BufferRing;
 
 class Client {
 public:
-    Client(int socket, std::shared_ptr<Ring> &ring, Buffer &buffer, unsigned short timeout = 60);
+    Client(int fileDescriptor, const std::shared_ptr<Ring> &ring, BufferRing &bufferRing, unsigned short timeout = 60);
 
     Client(const Client &client) = delete;
 
@@ -16,36 +16,28 @@ public:
 
     auto operator=(Client &&client) noexcept -> Client &;
 
-private:
-    auto time() -> void;
-
-public:
-    [[nodiscard]] auto getKeepAlive() const -> bool;
-
-    auto setKeepAlive(bool option) -> void;
-
-    auto updateTime() -> void;
-
-    auto receive(Buffer &buffer) -> void;
-
-    auto send(std::string &&data) -> void;
+    auto receive(BufferRing &bufferRing) -> void;
 
     auto write(std::string &&data) -> void;
 
     auto read() -> std::string;
 
+    auto updateTimeout() -> void;
+
+    ~Client();
+
 private:
+    auto timeout() -> void;
+
+    auto removeTimeout() -> void;
+
     auto cancel() -> void;
 
     auto close() -> void;
 
-public:
-    ~Client();
-
-private:
     int self;
-    unsigned short timeout;
+    unsigned short timeoutTime;
     bool keepAlive;
-    std::string receivedData, unSendData;
+    std::string receivedData;
     std::shared_ptr<Ring> ring;
 };

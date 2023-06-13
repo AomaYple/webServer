@@ -1,20 +1,32 @@
 #pragma once
 
-#include "Buffer.h"
+#include <source_location>
+
+#include "BufferRing.h"
+#include "Client.h"
 #include "Server.h"
 
 class EventLoop {
 public:
     explicit EventLoop(unsigned short port);
 
-    EventLoop(const EventLoop &eventLoop) = delete;
+    EventLoop(const EventLoop &other) = delete;
 
-    EventLoop(EventLoop &&eventLoop) = delete;
+    EventLoop(EventLoop &&other) noexcept;
+
+    auto operator=(EventLoop &&other) noexcept -> EventLoop &;
 
     auto loop() -> void;
 
 private:
+    auto handleAccept(int result, unsigned int flags,
+                      std::source_location sourceLocation = std::source_location::current()) -> void;
+
+    auto handleReceive(int result, int fileDescriptor, unsigned int flags,
+                       std::source_location sourceLocation = std::source_location::current()) -> void;
+
     std::shared_ptr<Ring> ring;
-    Buffer buffer;
+    BufferRing bufferRing;
     Server server;
+    std::unordered_map<int, Client> clients;
 };

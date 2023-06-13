@@ -3,54 +3,52 @@
 #include <source_location>
 #include <thread>
 
-enum class Level {
-    INFO, ERROR
-};
+enum class Level { INFO, WARN, ERROR };
 
 class Log {
 public:
-    static auto add(std::source_location sourceLocation, Level level, std::string &&information) -> void;
+    static auto add(std::source_location sourceLocation, Level level, std::string &&message) -> void;
 
     static auto stopWork() -> void;
 
-    Log(const Log &log) = delete;
+    Log(const Log &other) = delete;
 
-    Log(Log &&log) = delete;
+    Log(Log &&other) = delete;
 
 private:
     Log();
 
     struct Node {
-        struct Message {
-            Message();
+        struct Data {
+            Data();
 
-            Message(std::chrono::system_clock::time_point time, std::jthread::id threadId,
-                    std::source_location sourceLocation, Level level, std::string &&information);
+            Data(std::chrono::system_clock::time_point time, std::jthread::id threadId,
+                 std::source_location sourceLocation, Level level, std::string &&message);
 
-            Message(const Message &message) = default;
+            Data(const Data &other) = default;
 
-            Message(Message &&message) noexcept;
+            Data(Data &&other) noexcept;
 
-            auto operator=(Message &&message) noexcept -> Message &;
+            auto operator=(Data &&other) noexcept -> Data &;
 
             std::chrono::system_clock::time_point time;
             std::jthread::id threadId;
             std::source_location sourceLocation;
             Level level;
-            std::string information;
+            std::string message;
         };
 
         Node();
 
-        Node(Message &&data, Node *next);
+        Node(Data &&data, Node *next);
 
-        Node(const Node &node) = delete;
+        Node(const Node &other) = delete;
 
-        Node(Node &&node) noexcept;
+        Node(Node &&other) noexcept;
 
-        auto operator=(Node &&node) noexcept -> Node &;
+        auto operator=(Node &&other) noexcept -> Node &;
 
-        Message data;
+        Data data;
         Node *next;
     };
 

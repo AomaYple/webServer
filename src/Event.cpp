@@ -1,3 +1,3 @@
 #include "Event.h"
 
-Event::Event(Type type, int socket) : type{type}, socket{socket} {}
+Event::Event(Type type, int fileDescriptor) : type{type}, fileDescriptor{fileDescriptor} {}

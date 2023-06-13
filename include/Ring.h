@@ -2,45 +2,52 @@
 
 #include <liburing.h>
 
-#include <vector>
+#include <functional>
+#include <source_location>
+
+class Completion;
 
 class Ring {
 public:
     Ring();
 
-    Ring(const Ring &ring) = delete;
+    Ring(const Ring &other) = delete;
 
-    Ring(Ring &&ring) noexcept;
+    Ring(Ring &&other) noexcept;
 
-    auto operator=(Ring &&ring) noexcept -> Ring &;
+    auto operator=(Ring &&other) noexcept -> Ring &;
 
-private:
-    auto registerFileDescriptor() -> void;
+    auto setupBufferRing(unsigned int number, int id) -> io_uring_buf_ring *;
 
-    auto registerCpu() -> void;
+    auto freeBufferRing(io_uring_buf_ring *bufferRing, unsigned int number, int id) -> void;
 
-    auto registerFileDescriptors() -> void;
+    auto updateFileDescriptor(int fileDescriptor) -> void;
 
-public:
-    auto registerBuffer(io_uring_buf_reg &reg) -> void;
-
-    auto unregisterBuffer(int bufferId) -> void;
-
-    auto getCompletion() -> io_uring_cqe *;
-
-    auto consumeCompletion(io_uring_cqe *completion) -> void;
+    auto forEach(
+        const std::function<auto(const Completion &completion, std::source_location sourceLocation)->void> &task)
+        -> int;
 
     auto getSubmission() -> io_uring_sqe *;
 
-    auto submit() -> void;
+    auto advanceCompletionBufferRing(io_uring_buf_ring *bufferRing, int completionNumber, int bufferRingNumber) -> void;
 
     ~Ring();
 
 private:
     static std::mutex lock;
-    static std::vector<int> cpus;
+    static std::vector<int> values;
 
     static thread_local bool instance;
+
+    auto registerCpu() -> void;
+
+    auto registerMaxWorks() -> void;
+
+    auto registerRingFileDescriptor() -> void;
+
+    auto registerSparseFileDescriptors() -> void;
+
+    auto submitWait() -> void;
 
     io_uring self;
 };

@@ -11,14 +11,15 @@ add_executable(${PROJECT_NAME} "")
 
 target_sources(${PROJECT_NAME} PRIVATE
         main.cpp
-        src/Buffer.cpp
-        src/Client.cpp
+        src/BufferRing.cpp
         src/Completion.cpp
+        src/Client.cpp
         src/Event.cpp
         src/EventLoop.cpp
         src/Http.cpp
-        src/Log.cpp
         src/Ring.cpp
+        src/Log.cpp
+        src/Pool.cpp
         src/Server.cpp
         src/Submission.cpp
         )

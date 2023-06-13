@@ -7,9 +7,9 @@ class Http {
 public:
     static auto analysis(const std::string &request) -> std::pair<std::string, bool>;
 
-    Http(const Http &http) = delete;
+    Http(const Http &other) = delete;
 
-    Http(Http &&http) = delete;
+    Http(Http &&other) = delete;
 
 private:
     Http();

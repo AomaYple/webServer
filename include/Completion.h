@@ -1,18 +1,16 @@
 #pragma once
 
-#include <memory>
-
-#include "Ring.h"
+#include <liburing.h>
 
 class Completion {
+    friend class Ring;
+
 public:
-    explicit Completion(std::shared_ptr<Ring> &ring);
+    Completion(const Completion &other) = delete;
 
-    Completion(const Completion &completion) = delete;
+    Completion(Completion &&other) noexcept;
 
-    Completion(Completion &&completion) noexcept;
-
-    auto operator=(Completion &&completion) noexcept -> Completion &;
+    auto operator=(Completion &&other) noexcept -> Completion &;
 
     [[nodiscard]] auto getResult() const -> int;
 
@@ -20,9 +18,8 @@ public:
 
     [[nodiscard]] auto getFlags() const -> unsigned int;
 
-    ~Completion();
-
 private:
+    explicit Completion(io_uring_cqe *completion);
+
     io_uring_cqe *self;
-    std::shared_ptr<Ring> ring;
 };

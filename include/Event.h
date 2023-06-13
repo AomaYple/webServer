@@ -1,12 +1,18 @@
 #pragma once
 
 enum class Type {
-    ACCEPT, RECEIVE, SEND, CLOSE, TIME, RENEW, CANCEL
+    ACCEPT,
+    UPDATE_TIMEOUT,
+    RECEIVE,
+    TIMEOUT,
+    REMOVE_TIMEOUT,
+    CANCEL_FILE_DESCRIPTOR,
+    CLOSE,
 };
 
 struct Event {
-    Event(Type type, int socket);
+    Event(Type type, int fileDescriptor);
 
     Type type;
-    int socket;
+    int fileDescriptor;
 };

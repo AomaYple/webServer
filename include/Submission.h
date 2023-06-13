@@ -1,47 +1,42 @@
 #pragma once
 
-#include <memory>
+#include <liburing.h>
 
-#include "Ring.h"
+class Ring;
 
 class Submission {
 public:
-    explicit Submission(std::shared_ptr<Ring> &ring);
+    explicit Submission(Ring &ring);
 
-    Submission(const Submission &submission) = delete;
+    Submission(const Submission &other) = delete;
 
-    Submission(Submission &&submission) noexcept;
+    Submission(Submission &&other) noexcept;
 
-    auto operator=(Submission &&submission) noexcept -> Submission &;
+    auto operator=(Submission &&other) noexcept -> Submission &;
 
     auto setData(unsigned long long data) -> void;
 
     auto setFlags(unsigned int flags) -> void;
 
-    auto setBufferId(unsigned short id) -> void;
+    auto setBufferGroup(unsigned short id) -> void;
+
+    auto accept(int fileDescriptor, sockaddr *address, socklen_t *addressLength, int flags) -> void;
+
+    auto receive(int fileDescriptor, void *buffer, unsigned long length, int flags) -> void;
+
+    auto close(int fileDescriptor) -> void;
+
+    auto timeout(__kernel_timespec *timespec, unsigned int count, unsigned int flags) -> void;
+
+    auto updateTimeout(__kernel_timespec *timespec, unsigned long long data, unsigned int flags) -> void;
+
+    auto removeTimeout(unsigned long long data, unsigned int flags) -> void;
+
+    auto cancelFileDescriptor(int fileDescriptor, int flags) -> void;
 
 private:
     auto judgeUsed() -> void;
 
-public:
-    auto time(__kernel_timespec *time, unsigned int count, unsigned int flags) -> void;
-
-    auto updateTime(__kernel_timespec *time, unsigned long long data, unsigned int flags) -> void;
-
-    auto accept(int socket, sockaddr *address, socklen_t *addressLength, int flags) -> void;
-
-    auto receive(int socket, void *buffer, unsigned long length, int flags) -> void;
-
-    auto send(int socket, const void *buffer, unsigned long length, int flags, int zeroCopyFlags) -> void;
-
-    auto cancel(int fileDescriptor, int flags) -> void;
-
-    auto close(int fileIndex) -> void;
-
-    ~Submission();
-
-private:
     io_uring_sqe *self;
     bool used;
-    std::shared_ptr<Ring> ring;
 };
