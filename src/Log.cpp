@@ -1,12 +1,12 @@
 #include "Log.h"
 
-#include <format>
+#include <array>
 #include <iomanip>
 #include <iostream>
 
 using std::cout, std::string, std::string_view, std::array, std::ostringstream, std::put_time, std::jthread,
-    std::this_thread::get_id, std::atomic_ref, std::memory_order_relaxed, std::memory_order_acquire,
-    std::memory_order_release, std::chrono::system_clock, std::source_location, std::format;
+        std::this_thread::get_id, std::atomic_ref, std::memory_order_relaxed, std::memory_order_acquire,
+        std::memory_order_release, std::chrono::system_clock, std::source_location;
 
 constexpr array<string_view, 3> levels{"INFO", "WARN", "ERROR"};
 
@@ -40,13 +40,20 @@ Log::Log()
                   auto &item{this->head->data};
 
                   ostringstream stream;
+
                   time_t now{system_clock::to_time_t(item.time)};
                   stream << put_time(localtime(&now), "%F %T ") << " " << item.threadId << " ";
-                  cout << stream.str();
 
-                  cout << format("{}:{}:{}:{} {} {}\n", item.sourceLocation.file_name(), item.sourceLocation.line(),
-                                 item.sourceLocation.column(), item.sourceLocation.function_name(),
-                                 levels[static_cast<int>(item.level)], item.message);
+                  stream << item.sourceLocation.file_name() << ":";
+                  stream << item.sourceLocation.line() << ":";
+                  stream << item.sourceLocation.column() << ":";
+                  stream << item.sourceLocation.function_name() << " ";
+
+                  stream << levels[static_cast<int>(item.level)] << " ";
+
+                  stream << item.message << "\n";
+
+                  cout << stream.str();
 
                   Node *oldHead{this->head};
                   this->head = this->head->next;
@@ -67,10 +74,7 @@ Log::Node::Data::Data(system_clock::time_point time, jthread::id threadId, sourc
     : time{time}, threadId{threadId}, sourceLocation{sourceLocation}, level{level}, message{std::move(message)} {}
 
 Log::Node::Data::Data(Data &&other) noexcept
-    : time{other.time},
-      threadId{other.threadId},
-      sourceLocation{other.sourceLocation},
-      level{other.level},
+    : time{other.time}, threadId{other.threadId}, sourceLocation{other.sourceLocation}, level{other.level},
       message{std::move(other.message)} {}
 
 auto Log::Node::Data::operator=(Data &&other) noexcept -> Data & {

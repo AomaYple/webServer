@@ -1,10 +1,8 @@
 #pragma once
 
-#include <source_location>
-
-#include "BufferRing.h"
-#include "Client.h"
+#include "Epoll.h"
 #include "Server.h"
+#include "Timer.h"
 
 class EventLoop {
 public:
@@ -16,17 +14,19 @@ public:
 
     auto operator=(EventLoop &&other) noexcept -> EventLoop &;
 
-    auto loop() -> void;
+    auto operator()() -> void;
 
 private:
-    auto handleAccept(int result, unsigned int flags,
+    auto handleServer() -> void;
+
+    auto handleClient(int socket, unsigned int event,
                       std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto handleReceive(int result, int fileDescriptor, unsigned int flags,
-                       std::source_location sourceLocation = std::source_location::current()) -> void;
+    auto handleClientReceive(std::shared_ptr<Client> &client) -> void;
 
-    std::shared_ptr<Ring> ring;
-    BufferRing bufferRing;
+    auto handleClientSend(std::shared_ptr<Client> &client) -> void;
+
     Server server;
-    std::unordered_map<int, Client> clients;
+    Timer timer;
+    Epoll epoll;
 };

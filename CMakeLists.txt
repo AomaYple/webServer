@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26.4)
+cmake_minimum_required(VERSION 3.22.1)
 
 project(WebServer)
 
@@ -11,23 +11,18 @@ add_executable(${PROJECT_NAME} "")
 
 target_sources(${PROJECT_NAME} PRIVATE
         main.cpp
-        src/BufferRing.cpp
-        src/Completion.cpp
+        src/Buffer.cpp
         src/Client.cpp
-        src/Event.cpp
+        src/Epoll.cpp
         src/EventLoop.cpp
         src/Http.cpp
-        src/Ring.cpp
         src/Log.cpp
         src/Pool.cpp
         src/Server.cpp
-        src/Submission.cpp
+        src/Timer.cpp
         )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
         include
         )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
-        uring
-        )

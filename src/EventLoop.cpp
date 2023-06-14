@@ -1,108 +1,89 @@
 #include "EventLoop.h"
 
-#include <cstring>
-
-#include "Completion.h"
-#include "Event.h"
+#include "Http.h"
 #include "Log.h"
 
-using std::string, std::make_shared, std::source_location;
+using std::string, std::span, std::shared_ptr, std::source_location;
 
-EventLoop::EventLoop(unsigned short port) : ring{make_shared<Ring>()}, bufferRing{ring}, server{port, ring} {}
+EventLoop::EventLoop(unsigned short port) : server{port} {}
 
 EventLoop::EventLoop(EventLoop &&other) noexcept
-    : ring{std::move(other.ring)},
-      bufferRing{std::move(other.bufferRing)},
-      server{std::move(other.server)},
-      clients{std::move(other.clients)} {}
+    : server{std::move(other.server)}, timer{std::move(other.timer)}, epoll{std::move(other.epoll)} {}
 
 auto EventLoop::operator=(EventLoop &&other) noexcept -> EventLoop & {
     if (this != &other) {
-        this->ring = std::move(other.ring);
-        this->bufferRing = std::move(other.bufferRing);
         this->server = std::move(other.server);
-        this->clients = std::move(other.clients);
+        this->timer = std::move(other.timer);
+        this->epoll = std::move(other.epoll);
     }
     return *this;
 }
 
-auto EventLoop::loop() -> void {
+auto EventLoop::operator()() -> void {
+    this->epoll.add(this->server.get(), EPOLLIN);
+    this->epoll.add(this->timer.get(), EPOLLIN);
+
     while (true) {
-        int completionNumber{this->ring->forEach([this](const Completion &completion, source_location sourceLocation) {
-            int result{completion.getResult()};
+        span<epoll_event> epollEvents{this->epoll.poll()};
 
-            unsigned long long data{completion.getData()};
-            Event event{reinterpret_cast<Event &>(data)};
+        for (const epoll_event &epollEvent: epollEvents) {
+            int fileDescriptor{epollEvent.data.fd};
+            unsigned int event{epollEvent.events};
 
-            unsigned int flags{completion.getFlags()};
-
-            switch (event.type) {
-                case Type::ACCEPT:
-                    this->handleAccept(result, flags);
-
-                    break;
-                case Type::UPDATE_TIMEOUT:
-                    Log::add(sourceLocation, Level::ERROR,
-                             "client update timer error: " + string{std::strerror(std::abs(result))});
-
-                    break;
-                case Type::RECEIVE:
-                    this->handleReceive(result, event.fileDescriptor, flags);
-
-                    break;
-                case Type::TIMEOUT:
-                    Log::add(
-                        sourceLocation, Level::INFO,
-                        "timeout " + std::to_string(event.fileDescriptor) + string{std::strerror(std::abs(result))});
-
-                    break;
-                case Type::REMOVE_TIMEOUT:
-                    Log::add(sourceLocation, Level::ERROR,
-                             "client remove timer error: " + string{std::strerror(std::abs(result))});
-
-                    break;
-                case Type::CANCEL_FILE_DESCRIPTOR:
-                    Log::add(sourceLocation, Level::ERROR,
-                             "client cancel all request error: " + string{std::strerror(std::abs(result))});
-
-                    break;
-                case Type::CLOSE:
-                    Log::add(sourceLocation, Level::ERROR,
-                             "client close error: " + string{std::strerror(std::abs(result))});
-
-                    break;
-            }
-        })};
-        this->bufferRing.advanceCompletionBufferRing(completionNumber);
+            if (fileDescriptor == this->timer.get()) this->timer.handleTimeout();
+            else if (fileDescriptor == this->server.get())
+                this->handleServer();
+            else
+                this->handleClient(fileDescriptor, event);
+        }
     }
 }
 
-auto EventLoop::handleAccept(int result, unsigned int flags, source_location sourceLocation) -> void {
-    if (result >= 0)
-        this->clients.emplace(result, Client{result, this->ring, this->bufferRing});
-    else
-        Log::add(sourceLocation, Level::WARN, "server accept error: " + string{std::strerror(std::abs(result))});
+auto EventLoop::handleServer() -> void {
+    for (auto &client: this->server.accept()) {
+        this->epoll.add(client->get(), EPOLLET | EPOLLRDHUP | EPOLLIN | EPOLLOUT);
 
-    if (!(flags | IORING_CQE_F_MORE)) this->server.accept();
+        this->timer.add(client);
+    }
 }
 
-auto EventLoop::handleReceive(int result, int fileDescriptor, unsigned int flags, source_location sourceLocation)
-    -> void {
-    if (result > 0) {
-        Client &client{this->clients.at(fileDescriptor)};
+auto EventLoop::handleClient(int socket, unsigned int event, source_location sourceLocation) -> void {
+    shared_ptr<Client> client{this->timer.find(socket)};
 
-        client.updateTimeout();
+    if (event & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)) this->timer.remove(client);
+    else if (event & EPOLLIN && client->getEvent() == EPOLLIN) {
+        this->handleClientReceive(client);
 
-        string data{this->bufferRing.getData(flags >> IORING_CQE_BUFFER_SHIFT, result)};
+        if (event & EPOLLOUT && client->getEvent() == EPOLLOUT) this->handleClientSend(client);
+    } else if (event & EPOLLOUT && client->getEvent() == EPOLLOUT) {
+        this->handleClientSend(client);
 
-        client.write(std::move(data));
-
-        if (!(flags | IORING_CQE_F_SOCK_NONEMPTY)) Log::add(sourceLocation, Level::INFO, client.read());
-
-        if (!(flags | IORING_CQE_F_MORE)) client.receive(this->bufferRing);
+        if (event & EPOLLIN && client->getEvent() == EPOLLIN) this->handleClientReceive(client);
     } else {
-        Log::add(sourceLocation, Level::WARN, std::string{std::strerror(std::abs(result))});
+        Log::add(sourceLocation, Level::ERROR, string{client->getInformation()} + " unknown event");
 
-        this->clients.erase(fileDescriptor);
+        this->timer.remove(client);
     }
+}
+
+auto EventLoop::handleClientReceive(shared_ptr<Client> &client) -> void {
+    client->receive();
+
+    if (client->getEvent() != 0) {
+        this->timer.reset(client);
+
+        auto response{Http::analysis(client->read())};
+        if (!response.second) client->setKeepAlive(false);
+
+        client->write(response.first);
+    } else
+        this->timer.remove(client);
+}
+
+auto EventLoop::handleClientSend(shared_ptr<Client> &client) -> void {
+    client->send();
+
+    if (client->getEvent() != 0) this->timer.reset(client);
+    else
+        this->timer.remove(client);
 }

@@ -1,68 +1,98 @@
 #include "Server.h"
 
 #include <arpa/inet.h>
+#include <fcntl.h>
 
 #include <cstring>
 
-#include "Event.h"
-#include "Submission.h"
+#include "Log.h"
 
-using std::string, std::shared_ptr, std::runtime_error;
+using std::string, std::to_string, std::vector, std::shared_ptr, std::make_shared, std::source_location,
+        std::runtime_error;
 
-Server::Server(unsigned short port, const shared_ptr<Ring> &ring)
-    : self{socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)}, ring{ring} {
-    if (this->self == -1) throw runtime_error("server create error: " + string{std::strerror(errno)});
+Server::Server(unsigned short port)
+    : socket{::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)}, idleSocket{open("/dev/null", O_RDONLY)} {
+    if (this->socket == -1) throw runtime_error("server create error: " + string{std::strerror(errno)});
 
     this->setSocketOption();
 
     this->bind(port);
 
     this->listen();
-
-    this->ring->updateFileDescriptor(this->self);
-
-    this->accept();
 }
 
-Server::Server(Server &&other) noexcept : self{other.self}, ring{std::move(other.ring)} { other.self = -1; }
+Server::Server(Server &&other) noexcept : socket{other.socket}, idleSocket{other.idleSocket} {
+    other.socket = -1;
+    other.idleSocket = -1;
+}
 
 auto Server::operator=(Server &&other) noexcept -> Server & {
     if (this != &other) {
-        this->self = other.self;
-        this->ring = std::move(other.ring);
-        other.self = -1;
+        this->socket = other.socket;
+        this->idleSocket = other.idleSocket;
+        other.socket = -1;
+        other.idleSocket = -1;
     }
     return *this;
 }
 
-auto Server::accept() -> void {
-    Submission submission{*this->ring};
+auto Server::accept(source_location sourceLocation) -> vector<shared_ptr<Client>> {
+    vector<shared_ptr<Client>> clients;
 
-    Event event{Type::ACCEPT, this->self};
+    while (true) {
+        sockaddr_in address = {};
+        socklen_t addressLength{sizeof(address)};
 
-    submission.setData(reinterpret_cast<unsigned long long &>(event));
-    submission.setFlags(IOSQE_FIXED_FILE);
+        int clientSocket{accept4(this->socket, reinterpret_cast<sockaddr *>(&address), &addressLength, SOCK_NONBLOCK)};
 
-    submission.accept(this->self, nullptr, nullptr, SOCK_NONBLOCK);
+        if (clientSocket != -1) {
+            string information(INET_ADDRSTRLEN, 0);
+
+            if (inet_ntop(AF_INET, &address.sin_addr, information.data(), information.size()) == nullptr)
+                Log::add(sourceLocation, Level::WARN,
+                         "translate client ipAddress error: " + string{std::strerror(errno)});
+
+            information += ":" + to_string(ntohs(address.sin_port));
+
+            Log::add(sourceLocation, Level::INFO, "new client " + information);
+
+            clients.emplace_back(make_shared<Client>(clientSocket, std::move(information)));
+        } else {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) break;
+            if (errno == EMFILE) {
+                close(this->idleSocket);
+
+                this->idleSocket = ::accept(this->socket, nullptr, nullptr);
+
+                close(this->idleSocket);
+
+                this->idleSocket = open("/dev/null", O_RDONLY);
+            } else {
+                Log::add(sourceLocation, Level::WARN, "server accept error: " + string{std::strerror(errno)});
+
+                break;
+            }
+        }
+    }
+
+    return clients;
 }
 
+auto Server::get() const -> int { return this->socket; }
+
 Server::~Server() {
-    if (this->self != -1) {
-        Submission submission{*this->ring};
+    if (this->idleSocket != -1 && close(this->idleSocket) == -1)
+        Log::add(source_location::current(), Level::ERROR,
+                 "server close idleSocket error: " + string{std::strerror(errno)});
 
-        Event event{Type::CLOSE, this->self};
-
-        submission.setData(reinterpret_cast<unsigned long long &>(event));
-        submission.setFlags(IOSQE_CQE_SKIP_SUCCESS);
-
-        submission.close(this->self);
-    }
+    if (this->socket != -1 && close(this->socket) == -1)
+        Log::add(source_location::current(), Level::ERROR, "server close error: " + string{std::strerror(errno)});
 }
 
 auto Server::setSocketOption() const -> void {
     int option{1};
-    if (setsockopt(this->self, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(option)) == -1)
-        throw runtime_error("server reuse address and reuse port error: " + string{std::strerror(errno)});
+    if (setsockopt(this->socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(option)) == -1)
+        throw runtime_error("server reuseAddress and reusePort error: " + string{std::strerror(errno)});
 }
 
 auto Server::bind(unsigned short port) const -> void {
@@ -75,11 +105,11 @@ auto Server::bind(unsigned short port) const -> void {
     if (inet_pton(AF_INET, "127.0.0.1", &address.sin_addr) != 1)
         throw runtime_error("server translate ipAddress error: " + string{std::strerror(errno)});
 
-    if (::bind(this->self, reinterpret_cast<sockaddr *>(&address), addressLength) == -1)
+    if (::bind(this->socket, reinterpret_cast<sockaddr *>(&address), addressLength) == -1)
         throw runtime_error("server bind error: " + string{std::strerror(errno)});
 }
 
 auto Server::listen() const -> void {
-    if (::listen(this->self, SOMAXCONN) == -1)
+    if (::listen(this->socket, SOMAXCONN) == -1)
         throw runtime_error("server listen error: " + string{std::strerror(errno)});
 }

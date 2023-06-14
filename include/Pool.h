@@ -2,5 +2,5 @@
 
 class Pool {
 public:
-    explicit Pool(unsigned short port, bool logWork = true);
+    explicit Pool(unsigned short port, bool stopLog = false);
 };
