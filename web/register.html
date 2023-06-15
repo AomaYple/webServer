@@ -16,6 +16,7 @@
     function check() {
         let accountNumber = document.getElementById("accountNumber").value
         let password = document.getElementById("password").value
+        let confirmPassword = document.getElementById("confirmPassword").value
 
         if (accountNumber === "") {
             alert("账号不能为空")
@@ -24,6 +25,16 @@
 
         if (password === "") {
             alert("密码不能为空")
+            return false
+        }
+
+        if (confirmPassword === "") {
+            alert("确认密码不能为空")
+            return false
+        }
+
+        if (password !== confirmPassword) {
+            alert("两次输入的密码不一致")
             return false
         }
 
@@ -36,6 +47,9 @@
     </label><br/>
     <label>
         密码：<input id="password" maxlength="16" minlength="6" name="password" type="password">
+    </label><br/>
+    <label>
+        确认密码：<input id="confirmPassword" maxlength="16" minlength="6" name="confirmPassword" type="password">
     </label><br/>
     <input type="submit" value="登录">
 </form>

@@ -14,7 +14,7 @@ public:
 
     Epoll(Epoll &&other) noexcept;
 
-    auto operator=(Epoll &&epoll) noexcept -> Epoll &;
+    auto operator=(Epoll &&other) noexcept -> Epoll &;
 
     [[nodiscard]] auto poll() -> std::span<epoll_event>;
 

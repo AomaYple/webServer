@@ -34,6 +34,8 @@ auto Timer::operator=(Timer &&other) noexcept -> Timer & {
     return *this;
 }
 
+auto Timer::get() const -> int { return this->fileDescriptor; }
+
 auto Timer::add(const shared_ptr<Client> &client) -> void {
     unsigned short clientLocation{static_cast<unsigned short>(this->now + client->getTimeout())};
 
@@ -74,7 +76,7 @@ auto Timer::remove(const shared_ptr<Client> &client) -> void {
     this->location.erase(socket);
 }
 
-auto Timer::handleTimeout(std::source_location sourceLocation) -> void {
+auto Timer::handleExpiration() -> void {
     uint64_t expireNumber{0};
 
     if (read(this->fileDescriptor, &expireNumber, sizeof(expireNumber)) == sizeof(expireNumber)) {
@@ -88,14 +90,14 @@ auto Timer::handleTimeout(std::source_location sourceLocation) -> void {
             --expireNumber;
         }
     } else
-        Log::add(sourceLocation, Level::WARN, "timer read error: " + string{std::strerror(errno)});
+        throw runtime_error("timer read error: " + string{std::strerror(errno)});
 }
 
-auto Timer::get() const -> int { return this->fileDescriptor; }
-
 Timer::~Timer() {
-    for (auto moment{this->wheel.begin()}; moment != this->wheel.end(); ++moment) moment->clear();
+    if (this->fileDescriptor != -1) {
+        for (auto moment{this->wheel.begin()}; moment != this->wheel.end(); ++moment) moment->clear();
 
-    if (this->fileDescriptor != -1 && close(this->fileDescriptor) == -1)
-        Log::add(source_location::current(), Level::ERROR, "timer close error: " + string{std::strerror(errno)});
+        if (close(this->fileDescriptor) == -1)
+            Log::add(source_location::current(), Level::ERROR, "timer close error: " + string{std::strerror(errno)});
+    }
 }

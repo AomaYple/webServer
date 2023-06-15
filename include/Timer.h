@@ -10,11 +10,13 @@ class Timer {
 public:
     Timer();
 
-    Timer(const Timer &timer) = delete;
+    Timer(const Timer &other) = delete;
 
     Timer(Timer &&other) noexcept;
 
     auto operator=(Timer &&other) noexcept -> Timer &;
+
+    auto get() const -> int;
 
     auto add(const std::shared_ptr<Client> &client) -> void;
 
@@ -24,9 +26,7 @@ public:
 
     auto remove(const std::shared_ptr<Client> &client) -> void;
 
-    auto handleTimeout(std::source_location sourceLocation = std::source_location::current()) -> void;
-
-    auto get() const -> int;
+    auto handleExpiration() -> void;
 
     ~Timer();
 

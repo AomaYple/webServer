@@ -30,7 +30,7 @@ auto EventLoop::operator()() -> void {
             int fileDescriptor{epollEvent.data.fd};
             unsigned int event{epollEvent.events};
 
-            if (fileDescriptor == this->timer.get()) this->timer.handleTimeout();
+            if (fileDescriptor == this->timer.get()) this->timer.handleExpiration();
             else if (fileDescriptor == this->server.get())
                 this->handleServer();
             else
@@ -73,6 +73,7 @@ auto EventLoop::handleClientReceive(shared_ptr<Client> &client) -> void {
         this->timer.reset(client);
 
         auto response{Http::analysis(client->read())};
+
         if (!response.second) client->setKeepAlive(false);
 
         client->write(response.first);

@@ -11,7 +11,7 @@ using std::string, std::to_string, std::vector, std::shared_ptr, std::make_share
         std::runtime_error;
 
 Server::Server(unsigned short port)
-    : socket{::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)}, idleSocket{open("/dev/null", O_RDONLY)} {
+    : socket{::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)}, idleFileDescriptor{open("/dev/null", O_RDONLY)} {
     if (this->socket == -1) throw runtime_error("server create error: " + string{std::strerror(errno)});
 
     this->setSocketOption();
@@ -21,20 +21,22 @@ Server::Server(unsigned short port)
     this->listen();
 }
 
-Server::Server(Server &&other) noexcept : socket{other.socket}, idleSocket{other.idleSocket} {
+Server::Server(Server &&other) noexcept : socket{other.socket}, idleFileDescriptor{other.idleFileDescriptor} {
     other.socket = -1;
-    other.idleSocket = -1;
+    other.idleFileDescriptor = -1;
 }
 
 auto Server::operator=(Server &&other) noexcept -> Server & {
     if (this != &other) {
         this->socket = other.socket;
-        this->idleSocket = other.idleSocket;
+        this->idleFileDescriptor = other.idleFileDescriptor;
         other.socket = -1;
-        other.idleSocket = -1;
+        other.idleFileDescriptor = -1;
     }
     return *this;
 }
+
+auto Server::get() const -> int { return this->socket; }
 
 auto Server::accept(source_location sourceLocation) -> vector<shared_ptr<Client>> {
     vector<shared_ptr<Client>> clients;
@@ -60,13 +62,13 @@ auto Server::accept(source_location sourceLocation) -> vector<shared_ptr<Client>
         } else {
             if (errno == EAGAIN || errno == EWOULDBLOCK) break;
             if (errno == EMFILE) {
-                close(this->idleSocket);
+                close(this->idleFileDescriptor);
 
-                this->idleSocket = ::accept(this->socket, nullptr, nullptr);
+                this->idleFileDescriptor = ::accept(this->socket, nullptr, nullptr);
 
-                close(this->idleSocket);
+                close(this->idleFileDescriptor);
 
-                this->idleSocket = open("/dev/null", O_RDONLY);
+                this->idleFileDescriptor = open("/dev/null", O_RDONLY);
             } else {
                 Log::add(sourceLocation, Level::WARN, "server accept error: " + string{std::strerror(errno)});
 
@@ -78,12 +80,10 @@ auto Server::accept(source_location sourceLocation) -> vector<shared_ptr<Client>
     return clients;
 }
 
-auto Server::get() const -> int { return this->socket; }
-
 Server::~Server() {
-    if (this->idleSocket != -1 && close(this->idleSocket) == -1)
+    if (this->idleFileDescriptor != -1 && close(this->idleFileDescriptor) == -1)
         Log::add(source_location::current(), Level::ERROR,
-                 "server close idleSocket error: " + string{std::strerror(errno)});
+                 "server close idleFileDescriptor error: " + string{std::strerror(errno)});
 
     if (this->socket != -1 && close(this->socket) == -1)
         Log::add(source_location::current(), Level::ERROR, "server close error: " + string{std::strerror(errno)});

@@ -14,10 +14,10 @@ public:
 
     auto operator=(Server &&other) noexcept -> Server &;
 
+    [[nodiscard]] auto get() const -> int;
+
     [[nodiscard]] auto accept(std::source_location sourceLocation = std::source_location::current())
             -> std::vector<std::shared_ptr<Client>>;
-
-    [[nodiscard]] auto get() const -> int;
 
     ~Server();
 
@@ -28,5 +28,5 @@ private:
 
     auto listen() const -> void;
 
-    int socket, idleSocket;
+    int socket, idleFileDescriptor;
 };

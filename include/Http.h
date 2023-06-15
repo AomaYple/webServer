@@ -5,13 +5,20 @@
 
 class Http {
 public:
-    static auto analysis(const std::string &request) -> std::pair<std::string, bool>;
+    static auto analysis(std::string_view request) -> std::pair<std::string, bool>;
 
     Http(const Http &other) = delete;
 
     Http(Http &&other) = delete;
 
 private:
+    struct response {
+        std::string line, head, content;
+        bool keepAive;
+    };
+
+    auto analysisLine(std::string_view request, response &response) -> void;
+
     Http();
 
     static Http http;

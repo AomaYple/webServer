@@ -13,6 +13,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         main.cpp
         src/Buffer.cpp
         src/Client.cpp
+        src/DataBase.cpp
         src/Epoll.cpp
         src/EventLoop.cpp
         src/Http.cpp
@@ -24,5 +25,9 @@ target_sources(${PROJECT_NAME} PRIVATE
 
 target_include_directories(${PROJECT_NAME} PRIVATE
         include
+        )
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+        mysqlclient
         )
 

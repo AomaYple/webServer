@@ -14,11 +14,11 @@ Epoll::Epoll(Epoll &&other) noexcept : fileDescriptor{other.fileDescriptor}, epo
     other.fileDescriptor = -1;
 }
 
-auto Epoll::operator=(Epoll &&epoll) noexcept -> Epoll & {
-    if (this != &epoll) {
-        this->fileDescriptor = epoll.fileDescriptor;
-        this->epollEvents = std::move(epoll.epollEvents);
-        epoll.fileDescriptor = -1;
+auto Epoll::operator=(Epoll &&other) noexcept -> Epoll & {
+    if (this != &other) {
+        this->fileDescriptor = other.fileDescriptor;
+        this->epollEvents = std::move(other.epollEvents);
+        other.fileDescriptor = -1;
     }
     return *this;
 }

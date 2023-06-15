@@ -118,7 +118,7 @@ auto Client::setKeepAlive(bool value) -> void { this->keepAlive = value; }
 Client::~Client() {
     if (this->socket != -1) {
         if (close(this->socket) == -1)
-            Log::add(source_location::current(), Level::WARN,
+            Log::add(source_location::current(), Level::ERROR,
                      this->information + " close error: " + std::strerror(errno));
         else
             Log::add(source_location::current(), Level::INFO, this->information + " is closed");
