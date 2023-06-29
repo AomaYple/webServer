@@ -1,12 +1,13 @@
 #include "Log.h"
 
 #include <array>
+#include <format>
 #include <iomanip>
 #include <iostream>
 
 using std::cout, std::string, std::string_view, std::array, std::ostringstream, std::put_time, std::jthread,
         std::this_thread::get_id, std::atomic_ref, std::memory_order_relaxed, std::memory_order_acquire,
-        std::memory_order_release, std::chrono::system_clock, std::source_location;
+        std::memory_order_release, std::chrono::system_clock, std::source_location, std::format;
 
 constexpr array<string_view, 3> levels{"INFO", "WARN", "ERROR"};
 
@@ -14,13 +15,13 @@ auto Log::add(source_location sourceLocation, Level level, string &&message) -> 
     if (!instance.stop) {
         Node *newNode{new Node{}}, *oldTail{instance.tail.load(memory_order_relaxed)};
 
-        while (!instance.tail.compare_exchange_weak(oldTail, newNode, memory_order_release, memory_order_relaxed))
+        while (!instance.tail.compare_exchange_strong(oldTail, newNode, memory_order_release, memory_order_relaxed))
             ;
 
         oldTail->data = Node::Data(system_clock::now(), get_id(), sourceLocation, level, std::move(message));
         oldTail->next = newNode;
 
-        instance.notice.test_and_set(memory_order_release);
+        instance.notice.test_and_set(memory_order_relaxed);
         instance.notice.notify_one();
     }
 }
@@ -33,10 +34,10 @@ auto Log::stopWork() -> void {
 Log::Log()
     : head{new Node{}}, stop{false}, work{[this] {
           while (!this->stop) {
-              this->notice.wait(false, memory_order_acquire);
-              this->notice.clear(memory_order_release);
+              this->notice.wait(false, memory_order_relaxed);
+              this->notice.clear(memory_order_relaxed);
 
-              while (this->head != this->tail.load(memory_order_relaxed)) {
+              while (this->head != this->tail.load(memory_order_acquire)) {
                   auto &item{this->head->data};
 
                   ostringstream stream;
@@ -44,16 +45,10 @@ Log::Log()
                   time_t now{system_clock::to_time_t(item.time)};
                   stream << put_time(localtime(&now), "%F %T ") << " " << item.threadId << " ";
 
-                  stream << item.sourceLocation.file_name() << ":";
-                  stream << item.sourceLocation.line() << ":";
-                  stream << item.sourceLocation.column() << ":";
-                  stream << item.sourceLocation.function_name() << " ";
-
-                  stream << levels[static_cast<int>(item.level)] << " ";
-
-                  stream << item.message << "\n";
-
-                  cout << stream.str();
+                  cout << stream.str()
+                       << format("{}:{}:{}:{} {} {}\n", item.sourceLocation.file_name(), item.sourceLocation.line(),
+                                 item.sourceLocation.column(), item.sourceLocation.function_name(),
+                                 levels[static_cast<int>(item.level)], item.message);
 
                   Node *oldHead{this->head};
                   this->head = this->head->next;

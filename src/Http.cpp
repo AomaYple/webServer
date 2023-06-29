@@ -3,24 +3,12 @@
 #include <filesystem>
 #include <fstream>
 
-#include "DataBase.h"
-
-using std::string, std::string_view, std::to_string, std::pair, std::ifstream, std::ostringstream,
+using std::string, std::string_view, std::to_string, std::ifstream, std::ostringstream,
         std::filesystem::directory_iterator, std::filesystem::current_path;
 
-auto Http::analysis(string_view request) -> pair<string, bool> {
-    pair<string, bool> response;
-    return response;
-}
-
-auto Http::analysisLine(string_view request, response &response) -> void {
-    string protocol{"HTTP/"}, statusCode;
-
-    for (unsigned int i{0}; i < request.size() && request[i] != '\r'; ++i) {
-        if (i == 0 && request[i] == 'G') {}
-    }
-
-    response.line = protocol + statusCode;
+auto Http::analysis(string_view request) -> string {
+    return {"HTTP/1.1 200 OK\r\n"
+            "Content-Length: 0\r\n\r\n"};
 }
 
 Http::Http() {

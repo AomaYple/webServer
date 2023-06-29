@@ -1,17 +1,17 @@
 #include "Server.h"
 
 #include <arpa/inet.h>
-#include <fcntl.h>
 
 #include <cstring>
 
+#include "Event.h"
 #include "Log.h"
+#include "Submission.h"
 
-using std::string, std::to_string, std::vector, std::shared_ptr, std::make_shared, std::source_location,
-        std::runtime_error;
+using std::string, std::shared_ptr, std::runtime_error, std::source_location;
 
-Server::Server(unsigned short port)
-    : socket{::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)}, idleFileDescriptor{open("/dev/null", O_RDONLY)} {
+Server::Server(unsigned short port, const shared_ptr<Ring> &ring)
+    : socket{::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)}, ring{ring} {
     if (this->socket == -1) throw runtime_error("server create error: " + string{std::strerror(errno)});
 
     this->setSocketOption();
@@ -19,74 +19,23 @@ Server::Server(unsigned short port)
     this->bind(port);
 
     this->listen();
+
+    this->registerFileDescriptor();
 }
 
-Server::Server(Server &&other) noexcept : socket{other.socket}, idleFileDescriptor{other.idleFileDescriptor} {
-    other.socket = -1;
-    other.idleFileDescriptor = -1;
-}
+Server::Server(Server &&other) noexcept : socket{other.socket}, ring{std::move(other.ring)} { other.socket = -1; }
 
 auto Server::operator=(Server &&other) noexcept -> Server & {
     if (this != &other) {
         this->socket = other.socket;
-        this->idleFileDescriptor = other.idleFileDescriptor;
+        this->ring = std::move(other.ring);
         other.socket = -1;
-        other.idleFileDescriptor = -1;
     }
     return *this;
 }
 
-auto Server::get() const -> int { return this->socket; }
-
-auto Server::accept(source_location sourceLocation) -> vector<shared_ptr<Client>> {
-    vector<shared_ptr<Client>> clients;
-
-    while (true) {
-        sockaddr_in address = {};
-        socklen_t addressLength{sizeof(address)};
-
-        int clientSocket{accept4(this->socket, reinterpret_cast<sockaddr *>(&address), &addressLength, SOCK_NONBLOCK)};
-
-        if (clientSocket != -1) {
-            string information(INET_ADDRSTRLEN, 0);
-
-            if (inet_ntop(AF_INET, &address.sin_addr, information.data(), information.size()) == nullptr)
-                Log::add(sourceLocation, Level::WARN,
-                         "translate client ipAddress error: " + string{std::strerror(errno)});
-
-            information += ":" + to_string(ntohs(address.sin_port));
-
-            Log::add(sourceLocation, Level::INFO, "new client " + information);
-
-            clients.emplace_back(make_shared<Client>(clientSocket, std::move(information)));
-        } else {
-            if (errno == EAGAIN || errno == EWOULDBLOCK) break;
-            if (errno == EMFILE) {
-                close(this->idleFileDescriptor);
-
-                this->idleFileDescriptor = ::accept(this->socket, nullptr, nullptr);
-
-                close(this->idleFileDescriptor);
-
-                this->idleFileDescriptor = open("/dev/null", O_RDONLY);
-            } else {
-                Log::add(sourceLocation, Level::WARN, "server accept error: " + string{std::strerror(errno)});
-
-                break;
-            }
-        }
-    }
-
-    return clients;
-}
-
 Server::~Server() {
-    if (this->idleFileDescriptor != -1 && close(this->idleFileDescriptor) == -1)
-        Log::add(source_location::current(), Level::ERROR,
-                 "server close idleFileDescriptor error: " + string{std::strerror(errno)});
-
-    if (this->socket != -1 && close(this->socket) == -1)
-        Log::add(source_location::current(), Level::ERROR, "server close error: " + string{std::strerror(errno)});
+    if (this->socket != -1) {}
 }
 
 auto Server::setSocketOption() const -> void {
@@ -112,4 +61,9 @@ auto Server::bind(unsigned short port) const -> void {
 auto Server::listen() const -> void {
     if (::listen(this->socket, SOMAXCONN) == -1)
         throw runtime_error("server listen error: " + string{std::strerror(errno)});
+}
+
+auto Server::registerFileDescriptor() -> void {
+    int returnValue{io_uring_register_files_update(&this->ring->get(), 0, &this->socket, 1)};
+
 }
