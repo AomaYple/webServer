@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22.1)
+cmake_minimum_required(VERSION 3.26.4)
 
 project(WebServer)
 
@@ -11,16 +11,19 @@ add_executable(${PROJECT_NAME} "")
 
 target_sources(${PROJECT_NAME} PRIVATE
         main.cpp
-        src/Buffer.cpp
+        src/BufferRing.cpp
+        src/Completion.cpp
         src/Client.cpp
-        src/DataBase.cpp
-        src/Epoll.cpp
+        src/Data.cpp
+        src/Event.cpp
         src/EventLoop.cpp
         src/Http.cpp
         src/Log.cpp
-        src/Pool.cpp
+        src/Node.cpp
+        src/Response.cpp
+        src/UserRing.cpp
         src/Server.cpp
-        src/Timer.cpp
+        src/Submission.cpp
         )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -28,6 +31,5 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-        mysqlclient
+        uring
         )
-

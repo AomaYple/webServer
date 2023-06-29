@@ -1,32 +1,45 @@
 #pragma once
 
-#include "Epoll.h"
+#include <source_location>
+
+#include "BufferRing.h"
+#include "Client.h"
 #include "Server.h"
-#include "Timer.h"
 
 class EventLoop {
 public:
-    explicit EventLoop(unsigned short port);
+    EventLoop();
 
     EventLoop(const EventLoop &other) = delete;
 
-    EventLoop(EventLoop &&other) noexcept;
+    EventLoop(EventLoop &&other) = delete;
 
-    auto operator=(EventLoop &&other) noexcept -> EventLoop &;
+    [[noreturn]] auto loop() -> void;
 
-    auto operator()() -> void;
+    ~EventLoop();
 
 private:
-    auto handleServer() -> void;
-
-    auto handleClient(int socket, unsigned int event,
+    auto handleAccept(int result, unsigned int flags,
                       std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto handleClientReceive(std::shared_ptr<Client> &client) -> void;
+    auto handleReceive(int result, int socket, unsigned int flags,
+                       std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto handleClientSend(std::shared_ptr<Client> &client) -> void;
+    auto handleSend(int result, int socket, unsigned int flags,
+                    std::source_location sourceLocation = std::source_location::current()) -> void;
 
+    static auto handleClose(int result, int socket,
+                            std::source_location sourceLocation = std::source_location::current()) noexcept -> void;
+
+    static auto handleCancel(int result, int socket,
+                             std::source_location sourceLocation = std::source_location::current()) noexcept -> void;
+
+    static constinit thread_local bool instance;
+    static constinit std::mutex lock;
+    static std::vector<int> values;
+
+    std::shared_ptr<UserRing> userRing;
+    BufferRing bufferRing;
     Server server;
-    Timer timer;
-    Epoll epoll;
+    std::unordered_map<int, Client> clients;
 };

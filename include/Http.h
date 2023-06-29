@@ -1,27 +1,27 @@
 #pragma once
 
-#include <string>
 #include <unordered_map>
 
+#include "Response.h"
+
 class Http {
+    static Http instance;
+
 public:
-    static auto analysis(std::string_view request) -> std::pair<std::string, bool>;
+    static auto parse(std::string &&request) -> std::string;
 
     Http(const Http &other) = delete;
 
     Http(Http &&other) = delete;
 
 private:
-    struct response {
-        std::string line, head, content;
-        bool keepAive;
-    };
+    static auto parseMethod(Response &response, std::string_view word) -> bool;
 
-    auto analysisLine(std::string_view request, response &response) -> void;
+    static auto parseUrl(Response &response, std::string_view word) -> bool;
+
+    static auto parseVersion(Response &response, std::string_view word) -> bool;
 
     Http();
-
-    static Http http;
 
     std::unordered_map<std::string, std::string> webpages;
 };

@@ -2,11 +2,11 @@
 
 #include <memory>
 
-#include "Client.h"
+#include "UserRing.h"
 
 class Server {
 public:
-    explicit Server(unsigned short port);
+    Server(unsigned short port, const std::shared_ptr<UserRing> &userRing);
 
     Server(const Server &other) = delete;
 
@@ -14,10 +14,7 @@ public:
 
     auto operator=(Server &&other) noexcept -> Server &;
 
-    [[nodiscard]] auto get() const -> int;
-
-    [[nodiscard]] auto accept(std::source_location sourceLocation = std::source_location::current())
-            -> std::vector<std::shared_ptr<Client>>;
+    auto accept() -> void;
 
     ~Server();
 
@@ -28,5 +25,10 @@ private:
 
     auto listen() const -> void;
 
-    int socket, idleFileDescriptor;
+    auto cancel() -> void;
+
+    auto close() -> void;
+
+    int socket;
+    std::shared_ptr<UserRing> userRing;
 };
