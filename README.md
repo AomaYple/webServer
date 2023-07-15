@@ -34,8 +34,8 @@ cd build
 ## 并发模型
 
 每个线程都独立的持有一个io_uring实例和server实例，之间互不干扰，每个线程都是一个独立的事件循
-环，不用为了线程间同步用锁降低性能，利用SO_REUSEADDR和SO_REUSEPORT让多个独立的server
-绑定到同一地址和端口上，新连接随机分配到一个server上，然后处理连接的读写和释放
+环，不用为了线程间同步用锁降低性能，利用SO_REUSEADDR和SO_REUSEPORT让多个独立的server绑定到
+同一地址和端口上，新连接随机分配到一个server上，然后处理连接的读写和释放
 
 ## 定时器
 
