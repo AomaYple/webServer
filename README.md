@@ -45,7 +45,7 @@ cd build
 
 ## 项目测试
 
-Archlinux  
+Arch Linux  
 8核16线程，16G内存  
 利用[wrk](https://github.com/wg/wrk)测试，测试结果如下  
 ![image](images/test.png)
