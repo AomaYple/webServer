@@ -5,6 +5,7 @@
 #include "BufferRing.h"
 #include "Client.h"
 #include "Server.h"
+#include "Timer.h"
 
 class EventLoop {
 public:
@@ -21,6 +22,8 @@ public:
 private:
     auto handleAccept(int result, unsigned int flags,
                       std::source_location sourceLocation = std::source_location::current()) -> void;
+
+    auto handleTimeout(int result) -> void;
 
     auto handleReceive(int result, int socket, unsigned int flags,
                        std::source_location sourceLocation = std::source_location::current()) -> void;
@@ -41,5 +44,5 @@ private:
     std::shared_ptr<UserRing> userRing;
     BufferRing bufferRing;
     Server server;
-    std::unordered_map<int, Client> clients;
+    Timer timer;
 };

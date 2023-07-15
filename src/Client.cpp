@@ -6,17 +6,19 @@
 
 using std::string, std::shared_ptr, std::runtime_error, std::source_location;
 
-Client::Client(int socket, const shared_ptr<UserRing> &userRing) noexcept : socket{socket}, userRing{userRing} {}
+Client::Client(int socket, unsigned short timeout, const shared_ptr<UserRing> &userRing) noexcept
+    : socket{socket}, timeout{timeout}, userRing{userRing} {}
 
 Client::Client(Client &&other) noexcept
-    : socket{other.socket}, receivedData{std::move(other.receivedData)}, unSendData{std::move(other.unSendData)},
-      userRing{std::move(other.userRing)} {
+    : socket{other.socket}, timeout{other.timeout}, receivedData{std::move(other.receivedData)},
+      unSendData{std::move(other.unSendData)}, userRing{std::move(other.userRing)} {
     other.socket = -1;
 }
 
 auto Client::operator=(Client &&other) noexcept -> Client & {
     if (this != &other) {
         this->socket = other.socket;
+        this->timeout = other.timeout;
         this->receivedData = std::move(other.receivedData);
         this->unSendData = std::move(other.unSendData);
         this->userRing = std::move(other.userRing);
@@ -24,6 +26,10 @@ auto Client::operator=(Client &&other) noexcept -> Client & {
     }
     return *this;
 }
+
+auto Client::get() const noexcept -> int { return this->socket; }
+
+auto Client::getTimeout() const noexcept -> unsigned short { return this->timeout; }
 
 auto Client::receive(unsigned short bufferRingId) -> void {
     Submission submission{this->userRing->getSubmission()};

@@ -6,13 +6,17 @@
 
 class Client {
 public:
-    Client(int socket, const std::shared_ptr<UserRing> &userRing) noexcept;
+    Client(int socket, unsigned short timeout, const std::shared_ptr<UserRing> &userRing) noexcept;
 
     Client(const Client &other) = delete;
 
     Client(Client &&other) noexcept;
 
     auto operator=(Client &&other) noexcept -> Client &;
+
+    [[nodiscard]] auto get() const noexcept -> int;
+
+    [[nodiscard]] auto getTimeout() const noexcept -> unsigned short;
 
     auto receive(unsigned short bufferRingId) -> void;
 
@@ -30,6 +34,7 @@ private:
     auto close() -> void;
 
     int socket;
+    unsigned short timeout;
     std::string receivedData, unSendData;
     std::shared_ptr<UserRing> userRing;
 };

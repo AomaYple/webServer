@@ -21,6 +21,11 @@ auto Submission::accept(int socket, sockaddr *address, socklen_t *addressLength,
     io_uring_prep_multishot_accept_direct(this->self, socket, address, addressLength, flags);
 }
 
+auto Submission::read(int fileDescriptor, void *buffer, unsigned int bytesNumber,
+                      unsigned long long int offset) noexcept -> void {
+    io_uring_prep_read(this->self, fileDescriptor, buffer, bytesNumber, offset);
+}
+
 auto Submission::receive(int socket, void *buffer, unsigned long bufferLength, int flags) noexcept -> void {
     io_uring_prep_recv_multishot(this->self, socket, buffer, bufferLength, flags);
 }

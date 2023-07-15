@@ -20,6 +20,8 @@ public:
 
     auto accept(int socket, sockaddr *address, socklen_t *addressLength, int flags) noexcept -> void;
 
+    auto read(int fileDescriptor, void *buffer, unsigned int bytesNumber, unsigned long long offset) noexcept -> void;
+
     auto receive(int socket, void *buffer, unsigned long bufferLength, int flags) noexcept -> void;
 
     auto send(int socket, const void *buffer, unsigned long bufferLength, int flags,

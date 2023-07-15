@@ -24,6 +24,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/UserRing.cpp
         src/Server.cpp
         src/Submission.cpp
+        src/Timer.cpp
         )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

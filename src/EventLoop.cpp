@@ -62,6 +62,8 @@ EventLoop::EventLoop()
 auto EventLoop::loop() -> void {
     this->server.accept();
 
+    this->timer.start(Submission{this->userRing->getSubmission()});
+
     while (true) {
         this->userRing->submitWait(1);
 
@@ -77,6 +79,10 @@ auto EventLoop::loop() -> void {
             switch (event.type) {
                 case Type::ACCEPT:
                     this->handleAccept(result, flags);
+
+                    break;
+                case Type::TIMEOUT:
+                    this->handleTimeout(result);
 
                     break;
                 case Type::RECEIVE:
@@ -118,28 +124,41 @@ EventLoop::~EventLoop() {
 
 auto EventLoop::handleAccept(int result, unsigned int flags, source_location sourceLocation) -> void {
     if (result >= 0) {
-        Client client{result, this->userRing};
+        Client client{result, 30, this->userRing};
 
         client.receive(this->bufferRing.getId());
 
-        this->clients.emplace(result, std::move(client));
+        this->timer.add(std::move(client));
     } else
         Log::produce(sourceLocation, Level::WARN, "server accept error: " + string{std::strerror(std::abs(result))});
 
     if (!(flags & IORING_CQE_F_MORE)) this->server.accept();
 }
 
+auto EventLoop::handleTimeout(int result) -> void {
+    if (result == sizeof(unsigned long)) {
+        this->timer.clearTimeout();
+
+        this->timer.start(Submission{this->userRing->getSubmission()});
+    } else
+        throw runtime_error("timer timing error: " + string{std::strerror(std::abs(result))});
+}
+
 auto EventLoop::handleReceive(int result, int socket, unsigned int flags, source_location sourceLocation) -> void {
-    if (result > 0) {
-        Client &client{this->clients.at(socket)};
+    bool exist{this->timer.exist(socket)};
+
+    if (exist && result > 0) {
+        Client client{this->timer.pop(socket)};
 
         client.writeReceivedData(this->bufferRing.getData(flags >> IORING_CQE_BUFFER_SHIFT, result));
 
         if (!(flags & IORING_CQE_F_SOCK_NONEMPTY)) client.send(Http::parse(client.readReceivedData()));
 
         if (!(flags & IORING_CQE_F_MORE)) client.receive(this->bufferRing.getId());
+
+        this->timer.add(std::move(client));
     } else {
-        this->clients.erase(socket);
+        if (exist) this->timer.pop(socket);
 
         if (result < 0)
             Log::produce(sourceLocation, Level::WARN,
@@ -148,8 +167,14 @@ auto EventLoop::handleReceive(int result, int socket, unsigned int flags, source
 }
 
 auto EventLoop::handleSend(int result, int socket, unsigned int flags, source_location sourceLocation) -> void {
-    if ((result == 0 && !(flags & IORING_CQE_F_NOTIF)) || result < 0) {
-        this->clients.erase(socket);
+    bool exist{this->timer.exist(socket)};
+
+    if (exist && result == 0 && (flags & IORING_CQE_F_NOTIF)) {
+        Client client{this->timer.pop(socket)};
+
+        this->timer.add(std::move(client));
+    } else if (result < 0) {
+        if (exist) this->timer.pop(socket);
 
         Log::produce(sourceLocation, Level::WARN, "client send error: " + string{std::strerror(std::abs(result))});
     }
