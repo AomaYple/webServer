@@ -8,11 +8,14 @@
 #include "Log.h"
 #include "Submission.h"
 
-using std::string, std::array, std::shared_ptr, std::runtime_error, std::source_location;
+using std::array, std::string;
+using std::runtime_error;
+using std::shared_ptr;
+using std::source_location;
 
 Server::Server(unsigned short port, const shared_ptr<UserRing> &userRing)
     : socket{::socket(AF_INET, SOCK_STREAM, 0)}, userRing{userRing} {
-    if (this->socket == -1) throw runtime_error("server create error: " + string{std::strerror(errno)});
+    if (this->socket == -1) throw runtime_error("server create file descriptor error: " + string{std::strerror(errno)});
 
     this->setSocketOption();
 
@@ -20,12 +23,7 @@ Server::Server(unsigned short port, const shared_ptr<UserRing> &userRing)
 
     this->listen();
 
-    this->userRing->allocateFileDescriptorRange(1, getFileDescriptorLimit() - 1);
-
-    array<int, 1> fileDescriptor{this->socket};
-    this->userRing->updateFileDescriptors(0, fileDescriptor);
-
-    this->socket = 0;
+    this->registerSelf();
 }
 
 Server::Server(Server &&other) noexcept : socket{other.socket}, userRing{std::move(other.userRing)} {
@@ -59,7 +57,7 @@ Server::~Server() {
 
             this->close();
 
-            this->userRing->allocateFileDescriptorRange(0, getFileDescriptorLimit());
+            this->unregisterSelf();
         } catch (const runtime_error &runtimeError) {
             Log::produce(source_location::current(), Level::ERROR, runtimeError.what());
         }
@@ -91,6 +89,15 @@ auto Server::listen() const -> void {
         throw runtime_error("server listen error: " + string{std::strerror(errno)});
 }
 
+auto Server::registerSelf() -> void {
+    this->userRing->allocateFileDescriptorRange(1, getFileDescriptorLimit() - 1);
+
+    array<int, 1> fileDescriptor{this->socket};
+    this->userRing->updateFileDescriptors(0, fileDescriptor);
+
+    this->socket = 0;
+}
+
 auto Server::cancel() -> void {
     Submission submission{this->userRing->getSubmission()};
 
@@ -112,3 +119,5 @@ auto Server::close() -> void {
 
     submission.setFlags(IOSQE_CQE_SKIP_SUCCESS);
 }
+
+auto Server::unregisterSelf() -> void { this->userRing->allocateFileDescriptorRange(0, getFileDescriptorLimit()); }

@@ -4,7 +4,10 @@
 #include "Log.h"
 #include "Submission.h"
 
-using std::string, std::shared_ptr, std::runtime_error, std::source_location;
+using std::runtime_error;
+using std::shared_ptr;
+using std::source_location;
+using std::string;
 
 Client::Client(int socket, unsigned short timeout, const shared_ptr<UserRing> &userRing) noexcept
     : socket{socket}, timeout{timeout}, userRing{userRing} {}
@@ -44,7 +47,7 @@ auto Client::receive(unsigned short bufferRingId) -> void {
     submission.setBufferGroup(bufferRingId);
 }
 
-auto Client::writeReceivedData(string &&data) noexcept -> void { this->receivedData += data; }
+auto Client::writeReceivedData(string &&data) -> void { this->receivedData += data; }
 
 auto Client::readReceivedData() noexcept -> string {
     string data{std::move(this->receivedData)};

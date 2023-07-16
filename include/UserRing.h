@@ -29,15 +29,15 @@ public:
 
     auto updateFileDescriptors(unsigned int offset, std::span<int> fileDescriptors) -> void;
 
-    auto setupBufferRing(unsigned short entries, unsigned short id) -> io_uring_buf_ring *;
+    [[nodiscard]] auto setupBufferRing(unsigned short entries, unsigned short id) -> io_uring_buf_ring *;
 
     auto freeBufferRing(io_uring_buf_ring *bufferRing, unsigned short entries, unsigned short id) -> void;
 
     auto submitWait(unsigned int waitCount) -> void;
 
-    auto forEachCompletion(const std::function<auto(io_uring_cqe *cqe)->void> &task) noexcept -> unsigned int;
+    [[nodiscard]] auto forEachCompletion(const std::function<auto(io_uring_cqe *cqe)->void> &task) -> unsigned int;
 
-    auto getSubmission() -> io_uring_sqe *;
+    [[nodiscard]] auto getSubmission() -> io_uring_sqe *;
 
     auto advanceCompletionBufferRingBuffer(io_uring_buf_ring *bufferRing, unsigned int completionCount,
                                            unsigned short bufferRingBufferCount) noexcept -> void;

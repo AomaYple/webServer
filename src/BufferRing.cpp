@@ -2,18 +2,21 @@
 
 #include "Log.h"
 
-using std::string, std::vector, std::shared_ptr, std::runtime_error, std::source_location;
+using std::runtime_error;
+using std::shared_ptr;
+using std::source_location;
+using std::string, std::vector;
 
 BufferRing::BufferRing(unsigned short entries, unsigned long bufferSize, unsigned short id,
                        const shared_ptr<UserRing> &userRing)
     : self{userRing->setupBufferRing(entries, id)}, buffers{vector<vector<char>>(entries, vector<char>(bufferSize, 0))},
       id{id}, mask{static_cast<unsigned short>(io_uring_buf_ring_mask(static_cast<unsigned int>(entries)))}, offset{0},
       userRing{userRing} {
-    for (unsigned short i{0}; i < static_cast<unsigned short>(this->buffers.size()); ++i)
-        io_uring_buf_ring_add(this->self, this->buffers[i].data(), this->buffers[i].size(), i, this->mask,
-                              static_cast<int>(i));
+    for (unsigned short i{0}; i < static_cast<unsigned short>(this->buffers.size()); ++i) this->add(i);
 
-    io_uring_buf_ring_advance(this->self, static_cast<int>(this->buffers.size()));
+    io_uring_buf_ring_advance(this->self, this->offset);
+
+    this->offset = 0;
 }
 
 BufferRing::BufferRing(BufferRing &&other) noexcept
@@ -42,8 +45,7 @@ auto BufferRing::getData(unsigned short bufferIndex, unsigned long dataSize) -> 
 
     if (dataSize == this->buffers[bufferIndex].size()) this->buffers[bufferIndex].resize(this->buffers.size() * 2);
 
-    io_uring_buf_ring_add(this->self, this->buffers[bufferIndex].data(), this->buffers[bufferIndex].size(), bufferIndex,
-                          this->mask, this->offset++);
+    this->add(bufferIndex);
 
     return data;
 }
@@ -62,4 +64,9 @@ BufferRing::~BufferRing() {
             Log::produce(source_location::current(), Level::ERROR, runtimeError.what());
         }
     }
+}
+
+auto BufferRing::add(unsigned short index) noexcept -> void {
+    io_uring_buf_ring_add(this->self, this->buffers[index].data(), this->buffers[index].size(), index, this->mask,
+                          this->offset++);
 }

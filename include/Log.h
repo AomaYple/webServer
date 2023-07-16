@@ -6,7 +6,7 @@ class Log {
     static Log instance;
 
 public:
-    static auto produce(std::source_location sourceLocation, Level level, std::string &&information) noexcept -> void;
+    static auto produce(std::source_location sourceLocation, Level level, std::string &&information) -> void;
 
     Log(const Log &other) = delete;
 

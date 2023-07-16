@@ -25,9 +25,13 @@ private:
 
     auto listen() const -> void;
 
+    auto registerSelf() -> void;
+
     auto cancel() -> void;
 
     auto close() -> void;
+
+    auto unregisterSelf() -> void;
 
     int socket;
     std::shared_ptr<UserRing> userRing;

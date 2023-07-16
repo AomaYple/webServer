@@ -20,7 +20,7 @@ public:
 
     auto receive(unsigned short bufferRingId) -> void;
 
-    auto writeReceivedData(std::string &&data) noexcept -> void;
+    auto writeReceivedData(std::string &&data) -> void;
 
     auto readReceivedData() noexcept -> std::string;
 

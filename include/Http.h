@@ -8,18 +8,18 @@ class Http {
     static Http instance;
 
 public:
-    static auto parse(std::string &&request) -> std::string;
+    [[nodiscard]] static auto parse(std::string &&request) -> std::string;
 
     Http(const Http &other) = delete;
 
     Http(Http &&other) = delete;
 
 private:
-    static auto parseMethod(Response &response, std::string_view word) -> bool;
+    static auto parseMethod(Response &response, std::string_view word) -> void;
 
-    static auto parseUrl(Response &response, std::string_view word) -> bool;
+    static auto parseUrl(Response &response, std::string_view word) -> void;
 
-    static auto parseVersion(Response &response, std::string_view word) -> bool;
+    static auto parseVersion(Response &response, std::string_view word) -> void;
 
     Http();
 

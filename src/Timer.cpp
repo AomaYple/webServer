@@ -7,7 +7,9 @@
 #include "Event.h"
 #include "Log.h"
 
-using std::string, std::runtime_error, std::out_of_range, std::source_location;
+using std::runtime_error, std::out_of_range;
+using std::source_location;
+using std::string;
 
 Timer::Timer() : self{timerfd_create(CLOCK_BOOTTIME, 0)}, now{0}, expireCount{0} {
     if (this->self == -1) throw runtime_error("timer create file descriptor error: " + string{std::strerror(errno)});
@@ -80,8 +82,11 @@ auto Timer::pop(int socket) -> Client {
 }
 
 Timer::~Timer() {
-    if (this->self != -1)
-        if (close(this->self) == -1)
-            Log::produce(source_location::current(), Level::ERROR,
-                         "timer close error: " + string{std::strerror(errno)});
+    try {
+        this->close();
+    } catch (const runtime_error &error) { Log::produce(source_location::current(), Level::ERROR, error.what()); }
+}
+
+auto Timer::close() const -> void {
+    if (::close(this->self) == -1) throw runtime_error("timer close error: " + string{std::strerror(errno)});
 }

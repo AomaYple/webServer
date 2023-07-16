@@ -2,7 +2,7 @@
 
 using std::string;
 
-Response::Response() noexcept
+Response::Response()
     : parseMethod{false}, parseUrl{false}, parseVersion{false}, writeBody{false},
       headers{"Content-Type: text/html; charset=utf-8\r\n"}, body{"\r\n"} {}
 
@@ -25,6 +25,6 @@ auto Response::operator=(Response &&other) noexcept -> Response & {
     return *this;
 }
 
-auto Response::combine() noexcept -> string {
+auto Response::combine() -> string {
     return std::move(version) + std::move(statusCode) + std::move(headers) + std::move(body);
 }

@@ -8,8 +8,12 @@
 #include "Http.h"
 #include "Log.h"
 
-using std::string, std::to_string, std::vector, std::ranges::find_if, std::shared_ptr, std::make_shared, std::mutex,
-        std::lock_guard, std::runtime_error, std::source_location;
+using std::mutex, std::lock_guard;
+using std::runtime_error;
+using std::shared_ptr, std::make_shared;
+using std::source_location;
+using std::string, std::to_string, std::vector;
+using std::ranges::find_if;
 
 constexpr unsigned int ringEntries{128};
 constexpr unsigned short bufferRingEntries{128}, bufferRingId{0}, serverPort{9999};

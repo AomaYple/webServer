@@ -1,17 +1,18 @@
 #include "Log.h"
 
 #include <chrono>
-#include <format>
 #include <iostream>
 
-using std::cout, std::string, std::string_view, std::array, std::this_thread::get_id, std::memory_order_relaxed,
-        std::memory_order_release, std::chrono::system_clock, std::source_location, std::format;
+using std::cout, std::array, std::string, std::string_view;
+using std::exception;
+using std::memory_order_relaxed, std::memory_order_release;
+using std::chrono::system_clock, std::this_thread::get_id, std::source_location;
 
 constexpr array<string_view, 3> levels{"INFO", "WARN", "ERROR"};
 
 Log Log::instance;
 
-auto Log::produce(source_location sourceLocation, Level level, string &&information) noexcept -> void {
+auto Log::produce(source_location sourceLocation, Level level, string &&information) -> void {
     Node *newHead{new Node{Data{system_clock::now(), get_id(), sourceLocation, level, std::move(information)},
                            instance.head.load(memory_order_relaxed)}};
 
@@ -67,4 +68,8 @@ Log::Log()
           }
       }} {}
 
-Log::~Log() { Log::consume(Log::invertLinkedList(this->head)); }
+Log::~Log() {
+    try {
+        Log::consume(Log::invertLinkedList(this->head));
+    } catch (const exception &exception) { cout << "log destructor error: " << exception.what() << "\n"; }
+}

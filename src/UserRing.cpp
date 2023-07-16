@@ -5,7 +5,8 @@
 
 #include <stdexcept>
 
-using std::string, std::span, std::function, std::runtime_error;
+using std::runtime_error;
+using std::string, std::span, std::function;
 
 auto getFileDescriptorLimit() -> unsigned int {
     rlimit limit{};
@@ -94,7 +95,7 @@ auto UserRing::submitWait(unsigned int waitCount) -> void {
         throw runtime_error("userRing submit wait error: " + string{std::strerror(std::abs(returnValue))});
 }
 
-auto UserRing::forEachCompletion(const function<auto(io_uring_cqe *cqe)->void> &task) noexcept -> unsigned int {
+auto UserRing::forEachCompletion(const function<auto(io_uring_cqe *cqe)->void> &task) -> unsigned int {
     unsigned int head, completionCount{0};
 
     io_uring_cqe *completion;

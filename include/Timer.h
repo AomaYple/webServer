@@ -26,6 +26,8 @@ public:
     ~Timer();
 
 private:
+    auto close() const -> void;
+
     int self;
     unsigned short now;
     unsigned long expireCount;
