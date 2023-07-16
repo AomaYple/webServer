@@ -1,14 +1,13 @@
 #include "EventLoop.h"
 
 #include <cstring>
-#include <sys/sysinfo.h>
 
 #include "Completion.h"
 #include "Event.h"
 #include "Http.h"
 #include "Log.h"
 
-using std::mutex, std::lock_guard;
+using std::jthread, std::mutex, std::lock_guard;
 using std::runtime_error;
 using std::shared_ptr, std::make_shared;
 using std::source_location;
@@ -21,7 +20,7 @@ constexpr unsigned long bufferRingBufferSize{1024};
 
 constinit thread_local bool EventLoop::instance{false};
 constinit mutex EventLoop::lock{};
-vector<int> EventLoop::values{vector<int>(get_nprocs(), -1)};
+vector<int> EventLoop::values{vector<int>(jthread::hardware_concurrency(), -1)};
 
 EventLoop::EventLoop()
     : userRing{[] {

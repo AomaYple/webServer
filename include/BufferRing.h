@@ -9,11 +9,11 @@ public:
     BufferRing(unsigned short entries, unsigned long bufferSize, unsigned short id,
                const std::shared_ptr<UserRing> &userRing);
 
-    BufferRing(const BufferRing &other) = delete;
+    BufferRing(const BufferRing &) = delete;
 
-    BufferRing(BufferRing &&other) noexcept;
+    BufferRing(BufferRing &&) noexcept;
 
-    auto operator=(BufferRing &&other) noexcept -> BufferRing &;
+    auto operator=(BufferRing &&) noexcept -> BufferRing &;
 
     [[nodiscard]] auto getId() const noexcept -> unsigned short;
 

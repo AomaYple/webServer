@@ -7,11 +7,11 @@ class Timer {
 public:
     Timer();
 
-    Timer(const Timer &other) = delete;
+    Timer(const Timer &) = delete;
 
-    Timer(Timer &&other) noexcept;
+    Timer(Timer &&) noexcept;
 
-    auto operator=(Timer &&other) noexcept -> Timer &;
+    auto operator=(Timer &&) noexcept -> Timer &;
 
     auto start(Submission &&submission) noexcept -> void;
 

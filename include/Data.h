@@ -9,11 +9,11 @@ struct Data {
     Data(std::chrono::system_clock::time_point timestamp, std::jthread::id threadId,
          std::source_location sourceLocation, Level level, std::string &&information) noexcept;
 
-    Data(const Data &other) noexcept = default;
+    Data(const Data &) noexcept = default;
 
-    Data(Data &&other) noexcept;
+    Data(Data &&) noexcept;
 
-    auto operator=(Data &&other) noexcept -> Data &;
+    auto operator=(Data &&) noexcept -> Data &;
 
     std::chrono::system_clock::time_point timestamp;
     std::jthread::id threadId;

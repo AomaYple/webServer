@@ -5,9 +5,9 @@
 struct Response {
     Response();
 
-    Response(Response &&other) noexcept;
+    Response(Response &&) noexcept;
 
-    auto operator=(Response &&other) noexcept -> Response &;
+    auto operator=(Response &&) noexcept -> Response &;
 
     auto combine() -> std::string;
 

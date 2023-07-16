@@ -11,11 +11,11 @@ class UserRing {
 public:
     UserRing(unsigned int entries, io_uring_params &params);
 
-    UserRing(const UserRing &other) = delete;
+    UserRing(const UserRing &) = delete;
 
-    UserRing(UserRing &&other) noexcept;
+    UserRing(UserRing &&) noexcept;
 
-    auto operator=(UserRing &&other) noexcept -> UserRing &;
+    auto operator=(UserRing &&) noexcept -> UserRing &;
 
     [[nodiscard]] auto getSelfFileDescriptor() const noexcept -> int;
 

@@ -8,11 +8,11 @@ class Client {
 public:
     Client(int socket, unsigned short timeout, const std::shared_ptr<UserRing> &userRing) noexcept;
 
-    Client(const Client &other) = delete;
+    Client(const Client &) = delete;
 
-    Client(Client &&other) noexcept;
+    Client(Client &&) noexcept;
 
-    auto operator=(Client &&other) noexcept -> Client &;
+    auto operator=(Client &&) noexcept -> Client &;
 
     [[nodiscard]] auto get() const noexcept -> int;
 

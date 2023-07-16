@@ -11,9 +11,9 @@ class EventLoop {
 public:
     EventLoop();
 
-    EventLoop(const EventLoop &other) = delete;
+    EventLoop(const EventLoop &) = delete;
 
-    EventLoop(EventLoop &&other) = delete;
+    EventLoop(EventLoop &&) = delete;
 
     [[noreturn]] auto loop() -> void;
 

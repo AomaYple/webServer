@@ -5,11 +5,11 @@
 struct Node {
     Node(Data &&data, Node *next) noexcept;
 
-    Node(const Node &other) = delete;
+    Node(const Node &) = delete;
 
-    Node(Node &&other) noexcept;
+    Node(Node &&) noexcept;
 
-    auto operator=(Node &&other) noexcept -> Node &;
+    auto operator=(Node &&) noexcept -> Node &;
 
     Data data;
     Node *next;

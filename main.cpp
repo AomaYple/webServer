@@ -1,13 +1,12 @@
 #include <thread>
 
-#include <sys/sysinfo.h>
-
 #include "EventLoop.h"
 
-using std::vector, std::jthread;
+using std::jthread;
+using std::vector;
 
 int main() {
-    vector<jthread> works(get_nprocs() - 2);
+    vector<jthread> works(jthread::hardware_concurrency() - 2);
 
     for (jthread &work: works) {
         work = jthread([] {

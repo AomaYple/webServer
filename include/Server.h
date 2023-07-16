@@ -8,11 +8,11 @@ class Server {
 public:
     Server(unsigned short port, const std::shared_ptr<UserRing> &userRing);
 
-    Server(const Server &other) = delete;
+    Server(const Server &) = delete;
 
-    Server(Server &&other) noexcept;
+    Server(Server &&) noexcept;
 
-    auto operator=(Server &&other) noexcept -> Server &;
+    auto operator=(Server &&) noexcept -> Server &;
 
     auto accept() -> void;
 

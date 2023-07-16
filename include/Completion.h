@@ -6,11 +6,11 @@ class Completion {
 public:
     explicit Completion(io_uring_cqe *cqe) noexcept;
 
-    Completion(const Completion &other) = delete;
+    Completion(const Completion &) = delete;
 
-    Completion(Completion &&other) noexcept;
+    Completion(Completion &&) noexcept;
 
-    auto operator=(Completion &&other) noexcept -> Completion &;
+    auto operator=(Completion &&) noexcept -> Completion &;
 
     [[nodiscard]] auto getUserData() const noexcept -> unsigned long long;
 

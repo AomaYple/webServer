@@ -8,9 +8,9 @@ class Log {
 public:
     static auto produce(std::source_location sourceLocation, Level level, std::string &&information) -> void;
 
-    Log(const Log &other) = delete;
+    Log(const Log &) = delete;
 
-    Log(Log &&other) = delete;
+    Log(Log &&) = delete;
 
 private:
     static auto invertLinkedList(Node *pointer) noexcept -> Node *;

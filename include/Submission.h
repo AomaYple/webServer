@@ -6,11 +6,11 @@ class Submission {
 public:
     explicit Submission(io_uring_sqe *sqe) noexcept;
 
-    Submission(const Submission &other) = delete;
+    Submission(const Submission &) = delete;
 
-    Submission(Submission &&other) noexcept;
+    Submission(Submission &&) noexcept;
 
-    auto operator=(Submission &&other) noexcept -> Submission &;
+    auto operator=(Submission &&) noexcept -> Submission &;
 
     auto setUserData(unsigned long long userData) noexcept -> void;
 
