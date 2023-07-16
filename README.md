@@ -1,7 +1,7 @@
 ## 项目介绍
 
-本项目是一个基于c++23和liburing的异步高并发服务器，利用liburing的特性实现真正的异步读取，
-是真正的Proactor模式
+本项目是一个基于c++23和liburing的异步高并发Proactor模式服务器，利用liburing的特性实现真正的
+异步读取
 
 ## 项目所需环境
 
