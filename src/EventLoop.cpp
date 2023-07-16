@@ -149,9 +149,7 @@ auto EventLoop::handleTimeout(int result) -> void {
 }
 
 auto EventLoop::handleReceive(int result, int socket, unsigned int flags, source_location sourceLocation) -> void {
-    bool exist{this->timer.exist(socket)};
-
-    if (exist && result > 0) {
+    if (this->timer.exist(socket) && result > 0) {
         Client client{this->timer.pop(socket)};
 
         client.writeReceivedData(this->bufferRing.getData(flags >> IORING_CQE_BUFFER_SHIFT, result));
@@ -161,8 +159,8 @@ auto EventLoop::handleReceive(int result, int socket, unsigned int flags, source
         if (!(flags & IORING_CQE_F_MORE)) client.receive(this->bufferRing.getId());
 
         this->timer.add(std::move(client));
-    } else {
-        if (exist) this->timer.pop(socket);
+    } else if (std::abs(result) != ECANCELED) {
+        this->timer.pop(socket);
 
         if (result < 0)
             Log::produce(sourceLocation, Level::WARN,
@@ -171,14 +169,12 @@ auto EventLoop::handleReceive(int result, int socket, unsigned int flags, source
 }
 
 auto EventLoop::handleSend(int result, int socket, unsigned int flags, source_location sourceLocation) -> void {
-    bool exist{this->timer.exist(socket)};
-
-    if (exist && result == 0 && (flags & IORING_CQE_F_NOTIF)) {
+    if (this->timer.exist(socket) && result == 0 && (flags & IORING_CQE_F_NOTIF)) {
         Client client{this->timer.pop(socket)};
 
         this->timer.add(std::move(client));
-    } else if (result < 0) {
-        if (exist) this->timer.pop(socket);
+    } else if (result < 0 && std::abs(result) != ECANCELED) {
+        this->timer.pop(socket);
 
         Log::produce(sourceLocation, Level::WARN, "client send error: " + string{std::strerror(std::abs(result))});
     }
