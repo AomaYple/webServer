@@ -25,6 +25,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/Server.cpp
         src/Submission.cpp
         src/Timer.cpp
+        src/UserData.cpp
         )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

@@ -26,7 +26,7 @@ public:
 private:
     auto add(unsigned short index) noexcept -> void;
 
-    io_uring_buf_ring *self;
+    io_uring_buf_ring *bufferRing;
     std::vector<std::vector<char>> buffers;
     unsigned short id, mask, offset;
     std::shared_ptr<UserRing> userRing;

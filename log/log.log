@@ -1,0 +1,968 @@
+2023-07-17 09:21:22.595692481 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748296876 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748304969 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748308489 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748312756 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748319114 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748320324 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748323932 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748324241 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748328375 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748330103 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748334205 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748335771 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748339786 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748343093 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748347631 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748349656 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748352398 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748358910 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748359259 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748363403 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748366471 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748371069 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748378470 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748382678 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748383565 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748384903 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748387071 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748389699 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748392472 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748395901 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748400967 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748402020 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748406546 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748410273 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748412596 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748416320 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748420564 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748422526 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748426678 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748431327 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748433328 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748436084 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748440352 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748442229 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748447369 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748450284 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748453468 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748456503 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748459909 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748462956 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748466336 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748472195 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748472956 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748475942 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748477412 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748480836 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748484536 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748486627 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748489743 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748492529 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748497368 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748500920 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748504166 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748508648 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748511752 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748514244 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748516869 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748519155 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748523734 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748526212 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748529371 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748532871 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748535788 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748539374 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748543108 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748546100 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748548266 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748551095 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748554484 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748557464 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748561425 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748564693 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748566886 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748569256 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748572007 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748575786 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748577792 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748580622 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748583091 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748586119 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748588618 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748592707 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748595138 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748598507 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748601376 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748604455 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748607531 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748611470 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748615010 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748618921 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748621693 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748623914 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748625728 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748628816 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748631696 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748633657 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748636716 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748639843 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748642711 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748646474 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748649191 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748651634 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748655445 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748656586 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748659033 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748662189 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748666319 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748668283 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748672326 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748674007 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748676009 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748679100 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748682186 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748684721 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748687027 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748690059 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748693109 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748696009 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748698490 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748703254 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748704344 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748706413 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748709080 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748712058 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748715334 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748720092 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748722436 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748725388 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748728716 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748732123 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748735627 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748737707 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748741082 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748743476 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748746978 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748748898 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748751139 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748753225 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748756321 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748758367 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748761206 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748764385 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748766799 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748769356 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748772203 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748775143 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748777929 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748780892 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748783321 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748785501 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748787721 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748790629 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748793765 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748795023 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748797792 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748800312 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748803990 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748805782 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748809010 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748811347 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748815285 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748819083 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748823424 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748825164 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748827884 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748831454 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748833978 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748836770 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748841904 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748843926 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748846524 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748848337 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748851387 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748854559 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748857668 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748860285 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748863913 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748866192 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748867682 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748871798 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748874486 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748876535 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748879972 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748882264 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748886563 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748888544 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748891728 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748895034 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748897731 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748899749 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748902797 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748905082 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748907833 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748910810 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748911266 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748915068 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748918241 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748922059 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748924480 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748928039 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748929967 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748933273 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748936559 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748939096 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748942070 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748945159 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748948316 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748951363 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748953825 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748957117 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748959143 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748962564 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748965142 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748968209 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748970394 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748974378 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748976137 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748979293 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748982848 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748985353 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.748987683 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748990966 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748993076 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748996120 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.748999292 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749002020 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749005268 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749007750 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749010050 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749013221 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749015512 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749018075 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749021083 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749023559 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749025081 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749028655 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749030943 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749034127 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749035732 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749038964 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749042168 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749043648 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749046744 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749048903 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749052273 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749054567 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749058156 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749060132 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749062594 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749066416 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749069616 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749071490 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749075234 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749077293 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749080068 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749083194 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749087743 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749089785 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749089785 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749092760 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749095490 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749098193 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749100485 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749103523 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749107099 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749108465 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749111378 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749114405 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749115832 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749117865 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749120660 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749123768 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749126383 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749130647 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749133164 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749136883 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749139843 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749140666 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749143479 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749147218 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749148787 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749150489 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749153195 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749156567 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749157865 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749161258 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749161829 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749164793 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749167504 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749170111 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749172956 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749175102 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749178342 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749181119 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749183806 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749186031 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749188317 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749190998 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749193943 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749196508 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749199613 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749202785 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749206655 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749208996 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749210786 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749212721 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749215629 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749218896 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749220854 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749223049 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749225854 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749228018 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749230782 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749233309 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749236095 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749239757 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749241624 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749244371 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749247676 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749251216 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749253465 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749256602 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749259483 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749261610 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749265065 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749266807 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749270059 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749273445 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749276452 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749280474 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749282507 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749285435 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749288882 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749291207 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749294290 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749298357 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749300371 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749303103 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749305684 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749308452 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749313347 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749315813 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749319193 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749320312 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749322579 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749325767 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749328819 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749333264 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749334996 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749338728 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749343272 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749345548 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749347063 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749350185 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749353576 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749355813 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749358717 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749361448 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749364552 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749367141 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749369814 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749373618 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749375259 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749378179 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749381340 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749383816 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749386707 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749389747 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749392366 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749394903 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749397696 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749400100 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749402839 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749405955 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749409454 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749411642 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749414507 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749417502 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749420912 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749425239 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749428438 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749431128 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749433724 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749437216 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749440801 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749444607 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749446159 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749448957 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749451765 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749454422 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749456645 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749459834 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749463480 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749466006 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749467874 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749471461 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749473433 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749476611 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749478966 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749481913 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749485583 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749487101 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749490188 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749492950 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749495278 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749499334 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749501130 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749504507 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749508366 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749509644 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749512627 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749515164 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749517617 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749521060 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749524083 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749527807 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749530832 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749534716 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749535567 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749538009 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749540160 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749543299 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749546621 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749549117 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749553071 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749554905 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749557781 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749561108 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749563765 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749566635 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749569180 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749571234 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749573451 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749576284 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749578822 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749581347 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749585322 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749587083 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749589845 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749592089 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749594933 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749597160 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749599919 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749602599 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749605380 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749608799 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749611740 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749614289 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749617187 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749619111 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749621861 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749623769 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749627167 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749629097 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749632526 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749636668 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749638619 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749642489 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749646119 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749648607 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749650969 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749655338 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749658499 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749661383 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749665060 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749667509 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749671570 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749674763 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749678284 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749680982 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749683022 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749686218 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749688744 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749692192 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749696072 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749698535 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749701675 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749703987 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749706574 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749710138 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749712749 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749716221 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749718541 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749721520 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749724829 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749728337 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749730307 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749733358 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749735562 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749738557 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749742891 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749744202 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749745908 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749748959 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749751719 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749753947 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749757042 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749759698 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749763085 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749767421 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749769429 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749772145 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749775316 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749777177 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749780832 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749783538 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749788953 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749789917 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749792147 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749794703 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749797443 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749800006 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749804126 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749806177 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749810809 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749813728 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749818003 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749821034 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749824561 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749827918 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749831391 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749834440 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749836370 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749839339 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749842465 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749844752 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749847823 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749851411 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749854241 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749856819 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749859205 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749862386 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749864781 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749867630 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749870417 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749872705 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749875906 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749878871 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749882822 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749885285 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749888868 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749893006 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749896952 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749900616 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749902703 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749912239 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749915047 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749917860 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749918566 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749921064 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749922390 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749924542 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749926799 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749932627 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749935043 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749938168 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749942037 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749945904 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749948175 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749951905 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749955532 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749958349 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749961739 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749964834 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749967608 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749970540 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749973398 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749974973 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749979385 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749983446 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749985206 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749987866 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749990958 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.749994553 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.749997368 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750001147 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750004624 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750008031 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750011078 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750014812 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750016308 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750019851 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750022572 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750024968 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750028196 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750031566 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750036268 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750039262 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750042929 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750046323 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750050553 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750052137 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750054564 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750057250 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750059861 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750062281 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750065004 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750068277 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750071944 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750073416 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750075984 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750079515 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750083378 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750086641 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750091115 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750094149 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750097963 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750100385 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750104257 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750106751 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750110501 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750115011 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750118148 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750121540 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750126343 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750128714 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750132258 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750135159 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750139591 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750140981 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750144582 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750148752 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750150939 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750155326 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750158817 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750163106 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750169833 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750173472 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750174176 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750177257 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750183348 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750185379 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750189181 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750191767 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750195199 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750199262 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750201910 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750204764 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750207727 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750210456 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750213357 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750217532 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750219553 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750222053 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750225585 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750228028 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750230544 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750233356 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750236381 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750238954 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750241353 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750244474 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750248908 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750251236 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750254866 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750258739 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750262401 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750266662 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750268359 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750271904 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750275563 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750279059 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750282707 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750285269 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750289039 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750292188 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750295162 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750297755 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750301027 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750304953 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750307802 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750312159 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750315288 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750318446 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750320427 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750323658 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750326439 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750329380 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750331921 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750334865 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750337960 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750341114 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750344121 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750347482 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750350702 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750354361 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750357500 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750360204 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750363716 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750367283 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750369111 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750372142 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750375134 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750377362 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750379584 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750381832 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750385680 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750389405 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750391805 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750394965 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750398387 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750401695 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750405432 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750408004 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750411217 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750414503 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750421851 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750424974 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750427971 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750430838 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750433732 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750436133 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750439698 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750442763 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750445732 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750448212 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750451687 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750455019 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750458800 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750460685 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750463667 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750466745 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750469979 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750473416 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750477350 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750479937 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750482135 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750484415 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750488187 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750491388 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750494318 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750496021 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750499737 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750502886 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750506579 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750509021 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750512268 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750515310 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750518727 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750520238 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750523057 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750524858 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750527711 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750531470 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750533965 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750537833 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750540043 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750543531 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750546401 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750548550 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750552167 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750554355 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750558289 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750561366 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750564128 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750567200 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750571311 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750574505 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750577667 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750580077 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750583286 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750585511 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750588909 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750593211 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750595425 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750598551 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750600553 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750604072 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750606762 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750611379 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750613109 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750616697 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750621134 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750623544 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750628092 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750630442 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750633471 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750635990 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750638815 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750641589 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750644890 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750647722 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750650433 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750654238 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750656577 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750659614 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750662677 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750666683 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750668775 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750671663 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750673725 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750676524 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750678147 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750682195 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750685088 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750688926 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750691127 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750693711 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750696684 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750699566 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750702126 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750704417 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750708008 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750710306 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750713278 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750715615 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750719150 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750721218 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750723743 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750726840 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750729561 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750732809 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750735635 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750738632 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750742606 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750745230 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750750022 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750761262 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750764040 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750766629 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750770290 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750773197 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750775284 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750818610 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750820392 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750823993 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750828474 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750831473 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750833523 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750836302 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750839195 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750842102 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750845071 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750848288 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750851433 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750854740 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750858963 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750862330 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750865704 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750868680 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750872644 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750876110 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750878272 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750881363 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750884721 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750887156 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750890161 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750893091 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750896191 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750898750 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750903314 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750906043 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750909869 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750912041 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750914625 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750917932 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750921669 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750925209 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750929808 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750931717 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750935278 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750936990 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750939345 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750943029 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750947312 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750949470 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750952217 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750955016 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750957143 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750960652 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750963118 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750964386 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750968759 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750971530 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750974339 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750977186 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750979798 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750982741 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750985853 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750987179 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750990448 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.750993209 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.750994960 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751000376 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751003600 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751008540 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751010505 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751013990 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751016463 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751019386 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751022330 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751025244 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751028380 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751030508 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751034923 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751037221 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751039973 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751042660 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751044937 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751047693 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751051133 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751054016 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751058579 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751060890 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751063335 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751066574 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751071657 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751073916 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751077158 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751079626 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751082440 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751085409 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751088287 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751090655 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751093778 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751096527 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751099966 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751102255 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751108850 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751111608 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751114450 140479064770240 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751118630 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751121258 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751124842 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751127271 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751130781 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751133771 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751136508 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751139564 140478976616128 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751143711 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751146981 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751150035 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751153418 140478943045312 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751155468 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751157322 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751160591 140478850791104 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751164011 140479089948352 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751168769 140478951438016 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751170735 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751173867 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751177362 140478959830720 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751180378 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751182776 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751184524 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751187878 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751191052 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751194906 140479112169280 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751198016 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751200404 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751204292 140478985008832 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751206990 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751209273 140478934652608 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Success
+2023-07-17 09:21:32.751211799 140479081555648 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751215351 140478842398400 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751219094 140479073162944 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751222568 140479098341056 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer
+2023-07-17 09:21:32.751225936 140478968223424 /home/AomaYple/Projects/C++/WebServer/src/EventLoop.cpp:80:96:EventLoop::loop()::<lambda(io_uring_cqe*)> WARN client receive error: Connection reset by peer

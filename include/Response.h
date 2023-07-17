@@ -11,6 +11,6 @@ struct Response {
 
     auto combine() -> std::string;
 
-    bool parseMethod, parseUrl, parseVersion, writeBody;
+    bool isParseMethod, isParseUrl, isParseVersion, writeBody;
     std::string version, statusCode, headers, body;
 };

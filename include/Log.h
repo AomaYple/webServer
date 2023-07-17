@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fstream>
+
 #include "Node.h"
 
 class Log {
@@ -15,12 +17,13 @@ public:
 private:
     static auto invertLinkedList(Node *pointer) noexcept -> Node *;
 
-    static auto consume(Node *pointer) -> void;
+    auto consume(Node *pointer) -> void;
 
     Log();
 
     ~Log();
 
+    std::ofstream logFile;
     std::atomic<Node *> head;
     std::atomic_flag notice;
     std::jthread work;

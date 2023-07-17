@@ -1,10 +1,67 @@
 #pragma once
 
-enum class Type { ACCEPT, TIMEOUT, RECEIVE, SEND, CANCEL, CLOSE };
+#include <memory>
+#include <source_location>
 
-struct Event {
-    Event(Type type, int socket) noexcept;
+#include "UserData.h"
 
-    Type type;
-    int socket;
+class UserRing;
+class BufferRing;
+class Server;
+class Timer;
+class Client;
+
+class Event {
+public:
+    static auto create(Type type) -> Event *;
+
+    virtual auto handle(int result, int fileDescriptor, unsigned int flags, const std::shared_ptr<UserRing> &userRing,
+                        BufferRing &bufferRing, Server &server, Timer &timer, std::source_location sourceLocation) const
+            -> void = 0;
+
+    virtual ~Event() = default;
+};
+
+class AcceptEvent : public Event {
+public:
+    auto handle(int result, int fileDescriptor, unsigned int flags, const std::shared_ptr<UserRing> &userRing,
+                BufferRing &bufferRing, Server &server, Timer &timer, std::source_location sourceLocation) const
+            -> void override;
+
+private:
+};
+
+class TimeoutEvent : public Event {
+public:
+    auto handle(int result, int fileDescriptor, unsigned int flags, const std::shared_ptr<UserRing> &userRing,
+                BufferRing &bufferRing, Server &server, Timer &timer, std::source_location sourceLocation) const
+            -> void override;
+};
+
+class ReceiveEvent : public Event {
+public:
+    auto handle(int result, int fileDescriptor, unsigned int flags, const std::shared_ptr<UserRing> &userRing,
+                BufferRing &bufferRing, Server &server, Timer &timer, std::source_location sourceLocation) const
+            -> void override;
+};
+
+class SendEvent : public Event {
+public:
+    auto handle(int result, int fileDescriptor, unsigned int flags, const std::shared_ptr<UserRing> &userRing,
+                BufferRing &bufferRing, Server &server, Timer &timer, std::source_location sourceLocation) const
+            -> void override;
+};
+
+class CancelEvent : public Event {
+public:
+    auto handle(int result, int fileDescriptor, unsigned int flags, const std::shared_ptr<UserRing> &userRing,
+                BufferRing &bufferRing, Server &server, Timer &timer, std::source_location sourceLocation) const
+            -> void override;
+};
+
+class CloseEvent : public Event {
+public:
+    auto handle(int result, int fileDescriptor, unsigned int flags, const std::shared_ptr<UserRing> &userRing,
+                BufferRing &bufferRing, Server &server, Timer &timer, std::source_location sourceLocation) const
+            -> void override;
 };

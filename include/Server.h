@@ -19,20 +19,22 @@ public:
     ~Server();
 
 private:
+    auto socket() -> void;
+
     auto setSocketOption() const -> void;
 
     auto bind(unsigned short port) const -> void;
 
     auto listen() const -> void;
 
-    auto registerSelf() -> void;
+    auto registerFileDescriptor() -> void;
 
     auto cancel() -> void;
 
     auto close() -> void;
 
-    auto unregisterSelf() -> void;
+    auto unregisterFileDescriptor() -> void;
 
-    int socket;
+    int fileDescriptor;
     std::shared_ptr<UserRing> userRing;
 };

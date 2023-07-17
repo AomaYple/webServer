@@ -1,7 +1,9 @@
 #include "Data.h"
 
+using std::jthread;
+using std::source_location;
 using std::string;
-using std::chrono::system_clock, std::jthread, std::source_location;
+using std::chrono::system_clock;
 
 Data::Data(system_clock::time_point timestamp, jthread::id threadId, source_location sourceLocation, Level level,
            string &&information) noexcept

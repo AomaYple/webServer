@@ -2,7 +2,6 @@
 
 #include <chrono>
 #include <filesystem>
-#include <fstream>
 
 using std::array, std::string, std::string_view;
 using std::exception;
@@ -44,12 +43,10 @@ auto Log::consume(Node *pointer) -> void {
     while (pointer != nullptr) {
         Data &data{pointer->data};
 
-        ofstream logFile{current_path().string() + "/../log/log.log", ofstream::app};
-
-        logFile << data.timestamp << " " << data.threadId << " "
-                << format("{}:{}:{}:{} {} {}\n", data.sourceLocation.file_name(), data.sourceLocation.line(),
-                          data.sourceLocation.column(), data.sourceLocation.function_name(),
-                          levels[static_cast<int>(data.level)], data.information);
+        this->logFile << data.timestamp << " " << data.threadId << " "
+                      << format("{}:{}:{}:{} {} {}\n", data.sourceLocation.file_name(), data.sourceLocation.line(),
+                                data.sourceLocation.column(), data.sourceLocation.function_name(),
+                                levels[static_cast<int>(data.level)], data.information);
 
         Node *oldPointer{pointer};
         pointer = pointer->next;
@@ -58,7 +55,7 @@ auto Log::consume(Node *pointer) -> void {
 }
 
 Log::Log()
-    : head{nullptr}, work{[this] {
+    : logFile{current_path().string() + "/../log/log.log", ofstream::trunc}, head{nullptr}, work{[this] {
           while (true) {
               this->notice.wait(false, memory_order_relaxed);
               this->notice.clear(memory_order_relaxed);
@@ -75,9 +72,5 @@ Log::Log()
 Log::~Log() {
     try {
         Log::consume(Log::invertLinkedList(this->head));
-    } catch (const exception &exception) {
-        ofstream logFile{current_path().string() + "/../log/log.log", ofstream::app};
-
-        logFile << "log destructor error: " << exception.what() << "\n";
-    }
+    } catch (const exception &exception) { this->logFile << "log destructor error: " << exception.what() << "\n"; }
 }

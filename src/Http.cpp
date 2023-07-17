@@ -20,15 +20,15 @@ auto Http::parse(string &&request) -> string {
         for (const auto &wordView: lineView | split(' ')) {
             string_view word{wordView};
 
-            if (!response.parseMethod) {
+            if (!response.isParseMethod) {
                 try {
                     Http::parseMethod(response, word);
                 } catch (const invalid_argument &invalidArgument) { return response.combine(); }
-            } else if (!response.parseUrl) {
+            } else if (!response.isParseUrl) {
                 try {
                     Http::parseUrl(response, word);
                 } catch (const invalid_argument &invalidArgument) { return response.combine(); }
-            } else if (!response.parseVersion) {
+            } else if (!response.isParseVersion) {
                 try {
                     Http::parseVersion(response, word);
                 } catch (const invalid_argument &invalidArgument) { return response.combine(); }
@@ -47,7 +47,7 @@ auto Http::parseMethod(Response &response, string_view word) -> void {
     if (result != methods.end()) {
         response.writeBody = *result == "GET";
 
-        response.parseMethod = true;
+        response.isParseMethod = true;
     } else {
         response.version = "HTTP/1.1 ";
         response.statusCode = "501 Not Implemented\r\n";
@@ -67,7 +67,7 @@ auto Http::parseUrl(Response &response, string_view word) -> void {
         response.headers += "Content-Length: " + to_string(page->second.size()) + "\r\n";
         response.body += response.writeBody ? page->second : "";
 
-        response.parseUrl = true;
+        response.isParseUrl = true;
     } else {
         response.version = "HTTP/1.1 ";
         response.statusCode = "404 Not Found\r\n";
@@ -85,7 +85,7 @@ auto Http::parseVersion(Response &response, string_view word) -> void {
     if (result != versions.end()) {
         response.version = string{*result} + " ";
 
-        response.parseVersion = true;
+        response.isParseVersion = true;
     } else {
         response.version = "HTTP/1.1 ";
         response.statusCode = "505 HTTP Version Not Supported\r\n";
@@ -99,7 +99,7 @@ Http::Http() {
     string webPagesPath{current_path().string() + "/../web/"};
 
     for (const auto &webPagePath: directory_iterator(webPagesPath)) {
-        ifstream file{webPagePath.path().string()};
+        ifstream file{webPagePath.path()};
 
         ostringstream stream;
 

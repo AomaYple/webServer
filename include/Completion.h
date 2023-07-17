@@ -19,5 +19,5 @@ public:
     [[nodiscard]] auto getFlags() const noexcept -> unsigned int;
 
 private:
-    io_uring_cqe *self;
+    io_uring_cqe *completion;
 };

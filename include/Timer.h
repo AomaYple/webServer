@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Client.h"
-#include "Submission.h"
 
 class Timer {
 public:
@@ -13,22 +12,26 @@ public:
 
     auto operator=(Timer &&) noexcept -> Timer &;
 
-    auto start(Submission &&submission) noexcept -> void;
+    auto start(io_uring_sqe *sqe) noexcept -> void;
 
     auto clearTimeout() -> void;
 
     auto add(Client &&client) -> void;
 
-    auto exist(int socket) const noexcept -> bool;
+    auto exist(int clientFileDescriptor) const -> bool;
 
-    auto pop(int socket) -> Client;
+    auto pop(int clientFileDescriptor) -> Client;
 
     ~Timer();
 
 private:
+    auto create() -> void;
+
+    auto setTime() const -> void;
+
     auto close() const -> void;
 
-    int self;
+    int fileDescriptor;
     unsigned short now;
     unsigned long expireCount;
     std::array<std::unordered_map<int, Client>, 61> wheel;

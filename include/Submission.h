@@ -18,19 +18,19 @@ public:
 
     auto setBufferGroup(unsigned short bufferGroup) noexcept -> void;
 
-    auto accept(int socket, sockaddr *address, socklen_t *addressLength, int flags) noexcept -> void;
+    auto accept(int fileDescriptor, sockaddr *address, socklen_t *addressLength, int flags) noexcept -> void;
 
-    auto read(int fileDescriptor, void *buffer, unsigned int bytesNumber, unsigned long long offset) noexcept -> void;
+    auto read(int fileDescriptor, void *buffer, unsigned int bufferLength, unsigned long long offset) noexcept -> void;
 
-    auto receive(int socket, void *buffer, unsigned long bufferLength, int flags) noexcept -> void;
+    auto receive(int fileDescriptor, void *buffer, unsigned long bufferLength, int flags) noexcept -> void;
 
-    auto send(int socket, const void *buffer, unsigned long bufferLength, int flags,
+    auto send(int fileDescriptor, const void *buffer, unsigned long bufferLength, int flags,
               unsigned int zeroCopyFlags) noexcept -> void;
 
-    auto cancel(int socket, int flags) noexcept -> void;
+    auto cancel(int fileDescriptor, int flags) noexcept -> void;
 
-    auto close(int socket) noexcept -> void;
+    auto close(int fileDescriptorIndex) noexcept -> void;
 
 private:
-    io_uring_sqe *self;
+    io_uring_sqe *submission;
 };

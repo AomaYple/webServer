@@ -33,7 +33,7 @@ public:
 
     auto freeBufferRing(io_uring_buf_ring *bufferRing, unsigned short entries, unsigned short id) -> void;
 
-    auto submitWait(unsigned int waitCount) -> void;
+    auto submitWait(unsigned int count) -> void;
 
     [[nodiscard]] auto forEachCompletion(const std::function<auto(io_uring_cqe *cqe)->void> &task) -> unsigned int;
 
@@ -45,5 +45,5 @@ public:
     ~UserRing();
 
 private:
-    io_uring self;
+    io_uring userRing;
 };

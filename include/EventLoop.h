@@ -3,7 +3,6 @@
 #include <source_location>
 
 #include "BufferRing.h"
-#include "Client.h"
 #include "Server.h"
 #include "Timer.h"
 
@@ -20,26 +19,9 @@ public:
     ~EventLoop();
 
 private:
-    auto handleAccept(int result, unsigned int flags,
-                      std::source_location sourceLocation = std::source_location::current()) -> void;
-
-    auto handleTimeout(int result) -> void;
-
-    auto handleReceive(int result, int socket, unsigned int flags,
-                       std::source_location sourceLocation = std::source_location::current()) -> void;
-
-    auto handleSend(int result, int socket, unsigned int flags,
-                    std::source_location sourceLocation = std::source_location::current()) -> void;
-
-    static auto handleClose(int result, int socket,
-                            std::source_location sourceLocation = std::source_location::current()) noexcept -> void;
-
-    static auto handleCancel(int result, int socket,
-                             std::source_location sourceLocation = std::source_location::current()) noexcept -> void;
-
     static constinit thread_local bool instance;
     static constinit std::mutex lock;
-    static std::vector<int> values;
+    static std::vector<int> cpus;
 
     std::shared_ptr<UserRing> userRing;
     BufferRing bufferRing;

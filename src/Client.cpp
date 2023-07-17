@@ -1,46 +1,46 @@
 #include "Client.h"
 
-#include "Event.h"
 #include "Log.h"
 #include "Submission.h"
+#include "UserData.h"
 
 using std::runtime_error;
 using std::shared_ptr;
 using std::source_location;
 using std::string;
 
-Client::Client(int socket, unsigned short timeout, const shared_ptr<UserRing> &userRing) noexcept
-    : socket{socket}, timeout{timeout}, userRing{userRing} {}
+Client::Client(int fileDescriptor, unsigned short timeout, const shared_ptr<UserRing> &userRing) noexcept
+    : fileDescriptor{fileDescriptor}, timeout{timeout}, userRing{userRing} {}
 
 Client::Client(Client &&other) noexcept
-    : socket{other.socket}, timeout{other.timeout}, receivedData{std::move(other.receivedData)},
+    : fileDescriptor{other.fileDescriptor}, timeout{other.timeout}, receivedData{std::move(other.receivedData)},
       unSendData{std::move(other.unSendData)}, userRing{std::move(other.userRing)} {
-    other.socket = -1;
+    other.fileDescriptor = -1;
 }
 
 auto Client::operator=(Client &&other) noexcept -> Client & {
     if (this != &other) {
-        this->socket = other.socket;
+        this->fileDescriptor = other.fileDescriptor;
         this->timeout = other.timeout;
         this->receivedData = std::move(other.receivedData);
         this->unSendData = std::move(other.unSendData);
         this->userRing = std::move(other.userRing);
-        other.socket = -1;
+        other.fileDescriptor = -1;
     }
     return *this;
 }
 
-auto Client::get() const noexcept -> int { return this->socket; }
+auto Client::getFileDescriptor() const noexcept -> int { return this->fileDescriptor; }
 
 auto Client::getTimeout() const noexcept -> unsigned short { return this->timeout; }
 
 auto Client::receive(unsigned short bufferRingId) -> void {
     Submission submission{this->userRing->getSubmission()};
 
-    Event event{Type::RECEIVE, this->socket};
-    submission.setUserData(reinterpret_cast<unsigned long long &>(event));
+    UserData userData{Type::RECEIVE, this->fileDescriptor};
+    submission.setUserData(reinterpret_cast<unsigned long long &>(userData));
 
-    submission.receive(this->socket, nullptr, 0, 0);
+    submission.receive(this->fileDescriptor, nullptr, 0, 0);
 
     submission.setFlags(IOSQE_FIXED_FILE | IOSQE_BUFFER_SELECT);
 
@@ -62,16 +62,16 @@ auto Client::send(string &&data) -> void {
 
     Submission submission{this->userRing->getSubmission()};
 
-    Event event{Type::SEND, this->socket};
-    submission.setUserData(reinterpret_cast<unsigned long long &>(event));
+    UserData userData{Type::SEND, this->fileDescriptor};
+    submission.setUserData(reinterpret_cast<unsigned long long &>(userData));
 
-    submission.send(this->socket, this->unSendData.data(), this->unSendData.size(), 0, 0);
+    submission.send(this->fileDescriptor, this->unSendData.data(), this->unSendData.size(), 0, 0);
 
     submission.setFlags(IOSQE_FIXED_FILE);
 }
 
 Client::~Client() {
-    if (this->socket != -1) {
+    if (this->fileDescriptor != -1) {
         try {
             this->cancel();
 
@@ -85,10 +85,10 @@ Client::~Client() {
 auto Client::cancel() -> void {
     Submission submission{this->userRing->getSubmission()};
 
-    Event event{Type::CANCEL, this->socket};
-    submission.setUserData(reinterpret_cast<unsigned long long &>(event));
+    UserData userData{Type::CANCEL, this->fileDescriptor};
+    submission.setUserData(reinterpret_cast<unsigned long long &>(userData));
 
-    submission.cancel(this->socket, IORING_ASYNC_CANCEL_ALL);
+    submission.cancel(this->fileDescriptor, IORING_ASYNC_CANCEL_ALL);
 
     submission.setFlags(IOSQE_FIXED_FILE | IOSQE_IO_LINK | IOSQE_CQE_SKIP_SUCCESS);
 }
@@ -96,10 +96,10 @@ auto Client::cancel() -> void {
 auto Client::close() -> void {
     Submission submission{this->userRing->getSubmission()};
 
-    Event event{Type::CLOSE, this->socket};
-    submission.setUserData(reinterpret_cast<unsigned long long &>(event));
+    UserData userData{Type::CLOSE, this->fileDescriptor};
+    submission.setUserData(reinterpret_cast<unsigned long long &>(userData));
 
-    submission.close(this->socket);
+    submission.close(this->fileDescriptor);
 
     submission.setFlags(IOSQE_CQE_SKIP_SUCCESS);
 }

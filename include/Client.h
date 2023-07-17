@@ -6,7 +6,7 @@
 
 class Client {
 public:
-    Client(int socket, unsigned short timeout, const std::shared_ptr<UserRing> &userRing) noexcept;
+    Client(int fileDescriptor, unsigned short timeout, const std::shared_ptr<UserRing> &userRing) noexcept;
 
     Client(const Client &) = delete;
 
@@ -14,7 +14,7 @@ public:
 
     auto operator=(Client &&) noexcept -> Client &;
 
-    [[nodiscard]] auto get() const noexcept -> int;
+    [[nodiscard]] auto getFileDescriptor() const noexcept -> int;
 
     [[nodiscard]] auto getTimeout() const noexcept -> unsigned short;
 
@@ -33,7 +33,7 @@ private:
 
     auto close() -> void;
 
-    int socket;
+    int fileDescriptor;
     unsigned short timeout;
     std::string receivedData, unSendData;
     std::shared_ptr<UserRing> userRing;
