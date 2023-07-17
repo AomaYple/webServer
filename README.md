@@ -1,11 +1,11 @@
 ## 项目介绍
 
 本项目是一个基于c++23和liburing的异步高并发Proactor模式服务器，利用liburing的特性实现真正的
-异步读取
+异步收发
 
 ## 项目所需环境
 
-gcc13.1以上版本，cmake3.22以上版本，libuing2.4以上版本，linux内核版本6.2以上，需有ninja
+gcc13.1以上版本，cmake3.1以上版本，libuing2.4以上版本，linux内核版本6.1以上，需有ninja
 
 ## 项目编译
 
