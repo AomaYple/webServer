@@ -12,8 +12,8 @@ add_executable(${PROJECT_NAME} "")
 target_sources(${PROJECT_NAME} PRIVATE
         main.cpp
         src/BufferRing.cpp
-        src/Completion.cpp
         src/Client.cpp
+        src/Completion.cpp
         src/Data.cpp
         src/Event.cpp
         src/EventLoop.cpp
@@ -21,11 +21,11 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/Log.cpp
         src/Node.cpp
         src/Response.cpp
-        src/UserRing.cpp
         src/Server.cpp
         src/Submission.cpp
         src/Timer.cpp
         src/UserData.cpp
+        src/UserRing.cpp
         )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
