@@ -15,13 +15,14 @@ Log Log::instance;
 
 auto Log::produce(source_location sourceLocation, Level level, string &&information) -> void {
     Node *newHead{new Node{Data{system_clock::now(), get_id(), sourceLocation, level, std::move(information)},
-                           instance.head.load(memory_order_relaxed)}};
+                           Log::instance.head.load(memory_order_relaxed)}};
 
-    while (!instance.head.compare_exchange_weak(newHead->next, newHead, memory_order_release, memory_order_relaxed))
+    while (!Log::instance.head.compare_exchange_weak(newHead->next, newHead, memory_order_release,
+                                                     memory_order_relaxed))
         ;
 
-    instance.notice.test_and_set(memory_order_relaxed);
-    instance.notice.notify_one();
+    Log::instance.notice.test_and_set(memory_order_relaxed);
+    Log::instance.notice.notify_one();
 }
 
 auto Log::invertLinkedList(Node *pointer) noexcept -> Node * {
