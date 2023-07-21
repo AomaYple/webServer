@@ -35,7 +35,7 @@ auto Client::getFileDescriptor() const noexcept -> int { return this->fileDescri
 auto Client::getTimeout() const noexcept -> unsigned short { return this->timeout; }
 
 auto Client::receive(unsigned short bufferRingId) -> void {
-    Submission submission{this->userRing->getSubmission()};
+    Submission submission{this->userRing->getSqe()};
 
     UserData userData{Type::RECEIVE, this->fileDescriptor};
     submission.setUserData(reinterpret_cast<unsigned long long &>(userData));
@@ -60,7 +60,7 @@ auto Client::readReceivedData() noexcept -> string {
 auto Client::send(string &&data) -> void {
     this->unSendData = std::move(data);
 
-    Submission submission{this->userRing->getSubmission()};
+    Submission submission{this->userRing->getSqe()};
 
     UserData userData{Type::SEND, this->fileDescriptor};
     submission.setUserData(reinterpret_cast<unsigned long long &>(userData));
@@ -83,7 +83,7 @@ Client::~Client() {
 }
 
 auto Client::cancel() -> void {
-    Submission submission{this->userRing->getSubmission()};
+    Submission submission{this->userRing->getSqe()};
 
     UserData userData{Type::CANCEL, this->fileDescriptor};
     submission.setUserData(reinterpret_cast<unsigned long long &>(userData));
@@ -94,7 +94,7 @@ auto Client::cancel() -> void {
 }
 
 auto Client::close() -> void {
-    Submission submission{this->userRing->getSubmission()};
+    Submission submission{this->userRing->getSqe()};
 
     UserData userData{Type::CLOSE, this->fileDescriptor};
     submission.setUserData(reinterpret_cast<unsigned long long &>(userData));

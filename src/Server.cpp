@@ -39,7 +39,7 @@ auto Server::operator=(Server &&other) noexcept -> Server & {
 }
 
 auto Server::accept() -> void {
-    Submission submission{this->userRing->getSubmission()};
+    Submission submission{this->userRing->getSqe()};
 
     UserData userData{Type::ACCEPT, this->fileDescriptor};
     submission.setUserData(reinterpret_cast<unsigned long long &>(userData));
@@ -105,7 +105,7 @@ auto Server::registerFileDescriptor() -> void {
 }
 
 auto Server::cancel() -> void {
-    Submission submission{this->userRing->getSubmission()};
+    Submission submission{this->userRing->getSqe()};
 
     UserData event{Type::CANCEL, this->fileDescriptor};
     submission.setUserData(reinterpret_cast<unsigned long long &>(event));
@@ -116,7 +116,7 @@ auto Server::cancel() -> void {
 }
 
 auto Server::close() -> void {
-    Submission submission{this->userRing->getSubmission()};
+    Submission submission{this->userRing->getSqe()};
 
     UserData event{Type::CLOSE, this->fileDescriptor};
     submission.setUserData(reinterpret_cast<unsigned long long &>(event));

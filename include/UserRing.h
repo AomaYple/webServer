@@ -37,7 +37,7 @@ public:
 
     [[nodiscard]] auto forEachCompletion(const std::function<auto(io_uring_cqe *cqe)->void> &task) -> unsigned int;
 
-    [[nodiscard]] auto getSubmission() -> io_uring_sqe *;
+    [[nodiscard]] auto getSqe() -> io_uring_sqe *;
 
     auto advanceCompletionBufferRingBuffer(io_uring_buf_ring *bufferRing, unsigned int completionCount,
                                            unsigned short bufferRingBufferCount) noexcept -> void;

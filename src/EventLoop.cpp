@@ -62,7 +62,7 @@ EventLoop::EventLoop()
 auto EventLoop::loop() -> void {
     this->server.accept();
 
-    this->timer.start(this->userRing->getSubmission());
+    this->timer.start(this->userRing->getSqe());
 
     while (true) {
         this->userRing->submitWait(1);

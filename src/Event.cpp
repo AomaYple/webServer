@@ -53,7 +53,7 @@ auto TimeoutEvent::handle(int result, int fileDescriptor, unsigned int flags, co
     if (result == sizeof(unsigned long)) {
         timer.clearTimeout();
 
-        timer.start(userRing->getSubmission());
+        timer.start(userRing->getSqe());
     } else
         throw runtime_error("timer timing error: " + string{std::strerror(std::abs(result))});
 }
