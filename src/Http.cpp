@@ -45,7 +45,7 @@ auto Http::parseMethod(Response &response, string_view word) -> void {
     auto result{find_if(methods, [word](string_view method) { return method == word; })};
 
     if (result != methods.end()) {
-        response.writeBody = *result == "GET";
+        response.isWriteBody = *result == "GET";
 
         response.isParseMethod = true;
     } else {
@@ -65,7 +65,7 @@ auto Http::parseUrl(Response &response, string_view word) -> void {
     if (page != Http::instance.webpages.end()) {
         response.statusCode = "200 OK\r\n";
         response.headers += "Content-Length: " + to_string(page->second.size()) + "\r\n";
-        response.body += response.writeBody ? page->second : "";
+        response.body += response.isWriteBody ? page->second : "";
 
         response.isParseUrl = true;
     } else {
@@ -96,16 +96,13 @@ auto Http::parseVersion(Response &response, string_view word) -> void {
 }
 
 Http::Http() {
-    string webPagesPath{current_path().string() + "/../web/"};
-
-    for (const auto &webPagePath: directory_iterator(webPagesPath)) {
-        ifstream file{webPagePath.path()};
+    for (const auto &page: directory_iterator(current_path().string() + "/web")) {
+        ifstream file{page.path()};
 
         ostringstream stream;
 
         stream << file.rdbuf();
-
-        this->webpages.emplace(webPagePath.path().string().substr(webPagesPath.size()), stream.str());
+        this->webpages.emplace(page.path().filename(), stream.str());
     }
 
     this->webpages.emplace("", "");

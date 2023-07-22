@@ -5,7 +5,7 @@
 
 ## 项目所需环境
 
-gcc13.1以上版本，cmake3.1以上版本，libuing2.4以上版本，linux内核版本6.1以上，需有ninja
+gcc13.1以上版本，cmake3.27.0以上版本，libuing2.4以上版本，linux内核版本6.1以上，需有ninja
 
 ## 项目编译
 

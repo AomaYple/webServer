@@ -56,7 +56,7 @@ auto Log::consume(Node *pointer) -> void {
 }
 
 Log::Log()
-    : logFile{current_path().string() + "/../log/log.log", ofstream::trunc}, head{nullptr}, work{[this] {
+    : logFile{current_path().string() + "/log.log", ofstream::trunc}, head{nullptr}, work{[this] {
           while (true) {
               this->notice.wait(false, memory_order_relaxed);
               this->notice.clear(memory_order_relaxed);
