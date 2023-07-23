@@ -25,7 +25,7 @@ public:
     ~Database();
 
 private:
-    static auto initialize() -> MYSQL *;
+    [[nodiscard]] static auto initialize() -> MYSQL *;
 
     auto connect(std::string_view host, std::string_view user, std::string_view password, std::string_view database,
                  unsigned int port, std::string_view unixSocket, unsigned long clientFlag) -> void;
