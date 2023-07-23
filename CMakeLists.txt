@@ -15,6 +15,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/Client.cpp
         src/Completion.cpp
         src/Data.cpp
+        src/Database.cpp
         src/Event.cpp
         src/EventLoop.cpp
         src/Http.cpp
@@ -34,6 +35,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         uring
+        mariadb
         )
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/WebServer)
