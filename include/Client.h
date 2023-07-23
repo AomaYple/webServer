@@ -22,7 +22,7 @@ public:
 
     auto writeReceivedData(std::string &&data) -> void;
 
-    auto readReceivedData() noexcept -> std::string;
+    [[nodiscard]] auto readReceivedData() noexcept -> std::string;
 
     auto send(std::string &&data) -> void;
 
