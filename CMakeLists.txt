@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.27.0)
+cmake_minimum_required(VERSION 3.27)
 
 project(WebServer)
 
@@ -10,33 +10,36 @@ set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 add_executable(${PROJECT_NAME} "")
 
 target_sources(${PROJECT_NAME} PRIVATE
-        main.cpp
-        src/BufferRing.cpp
-        src/Client.cpp
-        src/Completion.cpp
-        src/Data.cpp
-        src/Database.cpp
-        src/Event.cpp
-        src/EventLoop.cpp
-        src/Http.cpp
-        src/Log.cpp
-        src/Node.cpp
-        src/Response.cpp
-        src/Server.cpp
-        src/Submission.cpp
-        src/Timer.cpp
-        src/UserData.cpp
-        src/UserRing.cpp
-        )
+        src/main.cpp
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-        include
-        )
+        src/base/BufferRing.cpp
+        src/base/Completion.cpp
+        src/base/Submission.cpp
+        src/base/UserRing.cpp
+
+        src/database/Database.cpp
+        src/database/DatabaseError.cpp
+
+        src/event/Event.cpp
+        src/event/EventLoop.cpp
+        src/event/Timer.cpp
+
+        src/http/Http.cpp
+        src/http/Response.cpp
+
+        src/log/Message.cpp
+        src/log/Log.cpp
+        src/log/Node.cpp
+
+        src/network/Client.cpp
+        src/network/Server.cpp
+        src/network/UserData.cpp
+)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         uring
         mariadb
-        )
+)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/WebServer)
 
@@ -45,5 +48,4 @@ add_custom_target(TARGET ${PROJECT_NAME})
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/web ${CMAKE_CURRENT_BINARY_DIR}/WebServer/web
-        )
-
+)
