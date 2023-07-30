@@ -11,4 +11,4 @@ DatabaseError::DatabaseError(source_location sourceLocation, string &&informatio
     : message{Message{system_clock::now(), get_id(), sourceLocation, Level::FATAL, std::move(information)}
                       .combineToString()} {}
 
-auto DatabaseError::what() const noexcept -> const char * { return message.c_str(); }
+auto DatabaseError::what() const noexcept -> const char * { return this->message.c_str(); }

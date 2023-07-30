@@ -70,7 +70,7 @@ Log::~Log() {
     try {
         Log::consume(Log::invertLinkedList(this->head));
     } catch (...) {
-        Message message{system_clock::now(), get_id(), source_location::current(), Level::ERROR,
+        Message message{system_clock::now(), get_id(), source_location::current(), Level::FATAL,
                         "log destructor error"};
 
         this->logFile << message.combineToString();

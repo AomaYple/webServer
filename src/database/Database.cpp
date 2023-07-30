@@ -1,8 +1,8 @@
 #include "Database.h"
-#include "DatabaseError.h"
-#include <stdexcept>
 
-using std::runtime_error;
+#include "DatabaseError.h"
+
+using std::source_location;
 using std::string, std::string_view;
 using std::vector;
 
@@ -12,37 +12,59 @@ Database::Database(string_view host, string_view user, string_view password, str
     this->connect(host, user, password, database, port, unixSocket, clientFlag);
 }
 
+auto Database::consult(string_view statement) -> vector<vector<string>> {
+    this->query(statement);
+
+    MYSQL_RES *consultResult{this->storeResult()};
+
+    vector<vector<string>> results;
+
+    unsigned int columnCount{Database::getColumnCount(consultResult)};
+
+    for (MYSQL_ROW row{Database::getRow(consultResult)}; row != nullptr; row = Database::getRow(consultResult)) {
+        vector<string> result;
+
+        for (unsigned int i{0}; i < columnCount; ++i) result.emplace_back(row[i]);
+
+        results.emplace_back(std::move(result));
+    }
+
+    Database::freeResult(consultResult);
+
+    return results;
+}
+
 Database::~Database() {
     if (this->connection != nullptr) mysql_close(this->connection);
 }
 
-auto Database::initialize() -> MYSQL * {
-    MYSQL *tempConnection{mysql_init(nullptr)};
-    if (tempConnection == nullptr) throw runtime_error("database failed to initialize connection");
+auto Database::initialize(source_location sourceLocation) -> MYSQL * {
+    MYSQL *connection{mysql_init(nullptr)};
+    if (connection == nullptr) throw DatabaseError{sourceLocation, "initialize error"};
 
-    return tempConnection;
+    return connection;
 }
 
 auto Database::connect(string_view host, string_view user, string_view password, string_view database,
-                       unsigned int port, string_view unixSocket, unsigned long clientFlag) -> void {
-    if (mysql_real_connect(connection, host.empty() ? nullptr : host.data(), user.data(), password.data(),
+                       unsigned int port, string_view unixSocket, unsigned long clientFlag,
+                       source_location sourceLocation) -> void {
+    if (mysql_real_connect(this->connection, host.empty() ? nullptr : host.data(), user.data(), password.data(),
                            database.data(), port, unixSocket.empty() ? nullptr : unixSocket.data(),
                            clientFlag) == nullptr)
-        throw runtime_error("database connect error: " + string{mysql_error(this->connection)});
+        throw DatabaseError{sourceLocation, mysql_error(this->connection)};
 }
 
-auto Database::query(string_view statement) -> void {
+auto Database::query(string_view statement, source_location sourceLocation) -> void {
     if (mysql_query(this->connection, statement.data()) != 0)
-        throw runtime_error("database query error: " + string{mysql_error(this->connection)});
+        throw DatabaseError{sourceLocation, mysql_error(this->connection)};
 }
 
-auto Database::storeResult() -> MYSQL_RES * {
+auto Database::storeResult(source_location sourceLocation) -> MYSQL_RES * {
     MYSQL_RES *result{mysql_store_result(this->connection)};
 
     if (result == nullptr) {
         const char *error{mysql_error(this->connection)};
-        if (error != nullptr)
-            throw runtime_error("database store result error: " + string{mysql_error(this->connection)});
+        if (error != nullptr) throw DatabaseError{sourceLocation, error};
     }
 
     return result;
