@@ -3,9 +3,7 @@
 #include "Message.h"
 
 struct Node {
-    Node(Message &&message, Node *next)
-
-            noexcept;
+    Node(Message &&message, Node *next) noexcept;
 
     Node(const Node &) = delete;
 

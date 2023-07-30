@@ -12,9 +12,7 @@ using std::chrono::system_clock;
 constexpr array<string_view, 3> levels{"WARN", "ERROR", "FATAL"};
 
 Message::Message(system_clock::time_point timestamp, jthread::id threadId, source_location sourceLocation, Level level,
-                 string &&information)
-
-        noexcept
+                 string &&information) noexcept
     : timestamp{timestamp}, threadId{threadId}, sourceLocation{sourceLocation}, level{level},
       information{std::move(information)} {}
 

@@ -23,9 +23,7 @@ auto Log::produce(source_location sourceLocation, Level level, string &&informat
     Log::instance.notice.notify_one();
 }
 
-auto Log::invertLinkedList(Node *pointer)
-
-        noexcept -> Node * {
+auto Log::invertLinkedList(Node *pointer) noexcept -> Node * {
     Node *previous{nullptr};
 
     while (pointer != nullptr) {

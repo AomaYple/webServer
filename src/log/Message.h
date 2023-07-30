@@ -8,9 +8,7 @@ enum class Level { WARN, ERROR, FATAL };
 class Message {
 public:
     Message(std::chrono::system_clock::time_point timestamp, std::jthread::id threadId,
-            std::source_location sourceLocation, Level level, std::string &&information)
-
-            noexcept;
+            std::source_location sourceLocation, Level level, std::string &&information) noexcept;
 
     [[nodiscard]] auto combineToString() const -> std::string;
 
