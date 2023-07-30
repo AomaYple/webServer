@@ -3,9 +3,7 @@
 #include <string>
 
 struct Response {
-    Response()
-
-            noexcept;
+    Response() noexcept;
 
     [[nodiscard]] auto combine() -> std::string;
 

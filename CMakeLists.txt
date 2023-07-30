@@ -18,13 +18,14 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/base/UserRing.cpp
 
         src/database/Database.cpp
-        src/database/DatabaseError.cpp
+        src/database/DatabaseCallError.cpp
 
         src/event/Event.cpp
         src/event/EventLoop.cpp
         src/event/Timer.cpp
 
         src/http/Http.cpp
+        src/http/HttpParseError.cpp
         src/http/Response.cpp
 
         src/log/Message.cpp

@@ -1,25 +1,28 @@
 #pragma once
 
+#include <source_location>
+#include <string>
 #include <unordered_map>
 
-#include "Response.h"
+class Response;
 
 class Http {
     static Http instance;
 
 public:
-    [[nodiscard]] static auto parse(std::string &&request) -> std::string;
+    [[nodiscard]] static auto parse(std::string_view request) -> std::string;
 
     Http(const Http &) = delete;
 
-    Http(Http &&) = delete;
-
 private:
-    static auto parseMethod(Response &response, std::string_view word) -> void;
+    static auto parseMethod(Response &response, std::string_view word,
+                            std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    static auto parseUrl(Response &response, std::string_view word) -> void;
+    static auto parseUrl(Response &response, std::string_view word,
+                         std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    static auto parseVersion(Response &response, std::string_view word) -> void;
+    static auto parseVersion(Response &response, std::string_view word,
+                             std::source_location sourceLocation = std::source_location::current()) -> void;
 
     Http();
 

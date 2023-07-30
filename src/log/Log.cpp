@@ -23,6 +23,17 @@ auto Log::produce(source_location sourceLocation, Level level, string &&informat
     Log::instance.notice.notify_one();
 }
 
+auto Log::produce(Message &&message) -> void {
+    Node *newHead{new Node{std::move(message), Log::instance.head.load(memory_order_relaxed)}};
+
+    while (!Log::instance.head.compare_exchange_weak(newHead->next, newHead, memory_order_release,
+                                                     memory_order_relaxed))
+        ;
+
+    Log::instance.notice.test_and_set(memory_order_relaxed);
+    Log::instance.notice.notify_one();
+}
+
 auto Log::invertLinkedList(Node *pointer) noexcept -> Node * {
     Node *previous{nullptr};
 

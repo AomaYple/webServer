@@ -10,6 +10,8 @@ class Log {
 public:
     static auto produce(std::source_location sourceLocation, Level level, std::string &&information) -> void;
 
+    static auto produce(Message &&message) -> void;
+
     Log(const Log &) = delete;
 
 private:
