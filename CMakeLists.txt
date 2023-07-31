@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.22)
 
 project(WebServer)
 
@@ -17,15 +17,19 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/base/Submission.cpp
         src/base/UserRing.cpp
 
-        src/database/Database.cpp
-        src/database/DatabaseCallError.cpp
-
+        src/event/AcceptEvent.cpp
+        src/event/CancelEvent.cpp
+        src/event/CloseEvent.cpp
         src/event/Event.cpp
         src/event/EventLoop.cpp
-        src/event/Timer.cpp
+        src/event/ReceiveEvent.cpp
+        src/event/SendEvent.cpp
+        src/event/TimeoutEvent.cpp
 
+        src/exception/Exception.cpp
+
+        src/http/Database.cpp
         src/http/Http.cpp
-        src/http/HttpParseError.cpp
         src/http/Response.cpp
 
         src/log/Message.cpp
@@ -35,6 +39,8 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/network/Client.cpp
         src/network/Server.cpp
         src/network/UserData.cpp
+
+        src/timer/Timer.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE

@@ -5,7 +5,7 @@
 
 ## 项目所需环境
 
-gcc13.1以上版本，cmake3.27.0以上版本，libuing2.4以上版本，linux内核版本6.1以上，需有ninja
+gcc13.1以上版本，cmake3.22以上版本，libuing2.4以上版本，linux内核版本6.1以上，需有ninja
 
 ## 项目编译
 
@@ -44,11 +44,11 @@ cd build
 
 ## 项目测试
 
-Arch Linux  
+Arch WSL  
 8核16线程，16G内存  
 利用[wrk](https://github.com/wg/wrk)测试，测试结果如下  
 ![image](images/test.png)
 
-RPS:167万（每秒处理的连接数量）
+RPS:172万（每秒处理的连接数量）
 
 wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生巨大的负载。它将多线程设计与可扩展的事件通知系统（如epoll和kqueue）相结合。  

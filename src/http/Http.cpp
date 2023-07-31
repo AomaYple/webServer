@@ -3,8 +3,8 @@
 #include <filesystem>
 #include <ranges>
 
+#include "../exception/Exception.h"
 #include "../log/Log.h"
-#include "HttpParseError.h"
 #include "Response.h"
 
 using std::array;
@@ -28,24 +28,24 @@ auto Http::parse(string_view request) -> string {
             if (!response.isParseMethod) {
                 try {
                     Http::parseMethod(response, word);
-                } catch (HttpParseError &httpParseError) {
-                    Log::produce(httpParseError.getMessage());
+                } catch (Exception &exception) {
+                    Log::produce(exception.getMessage());
 
                     return response.combine();
                 }
             } else if (!response.isParseUrl) {
                 try {
                     Http::parseUrl(response, word);
-                } catch (HttpParseError &httpParseError) {
-                    Log::produce(httpParseError.getMessage());
+                } catch (Exception &exception) {
+                    Log::produce(exception.getMessage());
 
                     return response.combine();
                 }
             } else if (!response.isParseVersion) {
                 try {
                     Http::parseVersion(response, word);
-                } catch (HttpParseError &httpParseError) {
-                    Log::produce(httpParseError.getMessage());
+                } catch (Exception &exception) {
+                    Log::produce(exception.getMessage());
 
                     return response.combine();
                 }
@@ -70,7 +70,7 @@ auto Http::parseMethod(Response &response, string_view word, source_location sou
         response.statusCode = "501 Not Implemented\r\n";
         response.headers += "Content-Length: 0\r\n";
 
-        throw HttpParseError(sourceLocation, "no support for " + string{word});
+        throw Exception{sourceLocation, Level::WARN, "no support for method"};
     }
 }
 
@@ -90,7 +90,7 @@ auto Http::parseUrl(Response &response, string_view word, source_location source
         response.statusCode = "404 Not Found\r\n";
         response.headers += "Content-Length: 0\r\n";
 
-        throw HttpParseError(sourceLocation, "no corresponding page");
+        throw Exception{sourceLocation, Level::WARN, "no support for url"};
     }
 }
 
@@ -108,7 +108,7 @@ auto Http::parseVersion(Response &response, string_view word, source_location so
         response.statusCode = "505 HTTP Version Not Supported\r\n";
         response.headers += "Content-Length: 0\r\n";
 
-        throw HttpParseError(sourceLocation, "no support for version");
+        throw Exception{sourceLocation, Level::WARN, "no support for version"};
     }
 }
 

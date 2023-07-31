@@ -4,15 +4,13 @@
 
 #include "../base/BufferRing.h"
 #include "../network/Server.h"
-#include "Timer.h"
+#include "../timer/Timer.h"
 
 class EventLoop {
 public:
     EventLoop();
 
     EventLoop(const EventLoop &) = delete;
-
-    EventLoop(EventLoop &&) = delete;
 
     [[noreturn]] auto loop() -> void;
 

@@ -1,11 +1,12 @@
 #include "BufferRing.h"
 
+#include "../exception/Exception.h"
 #include "../log/Log.h"
 
-using std::runtime_error;
 using std::shared_ptr;
 using std::source_location;
-using std::string, std::vector;
+using std::string;
+using std::vector;
 
 BufferRing::BufferRing(unsigned short entries, unsigned long bufferSize, unsigned short id,
                        const shared_ptr<UserRing> &userRing)
@@ -18,34 +19,7 @@ BufferRing::BufferRing(unsigned short entries, unsigned long bufferSize, unsigne
     this->advanceCompletionBufferRingBuffer(0);
 }
 
-BufferRing::BufferRing(BufferRing &&other)
-
-        noexcept
-    : bufferRing{other.bufferRing}, buffers{std::move(other.buffers)}, id{other.id}, mask{other.mask},
-      offset{other.offset}, userRing{std::move(other.userRing)} {
-    other.bufferRing = nullptr;
-}
-
-auto BufferRing::operator=(BufferRing &&other)
-
-        noexcept -> BufferRing & {
-    if (this != &other) {
-        this->bufferRing = other.bufferRing;
-        this->buffers = std::move(other.buffers);
-        this->id = other.id;
-        this->mask = other.mask;
-        this->offset = other.offset;
-        this->userRing = std::move(other.userRing);
-        other.bufferRing = nullptr;
-    }
-    return *this;
-}
-
-auto BufferRing::getId() const
-
-        noexcept -> unsigned short {
-    return this->id;
-}
+auto BufferRing::getId() const noexcept -> unsigned short { return this->id; }
 
 auto BufferRing::getData(unsigned short bufferIndex, unsigned long dataSize) -> string {
     string data{this->buffers[bufferIndex].begin(), this->buffers[bufferIndex].begin() + static_cast<long>(dataSize)};
@@ -57,9 +31,7 @@ auto BufferRing::getData(unsigned short bufferIndex, unsigned long dataSize) -> 
     return data;
 }
 
-auto BufferRing::advanceCompletionBufferRingBuffer(unsigned int completionCount)
-
-        noexcept -> void {
+auto BufferRing::advanceCompletionBufferRingBuffer(unsigned int completionCount) noexcept -> void {
     this->userRing->advanceCompletionBufferRingBuffer(this->bufferRing, static_cast<int>(completionCount),
                                                       this->offset);
 
@@ -70,24 +42,11 @@ BufferRing::~BufferRing() {
     if (this->bufferRing != nullptr) {
         try {
             this->userRing->freeBufferRing(this->bufferRing, this->buffers.size(), this->id);
-        } catch (const runtime_error &runtimeError) {
-            Log::produce(source_location::current(), Level::ERROR, runtimeError.what());
-        }
+        } catch (Exception &exception) { Log::produce(exception.getMessage()); }
     }
 }
 
-auto BufferRing::add(unsigned short index)
-
-        noexcept -> void {
-    io_uring_buf_ring_add(this->bufferRing,
-                          this->buffers[index].
-
-                          data(),
-
-                          this->buffers[index].
-
-                          size(),
-                          index,
-
-                          this->mask, this->offset++);
+auto BufferRing::add(unsigned short index) noexcept -> void {
+    io_uring_buf_ring_add(this->bufferRing, this->buffers[index].data(), this->buffers[index].size(), index, this->mask,
+                          this->offset++);
 }

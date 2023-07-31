@@ -1,30 +1,23 @@
 #include "Client.h"
 
 #include "../base/Submission.h"
+#include "../exception/Exception.h"
 #include "../log/Log.h"
 #include "UserData.h"
 
-using std::runtime_error;
 using std::shared_ptr;
-using std::source_location;
 using std::string;
 
-Client::Client(int fileDescriptor, unsigned short timeout, const shared_ptr<UserRing> &userRing)
-
-        noexcept
+Client::Client(int fileDescriptor, unsigned short timeout, const shared_ptr<UserRing> &userRing) noexcept
     : fileDescriptor{fileDescriptor}, timeout{timeout}, userRing{userRing} {}
 
-Client::Client(Client &&other)
-
-        noexcept
+Client::Client(Client &&other) noexcept
     : fileDescriptor{other.fileDescriptor}, timeout{other.timeout}, receivedData{std::move(other.receivedData)},
       unSendData{std::move(other.unSendData)}, userRing{std::move(other.userRing)} {
     other.fileDescriptor = -1;
 }
 
-auto Client::operator=(Client &&other)
-
-        noexcept -> Client & {
+auto Client::operator=(Client &&other) noexcept -> Client & {
     if (this != &other) {
         this->fileDescriptor = other.fileDescriptor;
         this->timeout = other.timeout;
@@ -36,17 +29,9 @@ auto Client::operator=(Client &&other)
     return *this;
 }
 
-auto Client::getFileDescriptor() const
+auto Client::getFileDescriptor() const noexcept -> int { return this->fileDescriptor; }
 
-        noexcept -> int {
-    return this->fileDescriptor;
-}
-
-auto Client::getTimeout() const
-
-        noexcept -> unsigned short {
-    return this->timeout;
-}
+auto Client::getTimeout() const noexcept -> unsigned short { return this->timeout; }
 
 auto Client::receive(unsigned short bufferRingId) -> void {
     Submission submission{this->userRing->getSqe()};
@@ -63,14 +48,10 @@ auto Client::receive(unsigned short bufferRingId) -> void {
 
 auto Client::writeReceivedData(string &&data) -> void { this->receivedData += data; }
 
-auto Client::readReceivedData()
-
-        noexcept -> string {
+auto Client::readReceivedData() noexcept -> string {
     string data{std::move(this->receivedData)};
 
-    this->receivedData.
-
-            clear();
+    this->receivedData.clear();
 
     return data;
 }
@@ -94,9 +75,7 @@ Client::~Client() {
             this->cancel();
 
             this->close();
-        } catch (const runtime_error &runtimeError) {
-            Log::produce(source_location::current(), Level::ERROR, runtimeError.what());
-        }
+        } catch (Exception &exception) { Log::produce(exception.getMessage()); }
     }
 }
 

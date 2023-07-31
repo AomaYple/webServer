@@ -5,17 +5,16 @@
 #include <cstring>
 
 #include "../base/Submission.h"
+#include "../exception/Exception.h"
 #include "../log/Log.h"
 #include "UserData.h"
 
-using std::array, std::string;
-using std::runtime_error;
+using std::array;
 using std::shared_ptr;
 using std::source_location;
 
-Server::Server(unsigned short port, const shared_ptr<UserRing> &userRing) : fileDescriptor{}, userRing{userRing} {
-    this->socket();
-
+Server::Server(unsigned short port, const shared_ptr<UserRing> &userRing)
+    : fileDescriptor{Server::socket()}, userRing{userRing} {
     this->setSocketOption();
 
     this->bind(port);
@@ -23,24 +22,6 @@ Server::Server(unsigned short port, const shared_ptr<UserRing> &userRing) : file
     this->listen();
 
     this->registerFileDescriptor();
-}
-
-Server::Server(Server &&other)
-
-        noexcept
-    : fileDescriptor{other.fileDescriptor}, userRing{std::move(other.userRing)} {
-    other.fileDescriptor = -1;
-}
-
-auto Server::operator=(Server &&other)
-
-        noexcept -> Server & {
-    if (this != &other) {
-        this->fileDescriptor = other.fileDescriptor;
-        this->userRing = std::move(other.userRing);
-        other.fileDescriptor = -1;
-    }
-    return *this;
 }
 
 auto Server::accept() -> void {
@@ -62,26 +43,25 @@ Server::~Server() {
             this->close();
 
             this->unregisterFileDescriptor();
-        } catch (const runtime_error &runtimeError) {
-            Log::produce(source_location::current(), Level::ERROR, runtimeError.what());
-        }
+        } catch (Exception &exception) { Log::produce(exception.getMessage()); }
     }
 }
 
-auto Server::socket() -> void {
-    this->fileDescriptor = ::socket(AF_INET, SOCK_STREAM, 0);
+auto Server::socket(source_location sourceLocation) -> int {
+    int fileDescriptor{::socket(AF_INET, SOCK_STREAM, 0)};
 
-    if (this->fileDescriptor == -1)
-        throw runtime_error("server create file descriptor error: " + string{std::strerror(errno)});
+    if (fileDescriptor == -1) throw Exception{sourceLocation, Level::FATAL, std::strerror(errno)};
+
+    return fileDescriptor;
 }
 
-auto Server::setSocketOption() const -> void {
+auto Server::setSocketOption(source_location sourceLocation) const -> void {
     int option{1};
     if (setsockopt(this->fileDescriptor, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(option)) == -1)
-        throw runtime_error("server set file descriptor option error: " + string{std::strerror(errno)});
+        throw Exception{sourceLocation, Level::FATAL, std::strerror(errno)};
 }
 
-auto Server::bind(unsigned short port) const -> void {
+auto Server::bind(unsigned short port, source_location sourceLocation) const -> void {
     sockaddr_in address{};
     socklen_t addressLength{sizeof(address)};
 
@@ -89,15 +69,15 @@ auto Server::bind(unsigned short port) const -> void {
     address.sin_port = htons(port);
 
     if (inet_pton(AF_INET, "127.0.0.1", &address.sin_addr) != 1)
-        throw runtime_error("server translate ip address error: " + string{std::strerror(errno)});
+        throw Exception{sourceLocation, Level::FATAL, std::strerror(errno)};
 
     if (::bind(this->fileDescriptor, reinterpret_cast<sockaddr *>(&address), addressLength) == -1)
-        throw runtime_error("server bind error: " + string{std::strerror(errno)});
+        throw Exception{sourceLocation, Level::FATAL, std::strerror(errno)};
 }
 
-auto Server::listen() const -> void {
+auto Server::listen(source_location sourceLocation) const -> void {
     if (::listen(this->fileDescriptor, SOMAXCONN) == -1)
-        throw runtime_error("server listen error: " + string{std::strerror(errno)});
+        throw Exception{sourceLocation, Level::FATAL, std::strerror(errno)};
 }
 
 auto Server::registerFileDescriptor() -> void {

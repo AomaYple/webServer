@@ -1,6 +1,6 @@
 #include "Database.h"
 
-#include "DatabaseCallError.h"
+#include "../exception/Exception.h"
 
 using std::source_location;
 using std::string, std::string_view;
@@ -40,7 +40,7 @@ Database::~Database() {
 
 auto Database::initialize(source_location sourceLocation) -> MYSQL * {
     MYSQL *connection{mysql_init(nullptr)};
-    if (connection == nullptr) throw DatabaseCallError{sourceLocation, "initialize error"};
+    if (connection == nullptr) throw Exception{sourceLocation, Level::FATAL, "initialize error"};
 
     return connection;
 }
@@ -51,12 +51,12 @@ auto Database::connect(string_view host, string_view user, string_view password,
     if (mysql_real_connect(this->connection, host.empty() ? nullptr : host.data(), user.data(), password.data(),
                            database.data(), port, unixSocket.empty() ? nullptr : unixSocket.data(),
                            clientFlag) == nullptr)
-        throw DatabaseCallError{sourceLocation, mysql_error(this->connection)};
+        throw Exception{sourceLocation, Level::FATAL, mysql_error(this->connection)};
 }
 
 auto Database::query(string_view statement, source_location sourceLocation) -> void {
     if (mysql_query(this->connection, statement.data()) != 0)
-        throw DatabaseCallError{sourceLocation, mysql_error(this->connection)};
+        throw Exception{sourceLocation, Level::FATAL, mysql_error(this->connection)};
 }
 
 auto Database::storeResult(source_location sourceLocation) -> MYSQL_RES * {
@@ -64,7 +64,7 @@ auto Database::storeResult(source_location sourceLocation) -> MYSQL_RES * {
 
     if (result == nullptr) {
         const char *error{mysql_error(this->connection)};
-        if (error != nullptr) throw DatabaseCallError{sourceLocation, error};
+        if (error != nullptr) throw Exception{sourceLocation, Level::FATAL, error};
     }
 
     return result;

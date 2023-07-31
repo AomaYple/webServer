@@ -8,21 +8,11 @@ public:
 
     Timer(const Timer &) = delete;
 
-    Timer(Timer &&)
-
-            noexcept;
-
-    auto operator=(Timer &&)
-
-            noexcept -> Timer &;
-
-    auto start(io_uring_sqe *sqe)
-
-            noexcept -> void;
+    auto start(io_uring_sqe *sqe) noexcept -> void;
 
     auto clearTimeout() -> void;
 
-    auto add(Client &&client) -> void;
+    auto add(Client &&client, std::source_location sourceLocation = std::source_location::current()) -> void;
 
     auto exist(int clientFileDescriptor) const -> bool;
 
@@ -31,11 +21,11 @@ public:
     ~Timer();
 
 private:
-    auto create() -> void;
+    static auto create(std::source_location sourceLocation = std::source_location::current()) -> int;
 
-    auto setTime() const -> void;
+    auto setTime(std::source_location sourceLocation = std::source_location::current()) const -> void;
 
-    auto close() const -> void;
+    auto close(std::source_location sourceLocation = std::source_location::current()) const -> void;
 
     int fileDescriptor;
     unsigned short now;

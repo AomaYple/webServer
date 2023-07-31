@@ -1,48 +1,19 @@
 #include "Timer.h"
 
-#include <sys/timerfd.h>
-
 #include <cstring>
 
+#include <sys/timerfd.h>
+
 #include "../base/Submission.h"
+#include "../exception/Exception.h"
 #include "../log/Log.h"
 #include "../network/UserData.h"
 
-using std::runtime_error, std::out_of_range;
 using std::source_location;
-using std::string;
 
-Timer::Timer() : fileDescriptor{}, now{0}, expireCount{0} {
-    this->create();
+Timer::Timer() : fileDescriptor{Timer::create()}, now{0}, expireCount{0} { this->setTime(); }
 
-    this->setTime();
-}
-
-Timer::Timer(Timer &&other)
-
-        noexcept
-    : fileDescriptor{other.fileDescriptor}, now{other.now}, expireCount{other.expireCount},
-      wheel{std::move(other.wheel)}, location{std::move(other.location)} {
-    other.fileDescriptor = -1;
-}
-
-auto Timer::operator=(Timer &&other)
-
-        noexcept -> Timer & {
-    if (this != &other) {
-        this->fileDescriptor = other.fileDescriptor;
-        this->now = other.now;
-        this->expireCount = other.expireCount;
-        this->wheel = std::move(other.wheel);
-        this->location = std::move(other.location);
-        other.fileDescriptor = -1;
-    }
-    return *this;
-}
-
-auto Timer::start(io_uring_sqe *sqe)
-
-        noexcept -> void {
+auto Timer::start(io_uring_sqe *sqe) noexcept -> void {
     Submission submission{sqe};
 
     UserData userData{Type::TIMEOUT, this->fileDescriptor};
@@ -65,9 +36,9 @@ auto Timer::clearTimeout() -> void {
     }
 }
 
-auto Timer::add(Client &&client) -> void {
+auto Timer::add(Client &&client, source_location sourceLocation) -> void {
     unsigned short timeout{client.getTimeout()};
-    if (timeout >= this->wheel.size()) throw out_of_range("timeout is too large");
+    if (timeout >= this->wheel.size()) throw Exception{sourceLocation, Level::ERROR, "timeout is too large"};
 
     int clientFileDescriptor{client.getFileDescriptor()};
     unsigned short point{static_cast<unsigned short>((this->now + timeout) % this->wheel.size())};
@@ -91,22 +62,23 @@ auto Timer::pop(int clientFileDescriptor) -> Client {
 Timer::~Timer() {
     try {
         this->close();
-    } catch (const runtime_error &error) { Log::produce(source_location::current(), Level::ERROR, error.what()); }
+    } catch (Exception &exception) { Log::produce(exception.getMessage()); }
 }
 
-auto Timer::create() -> void {
-    this->fileDescriptor = timerfd_create(CLOCK_BOOTTIME, 0);
+auto Timer::create(source_location sourceLocation) -> int {
+    int fileDescriptor{timerfd_create(CLOCK_BOOTTIME, 0)};
 
-    if (this->fileDescriptor == -1)
-        throw runtime_error("timer create file descriptor error: " + string{std::strerror(errno)});
+    if (fileDescriptor == -1) throw Exception{sourceLocation, Level::FATAL, std::strerror(errno)};
+
+    return fileDescriptor;
 }
 
-auto Timer::setTime() const -> void {
+auto Timer::setTime(source_location sourceLocation) const -> void {
     itimerspec time{{1, 0}, {1, 0}};
     if (timerfd_settime(this->fileDescriptor, 0, &time, nullptr) == -1)
-        throw runtime_error("timer initialize error: " + string{std::strerror(errno)});
+        throw Exception{sourceLocation, Level::FATAL, std::strerror(errno)};
 }
 
-auto Timer::close() const -> void {
-    if (::close(this->fileDescriptor) == -1) throw runtime_error("timer close error: " + string{std::strerror(errno)});
+auto Timer::close(source_location sourceLocation) const -> void {
+    if (::close(this->fileDescriptor) == -1) throw Exception{sourceLocation, Level::FATAL, std::strerror(errno)};
 }

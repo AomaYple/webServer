@@ -3,54 +3,49 @@
 #include <liburing.h>
 
 #include <functional>
+#include <source_location>
 #include <span>
 
-auto getFileDescriptorLimit() -> unsigned int;
+auto getFileDescriptorLimit(std::source_location sourceLocation = std::source_location::current()) -> unsigned int;
 
 class UserRing {
 public:
-    UserRing(unsigned int entries, io_uring_params &params);
+    UserRing(unsigned int entries, io_uring_params &params,
+             std::source_location sourceLocation = std::source_location::current());
 
     UserRing(const UserRing &) = delete;
 
-    UserRing(UserRing &&)
+    [[nodiscard]] auto getSelfFileDescriptor() const noexcept -> int;
 
-            noexcept;
+    auto registerSelfFileDescriptor(std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto operator=(UserRing &&)
+    auto registerCpu(unsigned short cpuCode, std::source_location sourceLocation = std::source_location::current())
+            -> void;
 
-            noexcept -> UserRing &;
+    auto registerFileDescriptors(unsigned int fileDescriptorCount,
+                                 std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    [[nodiscard]] auto getSelfFileDescriptor() const
+    auto allocateFileDescriptorRange(unsigned int offset, unsigned int length,
+                                     std::source_location sourceLocation = std::source_location::current()) -> void;
 
-            noexcept -> int;
+    auto updateFileDescriptors(unsigned int offset, std::span<int> fileDescriptors,
+                               std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto registerSelfFileDescriptor() -> void;
+    [[nodiscard]] auto setupBufferRing(unsigned short entries, unsigned short id,
+                                       std::source_location sourceLocation = std::source_location::current())
+            -> io_uring_buf_ring *;
 
-    auto registerCpu(unsigned short cpuCode) -> void;
+    auto freeBufferRing(io_uring_buf_ring *bufferRing, unsigned short entries, unsigned short id,
+                        std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto registerFileDescriptors(unsigned int fileDescriptorCount) -> void;
+    auto submitWait(unsigned int count, std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto allocateFileDescriptorRange(unsigned int offset, unsigned int length) -> void;
+    [[nodiscard]] auto forEachCompletion(const std::function<auto(io_uring_cqe *cqe)->void> &task) -> unsigned int;
 
-    auto updateFileDescriptors(unsigned int offset, std::span<int> fileDescriptors) -> void;
-
-    [[nodiscard]] auto setupBufferRing(unsigned short entries, unsigned short id) -> io_uring_buf_ring *;
-
-    auto freeBufferRing(io_uring_buf_ring *bufferRing, unsigned short entries, unsigned short id) -> void;
-
-    auto submitWait(unsigned int count) -> void;
-
-    [[nodiscard]] auto forEachCompletion(const
-
-                                         std::function<auto(io_uring_cqe *cqe)->void> &task) -> unsigned int;
-
-    [[nodiscard]] auto getSqe() -> io_uring_sqe *;
+    [[nodiscard]] auto getSqe(std::source_location sourceLocation = std::source_location::current()) -> io_uring_sqe *;
 
     auto advanceCompletionBufferRingBuffer(io_uring_buf_ring *bufferRing, unsigned int completionCount,
-                                           unsigned short bufferRingBufferCount)
-
-            noexcept -> void;
+                                           unsigned short bufferRingBufferCount) noexcept -> void;
 
     ~UserRing();
 
