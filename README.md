@@ -18,7 +18,7 @@ ninja
 ## 项目运行
 
 ```shell
-cd build
+cd build/WebServer
 ./WebServer
 ```
 
