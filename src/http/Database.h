@@ -31,11 +31,11 @@ private:
     [[nodiscard]] auto storeResult(std::source_location sourceLocation = std::source_location::current())
             -> MYSQL_RES *;
 
-    [[nodiscard]] static auto getColumnCount(MYSQL_RES *result) -> unsigned int;
+    [[nodiscard]] static auto getColumnCount(MYSQL_RES *result) noexcept -> unsigned int;
 
-    [[nodiscard]] static auto getRow(MYSQL_RES *result) -> MYSQL_ROW;
+    [[nodiscard]] static auto getRow(MYSQL_RES *result) noexcept -> MYSQL_ROW;
 
-    static auto freeResult(MYSQL_RES *result) -> void;
+    static auto freeResult(MYSQL_RES *result) noexcept -> void;
 
     MYSQL *connection;
 };

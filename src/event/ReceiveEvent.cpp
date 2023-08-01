@@ -14,7 +14,7 @@ using std::string;
 auto ReceiveEvent::handle(int result, int fileDescriptor, unsigned int flags, const shared_ptr<UserRing> &userRing,
                           BufferRing &bufferRing, Server &server, Timer &timer, source_location sourceLocation) const
         -> void {
-    if (result <= 0)
+    if (result < 0)
         Log::produce(sourceLocation, Level::WARN, "client receive error: " + string{std::strerror(std::abs(result))});
 
     if (!timer.exist(fileDescriptor)) return;

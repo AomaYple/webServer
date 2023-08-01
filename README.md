@@ -5,7 +5,7 @@
 
 ## 项目所需环境
 
-gcc13.1以上版本，cmake3.22以上版本，libuing2.4以上版本，linux内核版本6.1以上，需有ninja
+gcc13.1以上版本，cmake3.22以上版本，libuing2.4以上版本，linux内核版本6.1以上，ninja，zlib库
 
 ## 项目编译
 
@@ -47,7 +47,7 @@ cd build/WebServer
 Arch WSL  
 8核16线程，16G内存  
 利用[wrk](https://github.com/wg/wrk)测试，测试结果如下  
-![image](images/test.png)
+![image](test/test.png)
 
 RPS:172万（每秒处理的请求数量）
 

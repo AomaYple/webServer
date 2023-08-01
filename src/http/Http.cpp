@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <ranges>
+#include <zlib.h>
 
 #include "../exception/Exception.h"
 #include "../log/Log.h"
@@ -77,12 +78,20 @@ auto Http::parseMethod(Response &response, string_view word, source_location sou
 auto Http::parseUrl(Response &response, string_view word, source_location sourceLocation) -> void {
     string_view pageName{word.substr(1)};
 
-    auto page{Http::instance.webpages.find(string{pageName})};
+    auto page{Http::instance.webs.find(string{pageName})};
 
-    if (page != Http::instance.webpages.end()) {
+    if (page != Http::instance.webs.end()) {
         response.statusCode = "200 OK\r\n";
         response.headers += "Content-Length: " + to_string(page->second.size()) + "\r\n";
         response.body += response.isWriteBody ? page->second : "";
+
+        if (page->first.ends_with("html")) {
+            response.headers += "Content-Type: text/html; charset=utf-8\r\n";
+            response.headers += "Content-Encoding: gzip\r\n";
+        } else if (page->first.ends_with("png"))
+            response.headers += "Content-Type: image/png\r\n";
+        else if (page->first.ends_with("mp4"))
+            response.headers += "Content-Type: video/mp4\r\n";
 
         response.isParseUrl = true;
     } else {
@@ -113,14 +122,53 @@ auto Http::parseVersion(Response &response, string_view word, source_location so
 }
 
 Http::Http() {
-    for (const auto &page: directory_iterator(current_path().string() + "/web")) {
-        ifstream file{page.path()};
+    this->webs.emplace("", "");
 
-        ostringstream stream;
+    for (const auto &webPath: directory_iterator(current_path().string() + "/web")) {
+        ifstream webFile{webPath.path()};
 
-        stream << file.rdbuf();
-        this->webpages.emplace(page.path().filename(), stream.str());
+        ostringstream webFileStream;
+        webFileStream << webFile.rdbuf();
+
+        if (webPath.path().filename().string().ends_with("html")) {
+            string compressed{Http::gzipCompress(webFileStream.str())};
+
+            webFileStream.clear();
+            webFileStream.str("");
+
+            webFileStream << compressed;
+        }
+
+        this->webs.emplace(webPath.path().filename(), webFileStream.str());
+    }
+}
+
+auto Http::gzipCompress(string_view content, source_location sourceLocation) -> string {
+    z_stream stream{};
+
+    if (deflateInit2(&stream, Z_BEST_COMPRESSION, Z_DEFLATED, MAX_WBITS + 16, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY) !=
+        Z_OK)
+        throw Exception{sourceLocation, Level::FATAL, "compress init failed"};
+
+    stream.next_in = reinterpret_cast<unsigned char *>(const_cast<char *>(content.data()));
+    stream.avail_in = content.size();
+
+    string compressed;
+
+    for (int result{Z_OK}; result == Z_OK;) {
+        string buffer(1024, 0);
+
+        stream.next_out = reinterpret_cast<unsigned char *>(buffer.data());
+        stream.avail_out = buffer.size();
+
+        result = deflate(&stream, Z_FINISH);
+
+        buffer.resize(stream.total_out);
+
+        compressed += buffer;
     }
 
-    this->webpages.emplace("", "");
+    deflateEnd(&stream);
+
+    return compressed;
 }

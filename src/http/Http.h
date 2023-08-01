@@ -26,5 +26,8 @@ private:
 
     Http();
 
-    std::unordered_map<std::string, std::string> webpages;
+    static auto gzipCompress(std::string_view content,
+                             std::source_location sourceLocation = std::source_location::current()) -> std::string;
+
+    std::unordered_map<std::string, std::string> webs;
 };

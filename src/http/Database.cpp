@@ -70,8 +70,8 @@ auto Database::storeResult(source_location sourceLocation) -> MYSQL_RES * {
     return result;
 }
 
-auto Database::getColumnCount(MYSQL_RES *result) -> unsigned int { return mysql_num_fields(result); }
+auto Database::getColumnCount(MYSQL_RES *result) noexcept -> unsigned int { return mysql_num_fields(result); }
 
-auto Database::getRow(MYSQL_RES *result) -> MYSQL_ROW { return mysql_fetch_row(result); }
+auto Database::getRow(MYSQL_RES *result) noexcept -> MYSQL_ROW { return mysql_fetch_row(result); }
 
-auto Database::freeResult(MYSQL_RES *result) -> void { mysql_free_result(result); }
+auto Database::freeResult(MYSQL_RES *result) noexcept -> void { mysql_free_result(result); }

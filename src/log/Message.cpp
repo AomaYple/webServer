@@ -4,9 +4,9 @@
 
 using std::array;
 using std::jthread;
+using std::ostringstream;
 using std::source_location;
 using std::string, std::string_view;
-using std::stringstream;
 using std::chrono::system_clock;
 
 constexpr array<string_view, 3> levels{"WARN", "ERROR", "FATAL"};
@@ -17,7 +17,7 @@ Message::Message(system_clock::time_point timestamp, jthread::id threadId, sourc
       information{std::move(information)} {}
 
 auto Message::combineToString() const -> string {
-    stringstream threadIdStream;
+    ostringstream threadIdStream;
     threadIdStream << this->threadId;
 
     return format("{} {} {}:{}:{}:{} {} {}\n", this->timestamp, threadIdStream.str(), this->sourceLocation.file_name(),

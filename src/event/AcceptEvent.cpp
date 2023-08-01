@@ -15,7 +15,7 @@ auto AcceptEvent::handle(int result, int fileDescriptor, unsigned int flags, con
                          BufferRing &bufferRing, Server &server, Timer &timer, source_location sourceLocation) const
         -> void {
     if (result >= 0) {
-        Client client{result, 30, userRing};
+        Client client{result, 60, userRing};
 
         client.receive(bufferRing.getId());
 
