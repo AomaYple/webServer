@@ -16,7 +16,7 @@ Message::Message(system_clock::time_point timestamp, jthread::id threadId, sourc
     : timestamp{timestamp}, threadId{threadId}, sourceLocation{sourceLocation}, level{level},
       information{std::move(information)} {}
 
-auto Message::combineToString() const -> string {
+auto Message::combine() const -> string {
     ostringstream threadIdStream;
     threadIdStream << this->threadId;
 

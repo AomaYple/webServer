@@ -1,10 +1,8 @@
 #pragma once
 
-#include <source_location>
-
 #include "../base/BufferRing.h"
 #include "../network/Server.h"
-#include "../timer/Timer.h"
+#include "Timer.h"
 
 class EventLoop {
 public:
@@ -19,7 +17,7 @@ public:
 private:
     static constinit thread_local bool instance;
     static constinit std::mutex lock;
-    static std::vector<int> cpus;
+    static std::vector<std::int_fast32_t> cpus;
 
     std::shared_ptr<UserRing> userRing;
     BufferRing bufferRing;

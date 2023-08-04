@@ -2,30 +2,35 @@
 
 #include <liburing.h>
 
+#include <cstdint>
+
 class Submission {
 public:
     explicit Submission(io_uring_sqe *sqe) noexcept;
 
     Submission(const Submission &) = delete;
 
-    auto setUserData(unsigned long long userData) noexcept -> void;
+    auto setUserData(std::uint_fast64_t userData) noexcept -> void;
 
-    auto setFlags(unsigned int flags) noexcept -> void;
+    auto setFlags(std::uint_fast32_t flags) noexcept -> void;
 
-    auto setBufferGroup(unsigned short bufferGroup) noexcept -> void;
+    auto setBufferGroup(std::uint_fast16_t bufferGroup) noexcept -> void;
 
-    auto accept(int fileDescriptor, sockaddr *address, socklen_t *addressLength, int flags) noexcept -> void;
+    auto accept(std::int_fast32_t fileDescriptor, sockaddr *address, socklen_t *addressLength,
+                std::int_fast32_t flags) noexcept -> void;
 
-    auto read(int fileDescriptor, void *buffer, unsigned int bufferLength, unsigned long long offset) noexcept -> void;
+    auto read(std::int_fast32_t fileDescriptor, void *buffer, std::uint_fast32_t bufferLength,
+              std::uint_fast64_t offset) noexcept -> void;
 
-    auto receive(int fileDescriptor, void *buffer, unsigned long bufferLength, int flags) noexcept -> void;
+    auto receive(std::int_fast32_t fileDescriptor, void *buffer, std::uint_fast64_t bufferLength,
+                 std::int_fast32_t flags) noexcept -> void;
 
-    auto send(int fileDescriptor, const void *buffer, unsigned long bufferLength, int flags,
-              unsigned int zeroCopyFlags) noexcept -> void;
+    auto send(std::int_fast32_t fileDescriptor, const void *buffer, std::uint_fast64_t bufferLength,
+              std::int_fast32_t flags, std::uint_fast32_t zeroCopyFlags) noexcept -> void;
 
-    auto cancel(int fileDescriptor, int flags) noexcept -> void;
+    auto cancel(std::int_fast32_t fileDescriptor, std::uint_fast32_t flags) noexcept -> void;
 
-    auto close(int fileDescriptorIndex) noexcept -> void;
+    auto close(std::uint_fast32_t fileDescriptorIndex) noexcept -> void;
 
 private:
     io_uring_sqe *submission;

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <memory>
-
 #include "../base/UserRing.h"
+
+#include <memory>
 
 class Server {
 public:
-    Server(unsigned short port, const std::shared_ptr<UserRing> &userRing);
+    Server(std::uint_fast16_t port, const std::shared_ptr<UserRing> &userRing);
 
     Server(const Server &) = delete;
 
@@ -15,11 +15,12 @@ public:
     ~Server();
 
 private:
-    static auto socket(std::source_location sourceLocation = std::source_location::current()) -> int;
+    static auto socket(std::source_location sourceLocation = std::source_location::current()) -> std::int_fast32_t;
 
     auto setSocketOption(std::source_location sourceLocation = std::source_location::current()) const -> void;
 
-    auto bind(unsigned short port, std::source_location sourceLocation = std::source_location::current()) const -> void;
+    auto bind(std::uint_fast16_t port, std::source_location sourceLocation = std::source_location::current()) const
+            -> void;
 
     auto listen(std::source_location sourceLocation = std::source_location::current()) const -> void;
 
@@ -31,6 +32,6 @@ private:
 
     auto unregisterFileDescriptor() -> void;
 
-    int fileDescriptor;
+    std::int_fast32_t fileDescriptor;
     std::shared_ptr<UserRing> userRing;
 };

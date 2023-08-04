@@ -1,15 +1,16 @@
 #pragma once
 
+#include <mysql/mysql.h>
+
+#include <cstdint>
 #include <source_location>
 #include <string_view>
 #include <vector>
 
-#include <mysql/mysql.h>
-
 class Database {
 public:
     Database(std::string_view host, std::string_view user, std::string_view password, std::string_view database,
-             unsigned int port, std::string_view unixSocket, unsigned long clientFlag);
+             std::uint_fast32_t port, std::string_view unixSocket, std::uint_fast64_t clientFlag);
 
     Database(const Database &) = delete;
 
@@ -22,7 +23,7 @@ private:
             -> MYSQL *;
 
     auto connect(std::string_view host, std::string_view user, std::string_view password, std::string_view database,
-                 unsigned int port, std::string_view unixSocket, unsigned long clientFlag,
+                 std::uint_fast32_t port, std::string_view unixSocket, std::uint_fast64_t clientFlag,
                  std::source_location sourceLocation = std::source_location::current()) -> void;
 
     auto query(std::string_view statement, std::source_location sourceLocation = std::source_location::current())
@@ -31,7 +32,7 @@ private:
     [[nodiscard]] auto storeResult(std::source_location sourceLocation = std::source_location::current())
             -> MYSQL_RES *;
 
-    [[nodiscard]] static auto getColumnCount(MYSQL_RES *result) noexcept -> unsigned int;
+    [[nodiscard]] static auto getColumnCount(MYSQL_RES *result) noexcept -> std::uint_fast32_t;
 
     [[nodiscard]] static auto getRow(MYSQL_RES *result) noexcept -> MYSQL_ROW;
 

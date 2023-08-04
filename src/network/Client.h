@@ -1,12 +1,13 @@
 #pragma once
 
-#include <memory>
-
 #include "../base/UserRing.h"
+
+#include <memory>
 
 class Client {
 public:
-    Client(int fileDescriptor, unsigned short timeout, const std::shared_ptr<UserRing> &userRing) noexcept;
+    Client(std::int_fast32_t fileDescriptor, std::uint_fast16_t timeout,
+           const std::shared_ptr<UserRing> &userRing) noexcept;
 
     Client(const Client &) = delete;
 
@@ -14,11 +15,11 @@ public:
 
     auto operator=(Client &&) noexcept -> Client &;
 
-    [[nodiscard]] auto getFileDescriptor() const noexcept -> int;
+    [[nodiscard]] auto getFileDescriptor() const noexcept -> std::int_fast32_t;
 
-    [[nodiscard]] auto getTimeout() const noexcept -> unsigned short;
+    [[nodiscard]] auto getTimeout() const noexcept -> std::uint_fast16_t;
 
-    auto receive(unsigned short bufferRingId) -> void;
+    auto receive(std::uint_fast16_t bufferRingId) -> void;
 
     auto writeReceivedData(std::string &&data) -> void;
 
@@ -33,8 +34,8 @@ private:
 
     auto close() -> void;
 
-    int fileDescriptor;
-    unsigned short timeout;
+    std::int_fast32_t fileDescriptor;
+    std::uint_fast16_t timeout;
     std::string receivedData, unSendData;
     std::shared_ptr<UserRing> userRing;
 };

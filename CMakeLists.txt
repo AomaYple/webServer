@@ -10,8 +10,6 @@ set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 add_executable(${PROJECT_NAME} "")
 
 target_sources(${PROJECT_NAME} PRIVATE
-        src/main.cpp
-
         src/base/BufferRing.cpp
         src/base/Completion.cpp
         src/base/Submission.cpp
@@ -25,11 +23,13 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/event/ReceiveEvent.cpp
         src/event/SendEvent.cpp
         src/event/TimeoutEvent.cpp
+        src/event/Timer.cpp
 
         src/exception/Exception.cpp
 
         src/http/Database.cpp
         src/http/Http.cpp
+        src/http/Request.cpp
         src/http/Response.cpp
 
         src/log/Message.cpp
@@ -40,13 +40,14 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/network/Server.cpp
         src/network/UserData.cpp
 
-        src/timer/Timer.cpp
+        src/main.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-        z
-        uring
         mariadb
+        uring
+        z
+        brotlienc
 )
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/WebServer)

@@ -6,8 +6,8 @@ using std::source_location;
 using std::string, std::string_view;
 using std::vector;
 
-Database::Database(string_view host, string_view user, string_view password, string_view database, unsigned int port,
-                   string_view unixSocket, unsigned long clientFlag)
+Database::Database(string_view host, string_view user, string_view password, string_view database,
+                   std::uint_fast32_t port, string_view unixSocket, std::uint_fast64_t clientFlag)
     : connection{Database::initialize()} {
     this->connect(host, user, password, database, port, unixSocket, clientFlag);
 }
@@ -19,12 +19,12 @@ auto Database::consult(string_view statement) -> vector<vector<string>> {
 
     vector<vector<string>> results;
 
-    unsigned int columnCount{Database::getColumnCount(consultResult)};
+    std::uint_fast32_t columnCount{Database::getColumnCount(consultResult)};
 
     for (MYSQL_ROW row{Database::getRow(consultResult)}; row != nullptr; row = Database::getRow(consultResult)) {
         vector<string> result;
 
-        for (unsigned int i{0}; i < columnCount; ++i) result.emplace_back(row[i]);
+        for (std::uint_fast32_t i{0}; i < columnCount; ++i) result.emplace_back(row[i]);
 
         results.emplace_back(std::move(result));
     }
@@ -46,7 +46,7 @@ auto Database::initialize(source_location sourceLocation) -> MYSQL * {
 }
 
 auto Database::connect(string_view host, string_view user, string_view password, string_view database,
-                       unsigned int port, string_view unixSocket, unsigned long clientFlag,
+                       std::uint_fast32_t port, string_view unixSocket, std::uint_fast64_t clientFlag,
                        source_location sourceLocation) -> void {
     if (mysql_real_connect(this->connection, host.empty() ? nullptr : host.data(), user.data(), password.data(),
                            database.data(), port, unixSocket.empty() ? nullptr : unixSocket.data(),
@@ -70,7 +70,7 @@ auto Database::storeResult(source_location sourceLocation) -> MYSQL_RES * {
     return result;
 }
 
-auto Database::getColumnCount(MYSQL_RES *result) noexcept -> unsigned int { return mysql_num_fields(result); }
+auto Database::getColumnCount(MYSQL_RES *result) noexcept -> std::uint_fast32_t { return mysql_num_fields(result); }
 
 auto Database::getRow(MYSQL_RES *result) noexcept -> MYSQL_ROW { return mysql_fetch_row(result); }
 

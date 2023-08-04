@@ -8,7 +8,8 @@
 using std::shared_ptr;
 using std::string;
 
-Client::Client(int fileDescriptor, unsigned short timeout, const shared_ptr<UserRing> &userRing) noexcept
+Client::Client(std::int_fast32_t fileDescriptor, std::uint_fast16_t timeout,
+               const shared_ptr<UserRing> &userRing) noexcept
     : fileDescriptor{fileDescriptor}, timeout{timeout}, userRing{userRing} {}
 
 Client::Client(Client &&other) noexcept
@@ -29,15 +30,15 @@ auto Client::operator=(Client &&other) noexcept -> Client & {
     return *this;
 }
 
-auto Client::getFileDescriptor() const noexcept -> int { return this->fileDescriptor; }
+auto Client::getFileDescriptor() const noexcept -> std::int_fast32_t { return this->fileDescriptor; }
 
-auto Client::getTimeout() const noexcept -> unsigned short { return this->timeout; }
+auto Client::getTimeout() const noexcept -> std::uint_fast16_t { return this->timeout; }
 
-auto Client::receive(unsigned short bufferRingId) -> void {
+auto Client::receive(std::uint_fast16_t bufferRingId) -> void {
     Submission submission{this->userRing->getSqe()};
 
     UserData userData{Type::RECEIVE, this->fileDescriptor};
-    submission.setUserData(reinterpret_cast<unsigned long long &>(userData));
+    submission.setUserData(reinterpret_cast<std::uint_fast64_t &>(userData));
 
     submission.receive(this->fileDescriptor, nullptr, 0, 0);
 
@@ -62,7 +63,7 @@ auto Client::send(string &&data) -> void {
     Submission submission{this->userRing->getSqe()};
 
     UserData userData{Type::SEND, this->fileDescriptor};
-    submission.setUserData(reinterpret_cast<unsigned long long &>(userData));
+    submission.setUserData(reinterpret_cast<std::uint_fast64_t &>(userData));
 
     submission.send(this->fileDescriptor, this->unSendData.data(), this->unSendData.size(), 0, 0);
 
@@ -83,7 +84,7 @@ auto Client::cancel() -> void {
     Submission submission{this->userRing->getSqe()};
 
     UserData userData{Type::CANCEL, this->fileDescriptor};
-    submission.setUserData(reinterpret_cast<unsigned long long &>(userData));
+    submission.setUserData(reinterpret_cast<std::uint_fast64_t &>(userData));
 
     submission.cancel(this->fileDescriptor, IORING_ASYNC_CANCEL_ALL);
 
@@ -94,7 +95,7 @@ auto Client::close() -> void {
     Submission submission{this->userRing->getSqe()};
 
     UserData userData{Type::CLOSE, this->fileDescriptor};
-    submission.setUserData(reinterpret_cast<unsigned long long &>(userData));
+    submission.setUserData(reinterpret_cast<std::uint_fast64_t &>(userData));
 
     submission.close(this->fileDescriptor);
 

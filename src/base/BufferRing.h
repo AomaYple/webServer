@@ -1,29 +1,29 @@
 #pragma once
 
-#include <memory>
-
 #include "UserRing.h"
+
+#include <memory>
 
 class BufferRing {
 public:
-    BufferRing(unsigned short entries, unsigned long bufferSize, unsigned short id,
+    BufferRing(std::uint_fast16_t entries, std::uint_fast64_t bufferSize, std::uint_fast16_t id,
                const std::shared_ptr<UserRing> &userRing);
 
     BufferRing(const BufferRing &) = delete;
 
-    [[nodiscard]] auto getId() const noexcept -> unsigned short;
+    [[nodiscard]] auto getId() const noexcept -> std::uint_fast16_t;
 
-    [[nodiscard]] auto getData(unsigned short bufferIndex, unsigned long dataSize) -> std::string;
+    [[nodiscard]] auto getData(std::uint_fast16_t bufferIndex, std::uint_fast64_t dataSize) -> std::string;
 
-    auto advanceCompletionBufferRingBuffer(unsigned int completionCount) noexcept -> void;
+    auto advanceCompletionBufferRingBuffer(std::uint_fast32_t completionCount) noexcept -> void;
 
     ~BufferRing();
 
 private:
-    auto add(unsigned short index) noexcept -> void;
+    auto add(std::uint_fast16_t index) noexcept -> void;
 
     io_uring_buf_ring *bufferRing;
-    std::vector<std::vector<char>> buffers;
-    unsigned short id, mask, offset;
+    std::vector<std::vector<std::int_fast8_t>> buffers;
+    std::uint_fast16_t id, mask, offset;
     std::shared_ptr<UserRing> userRing;
 };

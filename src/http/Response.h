@@ -7,6 +7,5 @@ struct Response {
 
     [[nodiscard]] auto combine() -> std::string;
 
-    bool isParseMethod, isParseUrl, isParseVersion, isWriteBody;
     std::string version, statusCode, headers, body;
 };

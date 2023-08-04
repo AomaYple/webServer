@@ -53,7 +53,7 @@ auto Log::consume(Node *pointer) -> void {
     while (pointer != nullptr) {
         Message &message{pointer->message};
 
-        this->logFile << message.combineToString();
+        this->logFile << message.combine();
 
         Node *oldPointer{pointer};
         pointer = pointer->next;
@@ -84,7 +84,7 @@ Log::~Log() {
         Message message{system_clock::now(), get_id(), source_location::current(), Level::FATAL,
                         "log destructor error"};
 
-        this->logFile << message.combineToString();
+        this->logFile << message.combine();
     }
 
     delete this->head.load(memory_order_relaxed);

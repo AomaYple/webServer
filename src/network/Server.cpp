@@ -1,19 +1,19 @@
 #include "Server.h"
 
-#include <arpa/inet.h>
-
-#include <cstring>
-
 #include "../base/Submission.h"
 #include "../exception/Exception.h"
 #include "../log/Log.h"
 #include "UserData.h"
 
+#include <arpa/inet.h>
+
+#include <cstring>
+
 using std::array;
 using std::shared_ptr;
 using std::source_location;
 
-Server::Server(unsigned short port, const shared_ptr<UserRing> &userRing)
+Server::Server(std::uint_fast16_t port, const shared_ptr<UserRing> &userRing)
     : fileDescriptor{Server::socket()}, userRing{userRing} {
     this->setSocketOption();
 
@@ -47,8 +47,8 @@ Server::~Server() {
     }
 }
 
-auto Server::socket(source_location sourceLocation) -> int {
-    int fileDescriptor{::socket(AF_INET, SOCK_STREAM, 0)};
+auto Server::socket(std::source_location sourceLocation) -> std::int_fast32_t {
+    std::int_fast32_t fileDescriptor{::socket(AF_INET, SOCK_STREAM, 0)};
 
     if (fileDescriptor == -1) throw Exception{sourceLocation, Level::FATAL, std::strerror(errno)};
 
@@ -56,12 +56,13 @@ auto Server::socket(source_location sourceLocation) -> int {
 }
 
 auto Server::setSocketOption(source_location sourceLocation) const -> void {
-    int option{1};
-    if (setsockopt(this->fileDescriptor, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(option)) == -1)
+    std::int_fast32_t option{1};
+    if (setsockopt(static_cast<int>(this->fileDescriptor), SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option,
+                   sizeof(option)) == -1)
         throw Exception{sourceLocation, Level::FATAL, std::strerror(errno)};
 }
 
-auto Server::bind(unsigned short port, source_location sourceLocation) const -> void {
+auto Server::bind(std::uint_fast16_t port, std::source_location sourceLocation) const -> void {
     sockaddr_in address{};
     socklen_t addressLength{sizeof(address)};
 
@@ -71,19 +72,19 @@ auto Server::bind(unsigned short port, source_location sourceLocation) const -> 
     if (inet_pton(AF_INET, "127.0.0.1", &address.sin_addr) != 1)
         throw Exception{sourceLocation, Level::FATAL, std::strerror(errno)};
 
-    if (::bind(this->fileDescriptor, reinterpret_cast<sockaddr *>(&address), addressLength) == -1)
+    if (::bind(static_cast<int>(this->fileDescriptor), reinterpret_cast<sockaddr *>(&address), addressLength) == -1)
         throw Exception{sourceLocation, Level::FATAL, std::strerror(errno)};
 }
 
 auto Server::listen(source_location sourceLocation) const -> void {
-    if (::listen(this->fileDescriptor, SOMAXCONN) == -1)
+    if (::listen(static_cast<int>(this->fileDescriptor), SOMAXCONN) == -1)
         throw Exception{sourceLocation, Level::FATAL, std::strerror(errno)};
 }
 
 auto Server::registerFileDescriptor() -> void {
     this->userRing->allocateFileDescriptorRange(1, getFileDescriptorLimit() - 1);
 
-    array<int, 1> fileDescriptors{this->fileDescriptor};
+    array<std::int_fast32_t, 1> fileDescriptors{this->fileDescriptor};
     this->userRing->updateFileDescriptors(0, fileDescriptors);
 
     this->fileDescriptor = 0;
@@ -92,8 +93,8 @@ auto Server::registerFileDescriptor() -> void {
 auto Server::cancel() -> void {
     Submission submission{this->userRing->getSqe()};
 
-    UserData event{Type::CANCEL, this->fileDescriptor};
-    submission.setUserData(reinterpret_cast<unsigned long long &>(event));
+    UserData userData{Type::CANCEL, this->fileDescriptor};
+    submission.setUserData(reinterpret_cast<std::uint_fast64_t &>(userData));
 
     submission.cancel(this->fileDescriptor, IORING_ASYNC_CANCEL_ALL);
 
@@ -103,8 +104,8 @@ auto Server::cancel() -> void {
 auto Server::close() -> void {
     Submission submission{this->userRing->getSqe()};
 
-    UserData event{Type::CLOSE, this->fileDescriptor};
-    submission.setUserData(reinterpret_cast<unsigned long long &>(event));
+    UserData userData{Type::CLOSE, this->fileDescriptor};
+    submission.setUserData(reinterpret_cast<std::uint_fast64_t &>(userData));
 
     submission.close(this->fileDescriptor);
 

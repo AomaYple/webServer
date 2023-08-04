@@ -14,13 +14,13 @@ using std::unique_ptr;
 using std::vector;
 using std::ranges::find_if;
 
-constexpr unsigned int ringEntries{128};
-constexpr unsigned short bufferRingEntries{128}, bufferRingId{0}, port{9999};
-constexpr unsigned long bufferRingBufferSize{1024};
+constexpr std::uint_fast32_t ringEntries{128};
+constexpr std::uint_fast16_t bufferRingEntries{128}, bufferRingId{0}, port{9999};
+constexpr std::uint_fast64_t bufferRingBufferSize{1024};
 
 constinit thread_local bool EventLoop::instance{false};
 constinit mutex EventLoop::lock{};
-vector<int> EventLoop::cpus{vector<int>(jthread::hardware_concurrency(), -1)};
+vector<std::int_fast32_t> EventLoop::cpus{vector<std::int_fast32_t>(jthread::hardware_concurrency(), -1)};
 
 EventLoop::EventLoop()
     : userRing{[](source_location sourceLocation = source_location::current()) {
@@ -37,7 +37,7 @@ EventLoop::EventLoop()
           {
               lock_guard lockGuard{EventLoop::lock};
 
-              auto result{find_if(EventLoop::cpus, [](int cpu) { return cpu != -1; })};
+              auto result{find_if(EventLoop::cpus, [](std::int_fast32_t cpu) { return cpu != -1; })};
               if (result != EventLoop::cpus.end()) {
                   params.wq_fd = *result;
                   params.flags |= IORING_SETUP_ATTACH_WQ;
@@ -45,12 +45,12 @@ EventLoop::EventLoop()
 
               tempUserRing = make_shared<UserRing>(ringEntries, params);
 
-              result = find_if(EventLoop::cpus, [](int value) { return value == -1; });
+              result = find_if(EventLoop::cpus, [](std::int_fast32_t value) { return value == -1; });
               if (result != EventLoop::cpus.end()) *result = tempUserRing->getSelfFileDescriptor();
               else
                   throw Exception{sourceLocation, Level::FATAL, "no available cpu"};
 
-              tempUserRing->registerCpu(static_cast<unsigned short>(std::distance(EventLoop::cpus.begin(), result)));
+              tempUserRing->registerCpu(std::distance(EventLoop::cpus.begin(), result));
           }
 
           tempUserRing->registerSelfFileDescriptor();
@@ -69,10 +69,10 @@ auto EventLoop::loop() -> void {
     while (true) {
         this->userRing->submitWait(1);
 
-        unsigned int completionCount{this->userRing->forEachCompletion([this](io_uring_cqe *cqe) {
+        std::uint_fast32_t completionCount{this->userRing->forEachCompletion([this](io_uring_cqe *cqe) {
             Completion completion{cqe};
 
-            unsigned long long completionUserData{completion.getUserData()};
+            std::uint_fast64_t completionUserData{completion.getUserData()};
 
             UserData userData{reinterpret_cast<UserData &>(completionUserData)};
 
@@ -88,11 +88,12 @@ auto EventLoop::loop() -> void {
 
 EventLoop::~EventLoop() {
     EventLoop::instance = false;
-    int fileDescriptor{this->userRing->getSelfFileDescriptor()};
+    std::int_fast32_t fileDescriptor{this->userRing->getSelfFileDescriptor()};
 
     lock_guard lockGuard{EventLoop::lock};
 
-    auto result{find_if(EventLoop::cpus, [fileDescriptor](int value) { return value == fileDescriptor; })};
+    auto result{
+            find_if(EventLoop::cpus, [fileDescriptor](std::int_fast32_t value) { return value == fileDescriptor; })};
 
     if (result != EventLoop::cpus.end()) *result = -1;
     else

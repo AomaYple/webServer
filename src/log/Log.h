@@ -1,8 +1,8 @@
 #pragma once
 
-#include <fstream>
-
 #include "Node.h"
+
+#include <fstream>
 
 class Log {
     static Log instance;

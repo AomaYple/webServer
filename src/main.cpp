@@ -1,6 +1,6 @@
-#include <thread>
-
 #include "event/EventLoop.h"
+
+#include <thread>
 
 using std::jthread;
 using std::vector;
