@@ -2,54 +2,56 @@
 
 #include <liburing.h>
 
+#include <sys/resource.h>
+
 #include <cstdint>
 #include <functional>
 #include <source_location>
 #include <span>
 
-auto getFileDescriptorLimit(std::source_location sourceLocation = std::source_location::current())
-        -> std::uint_fast64_t;
-
 class UserRing {
 public:
-    UserRing(std::uint_fast32_t entries, io_uring_params &params,
+    [[nodiscard]] static auto
+    getFileDescriptorLimit(std::source_location sourceLocation = std::source_location::current()) -> rlim_t;
+
+    UserRing(unsigned int entries, io_uring_params &params,
              std::source_location sourceLocation = std::source_location::current());
 
     UserRing(const UserRing &) = delete;
 
-    [[nodiscard]] auto getSelfFileDescriptor() const noexcept -> std::int_fast32_t;
+    UserRing(UserRing &&) noexcept;
+
+    [[nodiscard]] auto getSelfFileDescriptor() const noexcept -> int;
 
     auto registerSelfFileDescriptor(std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto registerCpu(std::uint_fast16_t cpuCode, std::source_location sourceLocation = std::source_location::current())
+    auto registerCpu(std::uint_least8_t cpuCode, std::source_location sourceLocation = std::source_location::current())
             -> void;
 
-    auto registerFileDescriptors(std::uint_fast32_t fileDescriptorCount,
+    auto registerFileDescriptors(unsigned int fileDescriptorCount,
                                  std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto allocateFileDescriptorRange(std::uint_fast32_t offset, std::uint_fast32_t length,
+    auto allocateFileDescriptorRange(unsigned int offset, unsigned int length,
                                      std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto updateFileDescriptors(std::uint_fast32_t offset, std::span<std::int_fast32_t> fileDescriptors,
+    auto updateFileDescriptors(unsigned int offset, std::span<const int> fileDescriptors,
                                std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    [[nodiscard]] auto setupBufferRing(std::uint_fast16_t entries, std::uint_fast16_t id,
+    [[nodiscard]] auto setupBufferRing(unsigned int entries, int id, unsigned int flags,
                                        std::source_location sourceLocation = std::source_location::current())
             -> io_uring_buf_ring *;
 
-    auto freeBufferRing(io_uring_buf_ring *bufferRing, std::uint_fast16_t entries, std::uint_fast16_t id,
+    auto freeBufferRing(io_uring_buf_ring *bufferRing, unsigned int entries, int id,
                         std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto submitWait(std::uint_fast32_t count, std::source_location sourceLocation = std::source_location::current())
-            -> void;
+    auto submitWait(unsigned int count, std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    [[nodiscard]] auto forEachCompletion(const std::function<auto(io_uring_cqe *cqe)->void> &task)
-            -> std::uint_fast32_t;
+    [[nodiscard]] auto forEachCompletion(const std::function<auto(io_uring_cqe *cqe)->void> &task) noexcept -> int;
 
     [[nodiscard]] auto getSqe(std::source_location sourceLocation = std::source_location::current()) -> io_uring_sqe *;
 
-    auto advanceCompletionBufferRingBuffer(io_uring_buf_ring *bufferRing, std::uint_fast32_t completionCount,
-                                           std::uint_fast16_t bufferRingBufferCount) noexcept -> void;
+    auto advanceCompletionBufferRingBuffer(io_uring_buf_ring *bufferRing, int completionCount,
+                                           int bufferRingBufferCount) noexcept -> void;
 
     ~UserRing();
 

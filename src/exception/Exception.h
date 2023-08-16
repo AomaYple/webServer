@@ -1,16 +1,13 @@
 #pragma once
 
-#include "../log/Message.h"
+#include <string>
 
 class Exception : public std::exception {
 public:
-    Exception(std::source_location sourceLocation, Level level, std::string &&information);
+    explicit Exception(std::string &&error);
 
     [[nodiscard]] auto what() const noexcept -> const char * override;
 
-    auto getMessage() noexcept -> Message;
-
 private:
-    Message message;
-    std::string messageString;
+    std::string error;
 };

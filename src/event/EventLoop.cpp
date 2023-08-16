@@ -1,30 +1,21 @@
 #include "EventLoop.h"
 
 #include "../base/Completion.h"
+#include "../base/Submission.h"
+#include "../base/UserData.h"
 #include "../exception/Exception.h"
 #include "../log/Log.h"
-#include "../network/UserData.h"
+#include "../log/message.h"
 #include "Event.h"
 
-using std::jthread;
-using std::mutex, std::lock_guard;
-using std::shared_ptr, std::make_shared;
-using std::source_location;
-using std::unique_ptr;
-using std::vector;
-using std::ranges::find_if;
-
-constexpr std::uint_fast32_t ringEntries{128};
-constexpr std::uint_fast16_t bufferRingEntries{128}, bufferRingId{0}, port{9999};
-constexpr std::uint_fast64_t bufferRingBufferSize{1024};
-
-constinit thread_local bool EventLoop::instance{false};
-constinit mutex EventLoop::lock{};
-vector<std::int_fast32_t> EventLoop::cpus{vector<std::int_fast32_t>(jthread::hardware_concurrency(), -1)};
+using std::array, std::mutex, std::lock_guard, std::source_location, std::unique_ptr, std::shared_ptr, std::vector;
+using std::ranges::find_if, std::make_shared, std::this_thread::get_id;
+;
+using std::jthread, std::chrono::system_clock;
 
 EventLoop::EventLoop()
     : userRing{[](source_location sourceLocation = source_location::current()) {
-          if (EventLoop::instance) throw Exception{sourceLocation, Level::FATAL, "only one instance"};
+          if (EventLoop::instance) throw Exception{"only one instance"};
           EventLoop::instance = true;
 
           io_uring_params params{};
@@ -35,51 +26,66 @@ EventLoop::EventLoop()
           shared_ptr<UserRing> tempUserRing;
 
           {
-              lock_guard lockGuard{EventLoop::lock};
+              const lock_guard lockGuard{EventLoop::lock};
 
-              auto result{find_if(EventLoop::cpus, [](std::int_fast32_t cpu) { return cpu != -1; })};
+              auto result{find_if(EventLoop::cpus, [](int cpu) { return cpu != -1; })};
               if (result != EventLoop::cpus.end()) {
                   params.wq_fd = *result;
                   params.flags |= IORING_SETUP_ATTACH_WQ;
               }
 
-              tempUserRing = make_shared<UserRing>(ringEntries, params);
+              tempUserRing = make_shared<UserRing>(EventLoop::ringEntries, params);
 
-              result = find_if(EventLoop::cpus, [](std::int_fast32_t value) { return value == -1; });
+              result = find_if(EventLoop::cpus, [](int value) { return value == -1; });
               if (result != EventLoop::cpus.end()) *result = tempUserRing->getSelfFileDescriptor();
               else
-                  throw Exception{sourceLocation, Level::FATAL, "no available cpu"};
+                  throw Exception{"no available cpu"};
 
               tempUserRing->registerCpu(std::distance(EventLoop::cpus.begin(), result));
           }
 
           tempUserRing->registerSelfFileDescriptor();
 
-          tempUserRing->registerFileDescriptors(getFileDescriptorLimit());
+          tempUserRing->registerFileDescriptors(UserRing::getFileDescriptorLimit());
+
+          tempUserRing->allocateFileDescriptorRange(2, UserRing::getFileDescriptorLimit() - 2);
 
           return tempUserRing;
       }()},
-      bufferRing{bufferRingEntries, bufferRingBufferSize, bufferRingId, this->userRing}, server{port, this->userRing} {}
+      bufferRing{EventLoop::bufferRingEntries, EventLoop::bufferRingBufferSize, EventLoop::bufferRingId,
+                 this->userRing},
+      server{EventLoop::port, this->userRing}, database{{}, "AomaYple", "38820233", "WebServer", 0, {}, 0},
+      timer(this->userRing) {
+    const array<int, 2> fileDescriptors{this->server.getFileDescriptor(), this->timer.getFileDescriptor()};
+    this->userRing->updateFileDescriptors(0, fileDescriptors);
+
+    this->server.setFileDescriptor(0);
+    this->timer.setFileDescriptor(1);
+}
+
+EventLoop::EventLoop(EventLoop &&other) noexcept
+    : userRing{std::move(other.userRing)}, bufferRing{std::move(other.bufferRing)}, server{std::move(other.server)},
+      timer{std::move(other.timer)}, database{std::move(other.database)} {}
 
 auto EventLoop::loop() -> void {
     this->server.accept();
 
-    this->timer.start(this->userRing->getSqe());
+    this->timer.startTiming();
 
     while (true) {
         this->userRing->submitWait(1);
 
-        std::uint_fast32_t completionCount{this->userRing->forEachCompletion([this](io_uring_cqe *cqe) {
-            Completion completion{cqe};
+        int completionCount{this->userRing->forEachCompletion([this](io_uring_cqe *cqe) {
+            const Completion completion{cqe};
 
-            std::uint_fast64_t completionUserData{completion.getUserData()};
+            const __u64 completionUserData{completion.getUserData()};
 
-            UserData userData{reinterpret_cast<UserData &>(completionUserData)};
+            const UserData userData{reinterpret_cast<const UserData &>(completionUserData)};
 
-            unique_ptr<Event> event{Event::create(userData.type)};
+            const unique_ptr<Event> event{Event::create(userData.type)};
 
             event->handle(completion.getResult(), userData.fileDescriptor, completion.getFlags(), this->userRing,
-                          this->bufferRing, this->server, this->timer, source_location::current());
+                          this->bufferRing, this->server, this->timer, this->database, source_location::current());
         })};
 
         this->bufferRing.advanceCompletionBufferRingBuffer(completionCount);
@@ -88,14 +94,18 @@ auto EventLoop::loop() -> void {
 
 EventLoop::~EventLoop() {
     EventLoop::instance = false;
-    std::int_fast32_t fileDescriptor{this->userRing->getSelfFileDescriptor()};
+    const int fileDescriptor{this->userRing->getSelfFileDescriptor()};
 
-    lock_guard lockGuard{EventLoop::lock};
+    const lock_guard lockGuard{EventLoop::lock};
 
-    auto result{
-            find_if(EventLoop::cpus, [fileDescriptor](std::int_fast32_t value) { return value == fileDescriptor; })};
+    auto const result{find_if(EventLoop::cpus, [fileDescriptor](int value) { return value == fileDescriptor; })};
 
     if (result != EventLoop::cpus.end()) *result = -1;
     else
-        Log::produce(source_location::current(), Level::FATAL, "can not find userRing file descriptor");
+        Log::produce(message::combine(system_clock::now(), get_id(), source_location::current(), Level::FATAL,
+                                      "can not find file descriptor"));
 }
+
+constinit thread_local bool EventLoop::instance{false};
+constinit mutex EventLoop::lock;
+vector<int> EventLoop::cpus{vector<int>(jthread::hardware_concurrency(), -1)};

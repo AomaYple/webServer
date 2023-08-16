@@ -3,34 +3,44 @@
 #include "../exception/Exception.h"
 #include "../log/Log.h"
 
-using std::shared_ptr;
-using std::string;
-using std::vector;
+using namespace std;
 
-BufferRing::BufferRing(std::uint_fast16_t entries, std::uint_fast64_t bufferSize, std::uint_fast16_t id,
-                       const shared_ptr<UserRing> &userRing)
-    : bufferRing{userRing->setupBufferRing(entries, id)},
-      buffers{vector<vector<std::int_fast8_t>>(entries, vector<std::int_fast8_t>(bufferSize, 0))}, id{id},
-      mask{static_cast<std::uint_fast16_t>(io_uring_buf_ring_mask(entries))}, offset{0}, userRing{userRing} {
-    for (std::uint_fast16_t i{0}; i < this->buffers.size(); ++i) this->add(i);
+BufferRing::BufferRing(unsigned int entries, std::size_t bufferSize, __u16 id, const shared_ptr<UserRing> &userRing)
+    : bufferRing{userRing->setupBufferRing(entries, id, 0)},
+      buffers{vector<vector<byte>>(entries, vector<byte>(bufferSize, byte{0}))}, id{id},
+      mask{io_uring_buf_ring_mask(entries)}, offset{0}, userRing{userRing} {
+    for (std::size_t i{0}; i < this->buffers.size(); ++i) this->add(i);
 
     this->advanceCompletionBufferRingBuffer(0);
 }
 
-auto BufferRing::getId() const noexcept -> std::uint_fast16_t { return this->id; }
+BufferRing::BufferRing(BufferRing &&other) noexcept
+    : bufferRing{other.bufferRing}, buffers{std::move(other.buffers)}, id{other.id}, mask{other.mask},
+      offset{other.offset}, userRing{std::move(other.userRing)} {
+    other.bufferRing = nullptr;
+}
 
-auto BufferRing::getData(std::uint_fast16_t bufferIndex, std::uint_fast64_t dataSize) -> string {
-    string data{this->buffers[bufferIndex].begin(),
-                this->buffers[bufferIndex].begin() + static_cast<std::int_fast64_t>(dataSize)};
+auto BufferRing::add(__u32 index) noexcept -> void {
+    const span<byte> buffer{this->buffers[index]};
 
-    if (dataSize == this->buffers[bufferIndex].size()) this->buffers[bufferIndex].resize(this->buffers.size() * 2);
+    io_uring_buf_ring_add(this->bufferRing, buffer.data(), buffer.size_bytes(), index, this->mask, this->offset++);
+}
+
+auto BufferRing::getId() const noexcept -> __u16 { return this->id; }
+
+auto BufferRing::getData(__u32 bufferIndex, __s32 dataSize) -> vector<byte> {
+    vector<byte> &buffer{this->buffers[bufferIndex]};
+
+    vector<byte> data{buffer.begin(), buffer.begin() + dataSize};
+
+    if (dataSize == buffer.size()) buffer.resize(buffer.size() * 2);
 
     this->add(bufferIndex);
 
     return data;
 }
 
-auto BufferRing::advanceCompletionBufferRingBuffer(std::uint_fast32_t completionCount) noexcept -> void {
+auto BufferRing::advanceCompletionBufferRingBuffer(int completionCount) noexcept -> void {
     this->userRing->advanceCompletionBufferRingBuffer(this->bufferRing, completionCount, this->offset);
 
     this->offset = 0;
@@ -40,11 +50,6 @@ BufferRing::~BufferRing() {
     if (this->bufferRing != nullptr) {
         try {
             this->userRing->freeBufferRing(this->bufferRing, this->buffers.size(), this->id);
-        } catch (Exception &exception) { Log::produce(exception.getMessage()); }
+        } catch (const Exception &exception) { Log::produce(exception.what()); }
     }
-}
-
-auto BufferRing::add(std::uint_fast16_t index) noexcept -> void {
-    io_uring_buf_ring_add(this->bufferRing, this->buffers[index].data(), this->buffers[index].size(), index,
-                          static_cast<int>(this->mask), static_cast<int>(this->offset++));
 }

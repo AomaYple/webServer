@@ -3,30 +3,31 @@
 #include "Node.h"
 
 #include <fstream>
+#include <thread>
 
 class Log {
-    static Log instance;
+    Log();
 
 public:
-    static auto produce(std::source_location sourceLocation, Level level, std::string &&information) -> void;
-
-    static auto produce(Message &&message) -> void;
-
     Log(const Log &) = delete;
 
+    Log(Log &&) = delete;
+
+    static auto produce(std::string &&log) -> void;
+
 private:
-    static auto invertLinkedList(Node *pointer) noexcept -> Node *;
+    [[noreturn]] auto loop() -> void;
+
+    [[nodiscard]] static auto invertLinkedList(Node *pointer) noexcept -> Node *;
 
     auto consume(Node *pointer) -> void;
 
-    [[noreturn]] auto loop() -> void;
-
-    Log();
-
     ~Log();
+
+    static Log instance;
 
     std::ofstream logFile;
     std::atomic<Node *> head;
     std::atomic_flag notice;
-    std::jthread work;
+    const std::jthread work;
 };

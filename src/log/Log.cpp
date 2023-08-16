@@ -2,18 +2,14 @@
 
 #include <filesystem>
 
-using std::memory_order_relaxed, std::memory_order_release;
-using std::ofstream, std::filesystem::current_path;
-using std::source_location;
-using std::string;
-using std::chrono::system_clock;
-using std::this_thread::get_id;
+using namespace std;
 
-Log Log::instance;
+Log::Log()
+    : logFile{filesystem::current_path().string() + "/log.log", ofstream::trunc}, head{nullptr},
+      work{&Log::loop, this} {}
 
-auto Log::produce(source_location sourceLocation, Level level, string &&information) -> void {
-    Node *newHead{new Node{Message{system_clock::now(), get_id(), sourceLocation, level, std::move(information)},
-                           Log::instance.head.load(memory_order_relaxed)}};
+auto Log::produce(string &&log) -> void {
+    Node *const newHead{new Node{std::move(log), Log::instance.head.load(memory_order_relaxed)}};
 
     while (!Log::instance.head.compare_exchange_weak(newHead->next, newHead, memory_order_release,
                                                      memory_order_relaxed))
@@ -21,44 +17,6 @@ auto Log::produce(source_location sourceLocation, Level level, string &&informat
 
     Log::instance.notice.test_and_set(memory_order_relaxed);
     Log::instance.notice.notify_one();
-}
-
-auto Log::produce(Message &&message) -> void {
-    Node *newHead{new Node{std::move(message), Log::instance.head.load(memory_order_relaxed)}};
-
-    while (!Log::instance.head.compare_exchange_weak(newHead->next, newHead, memory_order_release,
-                                                     memory_order_relaxed))
-        ;
-
-    Log::instance.notice.test_and_set(memory_order_relaxed);
-    Log::instance.notice.notify_one();
-}
-
-auto Log::invertLinkedList(Node *pointer) noexcept -> Node * {
-    Node *previous{nullptr};
-
-    while (pointer != nullptr) {
-        Node *next{pointer->next};
-
-        pointer->next = previous;
-        previous = pointer;
-
-        pointer = next;
-    }
-
-    return previous;
-}
-
-auto Log::consume(Node *pointer) -> void {
-    while (pointer != nullptr) {
-        Message &message{pointer->message};
-
-        this->logFile << message.combine();
-
-        Node *oldPointer{pointer};
-        pointer = pointer->next;
-        delete oldPointer;
-    }
 }
 
 [[noreturn]] auto Log::loop() -> void {
@@ -75,17 +33,36 @@ auto Log::consume(Node *pointer) -> void {
     }
 }
 
-Log::Log() : logFile{current_path().string() + "/log.log", ofstream::trunc}, head{nullptr}, work{&Log::loop, this} {}
+auto Log::invertLinkedList(Node *pointer) noexcept -> Node * {
+    Node *previous{nullptr};
+
+    while (pointer != nullptr) {
+        Node *const next{pointer->next};
+
+        pointer->next = previous;
+        previous = pointer;
+
+        pointer = next;
+    }
+
+    return previous;
+}
+
+auto Log::consume(Node *pointer) -> void {
+    while (pointer != nullptr) {
+        this->logFile << pointer->data;
+
+        const Node *const oldPointer{pointer};
+        pointer = pointer->next;
+
+        delete oldPointer;
+    }
+}
 
 Log::~Log() {
-    try {
-        Log::consume(Log::invertLinkedList(this->head));
-    } catch (...) {
-        Message message{system_clock::now(), get_id(), source_location::current(), Level::FATAL,
-                        "log destructor error"};
-
-        this->logFile << message.combine();
-    }
+    Log::consume(Log::invertLinkedList(this->head));
 
     delete this->head.load(memory_order_relaxed);
 }
+
+Log Log::instance;

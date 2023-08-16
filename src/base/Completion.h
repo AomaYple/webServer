@@ -2,20 +2,20 @@
 
 #include <liburing.h>
 
-#include <cstdint>
-
 class Completion {
 public:
     explicit Completion(io_uring_cqe *cqe) noexcept;
 
     Completion(const Completion &) = delete;
 
-    [[nodiscard]] auto getUserData() const noexcept -> std::uint_fast64_t;
+    Completion(Completion &&) noexcept = default;
 
-    [[nodiscard]] auto getResult() const noexcept -> std::int_fast32_t;
+    [[nodiscard]] auto getUserData() const noexcept -> __u64;
 
-    [[nodiscard]] auto getFlags() const noexcept -> std::uint_fast32_t;
+    [[nodiscard]] auto getResult() const noexcept -> __s32;
+
+    [[nodiscard]] auto getFlags() const noexcept -> __u32;
 
 private:
-    io_uring_cqe *completion;
+    const io_uring_cqe *const completion;
 };

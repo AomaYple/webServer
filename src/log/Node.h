@@ -1,12 +1,14 @@
 #pragma once
 
-#include "Message.h"
+#include <string>
 
 struct Node {
-    Node(Message &&message, Node *next) noexcept;
+    Node(std::string &&data, Node *next) noexcept;
 
     Node(const Node &) = delete;
 
-    Message message;
+    Node(Node &&) noexcept = default;
+
+    std::string data;
     Node *next;
 };

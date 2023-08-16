@@ -1,3 +1,5 @@
 #include "Node.h"
 
-Node::Node(Message &&message, Node *next) noexcept : message{std::move(message)}, next{next} {}
+using namespace std;
+
+Node::Node(string &&data, Node *next) noexcept : data{std::move(data)}, next{next} {}

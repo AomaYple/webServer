@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.27)
 
 project(WebServer)
 
@@ -13,32 +13,26 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/base/BufferRing.cpp
         src/base/Completion.cpp
         src/base/Submission.cpp
+        src/base/UserData.cpp
         src/base/UserRing.cpp
 
-        src/event/AcceptEvent.cpp
-        src/event/CancelEvent.cpp
-        src/event/CloseEvent.cpp
         src/event/Event.cpp
         src/event/EventLoop.cpp
-        src/event/ReceiveEvent.cpp
-        src/event/SendEvent.cpp
-        src/event/TimeoutEvent.cpp
         src/event/Timer.cpp
 
         src/exception/Exception.cpp
 
         src/http/Database.cpp
         src/http/Http.cpp
-        src/http/Request.cpp
-        src/http/Response.cpp
+        src/http/HttpRequest.cpp
+        src/http/HttpResponse.cpp
 
-        src/log/Message.cpp
         src/log/Log.cpp
+        src/log/message.cpp
         src/log/Node.cpp
 
-        src/network/Client.cpp
-        src/network/Server.cpp
-        src/network/UserData.cpp
+        src/socket/Client.cpp
+        src/socket/Server.cpp
 
         src/main.cpp
 )
@@ -46,7 +40,6 @@ target_sources(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PRIVATE
         mariadb
         uring
-        z
         brotlienc
 )
 

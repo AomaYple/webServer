@@ -1,46 +1,44 @@
 #include "Submission.h"
 
-Submission::Submission(io_uring_sqe *sqe) noexcept : submission{sqe} {}
+using namespace std;
 
-auto Submission::setUserData(std::uint_fast64_t userData) noexcept -> void {
+Submission::Submission(io_uring_sqe *sqe, int fileDescriptor, sockaddr *address, socklen_t *addressLength,
+                       int flags) noexcept
+    : submission{sqe} {
+    io_uring_prep_multishot_accept_direct(this->submission, fileDescriptor, address, addressLength, flags);
+}
+
+Submission::Submission(io_uring_sqe *sqe, int fileDescriptor, span<byte> buffer, unsigned int offset) noexcept
+    : submission{sqe} {
+    io_uring_prep_read(this->submission, fileDescriptor, buffer.data(), buffer.size_bytes(), offset);
+}
+
+Submission::Submission(io_uring_sqe *sqe, int fileDescriptor, span<byte> buffer, int flags) noexcept : submission{sqe} {
+    io_uring_prep_recv_multishot(this->submission, fileDescriptor, buffer.data(), buffer.size_bytes(), flags);
+}
+
+Submission::Submission(io_uring_sqe *sqe, int fileDescriptor, span<const byte> buffer, int flags,
+                       unsigned int zeroCopyFlags) noexcept
+    : submission{sqe} {
+    io_uring_prep_send_zc(this->submission, fileDescriptor, buffer.data(), buffer.size_bytes(), flags, zeroCopyFlags);
+}
+
+Submission::Submission(io_uring_sqe *sqe, int fileDescriptor, unsigned int flags) noexcept : submission{sqe} {
+    io_uring_prep_cancel_fd(this->submission, fileDescriptor, flags);
+}
+
+Submission::Submission(io_uring_sqe *sqe, unsigned int fileDescriptorIndex) noexcept : submission{sqe} {
+    io_uring_prep_close_direct(this->submission, fileDescriptorIndex);
+}
+
+auto Submission::setUserData(__u64 userData) const noexcept -> void {
     io_uring_sqe_set_data64(this->submission, userData);
 }
 
-auto Submission::setFlags(std::uint_fast32_t flags) noexcept -> void {
+auto Submission::setFlags(unsigned int flags) const noexcept -> void {
     io_uring_sqe_set_flags(this->submission, flags);
 }
 
-auto Submission::setBufferGroup(std::uint_fast16_t bufferGroup) noexcept -> void {
-    this->submission->buf_group = bufferGroup;
-}
-
-auto Submission::accept(std::int_fast32_t fileDescriptor, sockaddr *address, socklen_t *addressLength,
-                        std::int_fast32_t flags) noexcept -> void {
-    io_uring_prep_multishot_accept_direct(this->submission, static_cast<int>(fileDescriptor), address, addressLength,
-                                          static_cast<int>(flags));
-}
-
-auto Submission::read(std::int_fast32_t fileDescriptor, void *buffer, std::uint_fast32_t bufferLength,
-                      std::uint_fast64_t offset) noexcept -> void {
-    io_uring_prep_read(this->submission, static_cast<int>(fileDescriptor), buffer, bufferLength, offset);
-}
-
-auto Submission::receive(std::int_fast32_t fileDescriptor, void *buffer, std::uint_fast64_t bufferLength,
-                         std::int_fast32_t flags) noexcept -> void {
-    io_uring_prep_recv_multishot(this->submission, static_cast<int>(fileDescriptor), buffer, bufferLength,
-                                 static_cast<int>(flags));
-}
-
-auto Submission::send(std::int_fast32_t fileDescriptor, const void *buffer, std::uint_fast64_t bufferLength,
-                      std::int_fast32_t flags, std::uint_fast32_t zeroCopyFlags) noexcept -> void {
-    io_uring_prep_send_zc(this->submission, static_cast<int>(fileDescriptor), buffer, bufferLength,
-                          static_cast<int>(flags), zeroCopyFlags);
-}
-
-auto Submission::cancel(std::int_fast32_t fileDescriptor, std::uint_fast32_t flags) noexcept -> void {
-    io_uring_prep_cancel_fd(this->submission, static_cast<int>(fileDescriptor), flags);
-}
-
-auto Submission::close(std::uint_fast32_t fileDescriptorIndex) noexcept -> void {
-    io_uring_prep_close_direct(this->submission, fileDescriptorIndex);
+auto Submission::setBufferRingId(__u16 bufferRingId) const noexcept -> void {
+    this->submission->buf_group = bufferRingId;
 }

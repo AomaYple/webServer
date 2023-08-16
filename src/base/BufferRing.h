@@ -6,24 +6,29 @@
 
 class BufferRing {
 public:
-    BufferRing(std::uint_fast16_t entries, std::uint_fast64_t bufferSize, std::uint_fast16_t id,
-               const std::shared_ptr<UserRing> &userRing);
+    BufferRing(unsigned int entries, std::size_t bufferSize, __u16 id, const std::shared_ptr<UserRing> &userRing);
 
     BufferRing(const BufferRing &) = delete;
 
-    [[nodiscard]] auto getId() const noexcept -> std::uint_fast16_t;
+    BufferRing(BufferRing &&) noexcept;
 
-    [[nodiscard]] auto getData(std::uint_fast16_t bufferIndex, std::uint_fast64_t dataSize) -> std::string;
+private:
+    auto add(__u32 index) noexcept -> void;
 
-    auto advanceCompletionBufferRingBuffer(std::uint_fast32_t completionCount) noexcept -> void;
+public:
+    [[nodiscard]] auto getId() const noexcept -> __u16;
+
+    [[nodiscard]] auto getData(__u32 bufferIndex, __s32 dataSize) -> std::vector<std::byte>;
+
+    auto advanceCompletionBufferRingBuffer(int completionCount) noexcept -> void;
 
     ~BufferRing();
 
 private:
-    auto add(std::uint_fast16_t index) noexcept -> void;
-
     io_uring_buf_ring *bufferRing;
-    std::vector<std::vector<std::int_fast8_t>> buffers;
-    std::uint_fast16_t id, mask, offset;
+    std::vector<std::vector<std::byte>> buffers;
+    const __u16 id;
+    const int mask;
+    int offset;
     std::shared_ptr<UserRing> userRing;
 };
