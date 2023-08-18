@@ -5,23 +5,14 @@
     <title>Plants vs Zombies</title>
 
     <style>
-        body {
-            background-image: url("http://localhost:9999/backgroundImage.png");
-            background-size: cover;
-        }
-
-        video {
-            width: 800px;
-            height: 800px;
-        }
-
+        @import url("http://localhost:9999/index.css");
     </style>
+
+    <script src="http://localhost:9999/index.js"></script>
 </head>
 <body>
 
-<video autoplay="autoplay" controls="controls" style="clear:both;display:block;margin:auto">
-    <source src="http://localhost:9999/Zombies-on-Your-Lawn.mp4" type="video/mp4">
-</video>
+<video autoplay controls loop src="http://localhost:9999/Zombies-on-Your-Lawn.mp4"></video>
 
 </body>
 </html>

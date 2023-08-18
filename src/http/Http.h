@@ -8,6 +8,7 @@
 
 class Database;
 class HttpResponse;
+class HttpRequest;
 
 class Http {
     Http();
@@ -24,11 +25,13 @@ public:
     [[nodiscard]] static auto parse(std::span<const std::byte> request, Database &database) -> std::vector<std::byte>;
 
 private:
-    static auto parseVersion(HttpResponse &httpResponse, std::string_view version,
-                             std::source_location sourceLocation = std::source_location::current()) -> void;
-
     static auto parseMethod(HttpResponse &httpResponse, std::string_view method,
                             std::source_location sourceLocation = std::source_location::current()) -> void;
+
+    static auto parseGetHead(HttpResponse &httpResponse, const HttpRequest &httpRequest, bool writeBody) -> void;
+
+    static auto parseVersion(HttpResponse &httpResponse, std::string_view version,
+                             std::source_location sourceLocation = std::source_location::current()) -> void;
 
     [[nodiscard]] auto parseUrl(HttpResponse &httpResponse, std::string_view url,
                                 std::source_location sourceLocation = std::source_location::current()) const

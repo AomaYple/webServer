@@ -24,7 +24,8 @@ Http::Http()
 
               vector<byte> fileContent{Http::readFile(path.path().string())};
 
-              if (filename.ends_with("html")) { fileContent = Http::brotli(fileContent); }
+              if (filename.ends_with("html") || filename.ends_with("css") || filename.ends_with("js"))
+                  fileContent = Http::brotli(fileContent);
 
               tempResources.emplace(std::move(filename), std::move(fileContent));
           }
@@ -71,30 +72,38 @@ auto Http::parse(span<const byte> request, Database &database) -> vector<byte> {
     const HttpRequest httpRequest{HttpRequest::parse(reinterpret_cast<const char *>(request.data()))};
 
     try {
-        Http::parseVersion(httpResponse, httpRequest.getVersion());
-
         const string_view method{httpRequest.getMethod()};
         Http::parseMethod(httpResponse, method);
 
-        if (method == "GET") {
-            const string_view url{httpRequest.getUrl()};
-
-            span<const byte> body{Http::instance.parseUrl(httpResponse, url)};
-            Http::parseTypeEncoding(httpResponse, url);
-
-            Http::parseResource(httpResponse, httpRequest.getHeaderValue("Range"), body, true);
-        } else if (method == "HEAD") {
-            const string_view url{httpRequest.getUrl()};
-
-            span<const byte> body{Http::instance.parseUrl(httpResponse, url)};
-            Http::parseTypeEncoding(httpResponse, url);
-
-            Http::parseResource(httpResponse, httpRequest.getHeaderValue("Range"), body, false);
-        } else {
-        }
+        if (method == "GET" || method == "HEAD") Http::parseGetHead(httpResponse, httpRequest, method == "GET");
+        else {}
     } catch (const Exception &exception) { Log::produce(exception.what()); }
 
     return httpResponse.combine();
+}
+
+auto Http::parseMethod(HttpResponse &httpResponse, string_view method, source_location sourceLocation) -> void {
+    const unordered_set<string_view> methods{"GET", "HEAD", "POST"};
+
+    if (!methods.contains(method)) {
+        httpResponse.setStatusCode("405 Method Not Allowed");
+        httpResponse.addHeader("Content-Length: 0");
+        httpResponse.setBody({});
+
+        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                         Level::FATAL, "unsupported HTTP method: " + string{method})};
+    }
+}
+
+auto Http::parseGetHead(HttpResponse &httpResponse, const HttpRequest &httpRequest, bool writeBody) -> void {
+    Http::parseVersion(httpResponse, httpRequest.getVersion());
+
+    const string_view url{httpRequest.getUrl()};
+
+    span<const byte> body{Http::instance.parseUrl(httpResponse, url)};
+    Http::parseTypeEncoding(httpResponse, url);
+
+    Http::parseResource(httpResponse, httpRequest.getHeaderValue("Range"), body, writeBody);
 }
 
 auto Http::parseVersion(HttpResponse &httpResponse, string_view version, source_location sourceLocation) -> void {
@@ -109,19 +118,6 @@ auto Http::parseVersion(HttpResponse &httpResponse, string_view version, source_
     }
 
     httpResponse.setVersion(version);
-}
-
-auto Http::parseMethod(HttpResponse &httpResponse, string_view method, source_location sourceLocation) -> void {
-    const unordered_set<string_view> methods{"GET", "HEAD", "POST"};
-
-    if (!methods.contains(method)) {
-        httpResponse.setStatusCode("405 Method Not Allowed");
-        httpResponse.addHeader("Content-Length: 0");
-        httpResponse.setBody({});
-
-        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         Level::FATAL, "unsupported HTTP method: " + string{method})};
-    }
 }
 
 auto Http::parseUrl(HttpResponse &httpResponse, string_view url, source_location sourceLocation) const
@@ -143,6 +139,12 @@ auto Http::parseUrl(HttpResponse &httpResponse, string_view url, source_location
 auto Http::parseTypeEncoding(HttpResponse &httpResponse, string_view url) -> void {
     if (url.ends_with("html")) {
         httpResponse.addHeader("Content-Type: text/html; charset=utf-8");
+        httpResponse.addHeader("Content-Encoding: br");
+    } else if (url.ends_with("css")) {
+        httpResponse.addHeader("Content-Type: text/css; charset=utf-8");
+        httpResponse.addHeader("Content-Encoding: br");
+    } else if (url.ends_with("js")) {
+        httpResponse.addHeader("Content-Type: text/javascript; charset=utf-8");
         httpResponse.addHeader("Content-Encoding: br");
     } else if (url.ends_with("png"))
         httpResponse.addHeader("Content-Type: image/png");
