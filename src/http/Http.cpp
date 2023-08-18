@@ -24,8 +24,7 @@ Http::Http()
 
               vector<byte> fileContent{Http::readFile(path.path().string())};
 
-              if (filename.ends_with("html") || filename.ends_with("css") || filename.ends_with("js"))
-                  fileContent = Http::brotli(fileContent);
+              if (filename.ends_with("html")) fileContent = Http::brotli(fileContent);
 
               tempResources.emplace(std::move(filename), std::move(fileContent));
           }
@@ -140,14 +139,8 @@ auto Http::parseTypeEncoding(HttpResponse &httpResponse, string_view url) -> voi
     if (url.ends_with("html")) {
         httpResponse.addHeader("Content-Type: text/html; charset=utf-8");
         httpResponse.addHeader("Content-Encoding: br");
-    } else if (url.ends_with("css")) {
-        httpResponse.addHeader("Content-Type: text/css; charset=utf-8");
-        httpResponse.addHeader("Content-Encoding: br");
-    } else if (url.ends_with("js")) {
-        httpResponse.addHeader("Content-Type: text/javascript; charset=utf-8");
-        httpResponse.addHeader("Content-Encoding: br");
-    } else if (url.ends_with("png"))
-        httpResponse.addHeader("Content-Type: image/png");
+    } else if (url.ends_with("jpg"))
+        httpResponse.addHeader("Content-Type: image/jpg");
     else if (url.ends_with("mp4"))
         httpResponse.addHeader("Content-Type: video/mp4");
 }
