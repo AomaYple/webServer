@@ -3,8 +3,7 @@
 #include <algorithm>
 #include <ranges>
 
-using std::array, std::pair, std::string_view, std::unordered_map;
-using std::ranges::copy, std::views::split;
+using namespace std;
 
 auto HttpRequest::parse(string_view request) -> HttpRequest {
     array<string_view, 4> result;
@@ -13,10 +12,10 @@ auto HttpRequest::parse(string_view request) -> HttpRequest {
     bool isBody{false};
 
     constexpr string_view delimiter{"\r\n"};
-    for (auto const &valueView: request | split(delimiter)) {
+    for (const auto &valueView: request | views::split(delimiter)) {
         const string_view value{valueView};
 
-        if (result.begin()->empty()) copy(HttpRequest::parseLine(value), result.begin());
+        if (result.begin()->empty()) ranges::copy(HttpRequest::parseLine(value), result.begin());
         else if (!value.empty() && !isBody)
             header.emplace(HttpRequest::parseHeader(value));
         else if (isBody)
@@ -31,7 +30,7 @@ auto HttpRequest::parse(string_view request) -> HttpRequest {
 auto HttpRequest::parseLine(string_view line) -> array<string_view, 3> {
     array<string_view, 3> result;
 
-    for (auto point{result.begin()}; const auto &wordView: line | split(' ')) *point++ = string_view{wordView};
+    for (auto point{result.begin()}; const auto &wordView: line | views::split(' ')) *point++ = string_view{wordView};
 
     result[1] = result[1].substr(1);
     result[2] = result[2].substr(5);
@@ -43,7 +42,8 @@ auto HttpRequest::parseHeader(string_view header) -> pair<string_view, string_vi
     array<string_view, 2> result;
 
     constexpr string_view delimiter{": "};
-    for (auto point{result.begin()}; const auto &wordView: header | split(delimiter)) *point++ = string_view{wordView};
+    for (auto point{result.begin()}; const auto &wordView: header | views::split(delimiter))
+        *point++ = string_view{wordView};
 
     return {result[0], result[1]};
 }
@@ -59,7 +59,7 @@ auto HttpRequest::getMethod() const noexcept -> string_view { return this->metho
 auto HttpRequest::getUrl() const noexcept -> string_view { return this->url; }
 
 auto HttpRequest::getHeaderValue(string_view filed) const -> string_view {
-    auto const result{this->headers.find(filed)};
+    const auto result{this->headers.find(filed)};
 
     return result == this->headers.end() ? string_view{} : result->second;
 }

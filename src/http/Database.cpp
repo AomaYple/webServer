@@ -5,7 +5,7 @@
 
 using namespace std;
 
-Database::Database(string_view host, string_view user, string_view password, string_view database, unsigned int port,
+Database::Database(string_view host, string_view user, string_view password, string_view database, unsigned short port,
                    string_view unixSocket, unsigned long clientFlag)
     : connection{} {
     this->initialize();
@@ -29,7 +29,7 @@ auto Database::initialize(source_location sourceLocation) -> void {
 }
 
 auto Database::connect(string_view host, string_view user, string_view password, string_view database,
-                       unsigned int port, string_view unixSocket, unsigned long clientFlag,
+                       unsigned short port, string_view unixSocket, unsigned long clientFlag,
                        source_location sourceLocation) -> void {
     if (mysql_real_connect(&this->connection, host.data(), user.data(), password.data(), database.data(), port,
                            unixSocket.data(), clientFlag) == nullptr)
@@ -49,7 +49,7 @@ auto Database::consult(string_view statement) -> vector<vector<string>> {
     for (MYSQL_ROW row{Database::getRow(consultResult)}; row != nullptr; row = Database::getRow(consultResult)) {
         vector<string> result;
 
-        for (std::size_t i{0}; i < columnCount; ++i) result.emplace_back(row[i]);
+        for (unsigned int i{0}; i < columnCount; ++i) result.emplace_back(row[i]);
 
         results.emplace_back(std::move(result));
     }
@@ -69,10 +69,10 @@ auto Database::storeResult(source_location sourceLocation) -> MYSQL_RES * {
     MYSQL_RES *const result{mysql_store_result(&this->connection)};
 
     if (result == nullptr) {
-        const char *const error{mysql_error(&this->connection)};
-        if (error != nullptr)
+        const string_view error{mysql_error(&this->connection)};
+        if (!error.empty())
             throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                             Level::FATAL, error)};
+                                             Level::FATAL, string{error})};
     }
 
     return result;

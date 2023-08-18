@@ -2,7 +2,7 @@
 
 #include <thread>
 
-using std::jthread, std::vector;
+using namespace std;
 
 int main() {
     vector<jthread> works(jthread::hardware_concurrency() - 2);

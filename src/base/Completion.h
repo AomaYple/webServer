@@ -10,11 +10,11 @@ public:
 
     Completion(Completion &&) noexcept = default;
 
-    [[nodiscard]] auto getUserData() const noexcept -> __u64;
+    [[nodiscard]] auto getUserData() const noexcept -> unsigned long;
 
-    [[nodiscard]] auto getResult() const noexcept -> __s32;
+    [[nodiscard]] auto getResult() const noexcept -> int;
 
-    [[nodiscard]] auto getFlags() const noexcept -> __u32;
+    [[nodiscard]] auto getFlags() const noexcept -> unsigned int;
 
 private:
     const io_uring_cqe *const completion;

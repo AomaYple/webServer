@@ -6,27 +6,28 @@
 
 class Server {
 public:
-    Server(std::uint_least16_t port, const std::shared_ptr<UserRing> &userRing);
+    [[nodiscard]] static auto create(unsigned short port) -> unsigned int;
+
+    Server(unsigned int fileDescriptorIndex, const std::shared_ptr<UserRing> &userRing);
 
     Server(const Server &) = delete;
 
     Server(Server &&) noexcept;
 
 private:
-    [[nodiscard]] static auto socket(std::source_location sourceLocation = std::source_location::current()) -> int;
+    [[nodiscard]] static auto socket(std::source_location sourceLocation = std::source_location::current())
+            -> unsigned int;
 
-    auto setSocketOption(std::source_location sourceLocation = std::source_location::current()) const -> void;
+    static auto setSocketOption(unsigned int fileDescriptor,
+                                std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto bind(std::uint_least16_t port, std::source_location sourceLocation = std::source_location::current()) const
-            -> void;
+    static auto bind(unsigned int fileDescriptor, unsigned short port,
+                     std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto listen(std::source_location sourceLocation = std::source_location::current()) const -> void;
+    static auto listen(unsigned int fileDescriptor,
+                       std::source_location sourceLocation = std::source_location::current()) -> void;
 
 public:
-    [[nodiscard]] auto getFileDescriptor() const noexcept -> int;
-
-    auto setFileDescriptor(int newFileDescriptor) noexcept -> void;
-
     auto accept() const -> void;
 
     ~Server();
@@ -36,6 +37,6 @@ private:
 
     auto close() const -> void;
 
-    int fileDescriptor;
+    const unsigned int fileDescriptorIndex;
     std::shared_ptr<UserRing> userRing;
 };

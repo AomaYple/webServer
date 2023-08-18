@@ -3,7 +3,7 @@
 #include <source_location>
 #include <thread>
 
-enum class Level : std::uint_least8_t { INFO, WARN, ERROR, FATAL };
+enum class Level : unsigned char { WARN, ERROR, FATAL };
 
 namespace message {
     auto combine(std::chrono::system_clock::time_point timestamp, std::jthread::id threadId,

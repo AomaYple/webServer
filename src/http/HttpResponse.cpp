@@ -1,48 +1,45 @@
 #include "HttpResponse.h"
 
-using std::byte, std::string, std::string_view, std::vector, std::span;
+using namespace std;
 
 auto HttpResponse::setVersion(string_view newVersion) -> void {
     this->version.clear();
 
-    span<const byte> value{as_bytes(span{"HTTP/"})};
-    value = value.subspan(0, value.size() - 1);
+    this->version.emplace_back(byte{'H'});
+    this->version.emplace_back(byte{'T'});
+    this->version.emplace_back(byte{'T'});
+    this->version.emplace_back(byte{'P'});
+    this->version.emplace_back(byte{'/'});
+
+    const auto value{as_bytes(span{newVersion})};
     this->version.insert(this->version.end(), value.begin(), value.end());
 
-    value = as_bytes(span{newVersion});
-    this->version.insert(this->version.end(), value.begin(), value.end());
-
-    value = as_bytes(span{" "});
-    value = value.subspan(0, value.size() - 1);
-    this->version.insert(this->version.end(), value.begin(), value.end());
+    this->version.emplace_back(byte{' '});
 }
 
 auto HttpResponse::setStatusCode(string_view newStatusCode) -> void {
     this->statusCode.clear();
 
-    span<const byte> value{as_bytes(span{newStatusCode})};
+    const auto value{as_bytes(span{newStatusCode})};
     this->statusCode.insert(this->statusCode.end(), value.begin(), value.end());
 
-    value = as_bytes(span{"\r\n"});
-    value = value.subspan(0, value.size() - 1);
-    this->statusCode.insert(this->statusCode.end(), value.begin(), value.end());
+    this->statusCode.emplace_back(byte{'\r'});
+    this->statusCode.emplace_back(byte{'\n'});
 }
 
 auto HttpResponse::addHeader(string_view header) -> void {
-    span<const byte> value{as_bytes(span{header})};
+    const auto value{as_bytes(span{header})};
     this->headers.insert(this->headers.end(), value.begin(), value.end());
 
-    value = as_bytes(span{"\r\n"});
-    value = value.subspan(0, value.size() - 1);
-    this->headers.insert(this->headers.end(), value.begin(), value.end());
+    this->headers.emplace_back(byte{'\r'});
+    this->headers.emplace_back(byte{'\n'});
 }
 
 auto HttpResponse::setBody(span<const byte> newBody) -> void {
     this->body.clear();
 
-    span<const byte> value{as_bytes(span{"\r\n"})};
-    value = value.subspan(0, value.size() - 1);
-    this->body.insert(this->body.end(), value.begin(), value.end());
+    this->body.emplace_back(byte{'\r'});
+    this->body.emplace_back(byte{'\n'});
 
     this->body.insert(this->body.end(), newBody.begin(), newBody.end());
 }

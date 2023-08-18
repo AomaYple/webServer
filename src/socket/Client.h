@@ -3,29 +3,26 @@
 #include "../base/UserRing.h"
 
 #include <memory>
-#include <queue>
 
 class Client {
 public:
-    Client(int fileDescriptor, std::uint_least8_t timeout, const std::shared_ptr<UserRing> &userRing) noexcept;
+    Client(unsigned int fileDescriptorIndex, unsigned char timeout, const std::shared_ptr<UserRing> &userRing) noexcept;
 
     Client(const Client &) = delete;
 
     Client(Client &&) noexcept;
 
-    [[nodiscard]] auto getFileDescriptor() const noexcept -> int;
+    [[nodiscard]] auto getFileDescriptorIndex() const noexcept -> unsigned int;
 
-    [[nodiscard]] auto getTimeout() const noexcept -> std::uint_least8_t;
+    [[nodiscard]] auto getTimeout() const noexcept -> unsigned char;
 
-    auto receive(__u16 bufferRingId) const -> void;
+    auto receive(unsigned short bufferRingId) const -> void;
 
-    auto writeReceivedData(std::vector<std::byte> &&data) -> void;
+    auto writeReceivedData(std::span<const std::byte> data) -> void;
 
     [[nodiscard]] auto readReceivedData() noexcept -> std::vector<std::byte>;
 
-    auto writeUnSendData(std::queue<std::vector<std::byte>> &&data) noexcept -> void;
-
-    auto send() -> void;
+    auto send(std::vector<std::byte> &&data) -> void;
 
     ~Client();
 
@@ -34,9 +31,8 @@ private:
 
     auto close() const -> void;
 
-    int fileDescriptor;
-    const std::uint_least8_t timeout;
-    std::vector<std::byte> receivedData;
-    std::queue<std::vector<std::byte>> unSendData;
+    const unsigned int fileDescriptorIndex;
+    const unsigned char timeout;
+    std::vector<std::byte> receivedData, unSendData;
     std::shared_ptr<UserRing> userRing;
 };

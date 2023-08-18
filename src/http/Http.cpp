@@ -9,13 +9,9 @@
 #include <brotli/encode.h>
 
 #include <filesystem>
+#include <unordered_set>
 
-using std::hex, std::to_string, std::filesystem::directory_iterator, std::filesystem::current_path, std::ranges::search,
-        std::this_thread::get_id;
-using std::ios;
-using std::queue, std::span, std::vector, std::byte, std::ifstream, std::ostringstream, std::source_location,
-        std::string, std::string_view, std::unordered_map;
-using std::chrono::system_clock;
+using namespace std;
 
 Http::Http()
     : resources{[] {
@@ -23,7 +19,7 @@ Http::Http()
 
           tempResources.emplace("", vector<byte>{});
 
-          for (const auto &path: directory_iterator(current_path().string() + "/web")) {
+          for (auto const &path: filesystem::directory_iterator(filesystem::current_path().string() + "/web")) {
               string filename{path.path().filename().string()};
 
               vector<byte> fileContent{Http::readFile(path.path().string())};
@@ -39,14 +35,14 @@ Http::Http()
 auto Http::readFile(string_view filepath, source_location sourceLocation) -> vector<byte> {
     ifstream file{string{filepath}, ios::binary};
     if (!file)
-        throw Exception{message::combine(system_clock::now(), get_id(), sourceLocation, Level::FATAL,
-                                         "file not found: " + string{filepath})};
+        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                         Level::FATAL, "file not found: " + string{filepath})};
 
     file.seekg(0, ios::end);
     auto size{file.tellg()};
     file.seekg(0, ios::beg);
 
-    vector<byte> buffer(size * sizeof(char), byte{0});
+    vector<byte> buffer(size, byte{0});
 
     file.read(reinterpret_cast<char *>(buffer.data()), size);
 
@@ -54,109 +50,97 @@ auto Http::readFile(string_view filepath, source_location sourceLocation) -> vec
 }
 
 auto Http::brotli(span<const byte> data, source_location sourceLocation) -> vector<byte> {
-    size_t length{BrotliEncoderMaxCompressedSize(data.size_bytes())};
+    unsigned long size{BrotliEncoderMaxCompressedSize(data.size())};
 
-    vector<byte> buffer(length, byte{0});
+    vector<byte> buffer(size, byte{0});
 
-    if (BrotliEncoderCompress(BROTLI_MAX_QUALITY, BROTLI_MAX_WINDOW_BITS, BROTLI_DEFAULT_MODE, data.size_bytes(),
-                              reinterpret_cast<const uint8_t *>(data.data()), &length,
-                              reinterpret_cast<uint8_t *>(buffer.data())) != BROTLI_TRUE)
-        throw Exception{
-                message::combine(system_clock::now(), get_id(), sourceLocation, Level::FATAL, "brotli compress error")};
+    if (BrotliEncoderCompress(BROTLI_MAX_QUALITY, BROTLI_MAX_WINDOW_BITS, BROTLI_DEFAULT_MODE, data.size(),
+                              reinterpret_cast<const unsigned char *>(data.data()), &size,
+                              reinterpret_cast<unsigned char *>(buffer.data())) != BROTLI_TRUE)
+        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                         Level::FATAL, "brotli compress error")};
 
-    buffer.resize(length);
+    buffer.resize(size);
 
     return buffer;
 }
 
-auto Http::parse(span<const byte> request, Database &database) -> queue<vector<byte>> {
-    queue<vector<byte>> content, subContent;
-
-    const HttpRequest httpRequest{HttpRequest::parse(string_view{reinterpret_cast<const char *>(request.data())})};
+auto Http::parse(span<const byte> request, Database &database) -> vector<byte> {
     HttpResponse httpResponse;
 
+    const HttpRequest httpRequest{HttpRequest::parse(reinterpret_cast<const char *>(request.data()))};
+
     try {
-        subContent = Http::parseVersion(httpResponse, httpRequest);
+        Http::parseVersion(httpResponse, httpRequest.getVersion());
+
+        const string_view method{httpRequest.getMethod()};
+        Http::parseMethod(httpResponse, method);
+
+        if (method == "GET") {
+            const string_view url{httpRequest.getUrl()};
+
+            span<const byte> body{Http::instance.parseUrl(httpResponse, url)};
+            Http::parseTypeEncoding(httpResponse, url);
+
+            Http::parseResource(httpResponse, httpRequest.getHeaderValue("Range"), body, true);
+        } else if (method == "HEAD") {
+            const string_view url{httpRequest.getUrl()};
+
+            span<const byte> body{Http::instance.parseUrl(httpResponse, url)};
+            Http::parseTypeEncoding(httpResponse, url);
+
+            Http::parseResource(httpResponse, httpRequest.getHeaderValue("Range"), body, false);
+        } else {
+        }
     } catch (const Exception &exception) { Log::produce(exception.what()); }
 
-    content.emplace();
-    content.emplace(httpResponse.combine());
-    while (!subContent.empty()) {
-        content.emplace(std::move(subContent.front()));
-
-        subContent.pop();
-    }
-
-    return content;
+    return httpResponse.combine();
 }
 
-auto Http::parseVersion(HttpResponse &httpResponse, const HttpRequest &httpRequest, source_location sourceLocation)
-        -> queue<vector<byte>> {
-    queue<vector<byte>> content;
-    const string_view version{httpRequest.getVersion()};
-
-    if (version == "1.1") {
-        httpResponse.setVersion(version);
-
-        content = Http::parseMethod(httpResponse, httpRequest);
-    } else {
+auto Http::parseVersion(HttpResponse &httpResponse, string_view version, source_location sourceLocation) -> void {
+    if (version != "1.1") {
         httpResponse.setVersion("1.1");
         httpResponse.setStatusCode("505 HTTP Version Not Supported");
         httpResponse.addHeader("Content-Length: 0");
         httpResponse.setBody({});
 
-        throw Exception{message::combine(system_clock::now(), get_id(), sourceLocation, Level::FATAL,
-                                         "unsupported HTTP version: " + string{version})};
+        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                         Level::FATAL, "unsupported HTTP version: " + string{version})};
     }
 
-    return content;
+    httpResponse.setVersion(version);
 }
 
-auto Http::parseMethod(HttpResponse &httpResponse, const HttpRequest &httpRequest, source_location sourceLocation)
-        -> queue<vector<byte>> {
-    queue<vector<byte>> content;
-    const string_view method{httpRequest.getMethod()};
+auto Http::parseMethod(HttpResponse &httpResponse, string_view method, source_location sourceLocation) -> void {
+    const unordered_set<string_view> methods{"GET", "HEAD", "POST"};
 
-    if (method == "GET") content = Http::instance.parseUrl(httpResponse, httpRequest, true);
-    else if (method == "HEAD")
-        content = Http::instance.parseUrl(httpResponse, httpRequest, false);
-    else if (method == "POST") {
-
-    } else {
+    if (!methods.contains(method)) {
         httpResponse.setStatusCode("405 Method Not Allowed");
         httpResponse.addHeader("Content-Length: 0");
         httpResponse.setBody({});
 
-        throw Exception{message::combine(system_clock::now(), get_id(), sourceLocation, Level::FATAL,
-                                         "unsupported HTTP method: " + string{method})};
+        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                         Level::FATAL, "unsupported HTTP method: " + string{method})};
     }
-
-    return content;
 }
 
-auto Http::parseUrl(HttpResponse &httpResponse, const HttpRequest &httpRequest, bool writeBody,
-                    std::source_location sourceLocation) const -> queue<vector<byte>> {
-    queue<vector<byte>> content;
-    const string url{httpRequest.getUrl()};
+auto Http::parseUrl(HttpResponse &httpResponse, string_view url, source_location sourceLocation) const
+        -> span<const byte> {
+    const auto result{this->resources.find(string{url})};
 
-    const auto result{this->resources.find(url)};
-    if (result != this->resources.end()) {
-        Http::parseTypeEncoding(url, httpResponse);
-
-        content = Http::parseResource(httpResponse, httpRequest, result->second, writeBody);
-    } else {
+    if (result == this->resources.end()) {
         httpResponse.setStatusCode("404 Not Found");
         httpResponse.addHeader("Content-Length: 0");
         httpResponse.setBody({});
 
-        throw Exception{message::combine(system_clock::now(), get_id(), sourceLocation, Level::FATAL,
-                                         "resource not found: " + url)};
+        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                         Level::FATAL, "resource not found: " + string{url})};
     }
 
-    return content;
+    return result->second;
 }
 
-auto Http::parseTypeEncoding(string_view url, HttpResponse &httpResponse) -> void {
+auto Http::parseTypeEncoding(HttpResponse &httpResponse, string_view url) -> void {
     if (url.ends_with("html")) {
         httpResponse.addHeader("Content-Type: text/html; charset=utf-8");
         httpResponse.addHeader("Content-Encoding: br");
@@ -166,134 +150,53 @@ auto Http::parseTypeEncoding(string_view url, HttpResponse &httpResponse) -> voi
         httpResponse.addHeader("Content-Type: video/mp4");
 }
 
-auto Http::parseResource(HttpResponse &httpResponse, const HttpRequest &httpRequest, span<const byte> body,
-                         bool writeBody, source_location sourceLocation) -> queue<vector<byte>> {
-    queue<vector<byte>> content;
-    constexpr std::uint_least32_t maxSize{2097152};
-    const string_view range{httpRequest.getHeaderValue("Range")};
+auto Http::parseResource(HttpResponse &httpResponse, string_view range, span<const byte> body, bool writeBody,
+                         source_location sourceLocation) -> void {
+    constexpr unsigned int maxSize{2097152};
 
     if (!range.empty()) {
-        Http::parseRange(httpResponse, maxSize, range, body, writeBody, sourceLocation);
+        httpResponse.setStatusCode("206 Partial Content");
+
+        string_view point{"="};
+        const auto splitPoint{ranges::search(range, point)};
+
+        point = "-";
+        const auto secondSplitPoint{ranges::search(range, point)};
+
+        const string stringStart{splitPoint.begin() + 1, secondSplitPoint.begin()};
+        unsigned long digitStart{stoul(stringStart)}, digitEnd;
+
+        string stringEnd{secondSplitPoint.begin() + 1, range.end()};
+        if (stringEnd.empty()) {
+            digitEnd = digitStart + maxSize - 1;
+            if (digitEnd > body.size()) digitEnd = body.size() - 1;
+
+            stringEnd = to_string(digitEnd);
+        } else
+            digitEnd = stoul(stringEnd);
+
+        if (digitStart > digitEnd || digitEnd >= body.size()) {
+            httpResponse.setStatusCode("416 Range Not Satisfiable");
+            httpResponse.addHeader("Content-Length: 0");
+            httpResponse.setBody({});
+
+            throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                             Level::WARN, "invalid range: " + string{range})};
+        }
+
+        httpResponse.addHeader("Content-Range: bytes " + stringStart + "-" + stringEnd + "/" + to_string(body.size()));
+
+        body = {body.begin() + static_cast<long>(digitStart), body.begin() + static_cast<long>(digitEnd + 1)};
     } else if (body.size() > maxSize) {
-        content = Http::parseOversize(httpResponse, maxSize, body, writeBody);
+        httpResponse.setStatusCode("206 Partial Content");
+
+        httpResponse.addHeader("Content-Range: bytes 0-" + to_string(maxSize - 1) + "/" + to_string(body.size()));
+
+        body = {body.begin(), body.begin() + maxSize};
     } else
-        Http::parseNormal(httpResponse, body, writeBody);
-
-    return content;
-}
-
-auto Http::parseRange(HttpResponse &httpResponse, std::uint_least32_t maxSize, string_view range, span<const byte> body,
-                      bool writeBody, source_location sourceLocation) -> void {
-    httpResponse.setStatusCode("206 Partial Content");
-
-    string_view point{"="};
-    const auto splitPoint{search(range, point)};
-
-    point = "-";
-    const auto secondSplitPoint{search(range, point)};
-
-    const string stringStart{splitPoint.begin() + 1, secondSplitPoint.begin()};
-    long digitStart{stol(stringStart)}, digitEnd;
-
-    string stringEnd{secondSplitPoint.begin() + 1, range.end()};
-    if (stringEnd.empty()) {
-        digitEnd = digitStart + maxSize - 1;
-        stringEnd = to_string(digitEnd);
-    } else
-        digitEnd = stol(stringEnd);
-
-    if (digitStart < 0 || digitEnd < 0 || digitStart > digitEnd || digitEnd >= body.size()) {
-        httpResponse.setStatusCode("416 Range Not Satisfiable");
-        httpResponse.addHeader("Content-Length: 0");
-        httpResponse.setBody({});
-
-        throw Exception{message::combine(system_clock::now(), get_id(), sourceLocation, Level::WARN,
-                                         "invalid range: " + string{range})};
-    }
-
-    httpResponse.addHeader("Content-Range: bytes " + stringStart + "-" + stringEnd + "/" + to_string(body.size()));
-
-    body = {body.begin() + digitStart, body.begin() + digitEnd - digitStart + 1};
+        httpResponse.setStatusCode("200 OK");
 
     httpResponse.addHeader("Content-Length: " + to_string(body.size()));
-
-    httpResponse.setBody(writeBody ? body : span<const byte>{});
-}
-
-auto Http::parseOversize(HttpResponse &httpResponse, std::uint_least32_t maxSize, span<const byte> body, bool writeBody)
-        -> queue<vector<byte>> {
-    queue<vector<byte>> content;
-
-    httpResponse.setStatusCode("200 OK");
-    httpResponse.addHeader("Transfer-Encoding: chunked");
-
-    if (writeBody) {
-        const auto conversions{[](std::int_fast64_t number) {
-            const string stringNumber{Http::decimalToHexadecimal(number)};
-            const span<const byte> spanNumber{as_bytes(span{stringNumber})};
-
-            return vector<byte>{spanNumber.begin(), spanNumber.end()};
-        }};
-
-        vector<byte> hexadecimalSize{conversions(maxSize)};
-        vector<byte> chunk;
-        const span<const byte> separator{as_bytes(span{"\r\n"})};
-        separator.subspan(0, separator.size() - 1);
-        auto point{body.begin()};
-
-        while (point <= body.end()) {
-            chunk.clear();
-
-            chunk.insert(chunk.end(), hexadecimalSize.begin(), hexadecimalSize.end());
-            chunk.insert(chunk.end(), separator.begin(), separator.end());
-            chunk.insert(chunk.end(), point, point + maxSize);
-            chunk.insert(chunk.end(), separator.begin(), separator.end());
-            content.emplace(std::move(chunk));
-
-            point += maxSize;
-        }
-
-        if (point != body.end()) {
-            chunk.clear();
-            hexadecimalSize = conversions(body.end() - point);
-
-            chunk.insert(chunk.end(), hexadecimalSize.begin(), hexadecimalSize.end());
-            chunk.insert(chunk.end(), separator.begin(), separator.end());
-            chunk.insert(chunk.end(), point, body.end());
-            chunk.insert(chunk.end(), separator.begin(), separator.end());
-
-            content.emplace(std::move(chunk));
-        }
-
-        point = body.end();
-        chunk.clear();
-        hexadecimalSize = conversions(body.end() - point);
-
-        chunk.insert(chunk.end(), hexadecimalSize.begin(), hexadecimalSize.end());
-        chunk.insert(chunk.end(), separator.begin(), separator.end());
-        chunk.insert(chunk.end(), point, body.end());
-        chunk.insert(chunk.end(), separator.begin(), separator.end());
-
-        content.emplace(std::move(chunk));
-    }
-
-    return content;
-}
-
-auto Http::decimalToHexadecimal(std::int_fast64_t number) -> string {
-    ostringstream stream;
-
-    if (number < 0) stream << "-";
-
-    stream << hex << std::abs(number);
-
-    return stream.str();
-}
-
-auto Http::parseNormal(HttpResponse &httpResponse, span<const byte> body, bool writeBody) -> void {
-    httpResponse.setStatusCode("200 OK");
-    httpResponse.addHeader("Content-Length: " + to_string(body.size()));
-
     httpResponse.setBody(writeBody ? body : span<const byte>{});
 }
 

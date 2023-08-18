@@ -1,3 +1,3 @@
 #include "UserData.h"
 
-UserData::UserData(Type type, int fileDescriptor) noexcept : type{type}, fileDescriptor{fileDescriptor} {}
+UserData::UserData(Type type, unsigned int fileDescriptor) noexcept : type{type}, fileDescriptor{fileDescriptor} {}

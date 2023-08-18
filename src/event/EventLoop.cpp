@@ -8,10 +8,7 @@
 #include "../log/message.h"
 #include "Event.h"
 
-using std::array, std::mutex, std::lock_guard, std::source_location, std::unique_ptr, std::shared_ptr, std::vector;
-using std::ranges::find_if, std::make_shared, std::this_thread::get_id;
-;
-using std::jthread, std::chrono::system_clock;
+using namespace std;
 
 EventLoop::EventLoop()
     : userRing{[](source_location sourceLocation = source_location::current()) {
@@ -28,7 +25,7 @@ EventLoop::EventLoop()
           {
               const lock_guard lockGuard{EventLoop::lock};
 
-              auto result{find_if(EventLoop::cpus, [](int cpu) { return cpu != -1; })};
+              auto result{ranges::find_if(EventLoop::cpus, [](int cpu) { return cpu != -1; })};
               if (result != EventLoop::cpus.end()) {
                   params.wq_fd = *result;
                   params.flags |= IORING_SETUP_ATTACH_WQ;
@@ -36,8 +33,8 @@ EventLoop::EventLoop()
 
               tempUserRing = make_shared<UserRing>(EventLoop::ringEntries, params);
 
-              result = find_if(EventLoop::cpus, [](int value) { return value == -1; });
-              if (result != EventLoop::cpus.end()) *result = tempUserRing->getSelfFileDescriptor();
+              result = ranges::find_if(EventLoop::cpus, [](int value) { return value == -1; });
+              if (result != EventLoop::cpus.end()) *result = static_cast<int>(tempUserRing->getSelfFileDescriptor());
               else
                   throw Exception{"no available cpu"};
 
@@ -54,13 +51,10 @@ EventLoop::EventLoop()
       }()},
       bufferRing{EventLoop::bufferRingEntries, EventLoop::bufferRingBufferSize, EventLoop::bufferRingId,
                  this->userRing},
-      server{EventLoop::port, this->userRing}, database{{}, "AomaYple", "38820233", "WebServer", 0, {}, 0},
-      timer(this->userRing) {
-    const array<int, 2> fileDescriptors{this->server.getFileDescriptor(), this->timer.getFileDescriptor()};
-    this->userRing->updateFileDescriptors(0, fileDescriptors);
+      server{0, this->userRing}, database{{}, "AomaYple", "38820233", "WebServer", 0, {}, 0}, timer(1, this->userRing) {
+    const array<unsigned int, 2> fileDescriptors{Server::create(EventLoop::port), Timer::create()};
 
-    this->server.setFileDescriptor(0);
-    this->timer.setFileDescriptor(1);
+    this->userRing->updateFileDescriptors(0, fileDescriptors);
 }
 
 EventLoop::EventLoop(EventLoop &&other) noexcept
@@ -75,10 +69,10 @@ auto EventLoop::loop() -> void {
     while (true) {
         this->userRing->submitWait(1);
 
-        int completionCount{this->userRing->forEachCompletion([this](io_uring_cqe *cqe) {
+        unsigned int completionCount{this->userRing->forEachCompletion([this](io_uring_cqe *cqe) {
             const Completion completion{cqe};
 
-            const __u64 completionUserData{completion.getUserData()};
+            const unsigned long completionUserData{completion.getUserData()};
 
             const UserData userData{reinterpret_cast<const UserData &>(completionUserData)};
 
@@ -94,16 +88,17 @@ auto EventLoop::loop() -> void {
 
 EventLoop::~EventLoop() {
     EventLoop::instance = false;
-    const int fileDescriptor{this->userRing->getSelfFileDescriptor()};
+    const unsigned int fileDescriptor{this->userRing->getSelfFileDescriptor()};
 
     const lock_guard lockGuard{EventLoop::lock};
 
-    auto const result{find_if(EventLoop::cpus, [fileDescriptor](int value) { return value == fileDescriptor; })};
+    const auto result{
+            ranges::find_if(EventLoop::cpus, [fileDescriptor](int value) { return value == fileDescriptor; })};
 
     if (result != EventLoop::cpus.end()) *result = -1;
     else
-        Log::produce(message::combine(system_clock::now(), get_id(), source_location::current(), Level::FATAL,
-                                      "can not find file descriptor"));
+        Log::produce(message::combine(chrono::system_clock::now(), this_thread::get_id(), source_location::current(),
+                                      Level::FATAL, "can not find file descriptor"));
 }
 
 constinit thread_local bool EventLoop::instance{false};
