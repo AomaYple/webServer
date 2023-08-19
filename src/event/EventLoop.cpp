@@ -51,7 +51,7 @@ EventLoop::EventLoop()
       }()},
       bufferRing{EventLoop::bufferRingEntries, EventLoop::bufferRingBufferSize, EventLoop::bufferRingId,
                  this->userRing},
-      server{0, this->userRing}, database{{}, "AomaYple", "38820233", "WebServer", 0, {}, 0}, timer(1, this->userRing) {
+      server{0, this->userRing}, database{{}, "AomaYple", "38820233", "webServer", 0, {}, 0}, timer(1, this->userRing) {
     const array<unsigned int, 2> fileDescriptors{Server::create(EventLoop::port), Timer::create()};
 
     this->userRing->updateFileDescriptors(0, fileDescriptors);
