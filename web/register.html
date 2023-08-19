@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+</head>
+<body>
+<form action="http://localhost:9999" method="post" onsubmit="return check()">
+    <label>
+        password:<input id="password" maxlength="32" minlength="0" name="password" required="required" type="password">
+    </label>
+    <br><br>
+    <label>
+        repeatPassword:<input id="repeatPassword" maxlength="32" minlength="0" name="repeatPassword" required="required"
+                              type="password">
+    </label>
+    <br><br>
+    <button type="submit">register</button>
+    <a href="http://localhost:9999/login.html">Has Account?</a>
+</form>
+
+<script>
+    function check() {
+        let password = document.getElementById("password").value;
+        let repeatPassword = document.getElementById("repeatPassword").value;
+
+        if (password !== repeatPassword) {
+            alert("passwords are not the same");
+            return false;
+        } else
+            return true;
+    }
+</script>
+
+</body>
+</html>

@@ -3,13 +3,15 @@
 #include "../exception/Exception.h"
 #include "../log/Log.h"
 #include "../log/message.h"
+#include "Database.h"
 #include "HttpRequest.h"
 #include "HttpResponse.h"
 
 #include <brotli/encode.h>
 
 #include <filesystem>
-#include <unordered_set>
+#include <format>
+#include <ranges>
 
 using namespace std;
 
@@ -65,44 +67,30 @@ auto Http::brotli(span<const byte> data, source_location sourceLocation) -> vect
     return buffer;
 }
 
-auto Http::parse(span<const byte> request, Database &database) -> vector<byte> {
+auto Http::parse(span<const byte> request, Database &database, source_location sourceLocation) -> vector<byte> {
     HttpResponse httpResponse;
 
     const HttpRequest httpRequest{HttpRequest::parse(reinterpret_cast<const char *>(request.data()))};
 
     try {
+        Http::parseVersion(httpResponse, httpRequest.getVersion());
+
         const string_view method{httpRequest.getMethod()};
-        Http::parseMethod(httpResponse, method);
 
         if (method == "GET" || method == "HEAD") Http::parseGetHead(httpResponse, httpRequest, method == "GET");
-        else {}
+        else if (method == "POST") {
+            Http::parsePost(httpResponse, httpRequest.getBody(), database);
+        } else {
+            httpResponse.setStatusCode("405 Method Not Allowed");
+            httpResponse.addHeader("Content-Length: 0");
+            httpResponse.setBody({});
+
+            throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                             Level::FATAL, "unsupported HTTP method: " + string{method})};
+        }
     } catch (const Exception &exception) { Log::produce(exception.what()); }
 
     return httpResponse.combine();
-}
-
-auto Http::parseMethod(HttpResponse &httpResponse, string_view method, source_location sourceLocation) -> void {
-    const unordered_set<string_view> methods{"GET", "HEAD", "POST"};
-
-    if (!methods.contains(method)) {
-        httpResponse.setStatusCode("405 Method Not Allowed");
-        httpResponse.addHeader("Content-Length: 0");
-        httpResponse.setBody({});
-
-        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         Level::FATAL, "unsupported HTTP method: " + string{method})};
-    }
-}
-
-auto Http::parseGetHead(HttpResponse &httpResponse, const HttpRequest &httpRequest, bool writeBody) -> void {
-    Http::parseVersion(httpResponse, httpRequest.getVersion());
-
-    const string_view url{httpRequest.getUrl()};
-
-    span<const byte> body{Http::instance.parseUrl(httpResponse, url)};
-    Http::parseTypeEncoding(httpResponse, url);
-
-    Http::parseResource(httpResponse, httpRequest.getHeaderValue("Range"), body, writeBody);
 }
 
 auto Http::parseVersion(HttpResponse &httpResponse, string_view version, source_location sourceLocation) -> void {
@@ -117,6 +105,15 @@ auto Http::parseVersion(HttpResponse &httpResponse, string_view version, source_
     }
 
     httpResponse.setVersion(version);
+}
+
+auto Http::parseGetHead(HttpResponse &httpResponse, const HttpRequest &httpRequest, bool writeBody) -> void {
+    const string_view url{httpRequest.getUrl()};
+
+    const span<const byte> body{Http::instance.parseUrl(httpResponse, url)};
+    Http::parseTypeEncoding(httpResponse, url);
+
+    Http::parseResource(httpResponse, httpRequest.getHeaderValue("Range"), body, writeBody);
 }
 
 auto Http::parseUrl(HttpResponse &httpResponse, string_view url, source_location sourceLocation) const
@@ -193,6 +190,52 @@ auto Http::parseResource(HttpResponse &httpResponse, string_view range, span<con
 
     httpResponse.addHeader("Content-Length: " + to_string(body.size()));
     httpResponse.setBody(writeBody ? body : span<const byte>{});
+}
+
+auto Http::parsePost(HttpResponse &httpResponse, string_view message, Database &database) -> void {
+    httpResponse.setStatusCode("200 OK");
+
+    array<string_view, 4> values;
+    for (auto point{values.begin()}; const auto &valueView: views::split(message, '&'))
+        for (const auto &subValueView: views::split(valueView, '=')) *point++ = string_view{subValueView};
+
+    if (values[0] == "id") {
+        const vector<vector<string>> result{database.consult(format("select * from users where id = {};", values[1]))};
+        if (!result.empty()) {
+            if (values[3] == result[0][1]) {
+                const string_view url{"index.html"};
+
+                const span<const byte> body{Http::instance.parseUrl(httpResponse, url)};
+                Http::parseTypeEncoding(httpResponse, url);
+
+                Http::parseResource(httpResponse, "", body, true);
+            } else {
+                httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");
+
+                const string body{"wrong password"};
+
+                httpResponse.addHeader("Content-Length: " + to_string(body.size()));
+                httpResponse.setBody(as_bytes(span{body}));
+            }
+        } else {
+            httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");
+
+            const string body{"wrong id"};
+
+            httpResponse.addHeader("Content-Length: " + to_string(body.size()));
+            httpResponse.setBody(as_bytes(span{body}));
+        }
+    } else {
+        database.consult(format("insert into users (password) values ('{}');", values[1]));
+        const vector<vector<string>> result{database.consult("select last_insert_id();")};
+
+        httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");
+
+        const string body{"id is " + result[0][0]};
+
+        httpResponse.addHeader("Content-Length: " + to_string(body.size()));
+        httpResponse.setBody(as_bytes(span{body}));
+    }
 }
 
 const Http Http::instance;

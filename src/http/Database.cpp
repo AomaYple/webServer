@@ -44,17 +44,19 @@ auto Database::consult(string_view statement) -> vector<vector<string>> {
 
     vector<vector<string>> results;
 
-    const unsigned int columnCount{Database::getColumnCount(consultResult)};
+    if (consultResult != nullptr) {
+        const unsigned int columnCount{Database::getColumnCount(consultResult)};
 
-    for (MYSQL_ROW row{Database::getRow(consultResult)}; row != nullptr; row = Database::getRow(consultResult)) {
-        vector<string> result;
+        for (MYSQL_ROW row{Database::getRow(consultResult)}; row != nullptr; row = Database::getRow(consultResult)) {
+            vector<string> result;
 
-        for (unsigned int i{0}; i < columnCount; ++i) result.emplace_back(row[i]);
+            for (unsigned int i{0}; i < columnCount; ++i) result.emplace_back(row[i]);
 
-        results.emplace_back(std::move(result));
+            results.emplace_back(std::move(result));
+        }
+
+        Database::freeResult(consultResult);
     }
-
-    Database::freeResult(consultResult);
 
     return results;
 }

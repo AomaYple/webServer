@@ -3,9 +3,22 @@
 本项目是一个基于c++23和liburing的异步高并发Proactor模式服务器，利用liburing的特性实现真正的
 异步收发
 
+## 项目测试
+
+Arch Linux  
+8核16线程，16G内存  
+利用[wrk](https://github.com/wg/wrk)测试，测试结果如下  
+![image](test/test.png)
+
+![video](test/test.mp4)
+
+RPS:144万（每秒处理的请求数量）
+
+wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生巨大的负载。它将多线程设计与可扩展的事件通知系统（如epoll和kqueue）相结合。
+
 ## 项目所需环境
 
-gcc13.1以上版本，cmake3.22以上版本，libuing2.4以上版本，linux内核版本6.1以上，ninja，zlib库
+gcc13.1以上版本，cmake3.22以上版本，libuing2.4以上版本，linux内核版本6.1以上，ninja，brotli库
 
 ## 项目编译
 
@@ -29,7 +42,7 @@ cd build/WebServer
 
 ## http报文解析
 
-利用状态机解析http报文，支持长连接，支持http1.1，支持GET和HEAD请求，支持静态资源请求
+利用状态机解析http报文，支持长连接，支持http1.1，支持GET和HEAD和POST请求，支持静态资源请求，支持br压缩，利用mysql支持登陆与注册，支持网页，图片和视频的请求
 
 ## 并发模型
 
@@ -41,14 +54,3 @@ cd build/WebServer
 
 利用时间轮实现定时器，每个线程都有一个时间轮，每个连接都有一个定时器，定时器的精度为1s，会自动
 处理超时的连接并释放
-
-## 项目测试
-
-Arch WSL  
-8核16线程，16G内存  
-利用[wrk](https://github.com/wg/wrk)测试，测试结果如下  
-![image](test/test.png)
-
-RPS:172万（每秒处理的请求数量）
-
-wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生巨大的负载。它将多线程设计与可扩展的事件通知系统（如epoll和kqueue）相结合。  
