@@ -5,7 +5,6 @@
 #include "../base/UserData.h"
 #include "../exception/Exception.h"
 #include "../log/Log.h"
-#include "../log/message.h"
 #include "Event.h"
 
 using namespace std;
@@ -43,7 +42,7 @@ EventLoop::EventLoop()
 
           tempUserRing->registerSelfFileDescriptor();
 
-          tempUserRing->registerFileDescriptors(UserRing::getFileDescriptorLimit());
+          tempUserRing->registerSparseFileDescriptors(UserRing::getFileDescriptorLimit());
 
           tempUserRing->allocateFileDescriptorRange(2, UserRing::getFileDescriptorLimit() - 2);
 
@@ -97,8 +96,8 @@ EventLoop::~EventLoop() {
 
     if (result != EventLoop::cpus.end()) *result = -1;
     else
-        Log::produce(message::combine(chrono::system_clock::now(), this_thread::get_id(), source_location::current(),
-                                      Level::FATAL, "can not find file descriptor"));
+        Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), source_location::current(),
+                                  LogLevel::Fatal, "can not find file descriptor"));
 }
 
 constinit thread_local bool EventLoop::instance{false};

@@ -23,7 +23,7 @@ auto Client::receive(unsigned short bufferRingId) const -> void {
     unsigned int flags{0};
     const Submission submission{this->userRing->getSqe(), this->fileDescriptorIndex, {}, flags};
 
-    const UserData userData{Type::RECEIVE, this->fileDescriptorIndex};
+    const UserData userData{Type::Receive, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE | IOSQE_BUFFER_SELECT);
@@ -47,7 +47,7 @@ auto Client::send(vector<byte> &&data) -> void {
 
     const Submission submission{this->userRing->getSqe(), this->fileDescriptorIndex, this->unSendData, 0, 0};
 
-    const UserData userData{Type::SEND, this->fileDescriptorIndex};
+    const UserData userData{Type::Send, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
@@ -55,18 +55,16 @@ auto Client::send(vector<byte> &&data) -> void {
 
 Client::~Client() {
     if (this->userRing != nullptr) {
-        try {
-            this->cancel();
+        this->cancel();
 
-            this->close();
-        } catch (const Exception &exception) { Log::produce(exception.what()); }
+        this->close();
     }
 }
 
 auto Client::cancel() const -> void {
     const Submission submission{this->userRing->getSqe(), this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
 
-    const UserData userData{Type::CANCEL, this->fileDescriptorIndex};
+    const UserData userData{Type::Cancel, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE | IOSQE_IO_LINK | IOSQE_CQE_SKIP_SUCCESS);
@@ -75,7 +73,7 @@ auto Client::cancel() const -> void {
 auto Client::close() const -> void {
     const Submission submission{this->userRing->getSqe(), this->fileDescriptorIndex};
 
-    const UserData userData{Type::CLOSE, this->fileDescriptorIndex};
+    const UserData userData{Type::Close, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_CQE_SKIP_SUCCESS);

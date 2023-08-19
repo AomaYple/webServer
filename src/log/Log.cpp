@@ -1,12 +1,27 @@
 #include "Log.h"
 
+#include <chrono>
 #include <filesystem>
 
 using namespace std;
 
+Log::Node::Node(string &&data, Node *next) noexcept : data{std::move(data)}, next{next} {}
+
 Log::Log()
     : logFile{filesystem::current_path().string() + "/log.log", ofstream::trunc}, head{nullptr},
       work{&Log::loop, this} {}
+
+auto Log::combine(chrono::system_clock::time_point timestamp, jthread::id threadId, source_location sourceLocation,
+                  LogLevel logLevel, string &&text) -> string {
+    constexpr array<string_view, 3> logLevels{"Warn", "Error", "Fatal"};
+
+    ostringstream threadIdStream;
+    threadIdStream << threadId;
+
+    return format("{} {} {}:{}:{}:{} {} {}\n", timestamp, threadIdStream.str(), sourceLocation.file_name(),
+                  sourceLocation.line(), sourceLocation.column(), sourceLocation.function_name(),
+                  logLevels[static_cast<unsigned char>(logLevel)], text);
+}
 
 auto Log::produce(string &&log) -> void {
     Node *const newHead{new Node{std::move(log), Log::instance.head.load(memory_order_relaxed)}};

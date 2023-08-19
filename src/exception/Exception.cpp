@@ -2,6 +2,6 @@
 
 using namespace std;
 
-Exception::Exception(string &&error) : error{std::move(error)} {}
+Exception::Exception(string &&text) noexcept : text{std::move(text)} {}
 
-auto Exception::what() const noexcept -> const char * { return this->error.c_str(); }
+auto Exception::what() const noexcept -> const char * { return this->text.c_str(); }

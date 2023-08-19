@@ -6,9 +6,8 @@
 #include "../exception/Exception.h"
 #include "../http/Http.h"
 #include "../log/Log.h"
-#include "../log/message.h"
-#include "../socket/Server.h"
-#include "Timer.h"
+#include "../network/Server.h"
+#include "../network/Timer.h"
 
 #include <cstring>
 
@@ -18,22 +17,22 @@ auto Event::create(Type type) -> unique_ptr<Event> {
     unique_ptr<Event> event;
 
     switch (type) {
-        case Type::ACCEPT:
+        case Type::Accept:
             event = make_unique<AcceptEvent>();
             break;
-        case Type::TIMEOUT:
+        case Type::Timeout:
             event = make_unique<TimeoutEvent>();
             break;
-        case Type::RECEIVE:
+        case Type::Receive:
             event = make_unique<ReceiveEvent>();
             break;
-        case Type::SEND:
+        case Type::Send:
             event = make_unique<SendEvent>();
             break;
-        case Type::CANCEL:
+        case Type::Cancel:
             event = make_unique<CancelEvent>();
             break;
-        case Type::CLOSE:
+        case Type::Close:
             event = make_unique<CloseEvent>();
             break;
     }
@@ -51,8 +50,8 @@ auto AcceptEvent::handle(int result, unsigned int fileDescriptor, unsigned int f
 
         timer.add(std::move(client));
     } else
-        Log::produce(message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, Level::ERROR,
-                                      "accept error: " + string{std::strerror(std::abs(result))}));
+        Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
+                                  "accept error: " + string{std::strerror(std::abs(result))}));
 
     if (!(flags & IORING_CQE_F_MORE)) server.accept();
 }
@@ -65,16 +64,16 @@ auto TimeoutEvent::handle(int result, unsigned int fileDescriptor, unsigned int 
 
         timer.startTiming();
     } else
-        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         Level::FATAL, "timeout error: " + string{std::strerror(std::abs(result))})};
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                     LogLevel::Fatal, "timeout error: " + string{std::strerror(std::abs(result))})};
 }
 
 auto ReceiveEvent::handle(int result, unsigned int fileDescriptor, unsigned int flags,
                           const shared_ptr<UserRing> &userRing, BufferRing &bufferRing, Server &server, Timer &timer,
                           Database &database, source_location sourceLocation) const -> void {
     if (result <= 0)
-        Log::produce(message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, Level::ERROR,
-                                      "receive error: " + string{std::strerror(std::abs(result))}));
+        Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
+                                  "receive error: " + string{std::strerror(std::abs(result))}));
 
     if (!timer.exist(fileDescriptor)) return;
 
@@ -96,8 +95,8 @@ auto SendEvent::handle(int result, unsigned int fileDescriptor, unsigned int fla
                        const shared_ptr<UserRing> &userRing, BufferRing &bufferRing, Server &server, Timer &timer,
                        Database &database, source_location sourceLocation) const -> void {
     if ((result == 0 && !(flags & IORING_CQE_F_NOTIF)) || result < 0)
-        Log::produce(message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, Level::ERROR,
-                                      "send error: " + string{std::strerror(std::abs(result))}));
+        Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
+                                  "send error: " + string{std::strerror(std::abs(result))}));
 
     if (!timer.exist(fileDescriptor)) return;
 
@@ -112,13 +111,13 @@ auto SendEvent::handle(int result, unsigned int fileDescriptor, unsigned int fla
 auto CancelEvent::handle(int result, unsigned int fileDescriptor, unsigned int flags,
                          const shared_ptr<UserRing> &userRing, BufferRing &bufferRing, Server &server, Timer &timer,
                          Database &database, source_location sourceLocation) const -> void {
-    Log::produce(message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, Level::ERROR,
-                                  "cancel error: " + string{std::strerror(std::abs(result))}));
+    Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
+                              "cancel error: " + string{std::strerror(std::abs(result))}));
 }
 
 auto CloseEvent::handle(int result, unsigned int fileDescriptor, unsigned int flags,
                         const shared_ptr<UserRing> &userRing, BufferRing &bufferRing, Server &server, Timer &timer,
                         Database &database, source_location sourceLocation) const -> void {
-    Log::produce(message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, Level::ERROR,
-                                  "close error: " + string{std::strerror(std::abs(result))}));
+    Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
+                              "close error: " + string{std::strerror(std::abs(result))}));
 }

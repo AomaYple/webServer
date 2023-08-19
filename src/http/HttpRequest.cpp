@@ -49,7 +49,7 @@ auto HttpRequest::parseHeader(string_view header) -> pair<string_view, string_vi
 }
 
 HttpRequest::HttpRequest(string_view method, string_view url, string_view version, string_view body,
-                         unordered_map<string_view, string_view> &&header) noexcept
+                         unordered_map<string_view, string_view> &&header)
     : method{method}, url{url}, version{version}, body{body}, headers{std::move(header)} {}
 
 auto HttpRequest::getVersion() const noexcept -> string_view { return this->version; }

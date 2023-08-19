@@ -1,9 +1,9 @@
 #pragma once
 
 #include "../base/BufferRing.h"
-#include "../http/Database.h"
-#include "../socket/Server.h"
-#include "Timer.h"
+#include "../database/Database.h"
+#include "../network/Server.h"
+#include "../network/Timer.h"
 
 class EventLoop {
 public:

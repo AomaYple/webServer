@@ -13,7 +13,7 @@ private:
     [[nodiscard]] static auto parseHeader(std::string_view header) -> std::pair<std::string_view, std::string_view>;
 
     HttpRequest(std::string_view method, std::string_view url, std::string_view version, std::string_view body,
-                std::unordered_map<std::string_view, std::string_view> &&header) noexcept;
+                std::unordered_map<std::string_view, std::string_view> &&header);
 
 public:
     [[nodiscard]] auto getVersion() const noexcept -> std::string_view;

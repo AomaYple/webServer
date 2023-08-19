@@ -1,7 +1,7 @@
 #include "Database.h"
 
 #include "../exception/Exception.h"
-#include "../log/message.h"
+#include "../log/Log.h"
 
 using namespace std;
 
@@ -22,8 +22,8 @@ auto Database::initialize(source_location sourceLocation) -> void {
     }
 
     if (mysql_init(&this->connection) == nullptr)
-        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         Level::FATAL, "initialization failed")};
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                     LogLevel::Fatal, "initialization failed")};
 
     Database::lock.unlock();
 }
@@ -33,38 +33,38 @@ auto Database::connect(string_view host, string_view user, string_view password,
                        source_location sourceLocation) -> void {
     if (mysql_real_connect(&this->connection, host.data(), user.data(), password.data(), database.data(), port,
                            unixSocket.data(), clientFlag) == nullptr)
-        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         Level::FATAL, mysql_error(&this->connection))};
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                     LogLevel::Fatal, mysql_error(&this->connection))};
 }
 
 auto Database::consult(string_view statement) -> vector<vector<string>> {
+    vector<vector<string>> results;
+
     this->query(statement);
 
     MYSQL_RES *const consultResult{this->storeResult()};
 
-    vector<vector<string>> results;
+    if (consultResult == nullptr) return results;
 
-    if (consultResult != nullptr) {
-        const unsigned int columnCount{Database::getColumnCount(consultResult)};
+    const unsigned int columnCount{Database::getColumnCount(consultResult)};
 
-        for (MYSQL_ROW row{Database::getRow(consultResult)}; row != nullptr; row = Database::getRow(consultResult)) {
-            vector<string> result;
+    for (MYSQL_ROW row{Database::getRow(consultResult)}; row != nullptr; row = Database::getRow(consultResult)) {
+        vector<string> result;
 
-            for (unsigned int i{0}; i < columnCount; ++i) result.emplace_back(row[i]);
+        for (unsigned int i{0}; i < columnCount; ++i) result.emplace_back(row[i]);
 
-            results.emplace_back(std::move(result));
-        }
-
-        Database::freeResult(consultResult);
+        results.emplace_back(std::move(result));
     }
+
+    Database::freeResult(consultResult);
 
     return results;
 }
 
 auto Database::query(string_view statement, source_location sourceLocation) -> void {
     if (mysql_real_query(&this->connection, statement.data(), statement.size()) != 0)
-        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         Level::FATAL, mysql_error(&this->connection))};
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                     LogLevel::Fatal, mysql_error(&this->connection))};
 }
 
 auto Database::storeResult(source_location sourceLocation) -> MYSQL_RES * {
@@ -73,8 +73,8 @@ auto Database::storeResult(source_location sourceLocation) -> MYSQL_RES * {
     if (result == nullptr) {
         const string_view error{mysql_error(&this->connection)};
         if (!error.empty())
-            throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                             Level::FATAL, string{error})};
+            throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                         LogLevel::Fatal, string{error})};
     }
 
     return result;

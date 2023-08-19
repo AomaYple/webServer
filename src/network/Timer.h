@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../socket/Client.h"
+#include "Client.h"
 
 class Timer {
 public:

@@ -4,7 +4,6 @@
 #include "../base/UserData.h"
 #include "../exception/Exception.h"
 #include "../log/Log.h"
-#include "../log/message.h"
 
 #include <sys/timerfd.h>
 
@@ -31,8 +30,8 @@ auto Timer::createFileDescriptor(source_location sourceLocation) -> unsigned int
     const int fileDescriptor{timerfd_create(CLOCK_BOOTTIME, 0)};
 
     if (fileDescriptor == -1)
-        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         Level::FATAL, std::strerror(errno))};
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                     LogLevel::Fatal, std::strerror(errno))};
 
     return fileDescriptor;
 }
@@ -40,8 +39,8 @@ auto Timer::createFileDescriptor(source_location sourceLocation) -> unsigned int
 auto Timer::setTime(unsigned int fileDescriptor, source_location sourceLocation) -> void {
     const itimerspec time{{1, 0}, {1, 0}};
     if (timerfd_settime(static_cast<int>(fileDescriptor), 0, &time, nullptr) == -1)
-        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         Level::FATAL, std::strerror(errno))};
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                     LogLevel::Fatal, std::strerror(errno))};
 }
 
 auto Timer::startTiming() -> void {
@@ -51,7 +50,7 @@ auto Timer::startTiming() -> void {
                                 {reinterpret_cast<byte *>(&this->expireCount), sizeof(this->expireCount)},
                                 offset};
 
-    const UserData userData{Type::TIMEOUT, this->fileDescriptorIndex};
+    const UserData userData{Type::Timeout, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
@@ -74,8 +73,8 @@ auto Timer::clearTimeout() -> void {
 auto Timer::add(Client &&client, source_location sourceLocation) -> void {
     const unsigned char timeout{client.getTimeout()};
     if (timeout >= this->wheel.size())
-        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         Level::FATAL, "timeout is too large")};
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                     LogLevel::Fatal, "timeout is too large")};
 
     const unsigned int clientFileDescriptorIndex{client.getFileDescriptorIndex()};
 
@@ -101,18 +100,16 @@ auto Timer::pop(unsigned int clientFileDescriptorIndex) -> Client {
 
 Timer::~Timer() {
     if (this->userRing != nullptr) {
-        try {
-            this->cancel();
+        this->cancel();
 
-            this->close();
-        } catch (const Exception &exception) { Log::produce(exception.what()); }
+        this->close();
     }
 }
 
 auto Timer::cancel() const -> void {
     const Submission submission{this->userRing->getSqe(), this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
 
-    const UserData userData{Type::CANCEL, this->fileDescriptorIndex};
+    const UserData userData{Type::Cancel, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE | IOSQE_IO_LINK | IOSQE_CQE_SKIP_SUCCESS);
@@ -121,7 +118,7 @@ auto Timer::cancel() const -> void {
 auto Timer::close() const -> void {
     const Submission submission{this->userRing->getSqe(), this->fileDescriptorIndex};
 
-    const UserData userData{Type::CLOSE, this->fileDescriptorIndex};
+    const UserData userData{Type::Close, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_CQE_SKIP_SUCCESS);

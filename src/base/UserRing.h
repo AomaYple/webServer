@@ -25,8 +25,8 @@ public:
     auto registerCpu(unsigned char cpuCode, std::source_location sourceLocation = std::source_location::current())
             -> void;
 
-    auto registerFileDescriptors(unsigned int fileDescriptorCount,
-                                 std::source_location sourceLocation = std::source_location::current()) -> void;
+    auto registerSparseFileDescriptors(unsigned int fileDescriptorCount,
+                                       std::source_location sourceLocation = std::source_location::current()) -> void;
 
     auto allocateFileDescriptorRange(unsigned int offset, unsigned int length,
                                      std::source_location sourceLocation = std::source_location::current()) -> void;

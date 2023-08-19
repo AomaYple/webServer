@@ -1,9 +1,8 @@
 #include "Http.h"
 
+#include "../database/Database.h"
 #include "../exception/Exception.h"
 #include "../log/Log.h"
-#include "../log/message.h"
-#include "Database.h"
 #include "HttpRequest.h"
 #include "HttpResponse.h"
 
@@ -21,7 +20,7 @@ Http::Http()
 
           tempResources.emplace("", vector<byte>{});
 
-          for (auto const &path: filesystem::directory_iterator(filesystem::current_path().string() + "/web")) {
+          for (const auto &path: filesystem::directory_iterator(filesystem::current_path().string() + "/web")) {
               string filename{path.path().filename().string()};
 
               vector<byte> fileContent{Http::readFile(path.path().string())};
@@ -35,19 +34,20 @@ Http::Http()
       }()} {}
 
 auto Http::readFile(string_view filepath, source_location sourceLocation) -> vector<byte> {
-    ifstream file{string{filepath}, ios::binary};
+    ifstream file{string{filepath}, ios::binary | ios::ate};
     if (!file)
-        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         Level::FATAL, "file not found: " + string{filepath})};
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                     LogLevel::Fatal, "file not found: " + string{filepath})};
 
-    file.seekg(0, ios::end);
     auto size{file.tellg()};
     file.seekg(0, ios::beg);
 
     vector<byte> buffer(size, byte{0});
 
     file.read(reinterpret_cast<char *>(buffer.data()), size);
-
+    if (file.gcount() != size)
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                     LogLevel::Fatal, "file read error: " + string{filepath})};
     return buffer;
 }
 
@@ -59,8 +59,8 @@ auto Http::brotli(span<const byte> data, source_location sourceLocation) -> vect
     if (BrotliEncoderCompress(BROTLI_MAX_QUALITY, BROTLI_MAX_WINDOW_BITS, BROTLI_DEFAULT_MODE, data.size(),
                               reinterpret_cast<const unsigned char *>(data.data()), &size,
                               reinterpret_cast<unsigned char *>(buffer.data())) != BROTLI_TRUE)
-        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         Level::FATAL, "brotli compress error")};
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                     LogLevel::Fatal, "brotli compress error")};
 
     buffer.resize(size);
 
@@ -85,8 +85,8 @@ auto Http::parse(span<const byte> request, Database &database, source_location s
             httpResponse.addHeader("Content-Length: 0");
             httpResponse.setBody({});
 
-            throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                             Level::FATAL, "unsupported HTTP method: " + string{method})};
+            throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                         LogLevel::Fatal, "unsupported HTTP method: " + string{method})};
         }
     } catch (const Exception &exception) { Log::produce(exception.what()); }
 
@@ -100,8 +100,8 @@ auto Http::parseVersion(HttpResponse &httpResponse, string_view version, source_
         httpResponse.addHeader("Content-Length: 0");
         httpResponse.setBody({});
 
-        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         Level::FATAL, "unsupported HTTP version: " + string{version})};
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                     LogLevel::Fatal, "unsupported HTTP version: " + string{version})};
     }
 
     httpResponse.setVersion(version);
@@ -125,8 +125,8 @@ auto Http::parseUrl(HttpResponse &httpResponse, string_view url, source_location
         httpResponse.addHeader("Content-Length: 0");
         httpResponse.setBody({});
 
-        throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         Level::FATAL, "resource not found: " + string{url})};
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                     LogLevel::Fatal, "resource not found: " + string{url})};
     }
 
     return result->second;
@@ -172,8 +172,8 @@ auto Http::parseResource(HttpResponse &httpResponse, string_view range, span<con
             httpResponse.addHeader("Content-Length: 0");
             httpResponse.setBody({});
 
-            throw Exception{message::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                             Level::WARN, "invalid range: " + string{range})};
+            throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                         LogLevel::Warn, "invalid range: " + string{range})};
         }
 
         httpResponse.addHeader("Content-Range: bytes " + stringStart + "-" + stringEnd + "/" + to_string(body.size()));

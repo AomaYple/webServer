@@ -14,23 +14,22 @@ add_executable(${PROJECT_NAME}
         src/base/UserData.cpp
         src/base/UserRing.cpp
 
+        src/database/Database.cpp
+
         src/event/Event.cpp
         src/event/EventLoop.cpp
-        src/event/Timer.cpp
 
         src/exception/Exception.cpp
 
-        src/http/Database.cpp
         src/http/Http.cpp
         src/http/HttpRequest.cpp
         src/http/HttpResponse.cpp
 
         src/log/Log.cpp
-        src/log/message.cpp
-        src/log/Node.cpp
 
-        src/socket/Client.cpp
-        src/socket/Server.cpp
+        src/network/Client.cpp
+        src/network/Server.cpp
+        src/network/Timer.cpp
 
         src/main.cpp
 )
