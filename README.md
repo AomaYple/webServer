@@ -14,9 +14,9 @@ RPS:144万（每秒处理的请求数量）
 
 wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生巨大的负载。它将多线程设计与可扩展的事件通知系统（如epoll和kqueue）相结合。
 
-## 演示视频
+## 演示
 
-[![Login](https://i.imgur.com/vKb2F1B.png)](https://github.com/AomaYple/WebServer/blob/main/web/Zombies-on-Your-Lawn.mp4)
+[!image](test/test.gif)
 
 ## 项目所需环境
 
