@@ -16,7 +16,7 @@ wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生�
 
 ## 演示视频
 
-[![Watch the video](https://i.imgur.com/vKb2F1B.png)](https://www.bilibili.com/video/BV1QK4y1z7ZU/)
+[![Login](https://i.imgur.com/vKb2F1B.png)](https://github.com/AomaYple/WebServer/tree/main/test.mp4)
 
 ## 项目所需环境
 
