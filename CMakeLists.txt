@@ -7,9 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 
-add_executable(${PROJECT_NAME} "")
-
-target_sources(${PROJECT_NAME} PRIVATE
+add_executable(${PROJECT_NAME}
         src/base/BufferRing.cpp
         src/base/Completion.cpp
         src/base/Submission.cpp
