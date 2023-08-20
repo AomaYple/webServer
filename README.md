@@ -20,7 +20,7 @@ wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生�
 
 ## 项目所需环境
 
-gcc13以上版本，cmake3.22以上版本，libuing2.4以上版本，linux内核版本6.1以上，ninja，brotli库
+gcc13以上版本，cmake3.22以上版本，libuing2.4以上版本，linux内核版本6.1以上，ninja，brotli库,mysql或mariadb
 
 ## 项目编译
 
