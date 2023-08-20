@@ -56,3 +56,16 @@ cd build/webServer
 
 利用时间轮实现定时器，每个线程都有一个时间轮，每个连接都有一个定时器，定时器的精度为1s，会自动
 处理超时的连接并释放
+
+## MYSQL操作
+
+```shell
+create database webServer;
+use webServer;
+create table users(
+    id int unsigned primary key auto_increment,
+    password varchar(32) not null,
+);
+```
+
+至于mysql的用户名和密码，在Database的构造函数中修改

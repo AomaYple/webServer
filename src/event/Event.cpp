@@ -94,18 +94,14 @@ auto ReceiveEvent::handle(int result, unsigned int fileDescriptor, unsigned int 
 auto SendEvent::handle(int result, unsigned int fileDescriptor, unsigned int flags,
                        const shared_ptr<UserRing> &userRing, BufferRing &bufferRing, Server &server, Timer &timer,
                        Database &database, source_location sourceLocation) const -> void {
-    if ((result == 0 && !(flags & IORING_CQE_F_NOTIF)) || result < 0)
+    if ((result == 0 && !(flags & IORING_CQE_F_NOTIF)) || result < 0) {
         Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
                                   "send error: " + string{std::strerror(std::abs(result))}));
 
-    if (!timer.exist(fileDescriptor)) return;
+        if (!timer.exist(fileDescriptor)) return;
 
-    if (result == 0 && flags & IORING_CQE_F_NOTIF) {
-        Client client{timer.pop(fileDescriptor)};
-
-        timer.add(std::move(client));
-    } else if (result < 0)
         timer.pop(fileDescriptor);
+    }
 }
 
 auto CancelEvent::handle(int result, unsigned int fileDescriptor, unsigned int flags,
