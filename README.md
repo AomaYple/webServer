@@ -33,8 +33,8 @@ ninja
 ## 项目运行
 
 ```shell
-cd build/WebServer
-./WebServer
+cd build/webServer
+./webServer
 ```
 
 ## 异步日志的实现
