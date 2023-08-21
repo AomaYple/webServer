@@ -72,7 +72,7 @@ auto ReceiveEvent::handle(int result, unsigned int fileDescriptor, unsigned int 
                           const shared_ptr<UserRing> &userRing, BufferRing &bufferRing, Server &server, Timer &timer,
                           Database &database, source_location sourceLocation) const -> void {
     if (result <= 0)
-        Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
+        Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
                                   "receive error: " + string{std::strerror(std::abs(result))}));
 
     if (!timer.exist(fileDescriptor)) return;
@@ -95,7 +95,7 @@ auto SendEvent::handle(int result, unsigned int fileDescriptor, unsigned int fla
                        const shared_ptr<UserRing> &userRing, BufferRing &bufferRing, Server &server, Timer &timer,
                        Database &database, source_location sourceLocation) const -> void {
     if ((result == 0 && !(flags & IORING_CQE_F_NOTIF)) || result < 0) {
-        Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
+        Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
                                   "send error: " + string{std::strerror(std::abs(result))}));
 
         if (!timer.exist(fileDescriptor)) return;
@@ -107,13 +107,13 @@ auto SendEvent::handle(int result, unsigned int fileDescriptor, unsigned int fla
 auto CancelEvent::handle(int result, unsigned int fileDescriptor, unsigned int flags,
                          const shared_ptr<UserRing> &userRing, BufferRing &bufferRing, Server &server, Timer &timer,
                          Database &database, source_location sourceLocation) const -> void {
-    Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
+    Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
                               "cancel error: " + string{std::strerror(std::abs(result))}));
 }
 
 auto CloseEvent::handle(int result, unsigned int fileDescriptor, unsigned int flags,
                         const shared_ptr<UserRing> &userRing, BufferRing &bufferRing, Server &server, Timer &timer,
                         Database &database, source_location sourceLocation) const -> void {
-    Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
+    Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
                               "close error: " + string{std::strerror(std::abs(result))}));
 }
