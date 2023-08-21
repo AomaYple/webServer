@@ -71,24 +71,27 @@ auto TimeoutEvent::handle(int result, unsigned int fileDescriptor, unsigned int 
 auto ReceiveEvent::handle(int result, unsigned int fileDescriptor, unsigned int flags,
                           const shared_ptr<UserRing> &userRing, BufferRing &bufferRing, Server &server, Timer &timer,
                           Database &database, source_location sourceLocation) const -> void {
-    if (result <= 0)
+    if (result <= 0) {
         Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
                                   "receive error: " + string{std::strerror(std::abs(result))}));
 
-    if (!timer.exist(fileDescriptor)) return;
+        if (std::abs(result) == ECANCELED) return;
+    }
 
     if (result > 0) {
-        Client client{timer.pop(fileDescriptor)};
-
-        client.writeReceivedData(bufferRing.getData(flags >> IORING_CQE_BUFFER_SHIFT, result));
-
-        if (!(flags & IORING_CQE_F_SOCK_NONEMPTY)) client.send(Http::parse(client.readReceivedData(), database));
+        Client &client{timer.get(fileDescriptor)};
 
         if (!(flags & IORING_CQE_F_MORE)) client.receive(bufferRing.getId());
 
-        timer.add(std::move(client));
+        client.writeReceivedData(bufferRing.getData(flags >> IORING_CQE_BUFFER_SHIFT, result));
+
+        if (!(flags & IORING_CQE_F_SOCK_NONEMPTY)) {
+            client.send(Http::parse(client.readReceivedData(), database));
+
+            timer.update(fileDescriptor);
+        }
     } else
-        timer.pop(fileDescriptor);
+        timer.remove(fileDescriptor);
 }
 
 auto SendEvent::handle(int result, unsigned int fileDescriptor, unsigned int flags,
@@ -98,9 +101,9 @@ auto SendEvent::handle(int result, unsigned int fileDescriptor, unsigned int fla
         Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
                                   "send error: " + string{std::strerror(std::abs(result))}));
 
-        if (!timer.exist(fileDescriptor)) return;
+        if (std::abs(result) == ECANCELED) return;
 
-        timer.pop(fileDescriptor);
+        timer.remove(fileDescriptor);
     }
 }
 

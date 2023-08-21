@@ -85,17 +85,29 @@ auto Timer::add(Client &&client, source_location sourceLocation) -> void {
     this->wheel[point].emplace(clientFileDescriptorIndex, std::move(client));
 }
 
-auto Timer::exist(unsigned int clientFileDescriptorIndex) const -> bool {
-    return this->location.contains(clientFileDescriptorIndex);
+auto Timer::get(unsigned int clientFileDescriptorIndex) -> Client & {
+    return this->wheel[this->location.at(clientFileDescriptorIndex)].at(clientFileDescriptorIndex);
 }
 
-auto Timer::pop(unsigned int clientFileDescriptorIndex) -> Client {
+auto Timer::update(unsigned int clientFileDescriptorIndex, source_location sourceLocation) -> void {
     Client client{std::move(this->wheel[this->location.at(clientFileDescriptorIndex)].at(clientFileDescriptorIndex))};
 
     this->wheel[this->location.at(clientFileDescriptorIndex)].erase(clientFileDescriptorIndex);
-    this->location.erase(clientFileDescriptorIndex);
 
-    return client;
+    const unsigned char timeout{client.getTimeout()};
+    if (timeout >= this->wheel.size())
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                     LogLevel::Fatal, "timeout is too large")};
+
+    const unsigned char point{static_cast<unsigned char>((this->now + timeout) % this->wheel.size())};
+
+    this->wheel[point].emplace(clientFileDescriptorIndex, std::move(client));
+    this->location.at(clientFileDescriptorIndex) = point;
+}
+
+auto Timer::remove(unsigned int clientFileDescriptorIndex) -> void {
+    this->wheel[this->location.at(clientFileDescriptorIndex)].erase(clientFileDescriptorIndex);
+    this->location.erase(clientFileDescriptorIndex);
 }
 
 Timer::~Timer() {

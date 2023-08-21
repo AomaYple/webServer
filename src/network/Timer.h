@@ -25,10 +25,13 @@ public:
     auto clearTimeout() -> void;
 
     auto add(Client &&client, std::source_location sourceLocation = std::source_location::current()) -> void;
+    
+    [[nodiscard]] auto get(unsigned int clientFileDescriptorIndex) -> Client &;
 
-    [[nodiscard]] auto exist(unsigned int clientFileDescriptorIndex) const -> bool;
+    auto update(unsigned int clientFileDescriptorIndex,
+                std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto pop(unsigned int clientFileDescriptorIndex) -> Client;
+    auto remove(unsigned int clientFileDescriptorIndex) -> void;
 
     ~Timer();
 
