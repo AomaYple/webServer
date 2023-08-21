@@ -20,7 +20,7 @@ wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生�
 
 ## 项目所需环境
 
-gcc13以上版本，cmake3.22以上版本，libuing2.4以上版本，linux内核版本6.1以上，ninja，brotli库,mysql或mariadb
+gcc13以上版本，cmake3.22以上版本，libuing2.4以上版本，linux内核版本6.1以上，ninja，brotli库，mariadb
 
 ## 项目编译
 
@@ -57,15 +57,16 @@ cd build/webServer
 利用时间轮实现定时器，每个线程都有一个时间轮，每个连接都有一个定时器，定时器的精度为1s，会自动
 处理超时的连接并释放
 
-## MYSQL操作
+## MariaDB操作
 
 ```shell
 create database webServer;
 use webServer;
-create table users(
-    id int unsigned primary key auto_increment,
-    password varchar(32) not null,
-);
+CREATE TABLE `users` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `password` varchar(32) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 至于mysql的用户名和密码，在Database的构造函数中修改
