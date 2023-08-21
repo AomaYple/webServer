@@ -1,10 +1,10 @@
 #pragma once
 
-enum class Type { Accept, Timeout, Receive, Send, Cancel, Close };
+enum class EventType { Accept, Timeout, Receive, Send, Cancel, Close };
 
 struct UserData {
-    UserData(Type type, unsigned int fileDescriptor) noexcept;
+    UserData(EventType eventType, unsigned int fileDescriptor) noexcept;
 
-    const Type type;
+    const EventType type;
     const unsigned int fileDescriptor;
 };

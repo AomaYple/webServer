@@ -50,7 +50,7 @@ auto Timer::startTiming() -> void {
                                 {reinterpret_cast<byte *>(&this->expireCount), sizeof(this->expireCount)},
                                 offset};
 
-    const UserData userData{Type::Timeout, this->fileDescriptorIndex};
+    const UserData userData{EventType::Timeout, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
@@ -121,7 +121,7 @@ Timer::~Timer() {
 auto Timer::cancel() const -> void {
     const Submission submission{this->userRing->getSqe(), this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
 
-    const UserData userData{Type::Cancel, this->fileDescriptorIndex};
+    const UserData userData{EventType::Cancel, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE | IOSQE_IO_LINK | IOSQE_CQE_SKIP_SUCCESS);
@@ -130,7 +130,7 @@ auto Timer::cancel() const -> void {
 auto Timer::close() const -> void {
     const Submission submission{this->userRing->getSqe(), this->fileDescriptorIndex};
 
-    const UserData userData{Type::Close, this->fileDescriptorIndex};
+    const UserData userData{EventType::Close, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_CQE_SKIP_SUCCESS);

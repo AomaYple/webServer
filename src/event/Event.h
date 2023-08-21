@@ -9,11 +9,11 @@ class Server;
 class Timer;
 class UserRing;
 
-enum class Type;
+enum class EventType;
 
 class Event {
 public:
-    static auto create(Type type) -> std::unique_ptr<Event>;
+    static auto create(EventType type) -> std::unique_ptr<Event>;
 
     virtual auto handle(int result, unsigned int fileDescriptor, unsigned int flags,
                         const std::shared_ptr<UserRing> &userRing, BufferRing &bufferRing, Server &server, Timer &timer,

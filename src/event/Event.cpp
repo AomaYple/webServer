@@ -13,26 +13,26 @@
 
 using namespace std;
 
-auto Event::create(Type type) -> unique_ptr<Event> {
+auto Event::create(EventType type) -> unique_ptr<Event> {
     unique_ptr<Event> event;
 
     switch (type) {
-        case Type::Accept:
+        case EventType::Accept:
             event = make_unique<AcceptEvent>();
             break;
-        case Type::Timeout:
+        case EventType::Timeout:
             event = make_unique<TimeoutEvent>();
             break;
-        case Type::Receive:
+        case EventType::Receive:
             event = make_unique<ReceiveEvent>();
             break;
-        case Type::Send:
+        case EventType::Send:
             event = make_unique<SendEvent>();
             break;
-        case Type::Cancel:
+        case EventType::Cancel:
             event = make_unique<CancelEvent>();
             break;
-        case Type::Close:
+        case EventType::Close:
             event = make_unique<CloseEvent>();
             break;
     }

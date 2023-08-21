@@ -72,7 +72,7 @@ auto Server::listen(unsigned int fileDescriptor, source_location sourceLocation)
 auto Server::accept() const -> void {
     const Submission submission{this->userRing->getSqe(), this->fileDescriptorIndex, nullptr, nullptr, 0};
 
-    const UserData userData{Type::Accept, this->fileDescriptorIndex};
+    const UserData userData{EventType::Accept, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
@@ -89,7 +89,7 @@ Server::~Server() {
 auto Server::cancel() const -> void {
     const Submission submission{this->userRing->getSqe(), this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
 
-    const UserData userData{Type::Cancel, this->fileDescriptorIndex};
+    const UserData userData{EventType::Cancel, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE | IOSQE_IO_LINK | IOSQE_CQE_SKIP_SUCCESS);
@@ -98,7 +98,7 @@ auto Server::cancel() const -> void {
 auto Server::close() const -> void {
     const Submission submission{this->userRing->getSqe(), this->fileDescriptorIndex};
 
-    const UserData userData{Type::Close, this->fileDescriptorIndex};
+    const UserData userData{EventType::Close, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_CQE_SKIP_SUCCESS);

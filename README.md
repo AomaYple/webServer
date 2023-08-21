@@ -69,4 +69,4 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-至于mysql的用户名和密码，在Database的构造函数中修改
+至于mariadb的用户名和密码，在Database的构造函数中修改
