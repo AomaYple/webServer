@@ -1,6 +1,6 @@
 ## 项目介绍
 
-本项目是一个基于c++23和liburing的异步高并发Proactor模式服务器，利用liburing的特性实现真正的
+本项目是linux下一个基于c++23和liburing的异步高并发Proactor模式服务器，利用liburing的特性实现真正的
 异步收发
 
 ## 项目测试
