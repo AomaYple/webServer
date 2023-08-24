@@ -5,14 +5,14 @@
 
 using namespace std;
 
-Log::Node::Node(string &&data, Node *next) noexcept : data{std::move(data)}, next{next} {}
+Log::Node::Node(string_view data, Node *next) : data{data}, next{next} {}
 
 Log::Log()
     : logFile{filesystem::current_path().string() + "/log.log", ofstream::trunc}, head{nullptr},
       work{&Log::loop, this} {}
 
 auto Log::combine(chrono::system_clock::time_point timestamp, jthread::id threadId, source_location sourceLocation,
-                  LogLevel logLevel, string &&text) -> string {
+                  LogLevel logLevel, string_view text) -> string {
     constexpr array<string_view, 3> logLevels{"Warn", "Error", "Fatal"};
 
     ostringstream threadIdStream;
@@ -23,8 +23,8 @@ auto Log::combine(chrono::system_clock::time_point timestamp, jthread::id thread
                   logLevels[static_cast<unsigned char>(logLevel)], text);
 }
 
-auto Log::produce(string &&log) -> void {
-    Node *const newHead{new Node{std::move(log), Log::instance.head.load(memory_order_relaxed)}};
+auto Log::produce(string_view log) -> void {
+    Node *const newHead{new Node{log, Log::instance.head.load(memory_order_relaxed)}};
 
     while (!Log::instance.head.compare_exchange_weak(newHead->next, newHead, memory_order_release,
                                                      memory_order_relaxed))

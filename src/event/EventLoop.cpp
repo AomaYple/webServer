@@ -75,7 +75,7 @@ auto EventLoop::loop() -> void {
 
             const UserData userData{reinterpret_cast<const UserData &>(completionUserData)};
 
-            const unique_ptr<Event> event{Event::create(userData.type)};
+            const unique_ptr<Event> event{Event::create(userData.eventType)};
 
             event->handle(completion.getResult(), userData.fileDescriptor, completion.getFlags(), this->userRing,
                           this->bufferRing, this->server, this->timer, this->database, source_location::current());

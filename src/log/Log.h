@@ -8,7 +8,7 @@ enum class LogLevel : unsigned char { Warn, Error, Fatal };
 
 class Log {
     struct Node {
-        Node(std::string &&data, Node *next) noexcept;
+        Node(std::string_view data, Node *next);
 
         Node(const Node &) = delete;
 
@@ -26,9 +26,9 @@ public:
     Log(Log &&) = delete;
 
     static auto combine(std::chrono::system_clock::time_point timestamp, std::jthread::id threadId,
-                        std::source_location sourceLocation, LogLevel logLevel, std::string &&text) -> std::string;
+                        std::source_location sourceLocation, LogLevel logLevel, std::string_view text) -> std::string;
 
-    static auto produce(std::string &&log) -> void;
+    static auto produce(std::string_view log) -> void;
 
 private:
     [[noreturn]] auto loop() -> void;
