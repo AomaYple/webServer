@@ -25,7 +25,7 @@ public:
     auto clearTimeout() -> void;
 
     auto add(Client &&client, std::source_location sourceLocation = std::source_location::current()) -> void;
-    
+
     [[nodiscard]] auto get(unsigned int clientFileDescriptorIndex) -> Client &;
 
     auto update(unsigned int clientFileDescriptorIndex,

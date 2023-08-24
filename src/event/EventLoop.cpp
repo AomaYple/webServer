@@ -40,17 +40,17 @@ EventLoop::EventLoop()
               tempUserRing->registerCpu(std::distance(EventLoop::cpus.begin(), result));
           }
 
-          tempUserRing->registerSelfFileDescriptor();
-
-          tempUserRing->registerSparseFileDescriptors(UserRing::getFileDescriptorLimit());
-
-          tempUserRing->allocateFileDescriptorRange(2, UserRing::getFileDescriptorLimit() - 2);
-
           return tempUserRing;
       }()},
       bufferRing{EventLoop::bufferRingEntries, EventLoop::bufferRingBufferSize, EventLoop::bufferRingId,
                  this->userRing},
       server{0, this->userRing}, database{{}, "AomaYple", "38820233", "webServer", 0, {}, 0}, timer(1, this->userRing) {
+    this->userRing->registerSelfFileDescriptor();
+
+    this->userRing->registerSparseFileDescriptors(UserRing::getFileDescriptorLimit());
+
+    this->userRing->allocateFileDescriptorRange(2, UserRing::getFileDescriptorLimit() - 2);
+
     const array<unsigned int, 2> fileDescriptors{Server::create(EventLoop::port), Timer::create()};
 
     this->userRing->updateFileDescriptors(0, fileDescriptors);
