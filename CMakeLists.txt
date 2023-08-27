@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.27.1)
+cmake_minimum_required(VERSION 3.27.4)
 
 project(webServer)
 
@@ -18,7 +18,6 @@ add_executable(${PROJECT_NAME}
 
         src/database/Database.cpp
 
-        src/event/Event.cpp
         src/event/EventLoop.cpp
 
         src/exception/Exception.cpp

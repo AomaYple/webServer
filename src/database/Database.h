@@ -30,12 +30,11 @@ private:
     auto query(std::string_view statement, std::source_location sourceLocation = std::source_location::current())
             -> void;
 
-    [[nodiscard]] auto storeResult(std::source_location sourceLocation = std::source_location::current())
-            -> MYSQL_RES *;
+    auto storeResult(std::source_location sourceLocation = std::source_location::current()) -> MYSQL_RES *;
 
-    [[nodiscard]] static auto getColumnCount(MYSQL_RES *result) noexcept -> unsigned int;
+    static auto getColumnCount(MYSQL_RES *result) noexcept -> unsigned int;
 
-    [[nodiscard]] static auto getRow(MYSQL_RES *result) noexcept -> MYSQL_ROW;
+    static auto getRow(MYSQL_RES *result) noexcept -> MYSQL_ROW;
 
     static auto freeResult(MYSQL_RES *result) noexcept -> void;
 
@@ -43,7 +42,6 @@ public:
     ~Database();
 
 private:
-    static constinit thread_local bool instance;
     static constinit std::mutex lock;
 
     MYSQL connection;

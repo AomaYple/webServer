@@ -86,7 +86,7 @@ auto Http::parse(span<const byte> request, Database &database, source_location s
             httpResponse.setBody({});
 
             throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         LogLevel::Fatal, "unsupported HTTP method: " + string{method})};
+                                         LogLevel::Warn, "unsupported HTTP method: " + string{method})};
         }
     } catch (const Exception &exception) { Log::produce(exception.what()); }
 
@@ -100,8 +100,8 @@ auto Http::parseVersion(HttpResponse &httpResponse, string_view version, source_
         httpResponse.addHeader("Content-Length: 0");
         httpResponse.setBody({});
 
-        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                     LogLevel::Fatal, "unsupported HTTP version: " + string{version})};
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
+                                     "unsupported HTTP version: " + string{version})};
     }
 
     httpResponse.setVersion(version);
@@ -125,8 +125,8 @@ auto Http::parseUrl(HttpResponse &httpResponse, string_view url, source_location
         httpResponse.addHeader("Content-Length: 0");
         httpResponse.setBody({});
 
-        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                     LogLevel::Fatal, "resource not found: " + string{url})};
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
+                                     "resource not found: " + string{url})};
     }
 
     return result->second;

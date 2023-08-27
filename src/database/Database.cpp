@@ -16,16 +16,11 @@ Database::Database(string_view host, string_view user, string_view password, str
 Database::Database(Database &&other) noexcept : connection{other.connection} { other.connection.host = nullptr; }
 
 auto Database::initialize(source_location sourceLocation) -> void {
-    if (!Database::instance) {
-        Database::instance = true;
-        Database::lock.lock();
-    }
+    lock_guard lockGuard{Database::lock};
 
     if (mysql_init(&this->connection) == nullptr)
         throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
                                      LogLevel::Fatal, "initialization failed")};
-
-    Database::lock.unlock();
 }
 
 auto Database::connect(string_view host, string_view user, string_view password, string_view database,
@@ -74,7 +69,7 @@ auto Database::storeResult(source_location sourceLocation) -> MYSQL_RES * {
         const string_view error{mysql_error(&this->connection)};
         if (!error.empty())
             throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         LogLevel::Fatal, string{error})};
+                                         LogLevel::Fatal, error)};
     }
 
     return result;
@@ -90,5 +85,4 @@ Database::~Database() {
     if (this->connection.host != nullptr) mysql_close(&this->connection);
 }
 
-constinit thread_local bool Database::instance{false};
 constinit std::mutex Database::lock;

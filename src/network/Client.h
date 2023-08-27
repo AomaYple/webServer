@@ -20,7 +20,7 @@ public:
 
     auto writeReceivedData(std::span<const std::byte> data) -> void;
 
-    [[nodiscard]] auto readReceivedData() noexcept -> std::vector<std::byte>;
+    auto readReceivedData() noexcept -> std::vector<std::byte>;
 
     auto send(std::vector<std::byte> &&data) -> void;
 

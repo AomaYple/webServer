@@ -85,7 +85,7 @@ auto Timer::add(Client &&client, source_location sourceLocation) -> void {
     this->wheel[point].emplace(clientFileDescriptorIndex, std::move(client));
 }
 
-auto Timer::get(unsigned int clientFileDescriptorIndex) -> Client & {
+auto Timer::getClient(unsigned int clientFileDescriptorIndex) -> Client & {
     return this->wheel[this->location.at(clientFileDescriptorIndex)].at(clientFileDescriptorIndex);
 }
 

@@ -1,11 +1,12 @@
 #include "EventLoop.h"
 
 #include "../base/Completion.h"
-#include "../base/Submission.h"
 #include "../base/UserData.h"
 #include "../exception/Exception.h"
+#include "../http/Http.h"
 #include "../log/Log.h"
-#include "Event.h"
+
+#include <cstring>
 
 using namespace std;
 
@@ -72,17 +73,111 @@ auto EventLoop::loop() -> void {
             const Completion completion{cqe};
 
             const unsigned long completionUserData{completion.getUserData()};
-
             const UserData userData{reinterpret_cast<const UserData &>(completionUserData)};
 
-            const unique_ptr<Event> event{Event::create(userData.eventType)};
+            switch (userData.eventType) {
+                case EventType::Accept:
+                    this->acceptEvent(completion.getResult(), completion.getFlags());
 
-            event->handle(completion.getResult(), userData.fileDescriptor, completion.getFlags(), this->userRing,
-                          this->bufferRing, this->server, this->timer, this->database, source_location::current());
+                    break;
+                case EventType::Timeout:
+                    this->timeoutEvent(completion.getResult());
+
+                    break;
+                case EventType::Receive:
+                    this->receiveEvent(completion.getResult(), completion.getFlags(), userData.fileDescriptor);
+
+                    break;
+                case EventType::Send:
+                    this->sendEvent(completion.getResult(), completion.getFlags(), userData.fileDescriptor);
+
+                    break;
+                case EventType::Cancel:
+                    EventLoop::cancelEvent(completion.getResult());
+
+                    break;
+                case EventType::Close:
+                    EventLoop::closeEvent(completion.getResult());
+
+                    break;
+            }
         })};
 
         this->bufferRing.advanceCompletionBufferRingBuffer(completionCount);
     }
+}
+
+auto EventLoop::acceptEvent(int result, unsigned int flags, source_location sourceLocation) -> void {
+    if (result >= 0) {
+        Client client{static_cast<unsigned int>(result), 60, this->userRing};
+
+        client.receive(this->bufferRing.getId());
+
+        this->timer.add(std::move(client));
+    } else
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                     LogLevel::Fatal, "accept error: " + string{strerror(abs(result))})};
+
+    if (!(flags & IORING_CQE_F_MORE))
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                     LogLevel::Fatal, "can not accept")};
+}
+
+auto EventLoop::timeoutEvent(int result, source_location sourceLocation) -> void {
+    if (result == sizeof(unsigned long)) {
+        this->timer.clearTimeout();
+
+        this->timer.startTiming();
+    } else
+        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                     LogLevel::Fatal, "timeout error: " + string{strerror(abs(result))})};
+}
+
+auto EventLoop::receiveEvent(int result, unsigned int flags, unsigned int fileDescriptor,
+                             source_location sourceLocation) -> void {
+    if (result <= 0) {
+        Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
+                                  "receive error: " + string{strerror(abs(result))}));
+
+        if (abs(result) == ECANCELED) return;
+    }
+
+    if (result > 0) {
+        Client &client{this->timer.getClient(fileDescriptor)};
+
+        if (!(flags & IORING_CQE_F_MORE)) client.receive(this->bufferRing.getId());
+
+        client.writeReceivedData(this->bufferRing.getData(flags >> IORING_CQE_BUFFER_SHIFT, result));
+
+        if (!(flags & IORING_CQE_F_SOCK_NONEMPTY)) {
+            client.send(Http::parse(client.readReceivedData(), this->database));
+
+            this->timer.update(fileDescriptor);
+        }
+    } else
+        this->timer.remove(fileDescriptor);
+}
+
+auto EventLoop::sendEvent(int result, unsigned int flags, unsigned int fileDescriptor, source_location sourceLocation)
+        -> void {
+    if ((result == 0 && !(flags & IORING_CQE_F_NOTIF)) || result < 0) {
+        Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
+                                  "send error: " + string{strerror(abs(result))}));
+
+        if (std::abs(result) == ECANCELED) return;
+
+        this->timer.remove(fileDescriptor);
+    }
+}
+
+auto EventLoop::cancelEvent(int result, source_location sourceLocation) -> void {
+    Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
+                              "cancel error: " + string{strerror(abs(result))}));
+}
+
+auto EventLoop::closeEvent(int result, source_location sourceLocation) -> void {
+    Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
+                              "close error: " + string{strerror(abs(result))}));
 }
 
 EventLoop::~EventLoop() {

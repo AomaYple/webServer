@@ -6,7 +6,7 @@
 
 class Server {
 public:
-    [[nodiscard]] static auto create(unsigned short port) -> unsigned int;
+    static auto create(unsigned short port) -> unsigned int;
 
     Server(unsigned int fileDescriptorIndex, const std::shared_ptr<UserRing> &userRing);
 
@@ -15,8 +15,7 @@ public:
     Server(Server &&) noexcept;
 
 private:
-    [[nodiscard]] static auto socket(std::source_location sourceLocation = std::source_location::current())
-            -> unsigned int;
+    static auto socket(std::source_location sourceLocation = std::source_location::current()) -> unsigned int;
 
     static auto setSocketOption(unsigned int fileDescriptor,
                                 std::source_location sourceLocation = std::source_location::current()) -> void;

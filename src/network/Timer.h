@@ -13,8 +13,8 @@ public:
     Timer(Timer &&) noexcept;
 
 private:
-    [[nodiscard]] static auto
-    createFileDescriptor(std::source_location sourceLocation = std::source_location::current()) -> unsigned int;
+    static auto createFileDescriptor(std::source_location sourceLocation = std::source_location::current())
+            -> unsigned int;
 
     static auto setTime(unsigned int fileDescriptor,
                         std::source_location sourceLocation = std::source_location::current()) -> void;
@@ -26,7 +26,7 @@ public:
 
     auto add(Client &&client, std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    [[nodiscard]] auto get(unsigned int clientFileDescriptorIndex) -> Client &;
+    auto getClient(unsigned int clientFileDescriptorIndex) -> Client &;
 
     auto update(unsigned int clientFileDescriptorIndex,
                 std::source_location sourceLocation = std::source_location::current()) -> void;

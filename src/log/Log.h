@@ -33,7 +33,7 @@ public:
 private:
     [[noreturn]] auto loop() -> void;
 
-    [[nodiscard]] static auto invertLinkedList(Node *pointer) noexcept -> Node *;
+    static auto invertLinkedList(Node *pointer) noexcept -> Node *;
 
     auto consume(Node *pointer) -> void;
 

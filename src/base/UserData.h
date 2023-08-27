@@ -1,6 +1,6 @@
 #pragma once
 
-enum class EventType { Accept, Timeout, Receive, Send, Cancel, Close };
+enum class EventType : unsigned char { Accept, Timeout, Receive, Send, Cancel, Close };
 
 struct UserData {
     UserData(EventType eventType, unsigned int fileDescriptor) noexcept;

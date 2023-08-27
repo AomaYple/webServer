@@ -19,7 +19,7 @@ private:
 public:
     [[nodiscard]] auto getId() const noexcept -> unsigned short;
 
-    [[nodiscard]] auto getData(unsigned short bufferIndex, unsigned int dataSize) -> std::vector<std::byte>;
+    auto getData(unsigned short bufferIndex, unsigned int dataSize) -> std::vector<std::byte>;
 
     auto advanceCompletionBufferRingBuffer(unsigned int completionCount) noexcept -> void;
 

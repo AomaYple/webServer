@@ -34,7 +34,7 @@ auto Log::produce(string_view log) -> void {
     Log::instance.notice.notify_one();
 }
 
-[[noreturn]] auto Log::loop() -> void {
+auto Log::loop() -> void {
     while (true) {
         this->notice.wait(false, memory_order_relaxed);
         this->notice.clear(memory_order_relaxed);

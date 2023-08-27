@@ -15,6 +15,23 @@ public:
 
     [[noreturn]] auto loop() -> void;
 
+private:
+    auto acceptEvent(int result, unsigned int flags,
+                     std::source_location sourceLocation = std::source_location::current()) -> void;
+
+    auto timeoutEvent(int result, std::source_location sourceLocation = std::source_location::current()) -> void;
+
+    auto receiveEvent(int result, unsigned int flags, unsigned int fileDescriptor,
+                      std::source_location sourceLocation = std::source_location::current()) -> void;
+
+    auto sendEvent(int result, unsigned int flags, unsigned int fileDescriptor,
+                   std::source_location sourceLocation = std::source_location::current()) -> void;
+
+    static auto cancelEvent(int result, std::source_location sourceLocation = std::source_location::current()) -> void;
+
+    static auto closeEvent(int result, std::source_location sourceLocation = std::source_location::current()) -> void;
+
+public:
     ~EventLoop();
 
 private:
