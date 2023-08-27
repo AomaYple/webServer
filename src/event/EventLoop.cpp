@@ -121,9 +121,12 @@ auto EventLoop::acceptEvent(int result, unsigned int flags, source_location sour
         throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
                                      LogLevel::Error, "accept error: " + string{strerror(abs(result))})};
 
-    if (!(flags & IORING_CQE_F_MORE))
-        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                     LogLevel::Error, "can not accept")};
+    if (!(flags & IORING_CQE_F_MORE)) {
+        this->server.accept();
+
+        Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
+                                  "can not accept"));
+    }
 }
 
 auto EventLoop::timeoutEvent(int result, source_location sourceLocation) -> void {
