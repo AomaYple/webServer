@@ -12,7 +12,9 @@ using namespace std;
 
 EventLoop::EventLoop()
     : userRing{[](source_location sourceLocation = source_location::current()) {
-          if (EventLoop::instance) throw Exception{"only one instance"};
+          if (EventLoop::instance)
+              throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                           LogLevel::Fatal, "already exists")};
           EventLoop::instance = true;
 
           io_uring_params params{};
@@ -36,7 +38,8 @@ EventLoop::EventLoop()
               result = ranges::find_if(EventLoop::cpus, [](int value) { return value == -1; });
               if (result != EventLoop::cpus.end()) *result = static_cast<int>(tempUserRing->getSelfFileDescriptor());
               else
-                  throw Exception{"no available cpu"};
+                  throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
+                                               LogLevel::Fatal, "no available cpu")};
 
               tempUserRing->registerCpu(std::distance(EventLoop::cpus.begin(), result));
           }
@@ -116,11 +119,11 @@ auto EventLoop::acceptEvent(int result, unsigned int flags, source_location sour
         this->timer.add(std::move(client));
     } else
         throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                     LogLevel::Fatal, "accept error: " + string{strerror(abs(result))})};
+                                     LogLevel::Error, "accept error: " + string{strerror(abs(result))})};
 
     if (!(flags & IORING_CQE_F_MORE))
         throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                     LogLevel::Fatal, "can not accept")};
+                                     LogLevel::Error, "can not accept")};
 }
 
 auto EventLoop::timeoutEvent(int result, source_location sourceLocation) -> void {
@@ -161,7 +164,7 @@ auto EventLoop::receiveEvent(int result, unsigned int flags, unsigned int fileDe
 auto EventLoop::sendEvent(int result, unsigned int flags, unsigned int fileDescriptor, source_location sourceLocation)
         -> void {
     if ((result == 0 && !(flags & IORING_CQE_F_NOTIF)) || result < 0) {
-        Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
+        Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
                                   "send error: " + string{strerror(abs(result))}));
 
         if (std::abs(result) == ECANCELED) return;
@@ -171,12 +174,12 @@ auto EventLoop::sendEvent(int result, unsigned int flags, unsigned int fileDescr
 }
 
 auto EventLoop::cancelEvent(int result, source_location sourceLocation) -> void {
-    Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
+    Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
                               "cancel error: " + string{strerror(abs(result))}));
 }
 
 auto EventLoop::closeEvent(int result, source_location sourceLocation) -> void {
-    Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
+    Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
                               "close error: " + string{strerror(abs(result))}));
 }
 
