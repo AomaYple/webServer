@@ -200,7 +200,8 @@ auto Http::parsePost(HttpResponse &httpResponse, string_view message, Database &
         for (const auto &subValueView: views::split(valueView, '=')) *point++ = string_view{subValueView};
 
     if (values[0] == "id") {
-        const vector<vector<string>> result{database.consult(format("select * from users where id = {};", values[1]))};
+        const vector<vector<string>> result{
+                database.consult(format("select id, password from users where id = {};", values[1]))};
         if (!result.empty()) {
             if (values[3] == result[0][1]) {
                 const string_view url{"index.html"};
