@@ -4,7 +4,7 @@
 
 using namespace std;
 
-int main() {
+auto main() -> int {
     vector<jthread> works(jthread::hardware_concurrency() - 2);
 
     for (jthread &work: works) {

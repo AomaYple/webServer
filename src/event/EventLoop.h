@@ -38,8 +38,8 @@ private:
     static constinit thread_local bool instance;
     static constinit std::mutex lock;
     static std::vector<int> cpus;
-    static constexpr unsigned int ringEntries{128}, bufferRingBufferSize{1024};
-    static constexpr unsigned short bufferRingEntries{128}, bufferRingId{0}, port{9999};
+    static constexpr unsigned int ringEntries{1024}, bufferRingBufferSize{1024};
+    static constexpr unsigned short bufferRingEntries{1024}, bufferRingId{0}, port{9999};
 
     std::shared_ptr<UserRing> userRing;
     BufferRing bufferRing;
