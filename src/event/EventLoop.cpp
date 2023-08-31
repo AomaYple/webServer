@@ -14,7 +14,7 @@ EventLoop::EventLoop()
     : userRing{[](source_location sourceLocation = source_location::current()) {
           if (EventLoop::instance)
               throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                           LogLevel::Fatal, "already exists")};
+                                           LogLevel::Fatal, "can not create more than one event loop")};
           EventLoop::instance = true;
 
           io_uring_params params{};
