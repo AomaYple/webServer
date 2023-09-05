@@ -1,12 +1,11 @@
 #include "Database.h"
 
-#include "../exception/Exception.h"
-#include "../log/Log.h"
+#include <string>
 
 using namespace std;
 
 Database::Database(string_view host, string_view user, string_view password, string_view database, unsigned short port,
-                   string_view unixSocket, unsigned long clientFlag)
+                   string_view unixSocket, unsigned long clientFlag) noexcept
     : connection{} {
     this->initialize();
 
@@ -15,24 +14,20 @@ Database::Database(string_view host, string_view user, string_view password, str
 
 Database::Database(Database &&other) noexcept : connection{other.connection} { other.connection.host = nullptr; }
 
-auto Database::initialize(source_location sourceLocation) -> void {
+auto Database::initialize() noexcept -> void {
     lock_guard lockGuard{Database::lock};
 
-    if (mysql_init(&this->connection) == nullptr)
-        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                     LogLevel::Fatal, "initialization failed")};
+    if (mysql_init(&this->connection) == nullptr) terminate();
 }
 
 auto Database::connect(string_view host, string_view user, string_view password, string_view database,
-                       unsigned short port, string_view unixSocket, unsigned long clientFlag,
-                       source_location sourceLocation) -> void {
+                       unsigned short port, string_view unixSocket, unsigned long clientFlag) noexcept -> void {
     if (mysql_real_connect(&this->connection, host.data(), user.data(), password.data(), database.data(), port,
                            unixSocket.data(), clientFlag) == nullptr)
-        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                     LogLevel::Fatal, mysql_error(&this->connection))};
+        terminate();
 }
 
-auto Database::consult(string_view statement) -> vector<vector<string>> {
+auto Database::consult(string_view statement) noexcept -> vector<vector<string>> {
     vector<vector<string>> results;
 
     this->query(statement);
@@ -56,20 +51,16 @@ auto Database::consult(string_view statement) -> vector<vector<string>> {
     return results;
 }
 
-auto Database::query(string_view statement, source_location sourceLocation) -> void {
-    if (mysql_real_query(&this->connection, statement.data(), statement.size()) != 0)
-        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                     LogLevel::Fatal, mysql_error(&this->connection))};
+auto Database::query(string_view statement) noexcept -> void {
+    if (mysql_real_query(&this->connection, statement.data(), statement.size()) != 0) terminate();
 }
 
-auto Database::storeResult(source_location sourceLocation) -> MYSQL_RES * {
+auto Database::storeResult() noexcept -> MYSQL_RES * {
     MYSQL_RES *const result{mysql_store_result(&this->connection)};
 
     if (result == nullptr) {
         const string_view error{mysql_error(&this->connection)};
-        if (!error.empty())
-            throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         LogLevel::Fatal, error)};
+        if (!error.empty()) terminate();
     }
 
     return result;

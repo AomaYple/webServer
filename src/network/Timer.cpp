@@ -2,16 +2,14 @@
 
 #include "../base/Submission.h"
 #include "../base/UserData.h"
-#include "../exception/Exception.h"
-#include "../log/Log.h"
 
 #include <sys/timerfd.h>
 
-#include <cstring>
+#include <algorithm>
 
 using namespace std;
 
-auto Timer::create() -> unsigned int {
+auto Timer::create() noexcept -> unsigned int {
     const unsigned int fileDescriptor{Timer::createFileDescriptor()};
 
     Timer::setTime(fileDescriptor);
@@ -19,33 +17,33 @@ auto Timer::create() -> unsigned int {
     return fileDescriptor;
 }
 
-Timer::Timer(unsigned int fileDescriptorIndex, const std::shared_ptr<UserRing> &userRing)
-    : fileDescriptorIndex{fileDescriptorIndex}, now{0}, expireCount{0}, userRing{userRing} {}
+Timer::Timer(unsigned int fileDescriptorIndex) noexcept
+    : fileDescriptorIndex{fileDescriptorIndex}, now{0}, expireCount{0} {}
 
 Timer::Timer(Timer &&other) noexcept
     : fileDescriptorIndex{other.fileDescriptorIndex}, now{other.now}, expireCount{other.expireCount},
-      wheel{std::move(other.wheel)}, location{std::move(other.location)}, userRing{std::move(other.userRing)} {}
+      wheel{std::move(other.wheel)}, location{std::move(other.location)}, awaiter{std::move(other.awaiter)} {}
 
-auto Timer::createFileDescriptor(source_location sourceLocation) -> unsigned int {
+auto Timer::createFileDescriptor() noexcept -> unsigned int {
     const int fileDescriptor{timerfd_create(CLOCK_BOOTTIME, 0)};
 
-    if (fileDescriptor == -1)
-        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                     LogLevel::Fatal, std::strerror(errno))};
+    if (fileDescriptor == -1) terminate();
 
     return fileDescriptor;
 }
 
-auto Timer::setTime(unsigned int fileDescriptor, source_location sourceLocation) -> void {
+auto Timer::setTime(unsigned int fileDescriptor) noexcept -> void {
     const itimerspec time{{1, 0}, {1, 0}};
-    if (timerfd_settime(static_cast<int>(fileDescriptor), 0, &time, nullptr) == -1)
-        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                     LogLevel::Fatal, std::strerror(errno))};
+    if (timerfd_settime(static_cast<int>(fileDescriptor), 0, &time, nullptr) == -1) terminate();
 }
 
-auto Timer::startTiming() -> void {
-    unsigned long offset{0};
-    const Submission submission{this->userRing->getSqe(),
+auto Timer::getFileDescriptorIndex() const noexcept -> unsigned int { return this->fileDescriptorIndex; }
+
+auto Timer::setResult(pair<int, unsigned int> result) noexcept -> void { this->awaiter.setResult(result); }
+
+auto Timer::timing(io_uring_sqe *sqe) noexcept -> const Awaiter & {
+    const unsigned long offset{0};
+    const Submission submission{sqe,
                                 this->fileDescriptorIndex,
                                 {reinterpret_cast<byte *>(&this->expireCount), sizeof(this->expireCount)},
                                 offset};
@@ -54,84 +52,74 @@ auto Timer::startTiming() -> void {
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
+
+    return this->awaiter;
 }
 
-auto Timer::clearTimeout() -> void {
-    while (this->expireCount > 0) {
-        for (auto element{this->wheel[this->now].begin()}; element != this->wheel[this->now].end();) {
-            this->location.erase(element->first);
+auto Timer::clearTimeout() noexcept -> vector<unsigned int> {
+    vector<unsigned int> timeoutFileDescriptors;
 
-            this->wheel[this->now].erase(element++);
-        }
+    while (this->expireCount > 0) {
+        auto &fileDescriptors{this->wheel[this->now]};
+
+        ranges::for_each(fileDescriptors, [&timeoutFileDescriptors, this](unsigned int fileDescriptor) {
+            timeoutFileDescriptors.emplace_back(fileDescriptor);
+
+            this->location.erase(fileDescriptor);
+        });
+
+        fileDescriptors.clear();
 
         this->now = (this->now + 1) % this->wheel.size();
 
         --this->expireCount;
     }
+
+    return timeoutFileDescriptors;
 }
 
-auto Timer::add(Client &&client, source_location sourceLocation) -> void {
-    const unsigned char timeout{client.getTimeout()};
-    if (timeout >= this->wheel.size())
-        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                     LogLevel::Fatal, "timeout is too large")};
-
-    const unsigned int clientFileDescriptorIndex{client.getFileDescriptorIndex()};
+auto Timer::add(unsigned int fileDescriptor, unsigned char timeout) noexcept -> void {
+    if (timeout >= this->wheel.size()) terminate();
 
     const unsigned char point{static_cast<unsigned char>((this->now + timeout) % this->wheel.size())};
 
-    this->location.emplace(clientFileDescriptorIndex, point);
+    this->location.emplace(fileDescriptor, point);
 
-    this->wheel[point].emplace(clientFileDescriptorIndex, std::move(client));
+    this->wheel[point].emplace(fileDescriptor);
 }
 
-auto Timer::getClient(unsigned int clientFileDescriptorIndex) -> Client & {
-    return this->wheel[this->location.at(clientFileDescriptorIndex)].at(clientFileDescriptorIndex);
-}
+auto Timer::update(unsigned int fileDescriptor, unsigned char timeout) noexcept -> void {
+    this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
 
-auto Timer::update(unsigned int clientFileDescriptorIndex, source_location sourceLocation) -> void {
-    Client client{std::move(this->wheel[this->location.at(clientFileDescriptorIndex)].at(clientFileDescriptorIndex))};
-
-    this->wheel[this->location.at(clientFileDescriptorIndex)].erase(clientFileDescriptorIndex);
-
-    const unsigned char timeout{client.getTimeout()};
-    if (timeout >= this->wheel.size())
-        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                     LogLevel::Fatal, "timeout is too large")};
+    if (timeout >= this->wheel.size()) terminate();
 
     const unsigned char point{static_cast<unsigned char>((this->now + timeout) % this->wheel.size())};
 
-    this->wheel[point].emplace(clientFileDescriptorIndex, std::move(client));
-    this->location.at(clientFileDescriptorIndex) = point;
+    this->wheel[point].emplace(fileDescriptor);
+    this->location.at(fileDescriptor) = point;
 }
 
-auto Timer::remove(unsigned int clientFileDescriptorIndex) -> void {
-    this->wheel[this->location.at(clientFileDescriptorIndex)].erase(clientFileDescriptorIndex);
-    this->location.erase(clientFileDescriptorIndex);
+auto Timer::remove(unsigned int fileDescriptor) noexcept -> void {
+    this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
+    this->location.erase(fileDescriptor);
 }
 
-Timer::~Timer() {
-    if (this->userRing != nullptr) {
-        this->cancel();
-
-        this->close();
-    }
-}
-
-auto Timer::cancel() const -> void {
-    const Submission submission{this->userRing->getSqe(), this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
+auto Timer::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
+    const Submission submission{sqe, this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
 
     const UserData userData{EventType::Cancel, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
-    submission.setFlags(IOSQE_FIXED_FILE | IOSQE_IO_LINK | IOSQE_CQE_SKIP_SUCCESS);
+    submission.setFlags(IOSQE_FIXED_FILE);
+
+    return this->awaiter;
 }
 
-auto Timer::close() const -> void {
-    const Submission submission{this->userRing->getSqe(), this->fileDescriptorIndex};
+auto Timer::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
+    const Submission submission{sqe, this->fileDescriptorIndex};
 
     const UserData userData{EventType::Close, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
-    submission.setFlags(IOSQE_CQE_SKIP_SUCCESS);
+    return this->awaiter;
 }

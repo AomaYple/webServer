@@ -16,4 +16,6 @@ auto main() -> int {
 
     EventLoop eventLoop;
     eventLoop.loop();
+
+    return 0;
 }

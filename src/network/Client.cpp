@@ -2,26 +2,24 @@
 
 #include "../base/Submission.h"
 #include "../base/UserData.h"
-#include "../exception/Exception.h"
-#include "../log/Log.h"
 
 using namespace std;
 
-Client::Client(unsigned int fileDescriptorIndex, unsigned char timeout, const shared_ptr<UserRing> &userRing) noexcept
-    : fileDescriptorIndex{fileDescriptorIndex}, timeout{timeout}, userRing{userRing} {}
+Client::Client(unsigned int fileDescriptorIndex, unsigned char timeout) noexcept
+    : fileDescriptorIndex{fileDescriptorIndex}, timeout{timeout} {}
 
 Client::Client(Client &&other) noexcept
     : fileDescriptorIndex{other.fileDescriptorIndex}, timeout{other.timeout},
       receivedData{std::move(other.receivedData)}, unSendData{std::move(other.unSendData)},
-      userRing{std::move(other.userRing)} {}
-
-auto Client::getFileDescriptorIndex() const noexcept -> unsigned int { return this->fileDescriptorIndex; }
+      awaiter{std::move(other.awaiter)} {}
 
 auto Client::getTimeout() const noexcept -> unsigned char { return this->timeout; }
 
-auto Client::receive(unsigned short bufferRingId) const -> void {
+auto Client::setResult(pair<int, unsigned int> result) noexcept -> void { this->awaiter.setResult(result); }
+
+auto Client::startReceive(io_uring_sqe *sqe, unsigned short bufferRingId) const noexcept -> void {
     unsigned int flags{0};
-    const Submission submission{this->userRing->getSqe(), this->fileDescriptorIndex, {}, flags};
+    const Submission submission{sqe, this->fileDescriptorIndex, {}, flags};
 
     const UserData userData{EventType::Receive, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
@@ -31,7 +29,9 @@ auto Client::receive(unsigned short bufferRingId) const -> void {
     submission.setBufferRingId(bufferRingId);
 }
 
-auto Client::writeReceivedData(span<const byte> data) -> void {
+auto Client::receive() const noexcept -> const Awaiter & { return this->awaiter; }
+
+auto Client::writeReceivedData(span<const byte> data) noexcept -> void {
     this->receivedData.insert(this->receivedData.end(), data.begin(), data.end());
 }
 
@@ -42,39 +42,36 @@ auto Client::readReceivedData() noexcept -> vector<byte> {
 
     return data;
 }
-auto Client::send(vector<byte> &&data) -> void {
+
+auto Client::send(io_uring_sqe *sqe, vector<byte> &&data) noexcept -> const Awaiter & {
     this->unSendData = std::move(data);
 
-    const Submission submission{this->userRing->getSqe(), this->fileDescriptorIndex, this->unSendData, 0, 0};
+    const Submission submission{sqe, this->fileDescriptorIndex, this->unSendData, 0, 0};
 
     const UserData userData{EventType::Send, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
+
+    return this->awaiter;
 }
 
-Client::~Client() {
-    if (this->userRing != nullptr) {
-        this->cancel();
-
-        this->close();
-    }
-}
-
-auto Client::cancel() const -> void {
-    const Submission submission{this->userRing->getSqe(), this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
+auto Client::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
+    const Submission submission{sqe, this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
 
     const UserData userData{EventType::Cancel, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
-    submission.setFlags(IOSQE_FIXED_FILE | IOSQE_IO_LINK | IOSQE_CQE_SKIP_SUCCESS);
+    submission.setFlags(IOSQE_FIXED_FILE);
+
+    return this->awaiter;
 }
 
-auto Client::close() const -> void {
-    const Submission submission{this->userRing->getSqe(), this->fileDescriptorIndex};
+auto Client::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
+    const Submission submission{sqe, this->fileDescriptorIndex};
 
     const UserData userData{EventType::Close, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
-    submission.setFlags(IOSQE_CQE_SKIP_SUCCESS);
+    return this->awaiter;
 }

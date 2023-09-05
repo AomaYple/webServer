@@ -1,35 +1,35 @@
 #pragma once
 
 #include "../base/BufferRing.h"
+#include "../coroutine/Generator.h"
 #include "../database/Database.h"
+#include "../network/Client.h"
 #include "../network/Server.h"
 #include "../network/Timer.h"
 
 class EventLoop {
 public:
-    EventLoop();
+    EventLoop() noexcept;
 
     EventLoop(const EventLoop &) = delete;
 
     EventLoop(EventLoop &&) noexcept;
 
-    [[noreturn]] auto loop() -> void;
+    [[noreturn]] auto loop() noexcept -> void;
 
 private:
-    auto acceptEvent(int result, unsigned int flags,
-                     std::source_location sourceLocation = std::source_location::current()) -> void;
+    [[nodiscard]] auto accept() noexcept -> Generator;
 
-    auto timeoutEvent(int result, std::source_location sourceLocation = std::source_location::current()) -> void;
+    [[nodiscard]] auto timing() noexcept -> Generator;
 
-    auto receiveEvent(int result, unsigned int flags, unsigned int fileDescriptor,
-                      std::source_location sourceLocation = std::source_location::current()) -> void;
+    [[nodiscard]] auto receive(unsigned int fileDescriptor,
+                               std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
-    auto sendEvent(int result, unsigned int flags, unsigned int fileDescriptor,
-                   std::source_location sourceLocation = std::source_location::current()) -> void;
+    [[nodiscard]] auto send(unsigned int fileDescriptor) noexcept -> Generator;
 
-    static auto cancelEvent(int result, std::source_location sourceLocation = std::source_location::current()) -> void;
+    [[nodiscard]] auto cancel(unsigned int fileDescriptor) noexcept -> Generator;
 
-    static auto closeEvent(int result, std::source_location sourceLocation = std::source_location::current()) -> void;
+    [[nodiscard]] auto close(unsigned int fileDescriptor) noexcept -> Generator;
 
 public:
     ~EventLoop();
@@ -38,12 +38,14 @@ private:
     static constinit thread_local bool instance;
     static constinit std::mutex lock;
     static std::vector<int> cpus;
-    static constexpr unsigned int ringEntries{1024}, bufferRingBufferSize{1024};
-    static constexpr unsigned short bufferRingEntries{1024}, bufferRingId{0}, port{9999};
+    static constexpr unsigned short ringEntries{1024}, bufferRingBufferSize{1024}, bufferRingEntries{1024}, port{9999};
+    static constexpr unsigned char bufferRingId{0};
 
     std::shared_ptr<UserRing> userRing;
     BufferRing bufferRing;
     Server server;
     Timer timer;
     Database database;
+    std::unordered_map<unsigned int, Client> clients;
+    std::array<std::unordered_map<unsigned int, Generator>, 6> generators;
 };

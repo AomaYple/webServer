@@ -6,15 +6,14 @@
 #include "../http/Http.h"
 #include "../log/Log.h"
 
+#include <algorithm>
 #include <cstring>
 
 using namespace std;
 
-EventLoop::EventLoop()
-    : userRing{[](source_location sourceLocation = source_location::current()) {
-          if (EventLoop::instance)
-              throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                           LogLevel::Fatal, "can not create more than one event loop")};
+EventLoop::EventLoop() noexcept
+    : userRing{[](source_location sourceLocation = source_location::current()) noexcept {
+          if (EventLoop::instance) terminate();
           EventLoop::instance = true;
 
           io_uring_params params{};
@@ -38,8 +37,7 @@ EventLoop::EventLoop()
               result = ranges::find_if(EventLoop::cpus, [](int value) { return value == -1; });
               if (result != EventLoop::cpus.end()) *result = static_cast<int>(tempUserRing->getSelfFileDescriptor());
               else
-                  throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                               LogLevel::Fatal, "no available cpu")};
+                  terminate();
 
               tempUserRing->registerCpu(std::distance(EventLoop::cpus.begin(), result));
           }
@@ -48,7 +46,7 @@ EventLoop::EventLoop()
       }()},
       bufferRing{EventLoop::bufferRingEntries, EventLoop::bufferRingBufferSize, EventLoop::bufferRingId,
                  this->userRing},
-      server{0, this->userRing}, database{{}, "AomaYple", "38820233", "webServer", 0, {}, 0}, timer(1, this->userRing) {
+      server{0}, timer{1}, database{{}, "AomaYple", "38820233", "webServer", 0, {}, 0} {
     this->userRing->registerSelfFileDescriptor();
 
     this->userRing->registerSparseFileDescriptors(UserRing::getFileDescriptorLimit());
@@ -62,12 +60,21 @@ EventLoop::EventLoop()
 
 EventLoop::EventLoop(EventLoop &&other) noexcept
     : userRing{std::move(other.userRing)}, bufferRing{std::move(other.bufferRing)}, server{std::move(other.server)},
-      timer{std::move(other.timer)}, database{std::move(other.database)} {}
+      timer{std::move(other.timer)}, database{std::move(other.database)}, clients{std::move(other.clients)},
+      generators{std::move(other.generators)} {}
 
-auto EventLoop::loop() -> void {
-    this->server.accept();
+auto EventLoop::loop() noexcept -> void {
+    Generator generator{this->accept()};
+    generator.resume();
 
-    this->timer.startTiming();
+    this->generators[static_cast<unsigned char>(EventType::Accept)].emplace(this->server.getFileDescriptorIndex(),
+                                                                            std::move(generator));
+
+    generator = this->timing();
+    generator.resume();
+
+    this->generators[static_cast<unsigned char>(EventType::Timeout)].emplace(this->timer.getFileDescriptorIndex(),
+                                                                             std::move(generator));
 
     while (true) {
         this->userRing->submitWait(1);
@@ -80,27 +87,53 @@ auto EventLoop::loop() -> void {
 
             switch (userData.eventType) {
                 case EventType::Accept:
-                    this->acceptEvent(completion.getResult(), completion.getFlags());
+                    this->server.setResult({completion.getResult(), completion.getFlags()});
+
+                    this->generators[static_cast<unsigned char>(EventType::Accept)]
+                            .at(userData.fileDescriptor)
+                            .resume();
 
                     break;
                 case EventType::Timeout:
-                    this->timeoutEvent(completion.getResult());
+                    this->timer.setResult({completion.getResult(), completion.getFlags()});
+
+                    this->generators[static_cast<unsigned char>(EventType::Timeout)]
+                            .at(userData.fileDescriptor)
+                            .resume();
 
                     break;
                 case EventType::Receive:
-                    this->receiveEvent(completion.getResult(), completion.getFlags(), userData.fileDescriptor);
+                    this->clients.at(userData.fileDescriptor)
+                            .setResult({completion.getResult(), completion.getFlags()});
+
+                    try {
+                        this->generators[static_cast<unsigned char>(EventType::Receive)]
+                                .at(userData.fileDescriptor)
+                                .resume();
+                    } catch (const Exception &exception) { Log::produce(exception.what()); }
 
                     break;
                 case EventType::Send:
-                    this->sendEvent(completion.getResult(), completion.getFlags(), userData.fileDescriptor);
+                    if (completion.getResult() <= 0) {
+                        this->clients.at(userData.fileDescriptor)
+                                .setResult({completion.getResult(), completion.getFlags()});
+
+                        this->generators[static_cast<unsigned char>(EventType::Send)].at(userData.fileDescriptor);
+                    }
 
                     break;
                 case EventType::Cancel:
-                    EventLoop::cancelEvent(completion.getResult());
+                    this->clients.at(userData.fileDescriptor)
+                            .setResult({completion.getResult(), completion.getFlags()});
+
+                    this->generators[static_cast<unsigned char>(EventType::Cancel)].at(userData.fileDescriptor);
 
                     break;
                 case EventType::Close:
-                    EventLoop::closeEvent(completion.getResult());
+                    this->clients.at(userData.fileDescriptor)
+                            .setResult({completion.getResult(), completion.getFlags()});
+
+                    this->generators[static_cast<unsigned char>(EventType::Close)].at(userData.fileDescriptor);
 
                     break;
             }
@@ -110,84 +143,122 @@ auto EventLoop::loop() -> void {
     }
 }
 
-auto EventLoop::acceptEvent(int result, unsigned int flags, source_location sourceLocation) -> void {
-    if (result >= 0) {
-        Client client{static_cast<unsigned int>(result), 60, this->userRing};
+auto EventLoop::accept() noexcept -> Generator {
+    this->server.startAccept(this->userRing->getSqe());
 
-        client.receive(this->bufferRing.getId());
+    while (true) {
+        const pair<int, unsigned int> result{co_await this->server.accept()};
 
-        this->timer.add(std::move(client));
-    } else
-        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                     LogLevel::Error, "accept error: " + string{strerror(abs(result))})};
+        if (!(result.second & IORING_CQE_F_MORE)) terminate();
 
-    if (!(flags & IORING_CQE_F_MORE)) {
-        this->server.accept();
+        if (result.first >= 0) {
+            Client client{static_cast<unsigned int>(result.first), 60};
 
-        Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
-                                  "can not accept"));
+            this->timer.add(result.first, client.getTimeout());
+
+            this->clients.emplace(result.first, std::move(client));
+
+            Generator generator{this->receive(result.first)};
+            generator.resume();
+
+            this->generators[static_cast<unsigned char>(EventType::Receive)].emplace(result.first,
+                                                                                     std::move(generator));
+        } else
+            terminate();
     }
 }
 
-auto EventLoop::timeoutEvent(int result, source_location sourceLocation) -> void {
-    if (result == sizeof(unsigned long)) {
-        this->timer.clearTimeout();
+auto EventLoop::timing() noexcept -> Generator {
+    const pair<int, unsigned int> result{co_await this->timer.timing(this->userRing->getSqe())};
 
-        this->timer.startTiming();
-    } else
-        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                     LogLevel::Fatal, "timeout error: " + string{strerror(abs(result))})};
+    if (result.first == sizeof(unsigned long))
+        ranges::for_each(this->timer.clearTimeout(), [this](unsigned int fileDescriptor) {
+            this->timer.remove(fileDescriptor);
+
+            Generator generator{this->cancel(fileDescriptor)};
+            generator.resume();
+
+            this->generators[static_cast<unsigned char>(EventType::Cancel)].emplace(fileDescriptor,
+                                                                                    std::move(generator));
+        });
+    else
+        terminate();
 }
 
-auto EventLoop::receiveEvent(int result, unsigned int flags, unsigned int fileDescriptor,
-                             source_location sourceLocation) -> void {
-    if (result <= 0) {
-        Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
-                                  "receive error: " + string{strerror(abs(result))}));
+auto EventLoop::receive(unsigned int fileDescriptor, source_location sourceLocation) -> Generator {
+    Client &client{this->clients.at(fileDescriptor)};
 
-        if (abs(result) == ECANCELED) return;
-    }
+    client.startReceive(this->userRing->getSqe(), this->bufferRing.getId());
 
-    if (result > 0) {
-        Client &client{this->timer.getClient(fileDescriptor)};
+    while (true) {
+        const pair<int, unsigned int> result{co_await client.receive()};
 
-        if (!(flags & IORING_CQE_F_MORE)) client.receive(this->bufferRing.getId());
+        if (result.first > 0) {
+            if (!(result.second & IORING_CQE_F_MORE)) terminate();
 
-        client.writeReceivedData(this->bufferRing.getData(flags >> IORING_CQE_BUFFER_SHIFT, result));
+            client.writeReceivedData(this->bufferRing.getData(result.second >> IORING_CQE_BUFFER_SHIFT, result.first));
 
-        if (!(flags & IORING_CQE_F_SOCK_NONEMPTY)) {
-            client.send(Http::parse(client.readReceivedData(), this->database));
+            if (!(result.second & IORING_CQE_F_SOCK_NONEMPTY)) {
+                this->timer.update(fileDescriptor, client.getTimeout());
 
-            this->timer.update(fileDescriptor);
+                Generator generator{this->send(fileDescriptor)};
+                generator.resume();
+
+
+                auto &sendGenerators{this->generators[static_cast<unsigned char>(EventType::Send)]};
+                if (sendGenerators.contains(fileDescriptor)) sendGenerators.at(fileDescriptor) = std::move(generator);
+                else
+                    sendGenerators.emplace(fileDescriptor, std::move(generator));
+            }
+        } else {
+            this->timer.remove(fileDescriptor);
+
+            Generator generator{this->cancel(fileDescriptor)};
+            generator.resume();
+
+            this->generators[static_cast<unsigned char>(EventType::Cancel)].emplace(fileDescriptor,
+                                                                                    std::move(generator));
+
+            throw Exception{Log::formatLog(Log::Level::Info, chrono::system_clock::now(), this_thread::get_id(),
+                                           sourceLocation, "receive error: " + string{strerror(abs(result.first))})};
         }
-    } else
-        this->timer.remove(fileDescriptor);
-}
-
-auto EventLoop::sendEvent(int result, unsigned int flags, unsigned int fileDescriptor, source_location sourceLocation)
-        -> void {
-    if ((result == 0 && !(flags & IORING_CQE_F_NOTIF)) || result < 0) {
-        Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
-                                  "send error: " + string{strerror(abs(result))}));
-
-        if (std::abs(result) == ECANCELED) return;
-
-        this->timer.remove(fileDescriptor);
     }
 }
 
-auto EventLoop::cancelEvent(int result, source_location sourceLocation) -> void {
-    Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
-                              "cancel error: " + string{strerror(abs(result))}));
+auto EventLoop::send(unsigned int fileDescriptor) noexcept -> Generator {
+    Client &client{this->clients.at(fileDescriptor)};
+
+    const pair<int, unsigned int> result{
+            co_await client.send(this->userRing->getSqe(), Http::parse(client.readReceivedData(), this->database))};
+
+    if (result.first != 0 || !(result.second & IORING_CQE_F_NOTIF)) terminate();
 }
 
-auto EventLoop::closeEvent(int result, source_location sourceLocation) -> void {
-    Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Error,
-                              "close error: " + string{strerror(abs(result))}));
+auto EventLoop::cancel(unsigned int fileDescriptor) noexcept -> Generator {
+    const pair<int, unsigned int> result{co_await this->clients.at(fileDescriptor).cancel(this->userRing->getSqe())};
+
+    if (result.first != 0) terminate();
+
+    Generator generator{this->close(fileDescriptor)};
+    generator.resume();
+
+    this->generators[static_cast<unsigned char>(EventType::Close)].emplace(fileDescriptor, std::move(generator));
+}
+
+auto EventLoop::close(unsigned int fileDescriptor) noexcept -> Generator {
+    const pair<int, unsigned int> result{co_await this->clients.at(fileDescriptor).close(this->userRing->getSqe())};
+
+    if (result.first != 0) terminate();
+
+    this->clients.erase(fileDescriptor);
+    ranges::for_each(this->generators, [fileDescriptor](unordered_map<unsigned int, Generator> &element) {
+        element.erase(fileDescriptor);
+    });
 }
 
 EventLoop::~EventLoop() {
     EventLoop::instance = false;
+
     const unsigned int fileDescriptor{this->userRing->getSelfFileDescriptor()};
 
     const lock_guard lockGuard{EventLoop::lock};
@@ -197,8 +268,7 @@ EventLoop::~EventLoop() {
 
     if (result != EventLoop::cpus.end()) *result = -1;
     else
-        Log::produce(Log::combine(chrono::system_clock::now(), this_thread::get_id(), source_location::current(),
-                                  LogLevel::Fatal, "can not find file descriptor"));
+        terminate();
 }
 
 constinit thread_local bool EventLoop::instance{false};

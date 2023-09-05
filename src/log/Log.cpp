@@ -5,36 +5,13 @@
 
 using namespace std;
 
-Log::Node::Node(string_view data, Node *next) : data{data}, next{next} {}
+Log::Node::Node(string_view log, Node *next) noexcept : log{log}, next{next} {}
 
-Log::Log()
-    : logFile{filesystem::current_path().string() + "/log.log", ofstream::trunc}, head{nullptr},
-      work{&Log::loop, this} {}
-
-auto Log::combine(chrono::system_clock::time_point timestamp, jthread::id threadId, source_location sourceLocation,
-                  LogLevel logLevel, string_view text) -> string {
-    constexpr array<string_view, 3> logLevels{"Warn", "Error", "Fatal"};
-
-    ostringstream threadIdStream;
-    threadIdStream << threadId;
-
-    return format("{} {} {}:{}:{}:{} {} {}\n", timestamp, threadIdStream.str(), sourceLocation.file_name(),
-                  sourceLocation.line(), sourceLocation.column(), sourceLocation.function_name(),
-                  logLevels[static_cast<unsigned char>(logLevel)], text);
+Log::Log() noexcept
+    : logFile{filesystem::current_path().string() + "/log.log", ofstream::trunc}, head{nullptr}, work{&Log::run, this} {
 }
 
-auto Log::produce(string_view log) -> void {
-    Node *const newHead{new Node{log, Log::instance.head.load(memory_order_relaxed)}};
-
-    while (!Log::instance.head.compare_exchange_weak(newHead->next, newHead, memory_order_release,
-                                                     memory_order_relaxed))
-        ;
-
-    Log::instance.notice.test_and_set(memory_order_relaxed);
-    Log::instance.notice.notify_one();
-}
-
-auto Log::loop() -> void {
+auto Log::run() noexcept -> void {
     while (true) {
         this->notice.wait(false, memory_order_relaxed);
         this->notice.clear(memory_order_relaxed);
@@ -63,15 +40,38 @@ auto Log::invertLinkedList(Node *pointer) noexcept -> Node * {
     return previous;
 }
 
-auto Log::consume(Node *pointer) -> void {
+auto Log::consume(Node *pointer) noexcept -> void {
     while (pointer != nullptr) {
-        this->logFile << pointer->data;
+        this->logFile << pointer->log;
 
         const Node *const oldPointer{pointer};
         pointer = pointer->next;
 
         delete oldPointer;
     }
+}
+
+auto Log::formatLog(Level level, chrono::system_clock::time_point timestamp, jthread::id jThreadId,
+                    source_location sourceLocation, string_view text) noexcept -> string {
+    constexpr array<string_view, 4> levels{"Info", "Warn", "Error", "Fatal"};
+
+    ostringstream jThreadIdStream;
+    jThreadIdStream << jThreadId;
+
+    return format("{} {} {} {}:{}:{}:{} {}\n", levels[static_cast<unsigned char>(level)], timestamp,
+                  jThreadIdStream.str(), sourceLocation.file_name(), sourceLocation.line(), sourceLocation.column(),
+                  sourceLocation.function_name(), text);
+}
+
+auto Log::produce(string_view log) noexcept -> void {
+    Node *const newHead{new Node{log, Log::instance.head.load(memory_order_relaxed)}};
+
+    while (!Log::instance.head.compare_exchange_weak(newHead->next, newHead, memory_order_release,
+                                                     memory_order_relaxed))
+        ;
+
+    Log::instance.notice.test_and_set(memory_order_relaxed);
+    Log::instance.notice.notify_one();
 }
 
 Log::~Log() {

@@ -15,7 +15,7 @@
 using namespace std;
 
 Http::Http()
-    : resources{[] {
+    : resources{[] noexcept {
           unordered_map<string, vector<byte>> tempResources;
 
           tempResources.emplace("", vector<byte>{});
@@ -33,11 +33,9 @@ Http::Http()
           return tempResources;
       }()} {}
 
-auto Http::readFile(string_view filepath, source_location sourceLocation) -> vector<byte> {
+auto Http::readFile(string_view filepath) noexcept -> vector<byte> {
     ifstream file{string{filepath}, ios::binary | ios::ate};
-    if (!file)
-        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                     LogLevel::Fatal, "file not found: " + string{filepath})};
+    if (!file) terminate();
 
     auto size{file.tellg()};
     file.seekg(0, ios::beg);
@@ -45,13 +43,12 @@ auto Http::readFile(string_view filepath, source_location sourceLocation) -> vec
     vector<byte> buffer(size, byte{0});
 
     file.read(reinterpret_cast<char *>(buffer.data()), size);
-    if (file.gcount() != size)
-        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                     LogLevel::Fatal, "file read error: " + string{filepath})};
+    if (file.gcount() != size) terminate();
+
     return buffer;
 }
 
-auto Http::brotli(span<const byte> data, source_location sourceLocation) -> vector<byte> {
+auto Http::brotli(span<const byte> data) noexcept -> vector<byte> {
     unsigned long size{BrotliEncoderMaxCompressedSize(data.size())};
 
     vector<byte> buffer(size, byte{0});
@@ -59,18 +56,18 @@ auto Http::brotli(span<const byte> data, source_location sourceLocation) -> vect
     if (BrotliEncoderCompress(BROTLI_MAX_QUALITY, BROTLI_MAX_WINDOW_BITS, BROTLI_DEFAULT_MODE, data.size(),
                               reinterpret_cast<const unsigned char *>(data.data()), &size,
                               reinterpret_cast<unsigned char *>(buffer.data())) != BROTLI_TRUE)
-        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                     LogLevel::Fatal, "brotli compress error")};
+        terminate();
 
     buffer.resize(size);
 
     return buffer;
 }
 
-auto Http::parse(span<const byte> request, Database &database, source_location sourceLocation) -> vector<byte> {
+auto Http::parse(span<const byte> request, Database &database) noexcept -> vector<byte> {
     HttpResponse httpResponse;
 
-    const HttpRequest httpRequest{HttpRequest::parse(reinterpret_cast<const char *>(request.data()))};
+    const HttpRequest httpRequest{
+            HttpRequest::parse(string_view{reinterpret_cast<const char *>(request.data()), request.size()})};
 
     try {
         Http::parseVersion(httpResponse, httpRequest.getVersion());
@@ -85,8 +82,8 @@ auto Http::parse(span<const byte> request, Database &database, source_location s
             httpResponse.addHeader("Content-Length: 0");
             httpResponse.setBody({});
 
-            throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         LogLevel::Warn, "unsupported HTTP method: " + string{method})};
+            throw Exception{Log::formatLog(Log::Level::Info, chrono::system_clock::now(), this_thread::get_id(),
+                                           source_location::current(), "unsupported HTTP method: " + string{method})};
         }
     } catch (const Exception &exception) { Log::produce(exception.what()); }
 
@@ -100,8 +97,8 @@ auto Http::parseVersion(HttpResponse &httpResponse, string_view version, source_
         httpResponse.addHeader("Content-Length: 0");
         httpResponse.setBody({});
 
-        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
-                                     "unsupported HTTP version: " + string{version})};
+        throw Exception{Log::formatLog(Log::Level::Info, chrono::system_clock::now(), this_thread::get_id(),
+                                       sourceLocation, "unsupported HTTP version: " + string{version})};
     }
 
     httpResponse.setVersion(version);
@@ -125,14 +122,14 @@ auto Http::parseUrl(HttpResponse &httpResponse, string_view url, source_location
         httpResponse.addHeader("Content-Length: 0");
         httpResponse.setBody({});
 
-        throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation, LogLevel::Warn,
-                                     "resource not found: " + string{url})};
+        throw Exception{Log::formatLog(Log::Level::Info, chrono::system_clock::now(), this_thread::get_id(),
+                                       sourceLocation, "resource not found: " + string{url})};
     }
 
     return result->second;
 }
 
-auto Http::parseTypeEncoding(HttpResponse &httpResponse, string_view url) -> void {
+auto Http::parseTypeEncoding(HttpResponse &httpResponse, string_view url) noexcept -> void {
     if (url.ends_with("html")) {
         httpResponse.addHeader("Content-Type: text/html; charset=utf-8");
         httpResponse.addHeader("Content-Encoding: br");
@@ -172,8 +169,8 @@ auto Http::parseResource(HttpResponse &httpResponse, string_view range, span<con
             httpResponse.addHeader("Content-Length: 0");
             httpResponse.setBody({});
 
-            throw Exception{Log::combine(chrono::system_clock::now(), this_thread::get_id(), sourceLocation,
-                                         LogLevel::Warn, "invalid range: " + string{range})};
+            throw Exception{Log::formatLog(Log::Level::Info, chrono::system_clock::now(), this_thread::get_id(),
+                                           sourceLocation, "range not satisfiable: " + string{range})};
         }
 
         httpResponse.addHeader("Content-Range: bytes " + stringStart + "-" + stringEnd + "/" + to_string(body.size()));
@@ -192,7 +189,7 @@ auto Http::parseResource(HttpResponse &httpResponse, string_view range, span<con
     httpResponse.setBody(writeBody ? body : span<const byte>{});
 }
 
-auto Http::parsePost(HttpResponse &httpResponse, string_view message, Database &database) -> void {
+auto Http::parsePost(HttpResponse &httpResponse, string_view message, Database &database) noexcept -> void {
     httpResponse.setStatusCode("200 OK");
 
     array<string_view, 4> values;
@@ -228,6 +225,7 @@ auto Http::parsePost(HttpResponse &httpResponse, string_view message, Database &
         }
     } else {
         database.consult(format("insert into users (password) values ('{}');", values[1]));
+
         const vector<vector<string>> result{database.consult("select last_insert_id();")};
 
         httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");

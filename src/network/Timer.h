@@ -1,49 +1,53 @@
 #pragma once
 
-#include "Client.h"
+#include "../coroutine/Awaiter.h"
+
+#include <liburing.h>
+
+#include <array>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 class Timer {
 public:
-    static auto create() -> unsigned int;
+    static auto create() noexcept -> unsigned int;
 
-    Timer(unsigned int fileDescriptorIndex, const std::shared_ptr<UserRing> &userRing);
+    explicit Timer(unsigned int fileDescriptorIndex) noexcept;
 
     Timer(const Timer &) = delete;
 
     Timer(Timer &&) noexcept;
 
 private:
-    static auto createFileDescriptor(std::source_location sourceLocation = std::source_location::current())
-            -> unsigned int;
+    [[nodiscard]] static auto createFileDescriptor() noexcept -> unsigned int;
 
-    static auto setTime(unsigned int fileDescriptor,
-                        std::source_location sourceLocation = std::source_location::current()) -> void;
+    static auto setTime(unsigned int fileDescriptor) noexcept -> void;
 
 public:
-    auto startTiming() -> void;
+    [[nodiscard]] auto getFileDescriptorIndex() const noexcept -> unsigned int;
 
-    auto clearTimeout() -> void;
+    auto setResult(std::pair<int, unsigned int> result) noexcept -> void;
 
-    auto add(Client &&client, std::source_location sourceLocation = std::source_location::current()) -> void;
+    [[nodiscard]] auto timing(io_uring_sqe *sqe) noexcept -> const Awaiter &;
 
-    auto getClient(unsigned int clientFileDescriptorIndex) -> Client &;
+    [[nodiscard]] auto clearTimeout() noexcept -> std::vector<unsigned int>;
 
-    auto update(unsigned int clientFileDescriptorIndex,
-                std::source_location sourceLocation = std::source_location::current()) -> void;
+    auto add(unsigned int fileDescriptor, unsigned char timeout) noexcept -> void;
 
-    auto remove(unsigned int clientFileDescriptorIndex) -> void;
+    auto update(unsigned int fileDescriptor, unsigned char timeout) noexcept -> void;
 
-    ~Timer();
+    auto remove(unsigned int fileDescriptor) noexcept -> void;
+
+    [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
+
+    [[nodiscard]] auto close(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
 private:
-    auto cancel() const -> void;
-
-    auto close() const -> void;
-
     const unsigned int fileDescriptorIndex;
     unsigned char now;
     unsigned long expireCount;
-    std::array<std::unordered_map<unsigned int, Client>, 61> wheel;
+    std::array<std::unordered_set<unsigned int>, 61> wheel;
     std::unordered_map<unsigned int, unsigned char> location;
-    std::shared_ptr<UserRing> userRing;
+    Awaiter awaiter;
 };

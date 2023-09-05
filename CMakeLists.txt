@@ -16,6 +16,9 @@ add_executable(${PROJECT_NAME}
         src/base/UserData.cpp
         src/base/UserRing.cpp
 
+        src/coroutine/Awaiter.cpp
+        src/coroutine/Generator.cpp
+
         src/database/Database.cpp
 
         src/event/EventLoop.cpp

@@ -1,38 +1,41 @@
 #pragma once
 
-#include "../base/UserRing.h"
+#include "../coroutine/Awaiter.h"
 
-#include <memory>
+#include <liburing.h>
+
+#include <span>
+#include <vector>
 
 class Client {
 public:
-    Client(unsigned int fileDescriptorIndex, unsigned char timeout, const std::shared_ptr<UserRing> &userRing) noexcept;
+    Client(unsigned int fileDescriptorIndex, unsigned char timeout) noexcept;
 
     Client(const Client &) = delete;
 
     Client(Client &&) noexcept;
 
-    [[nodiscard]] auto getFileDescriptorIndex() const noexcept -> unsigned int;
-
     [[nodiscard]] auto getTimeout() const noexcept -> unsigned char;
 
-    auto receive(unsigned short bufferRingId) const -> void;
+    auto setResult(std::pair<int, unsigned int> result) noexcept -> void;
 
-    auto writeReceivedData(std::span<const std::byte> data) -> void;
+    auto startReceive(io_uring_sqe *sqe, unsigned short bufferRingId) const noexcept -> void;
 
-    auto readReceivedData() noexcept -> std::vector<std::byte>;
+    [[nodiscard]] auto receive() const noexcept -> const Awaiter &;
 
-    auto send(std::vector<std::byte> &&data) -> void;
+    auto writeReceivedData(std::span<const std::byte> data) noexcept -> void;
 
-    ~Client();
+    [[nodiscard]] auto readReceivedData() noexcept -> std::vector<std::byte>;
+
+    [[nodiscard]] auto send(io_uring_sqe *sqe, std::vector<std::byte> &&data) noexcept -> const Awaiter &;
+
+    [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
+
+    [[nodiscard]] auto close(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
 private:
-    auto cancel() const -> void;
-
-    auto close() const -> void;
-
     const unsigned int fileDescriptorIndex;
     const unsigned char timeout;
     std::vector<std::byte> receivedData, unSendData;
-    std::shared_ptr<UserRing> userRing;
+    Awaiter awaiter;
 };

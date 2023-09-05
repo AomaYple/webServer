@@ -4,39 +4,42 @@
 #include <source_location>
 #include <thread>
 
-enum class LogLevel : unsigned char { Warn, Error, Fatal };
-
 class Log {
+public:
+    enum class Level : unsigned char { Info, Warn, Error, Fatal };
+
+private:
     struct Node {
-        Node(std::string_view data, Node *next);
+        Node(std::string_view log, Node *next) noexcept;
 
         Node(const Node &) = delete;
 
         Node(Node &&) noexcept = default;
 
-        std::string data;
+        const std::string log;
         Node *next;
     };
 
-    Log();
+    Log() noexcept;
+
+    [[noreturn]] auto run() noexcept -> void;
+
+    [[nodiscard]] static auto invertLinkedList(Node *pointer) noexcept -> Node *;
+
+    auto consume(Node *pointer) noexcept -> void;
 
 public:
     Log(const Log &) = delete;
 
     Log(Log &&) = delete;
 
-    static auto combine(std::chrono::system_clock::time_point timestamp, std::jthread::id threadId,
-                        std::source_location sourceLocation, LogLevel logLevel, std::string_view text) -> std::string;
+    [[nodiscard]] static auto formatLog(Level level, std::chrono::system_clock::time_point timestamp,
+                                        std::jthread::id jThreadId, std::source_location sourceLocation,
+                                        std::string_view text) noexcept -> std::string;
 
-    static auto produce(std::string_view log) -> void;
+    static auto produce(std::string_view log) noexcept -> void;
 
 private:
-    [[noreturn]] auto loop() -> void;
-
-    static auto invertLinkedList(Node *pointer) noexcept -> Node *;
-
-    auto consume(Node *pointer) -> void;
-
     ~Log();
 
     static Log instance;
