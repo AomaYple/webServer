@@ -7,15 +7,15 @@
 struct HttpResponse {
     constexpr HttpResponse() noexcept = default;
 
-    auto setVersion(std::string_view newVersion) noexcept -> void;
+    auto setVersion(std::string_view newVersion) -> void;
 
-    auto setStatusCode(std::string_view newStatusCode) noexcept -> void;
+    auto setStatusCode(std::string_view newStatusCode) -> void;
 
-    auto addHeader(std::string_view header) noexcept -> void;
+    auto addHeader(std::string_view header) -> void;
 
-    auto setBody(std::span<const std::byte> newBody) noexcept -> void;
+    auto setBody(std::span<const std::byte> newBody) -> void;
 
-    [[nodiscard]] auto combine() const noexcept -> std::vector<std::byte>;
+    auto combine() const -> std::vector<std::byte>;
 
 private:
     std::vector<std::byte> version, statusCode, headers, body;

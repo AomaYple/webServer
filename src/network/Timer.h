@@ -5,43 +5,49 @@
 #include <liburing.h>
 
 #include <array>
+#include <source_location>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
 class Timer {
 public:
-    static auto create() noexcept -> unsigned int;
+    static auto create() -> unsigned int;
 
-    explicit Timer(unsigned int fileDescriptorIndex) noexcept;
+    explicit Timer(unsigned int fileDescriptorIndex);
 
     Timer(const Timer &) = delete;
 
     Timer(Timer &&) noexcept;
 
 private:
-    [[nodiscard]] static auto createFileDescriptor() noexcept -> unsigned int;
+    [[nodiscard]] static auto
+    createFileDescriptor(__clockid_t clockId, int flags,
+                         std::source_location sourceLocation = std::source_location::current()) -> int;
 
-    static auto setTime(unsigned int fileDescriptor) noexcept -> void;
+    static auto setTime(int fileDescriptor, int flags, const itimerspec &newTime, itimerspec *oldTime,
+                        std::source_location sourceLocation = std::source_location::current()) -> void;
 
 public:
-    [[nodiscard]] auto getFileDescriptorIndex() const noexcept -> unsigned int;
-
-    auto setResult(std::pair<int, unsigned int> result) noexcept -> void;
+    auto getFileDescriptorIndex() const noexcept -> unsigned int;
 
     [[nodiscard]] auto timing(io_uring_sqe *sqe) noexcept -> const Awaiter &;
 
-    [[nodiscard]] auto clearTimeout() noexcept -> std::vector<unsigned int>;
+    [[nodiscard]] auto clearTimeout() -> std::vector<unsigned int>;
 
-    auto add(unsigned int fileDescriptor, unsigned char timeout) noexcept -> void;
+    auto add(unsigned int fileDescriptor, unsigned char timeout,
+             std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto update(unsigned int fileDescriptor, unsigned char timeout) noexcept -> void;
+    auto update(unsigned int fileDescriptor, unsigned char timeout,
+                std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto remove(unsigned int fileDescriptor) noexcept -> void;
+    auto remove(unsigned int fileDescriptor) -> void;
 
     [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
     [[nodiscard]] auto close(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
+
+    auto setResult(std::pair<int, unsigned int> result) noexcept -> void;
 
 private:
     const unsigned int fileDescriptorIndex;

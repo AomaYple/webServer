@@ -6,19 +6,16 @@
 
 class Submission {
 public:
-    Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, sockaddr *address, socklen_t *addressLength,
-               unsigned int flags) noexcept;
+    Submission(io_uring_sqe *sqe, int fileDescriptor, sockaddr *address, socklen_t *addressLength, int flags) noexcept;
 
-    Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, std::span<std::byte> buffer,
-               unsigned long offset) noexcept;
+    Submission(io_uring_sqe *sqe, int fileDescriptor, std::span<std::byte> buffer, __u64 offset) noexcept;
 
-    Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, std::span<std::byte> buffer,
-               unsigned int flags) noexcept;
+    Submission(io_uring_sqe *sqe, int fileDescriptor, std::span<std::byte> buffer, int flags) noexcept;
 
-    Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, std::span<const std::byte> buffer, unsigned int flags,
-               unsigned char zeroCopyFlags) noexcept;
+    Submission(io_uring_sqe *sqe, int fileDescriptor, std::span<const std::byte> buffer, int flags,
+               unsigned int zeroCopyFlags) noexcept;
 
-    Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, unsigned char flags) noexcept;
+    Submission(io_uring_sqe *sqe, int fileDescriptor, unsigned int flags) noexcept;
 
     Submission(io_uring_sqe *sqe, unsigned int fileDescriptorIndex) noexcept;
 
@@ -26,11 +23,11 @@ public:
 
     Submission(Submission &&) noexcept = default;
 
-    auto setUserData(unsigned long userData) const noexcept -> void;
+    auto setUserData(__u64 userData) const noexcept -> void;
 
-    auto setFlags(unsigned char flags) const noexcept -> void;
+    auto setFlags(unsigned int flags) const noexcept -> void;
 
-    auto setBufferRingId(unsigned short bufferRingId) const noexcept -> void;
+    auto setBufferRingId(__u16 bufferRingId) const noexcept -> void;
 
 private:
     io_uring_sqe *const submission;

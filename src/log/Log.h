@@ -10,7 +10,7 @@ public:
 
 private:
     struct Node {
-        Node(std::string_view log, Node *next) noexcept;
+        Node(std::string_view log, Node *next);
 
         Node(const Node &) = delete;
 
@@ -20,24 +20,23 @@ private:
         Node *next;
     };
 
-    Log() noexcept;
+    Log();
 
-    [[noreturn]] auto run() noexcept -> void;
+    [[noreturn]] auto run() -> void;
 
-    [[nodiscard]] static auto invertLinkedList(Node *pointer) noexcept -> Node *;
+    static auto invertLinkedList(Node *pointer) noexcept -> Node *;
 
-    auto consume(Node *pointer) noexcept -> void;
+    auto consume(Node *pointer) -> void;
 
 public:
     Log(const Log &) = delete;
 
     Log(Log &&) = delete;
 
-    [[nodiscard]] static auto formatLog(Level level, std::chrono::system_clock::time_point timestamp,
-                                        std::jthread::id jThreadId, std::source_location sourceLocation,
-                                        std::string_view text) noexcept -> std::string;
+    static auto formatLog(Level level, std::chrono::system_clock::time_point timestamp, std::jthread::id jThreadId,
+                          std::source_location sourceLocation, std::string_view text) -> std::string;
 
-    static auto produce(std::string_view log) noexcept -> void;
+    static auto produce(std::string_view log) -> void;
 
 private:
     ~Log();

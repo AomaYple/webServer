@@ -15,7 +15,7 @@
 using namespace std;
 
 Http::Http()
-    : resources{[] noexcept {
+    : resources{[] {
           unordered_map<string, vector<byte>> tempResources;
 
           tempResources.emplace("", vector<byte>{});
@@ -33,41 +33,45 @@ Http::Http()
           return tempResources;
       }()} {}
 
-auto Http::readFile(string_view filepath) noexcept -> vector<byte> {
+auto Http::readFile(string_view filepath, source_location sourceLocation) -> vector<byte> {
     ifstream file{string{filepath}, ios::binary | ios::ate};
-    if (!file) terminate();
+    if (!file)
+        throw Exception{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
+                                       sourceLocation, "file not found: " + string{filepath})};
 
-    auto size{file.tellg()};
+    const auto size{file.tellg()};
     file.seekg(0, ios::beg);
 
     vector<byte> buffer(size, byte{0});
 
     file.read(reinterpret_cast<char *>(buffer.data()), size);
-    if (file.gcount() != size) terminate();
+    if (file.gcount() != size)
+        throw Exception{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
+                                       sourceLocation, "file read error: " + string{filepath})};
 
     return buffer;
 }
 
-auto Http::brotli(span<const byte> data) noexcept -> vector<byte> {
-    unsigned long size{BrotliEncoderMaxCompressedSize(data.size())};
+auto Http::brotli(span<const byte> data, source_location sourceLocation) -> vector<byte> {
+    size_t size{BrotliEncoderMaxCompressedSize(data.size())};
 
     vector<byte> buffer(size, byte{0});
 
     if (BrotliEncoderCompress(BROTLI_MAX_QUALITY, BROTLI_MAX_WINDOW_BITS, BROTLI_DEFAULT_MODE, data.size(),
                               reinterpret_cast<const unsigned char *>(data.data()), &size,
                               reinterpret_cast<unsigned char *>(buffer.data())) != BROTLI_TRUE)
-        terminate();
+        throw Exception{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
+                                       sourceLocation, "brotli compression error")};
 
     buffer.resize(size);
 
     return buffer;
 }
 
-auto Http::parse(span<const byte> request, Database &database) noexcept -> vector<byte> {
+auto Http::parse(string_view request, Database &database) -> vector<byte> {
     HttpResponse httpResponse;
 
-    const HttpRequest httpRequest{
-            HttpRequest::parse(string_view{reinterpret_cast<const char *>(request.data()), request.size()})};
+    const HttpRequest httpRequest{HttpRequest::parse(request)};
 
     try {
         Http::parseVersion(httpResponse, httpRequest.getVersion());
@@ -82,7 +86,7 @@ auto Http::parse(span<const byte> request, Database &database) noexcept -> vecto
             httpResponse.addHeader("Content-Length: 0");
             httpResponse.setBody({});
 
-            throw Exception{Log::formatLog(Log::Level::Info, chrono::system_clock::now(), this_thread::get_id(),
+            throw Exception{Log::formatLog(Log::Level::Warn, chrono::system_clock::now(), this_thread::get_id(),
                                            source_location::current(), "unsupported HTTP method: " + string{method})};
         }
     } catch (const Exception &exception) { Log::produce(exception.what()); }
@@ -97,7 +101,7 @@ auto Http::parseVersion(HttpResponse &httpResponse, string_view version, source_
         httpResponse.addHeader("Content-Length: 0");
         httpResponse.setBody({});
 
-        throw Exception{Log::formatLog(Log::Level::Info, chrono::system_clock::now(), this_thread::get_id(),
+        throw Exception{Log::formatLog(Log::Level::Warn, chrono::system_clock::now(), this_thread::get_id(),
                                        sourceLocation, "unsupported HTTP version: " + string{version})};
     }
 
@@ -122,14 +126,14 @@ auto Http::parseUrl(HttpResponse &httpResponse, string_view url, source_location
         httpResponse.addHeader("Content-Length: 0");
         httpResponse.setBody({});
 
-        throw Exception{Log::formatLog(Log::Level::Info, chrono::system_clock::now(), this_thread::get_id(),
+        throw Exception{Log::formatLog(Log::Level::Warn, chrono::system_clock::now(), this_thread::get_id(),
                                        sourceLocation, "resource not found: " + string{url})};
     }
 
     return result->second;
 }
 
-auto Http::parseTypeEncoding(HttpResponse &httpResponse, string_view url) noexcept -> void {
+auto Http::parseTypeEncoding(HttpResponse &httpResponse, string_view url) -> void {
     if (url.ends_with("html")) {
         httpResponse.addHeader("Content-Type: text/html; charset=utf-8");
         httpResponse.addHeader("Content-Encoding: br");
@@ -169,7 +173,7 @@ auto Http::parseResource(HttpResponse &httpResponse, string_view range, span<con
             httpResponse.addHeader("Content-Length: 0");
             httpResponse.setBody({});
 
-            throw Exception{Log::formatLog(Log::Level::Info, chrono::system_clock::now(), this_thread::get_id(),
+            throw Exception{Log::formatLog(Log::Level::Warn, chrono::system_clock::now(), this_thread::get_id(),
                                            sourceLocation, "range not satisfiable: " + string{range})};
         }
 
@@ -189,7 +193,7 @@ auto Http::parseResource(HttpResponse &httpResponse, string_view range, span<con
     httpResponse.setBody(writeBody ? body : span<const byte>{});
 }
 
-auto Http::parsePost(HttpResponse &httpResponse, string_view message, Database &database) noexcept -> void {
+auto Http::parsePost(HttpResponse &httpResponse, string_view message, Database &database) -> void {
     httpResponse.setStatusCode("200 OK");
 
     array<string_view, 4> values;
@@ -210,7 +214,7 @@ auto Http::parsePost(HttpResponse &httpResponse, string_view message, Database &
             } else {
                 httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");
 
-                const string body{"wrong password"};
+                const string_view body{"wrong password"};
 
                 httpResponse.addHeader("Content-Length: " + to_string(body.size()));
                 httpResponse.setBody(as_bytes(span{body}));
@@ -218,7 +222,7 @@ auto Http::parsePost(HttpResponse &httpResponse, string_view message, Database &
         } else {
             httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");
 
-            const string body{"wrong id"};
+            const string_view body{"wrong id"};
 
             httpResponse.addHeader("Content-Length: " + to_string(body.size()));
             httpResponse.setBody(as_bytes(span{body}));

@@ -5,13 +5,13 @@
 
 using namespace std;
 
-Log::Node::Node(string_view log, Node *next) noexcept : log{log}, next{next} {}
+Log::Node::Node(string_view log, Node *next) : log{log}, next{next} {}
 
-Log::Log() noexcept
+Log::Log()
     : logFile{filesystem::current_path().string() + "/log.log", ofstream::trunc}, head{nullptr}, work{&Log::run, this} {
 }
 
-auto Log::run() noexcept -> void {
+auto Log::run() -> void {
     while (true) {
         this->notice.wait(false, memory_order_relaxed);
         this->notice.clear(memory_order_relaxed);
@@ -40,9 +40,10 @@ auto Log::invertLinkedList(Node *pointer) noexcept -> Node * {
     return previous;
 }
 
-auto Log::consume(Node *pointer) noexcept -> void {
+auto Log::consume(Node *pointer) -> void {
     while (pointer != nullptr) {
         this->logFile << pointer->log;
+        this->logFile.flush();
 
         const Node *const oldPointer{pointer};
         pointer = pointer->next;
@@ -52,7 +53,7 @@ auto Log::consume(Node *pointer) noexcept -> void {
 }
 
 auto Log::formatLog(Level level, chrono::system_clock::time_point timestamp, jthread::id jThreadId,
-                    source_location sourceLocation, string_view text) noexcept -> string {
+                    source_location sourceLocation, string_view text) -> string {
     constexpr array<string_view, 4> levels{"Info", "Warn", "Error", "Fatal"};
 
     ostringstream jThreadIdStream;
@@ -63,7 +64,7 @@ auto Log::formatLog(Level level, chrono::system_clock::time_point timestamp, jth
                   sourceLocation.function_name(), text);
 }
 
-auto Log::produce(string_view log) noexcept -> void {
+auto Log::produce(string_view log) -> void {
     Node *const newHead{new Node{log, Log::instance.head.load(memory_order_relaxed)}};
 
     while (!Log::instance.head.compare_exchange_weak(newHead->next, newHead, memory_order_release,

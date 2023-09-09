@@ -2,50 +2,55 @@
 
 #include "../base/Submission.h"
 #include "../base/UserData.h"
+#include "../exception/Exception.h"
+#include "../log/Log.h"
 
 #include <sys/timerfd.h>
 
 #include <algorithm>
+#include <cstring>
 
 using namespace std;
 
-auto Timer::create() noexcept -> unsigned int {
-    const unsigned int fileDescriptor{Timer::createFileDescriptor()};
+auto Timer::create() -> unsigned int {
+    const int fileDescriptor{Timer::createFileDescriptor(CLOCK_MONOTONIC, 0)};
 
-    Timer::setTime(fileDescriptor);
+    const itimerspec time{{1, 0}, {1, 0}};
+    Timer::setTime(fileDescriptor, 0, time, nullptr);
 
-    return fileDescriptor;
+    return static_cast<unsigned int>(fileDescriptor);
 }
 
-Timer::Timer(unsigned int fileDescriptorIndex) noexcept
-    : fileDescriptorIndex{fileDescriptorIndex}, now{0}, expireCount{0} {}
+Timer::Timer(unsigned int fileDescriptorIndex) : fileDescriptorIndex{fileDescriptorIndex}, now{0}, expireCount{0} {}
 
 Timer::Timer(Timer &&other) noexcept
     : fileDescriptorIndex{other.fileDescriptorIndex}, now{other.now}, expireCount{other.expireCount},
       wheel{std::move(other.wheel)}, location{std::move(other.location)}, awaiter{std::move(other.awaiter)} {}
 
-auto Timer::createFileDescriptor() noexcept -> unsigned int {
-    const int fileDescriptor{timerfd_create(CLOCK_BOOTTIME, 0)};
+auto Timer::createFileDescriptor(__clockid_t clockId, int flags, source_location sourceLocation) -> int {
+    const int fileDescriptor{timerfd_create(clockId, flags)};
 
-    if (fileDescriptor == -1) terminate();
+    if (fileDescriptor == -1)
+        throw Exception{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
+                                       sourceLocation, strerror(errno))};
 
     return fileDescriptor;
 }
 
-auto Timer::setTime(unsigned int fileDescriptor) noexcept -> void {
-    const itimerspec time{{1, 0}, {1, 0}};
-    if (timerfd_settime(static_cast<int>(fileDescriptor), 0, &time, nullptr) == -1) terminate();
+auto Timer::setTime(int fileDescriptor, int flags, const itimerspec &newTime, itimerspec *oldTime,
+                    source_location sourceLocation) -> void {
+    if (timerfd_settime(fileDescriptor, flags, &newTime, oldTime) == -1)
+        throw Exception{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
+                                       sourceLocation, strerror(errno))};
 }
 
 auto Timer::getFileDescriptorIndex() const noexcept -> unsigned int { return this->fileDescriptorIndex; }
 
-auto Timer::setResult(pair<int, unsigned int> result) noexcept -> void { this->awaiter.setResult(result); }
-
 auto Timer::timing(io_uring_sqe *sqe) noexcept -> const Awaiter & {
-    const unsigned long offset{0};
+    const unsigned long long offset{0};
     const Submission submission{sqe,
-                                this->fileDescriptorIndex,
-                                {reinterpret_cast<byte *>(&this->expireCount), sizeof(this->expireCount)},
+                                static_cast<int>(this->fileDescriptorIndex),
+                                {as_writable_bytes(span{&this->expireCount, 1})},
                                 offset};
 
     const UserData userData{EventType::Timeout, this->fileDescriptorIndex};
@@ -56,7 +61,7 @@ auto Timer::timing(io_uring_sqe *sqe) noexcept -> const Awaiter & {
     return this->awaiter;
 }
 
-auto Timer::clearTimeout() noexcept -> vector<unsigned int> {
+auto Timer::clearTimeout() -> vector<unsigned int> {
     vector<unsigned int> timeoutFileDescriptors;
 
     while (this->expireCount > 0) {
@@ -78,20 +83,23 @@ auto Timer::clearTimeout() noexcept -> vector<unsigned int> {
     return timeoutFileDescriptors;
 }
 
-auto Timer::add(unsigned int fileDescriptor, unsigned char timeout) noexcept -> void {
-    if (timeout >= this->wheel.size()) terminate();
+auto Timer::add(unsigned int fileDescriptor, unsigned char timeout, source_location sourceLocation) -> void {
+    if (timeout >= this->wheel.size())
+        throw Exception{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
+                                       sourceLocation, "timeout is too large")};
 
     const unsigned char point{static_cast<unsigned char>((this->now + timeout) % this->wheel.size())};
 
     this->location.emplace(fileDescriptor, point);
-
     this->wheel[point].emplace(fileDescriptor);
 }
 
-auto Timer::update(unsigned int fileDescriptor, unsigned char timeout) noexcept -> void {
+auto Timer::update(unsigned int fileDescriptor, unsigned char timeout, source_location sourceLocation) -> void {
     this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
 
-    if (timeout >= this->wheel.size()) terminate();
+    if (timeout >= this->wheel.size())
+        throw Exception{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
+                                       sourceLocation, "timeout is too large")};
 
     const unsigned char point{static_cast<unsigned char>((this->now + timeout) % this->wheel.size())};
 
@@ -99,13 +107,13 @@ auto Timer::update(unsigned int fileDescriptor, unsigned char timeout) noexcept 
     this->location.at(fileDescriptor) = point;
 }
 
-auto Timer::remove(unsigned int fileDescriptor) noexcept -> void {
+auto Timer::remove(unsigned int fileDescriptor) -> void {
     this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
     this->location.erase(fileDescriptor);
 }
 
 auto Timer::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
-    const Submission submission{sqe, this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
+    const Submission submission{sqe, static_cast<int>(this->fileDescriptorIndex), IORING_ASYNC_CANCEL_ALL};
 
     const UserData userData{EventType::Cancel, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
@@ -123,3 +131,5 @@ auto Timer::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
 
     return this->awaiter;
 }
+
+auto Timer::setResult(pair<int, unsigned int> result) noexcept -> void { this->awaiter.setResult(result); }

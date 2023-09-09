@@ -6,8 +6,8 @@
 
 class BufferRing {
 public:
-    BufferRing(unsigned int entries, unsigned int bufferSize, unsigned short id,
-               const std::shared_ptr<UserRing> &userRing) noexcept;
+    BufferRing(unsigned short entries, unsigned int bufferSize, unsigned short id,
+               const std::shared_ptr<UserRing> &userRing);
 
     BufferRing(const BufferRing &) = delete;
 
@@ -17,9 +17,9 @@ private:
     auto add(unsigned short index) noexcept -> void;
 
 public:
-    [[nodiscard]] auto getId() const noexcept -> unsigned short;
+    auto getId() const noexcept -> unsigned short;
 
-    [[nodiscard]] auto getData(unsigned short bufferIndex, unsigned int dataSize) noexcept -> std::vector<std::byte>;
+    auto getData(unsigned short bufferIndex, unsigned int dataSize) -> std::vector<std::byte>;
 
     auto advanceCompletionBufferRingBuffer(unsigned int completionCount) noexcept -> void;
 

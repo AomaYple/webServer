@@ -9,6 +9,8 @@ set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME})
 
+set(CMAKE_CXX_FLAGS -fsanitize=address)
+
 add_executable(${PROJECT_NAME}
         src/base/BufferRing.cpp
         src/base/Completion.cpp
@@ -21,6 +23,7 @@ add_executable(${PROJECT_NAME}
 
         src/database/Database.cpp
 
+        src/event/Connection.cpp
         src/event/EventLoop.cpp
 
         src/exception/Exception.cpp

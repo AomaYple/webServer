@@ -3,33 +3,37 @@
 #include "../base/BufferRing.h"
 #include "../coroutine/Generator.h"
 #include "../database/Database.h"
-#include "../network/Client.h"
 #include "../network/Server.h"
 #include "../network/Timer.h"
 
+struct Connection;
+
 class EventLoop {
 public:
-    EventLoop() noexcept;
+    EventLoop();
 
     EventLoop(const EventLoop &) = delete;
 
     EventLoop(EventLoop &&) noexcept;
 
-    [[noreturn]] auto loop() noexcept -> void;
+    [[noreturn]] auto loop() -> void;
 
 private:
-    [[nodiscard]] auto accept() noexcept -> Generator;
+    [[nodiscard]] auto accept(std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
-    [[nodiscard]] auto timing() noexcept -> Generator;
+    [[nodiscard]] auto timing(std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
-    [[nodiscard]] auto receive(unsigned int fileDescriptor,
+    [[nodiscard]] auto receive(Connection &connection,
                                std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
-    [[nodiscard]] auto send(unsigned int fileDescriptor) noexcept -> Generator;
+    [[nodiscard]] auto send(Connection &connection,
+                            std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
-    [[nodiscard]] auto cancel(unsigned int fileDescriptor) noexcept -> Generator;
+    [[nodiscard]] auto cancel(Connection &connection,
+                              std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
-    [[nodiscard]] auto close(unsigned int fileDescriptor) noexcept -> Generator;
+    [[nodiscard]] auto close(Connection &connection,
+                             std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
 public:
     ~EventLoop();
@@ -46,6 +50,6 @@ private:
     Server server;
     Timer timer;
     Database database;
-    std::unordered_map<unsigned int, Client> clients;
-    std::array<std::unordered_map<unsigned int, Generator>, 6> generators;
+    Generator serverGenerator, timerGenerator;
+    std::unordered_map<unsigned int, Connection> connections;
 };

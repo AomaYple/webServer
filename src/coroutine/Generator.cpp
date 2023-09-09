@@ -1,10 +1,11 @@
 #include "Generator.h"
 
 #include <exception>
+#include <utility>
 
 using namespace std;
 
-auto Generator::promise_type::get_return_object() noexcept -> Generator {
+auto Generator::promise_type::get_return_object() -> Generator {
     return Generator{coroutine_handle<promise_type>::from_promise(*this)};
 }
 
@@ -12,13 +13,10 @@ auto Generator::promise_type::unhandled_exception() const -> void { rethrow_exce
 
 Generator::Generator(coroutine_handle<promise_type> handle) noexcept : handle{handle} {}
 
-Generator::Generator(Generator &&other) noexcept : handle{other.handle} { other.handle = nullptr; }
+Generator::Generator(Generator &&other) noexcept : handle{exchange(other.handle, nullptr)} {}
 
 auto Generator::operator=(Generator &&other) noexcept -> Generator & {
-    if (this != &other) {
-        this->handle = other.handle;
-        other.handle = nullptr;
-    }
+    if (this != &other) this->handle = exchange(other.handle, nullptr);
     return *this;
 }
 
