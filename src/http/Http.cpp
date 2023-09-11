@@ -200,45 +200,50 @@ auto Http::parsePost(HttpResponse &httpResponse, string_view message, Database &
     for (auto point{values.begin()}; const auto &valueView: views::split(message, '&'))
         for (const auto &subValueView: views::split(valueView, '=')) *point++ = string_view{subValueView};
 
-    if (values[0] == "id") {
-        const vector<vector<string>> result{
-                database.consult(format("select id, password from users where id = {};", values[1]))};
-        if (!result.empty()) {
-            if (values[3] == result[0][1]) {
-                const string_view url{"index.html"};
+    if (values[0] == "id") Http::parseLogin(httpResponse, values[1], values[3], database);
+    else
+        Http::parseRegister(httpResponse, values[1], database);
+}
 
-                const span<const byte> body{Http::instance.parseUrl(httpResponse, url)};
-                Http::parseTypeEncoding(httpResponse, url);
+auto Http::parseLogin(HttpResponse &httpResponse, string_view id, string_view password, Database &database) -> void {
+    const vector<vector<string>> result{database.consult(format("select id, password from users where id = {};", id))};
+    if (!result.empty()) {
+        if (password == result[0][1]) {
+            constexpr string_view url{"index.html"};
 
-                Http::parseResource(httpResponse, "", body, true);
-            } else {
-                httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");
+            const span<const byte> body{Http::instance.parseUrl(httpResponse, url)};
+            Http::parseTypeEncoding(httpResponse, url);
 
-                const string_view body{"wrong password"};
-
-                httpResponse.addHeader("Content-Length: " + to_string(body.size()));
-                httpResponse.setBody(as_bytes(span{body}));
-            }
+            Http::parseResource(httpResponse, "", body, true);
         } else {
             httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");
 
-            const string_view body{"wrong id"};
+            constexpr string_view body{"wrong password"};
 
             httpResponse.addHeader("Content-Length: " + to_string(body.size()));
             httpResponse.setBody(as_bytes(span{body}));
         }
     } else {
-        database.consult(format("insert into users (password) values ('{}');", values[1]));
-
-        const vector<vector<string>> result{database.consult("select last_insert_id();")};
-
         httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");
 
-        const string body{"id is " + result[0][0]};
+        constexpr string_view body{"wrong id"};
 
         httpResponse.addHeader("Content-Length: " + to_string(body.size()));
         httpResponse.setBody(as_bytes(span{body}));
     }
+}
+
+auto Http::parseRegister(HttpResponse &httpResponse, string_view password, Database &database) -> void {
+    database.consult(format("insert into users (password) values ('{}');", password));
+
+    const vector<vector<string>> result{database.consult("select last_insert_id();")};
+
+    httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");
+
+    const string body{"id is " + result[0][0]};
+
+    httpResponse.addHeader("Content-Length: " + to_string(body.size()));
+    httpResponse.setBody(as_bytes(span{body}));
 }
 
 const Http Http::instance;

@@ -15,7 +15,7 @@ struct HttpResponse {
 
     auto setBody(std::span<const std::byte> newBody) -> void;
 
-    auto combine() const -> std::vector<std::byte>;
+    [[nodiscard]] auto combine() const -> std::vector<std::byte>;
 
 private:
     std::vector<std::byte> version, statusCode, headers, body;

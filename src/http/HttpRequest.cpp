@@ -24,7 +24,7 @@ auto HttpRequest::parse(string_view request) -> HttpRequest {
         isBody = value.empty();
     }
 
-    return HttpRequest{result[0], result[1], result[2], result[3], header};
+    return HttpRequest{result[0], result[1], result[2], result[3], std::move(header)};
 }
 
 auto HttpRequest::parseLine(string_view line) -> array<string_view, 3> {
@@ -49,7 +49,7 @@ auto HttpRequest::parseHeader(string_view header) -> pair<string_view, string_vi
 }
 
 HttpRequest::HttpRequest(string_view method, string_view url, string_view version, string_view body,
-                         unordered_map<string_view, string_view> header)
+                         unordered_map<string_view, string_view> &&header)
     : method{method}, url{url}, version{version}, body{body}, headers{std::move(header)} {}
 
 auto HttpRequest::getVersion() const noexcept -> string_view { return this->version; }

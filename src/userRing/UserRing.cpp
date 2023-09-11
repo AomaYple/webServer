@@ -72,7 +72,7 @@ auto UserRing::updateFileDescriptors(unsigned int offset, span<const int> fileDe
                                        sourceLocation, strerror(abs(result)))};
 }
 
-auto UserRing::setupBufferRing(unsigned short entries, int id, source_location sourceLocation) -> io_uring_buf_ring * {
+auto UserRing::setupBufferRing(unsigned int entries, int id, source_location sourceLocation) -> io_uring_buf_ring * {
     int result;
 
     io_uring_buf_ring *const bufferRing{io_uring_setup_buf_ring(&this->userRing, entries, id, 0, &result)};
@@ -83,7 +83,7 @@ auto UserRing::setupBufferRing(unsigned short entries, int id, source_location s
     return bufferRing;
 }
 
-auto UserRing::freeBufferRing(io_uring_buf_ring *bufferRing, unsigned short entries, int id,
+auto UserRing::freeBufferRing(io_uring_buf_ring *bufferRing, unsigned int entries, int id,
                               source_location sourceLocation) -> void {
     const int result{io_uring_free_buf_ring(&this->userRing, bufferRing, entries, id)};
     if (result < 0)
@@ -91,8 +91,8 @@ auto UserRing::freeBufferRing(io_uring_buf_ring *bufferRing, unsigned short entr
                                        sourceLocation, strerror(abs(result)))};
 }
 
-auto UserRing::submitWait(unsigned int count, source_location sourceLocation) -> void {
-    const int result{io_uring_submit_and_wait(&this->userRing, count)};
+auto UserRing::submitWait(unsigned int waitCount, source_location sourceLocation) -> void {
+    const int result{io_uring_submit_and_wait(&this->userRing, waitCount)};
     if (result < 0)
         throw Exception{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
                                        sourceLocation, strerror(abs(result)))};

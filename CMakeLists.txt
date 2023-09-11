@@ -9,22 +9,11 @@ set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME})
 
-set(CMAKE_CXX_FLAGS -fsanitize=address)
-
 add_executable(${PROJECT_NAME}
-        src/base/BufferRing.cpp
-        src/base/Completion.cpp
-        src/base/Submission.cpp
-        src/base/UserData.cpp
-        src/base/UserRing.cpp
-
         src/coroutine/Awaiter.cpp
-        src/coroutine/Generator.cpp
+        src/coroutine/Task.cpp
 
         src/database/Database.cpp
-
-        src/event/Connection.cpp
-        src/event/EventLoop.cpp
 
         src/exception/Exception.cpp
 
@@ -37,6 +26,14 @@ add_executable(${PROJECT_NAME}
         src/network/Client.cpp
         src/network/Server.cpp
         src/network/Timer.cpp
+
+        src/scheduler/Scheduler.cpp
+
+        src/userRing/BufferRing.cpp
+        src/userRing/Completion.cpp
+        src/userRing/Submission.cpp
+        src/userRing/UserData.cpp
+        src/userRing/UserRing.cpp
 
         src/main.cpp
 )

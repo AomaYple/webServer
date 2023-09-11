@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../coroutine/Awaiter.h"
+#include "../coroutine/Task.h"
 
 #include <liburing.h>
 
@@ -12,7 +13,7 @@
 
 class Timer {
 public:
-    static auto create() -> unsigned int;
+    [[nodiscard]] static auto create() -> unsigned int;
 
     explicit Timer(unsigned int fileDescriptorIndex);
 
@@ -29,9 +30,13 @@ private:
                         std::source_location sourceLocation = std::source_location::current()) -> void;
 
 public:
-    auto getFileDescriptorIndex() const noexcept -> unsigned int;
+    [[nodiscard]] auto getFileDescriptorIndex() const noexcept -> unsigned int;
 
     [[nodiscard]] auto timing(io_uring_sqe *sqe) noexcept -> const Awaiter &;
+
+    auto setTimingTask(Task &&task) noexcept -> void;
+
+    auto resumeTiming(std::pair<int, unsigned int> result) -> void;
 
     [[nodiscard]] auto clearTimeout() -> std::vector<unsigned int>;
 
@@ -45,9 +50,15 @@ public:
 
     [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
+    auto setCancelTask(Task &&task) noexcept -> void;
+
+    auto resumeCancel(std::pair<int, unsigned int> result) -> void;
+
     [[nodiscard]] auto close(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
-    auto setResult(std::pair<int, unsigned int> result) noexcept -> void;
+    auto setCloseTask(Task &&task) noexcept -> void;
+
+    auto resumeClose(std::pair<int, unsigned int> result) -> void;
 
 private:
     const unsigned int fileDescriptorIndex;
@@ -55,5 +66,6 @@ private:
     unsigned long expireCount;
     std::array<std::unordered_set<unsigned int>, 61> wheel;
     std::unordered_map<unsigned int, unsigned char> location;
+    Task timingTask, cancelTask, closeTask;
     Awaiter awaiter;
 };

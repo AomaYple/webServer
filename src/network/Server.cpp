@@ -1,9 +1,9 @@
 #include "Server.h"
 
-#include "../base/Submission.h"
-#include "../base/UserData.h"
 #include "../exception/Exception.h"
 #include "../log/Log.h"
+#include "../userRing/Submission.h"
+#include "../userRing/UserData.h"
 
 #include <arpa/inet.h>
 
@@ -30,10 +30,13 @@ auto Server::create(unsigned short port) -> unsigned int {
     return static_cast<unsigned int>(fileDescriptor);
 }
 
-Server::Server(unsigned int fileDescriptorIndex) noexcept : fileDescriptorIndex{fileDescriptorIndex} {}
+Server::Server(unsigned int fileDescriptorIndex) noexcept
+    : fileDescriptorIndex{fileDescriptorIndex}, acceptTask{nullptr}, cancelTask{nullptr}, closeTask{nullptr} {}
 
 Server::Server(Server &&other) noexcept
-    : fileDescriptorIndex{other.fileDescriptorIndex}, awaiter{std::move(other.awaiter)} {}
+    : fileDescriptorIndex{other.fileDescriptorIndex}, acceptTask{std::move(other.acceptTask)},
+      cancelTask{std::move(other.cancelTask)}, closeTask{std::move(other.closeTask)},
+      awaiter{std::move(other.awaiter)} {}
 
 auto Server::socket(int domain, int type, int protocol, source_location sourceLocation) -> int {
     const int fileDescriptor{::socket(domain, type, protocol)};
@@ -77,7 +80,7 @@ auto Server::getFileDescriptorIndex() const noexcept -> unsigned int { return th
 auto Server::startAccept(io_uring_sqe *sqe) const noexcept -> void {
     const Submission submission{sqe, static_cast<int>(this->fileDescriptorIndex), nullptr, nullptr, 0};
 
-    const UserData userData{EventType::Accept, this->fileDescriptorIndex};
+    const UserData userData{TaskType::Accept, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
@@ -85,10 +88,18 @@ auto Server::startAccept(io_uring_sqe *sqe) const noexcept -> void {
 
 auto Server::accept() const noexcept -> const Awaiter & { return this->awaiter; }
 
+auto Server::setAcceptTask(Task &&task) noexcept -> void { this->acceptTask = std::move(task); }
+
+auto Server::resumeAccept(pair<int, unsigned int> result) -> void {
+    this->awaiter.setResult(result);
+
+    this->acceptTask.resume();
+}
+
 auto Server::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, static_cast<int>(this->fileDescriptorIndex), IORING_ASYNC_CANCEL_ALL};
 
-    const UserData userData{EventType::Cancel, this->fileDescriptorIndex};
+    const UserData userData{TaskType::Cancel, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
@@ -96,13 +107,27 @@ auto Server::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     return this->awaiter;
 }
 
+auto Server::setCancelTask(Task &&task) noexcept -> void { this->cancelTask = std::move(task); }
+
+auto Server::resumeCancel(pair<int, unsigned int> result) -> void {
+    this->awaiter.setResult(result);
+
+    this->cancelTask.resume();
+}
+
 auto Server::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, this->fileDescriptorIndex};
 
-    const UserData userData{EventType::Close, this->fileDescriptorIndex};
+    const UserData userData{TaskType::Close, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     return this->awaiter;
 }
 
-auto Server::setResult(pair<int, unsigned int> result) noexcept -> void { this->awaiter.setResult(result); }
+auto Server::setCloseTask(Task &&task) noexcept -> void { this->closeTask = std::move(task); }
+
+auto Server::resumeClose(pair<int, unsigned int> result) -> void {
+    this->awaiter.setResult(result);
+
+    this->closeTask.resume();
+}

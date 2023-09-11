@@ -69,7 +69,7 @@ auto Database::storeResult(source_location sourceLocation) -> MYSQL_RES * {
         const string_view error{mysql_error(&this->connection)};
         if (!error.empty())
             throw Exception{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
-                                           sourceLocation, error)};
+                                           sourceLocation, string{error})};
     }
 
     return result;

@@ -2,11 +2,11 @@
 
 using namespace std;
 
-BufferRing::BufferRing(unsigned short entries, unsigned int bufferSize, unsigned short id,
+BufferRing::BufferRing(unsigned short bufferCount, unsigned int bufferSize, unsigned short id,
                        const shared_ptr<UserRing> &userRing)
-    : bufferRing{userRing->setupBufferRing(entries, id)},
-      buffers{vector<vector<byte>>(entries, vector<byte>(bufferSize, byte{0}))}, id{id},
-      mask{static_cast<unsigned short>(io_uring_buf_ring_mask(entries))}, offset{0}, userRing{userRing} {
+    : bufferRing{userRing->setupBufferRing(bufferCount, id)},
+      buffers{vector<vector<byte>>(bufferCount, vector<byte>(bufferSize, byte{0}))}, id{id},
+      mask{static_cast<unsigned short>(io_uring_buf_ring_mask(bufferCount))}, offset{0}, userRing{userRing} {
     for (unsigned short i{0}; i < static_cast<unsigned short>(this->buffers.size()); ++i) this->add(i);
 
     this->advanceCompletionBufferRingBuffer(0);

@@ -1,9 +1,9 @@
 #include "Timer.h"
 
-#include "../base/Submission.h"
-#include "../base/UserData.h"
 #include "../exception/Exception.h"
 #include "../log/Log.h"
+#include "../userRing/Submission.h"
+#include "../userRing/UserData.h"
 
 #include <sys/timerfd.h>
 
@@ -21,11 +21,15 @@ auto Timer::create() -> unsigned int {
     return static_cast<unsigned int>(fileDescriptor);
 }
 
-Timer::Timer(unsigned int fileDescriptorIndex) : fileDescriptorIndex{fileDescriptorIndex}, now{0}, expireCount{0} {}
+Timer::Timer(unsigned int fileDescriptorIndex)
+    : fileDescriptorIndex{fileDescriptorIndex}, now{0}, expireCount{0}, timingTask{nullptr}, cancelTask{nullptr},
+      closeTask{nullptr} {}
 
 Timer::Timer(Timer &&other) noexcept
     : fileDescriptorIndex{other.fileDescriptorIndex}, now{other.now}, expireCount{other.expireCount},
-      wheel{std::move(other.wheel)}, location{std::move(other.location)}, awaiter{std::move(other.awaiter)} {}
+      wheel{std::move(other.wheel)}, location{std::move(other.location)}, timingTask{std::move(other.timingTask)},
+      cancelTask{std::move(other.cancelTask)}, closeTask{std::move(other.closeTask)},
+      awaiter{std::move(other.awaiter)} {}
 
 auto Timer::createFileDescriptor(__clockid_t clockId, int flags, source_location sourceLocation) -> int {
     const int fileDescriptor{timerfd_create(clockId, flags)};
@@ -53,12 +57,20 @@ auto Timer::timing(io_uring_sqe *sqe) noexcept -> const Awaiter & {
                                 {as_writable_bytes(span{&this->expireCount, 1})},
                                 offset};
 
-    const UserData userData{EventType::Timeout, this->fileDescriptorIndex};
+    const UserData userData{TaskType::Timeout, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
 
     return this->awaiter;
+}
+
+auto Timer::setTimingTask(Task &&task) noexcept -> void { this->timingTask = std::move(task); }
+
+auto Timer::resumeTiming(pair<int, unsigned int> result) -> void {
+    this->awaiter.setResult(result);
+
+    this->timingTask.resume();
 }
 
 auto Timer::clearTimeout() -> vector<unsigned int> {
@@ -115,7 +127,7 @@ auto Timer::remove(unsigned int fileDescriptor) -> void {
 auto Timer::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, static_cast<int>(this->fileDescriptorIndex), IORING_ASYNC_CANCEL_ALL};
 
-    const UserData userData{EventType::Cancel, this->fileDescriptorIndex};
+    const UserData userData{TaskType::Cancel, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
@@ -123,13 +135,27 @@ auto Timer::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     return this->awaiter;
 }
 
+auto Timer::setCancelTask(Task &&task) noexcept -> void { this->cancelTask = std::move(task); }
+
+auto Timer::resumeCancel(pair<int, unsigned int> result) -> void {
+    this->awaiter.setResult(result);
+
+    this->cancelTask.resume();
+}
+
 auto Timer::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, this->fileDescriptorIndex};
 
-    const UserData userData{EventType::Close, this->fileDescriptorIndex};
+    const UserData userData{TaskType::Close, this->fileDescriptorIndex};
     submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
 
     return this->awaiter;
 }
 
-auto Timer::setResult(pair<int, unsigned int> result) noexcept -> void { this->awaiter.setResult(result); }
+auto Timer::setCloseTask(Task &&task) noexcept -> void { this->closeTask = std::move(task); }
+
+auto Timer::resumeClose(pair<int, unsigned int> result) -> void {
+    this->awaiter.setResult(result);
+
+    this->closeTask.resume();
+}

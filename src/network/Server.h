@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../coroutine/Awaiter.h"
+#include "../coroutine/Task.h"
 
 #include <liburing.h>
 
@@ -35,19 +36,30 @@ private:
                        std::source_location sourceLocation = std::source_location::current()) -> void;
 
 public:
-    auto getFileDescriptorIndex() const noexcept -> unsigned int;
+    [[nodiscard]] auto getFileDescriptorIndex() const noexcept -> unsigned int;
 
     auto startAccept(io_uring_sqe *sqe) const noexcept -> void;
 
-    auto accept() const noexcept -> const Awaiter &;
+    [[nodiscard]] auto accept() const noexcept -> const Awaiter &;
+
+    auto setAcceptTask(Task &&task) noexcept -> void;
+
+    auto resumeAccept(std::pair<int, unsigned int> result) -> void;
 
     [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
+    auto setCancelTask(Task &&task) noexcept -> void;
+
+    auto resumeCancel(std::pair<int, unsigned int> result) -> void;
+
     [[nodiscard]] auto close(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
-    auto setResult(std::pair<int, unsigned int> result) noexcept -> void;
+    auto setCloseTask(Task &&task) noexcept -> void;
+
+    auto resumeClose(std::pair<int, unsigned int> result) -> void;
 
 private:
     const unsigned int fileDescriptorIndex;
+    Task acceptTask, cancelTask, closeTask;
     Awaiter awaiter;
 };

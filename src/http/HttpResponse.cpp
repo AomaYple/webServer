@@ -35,7 +35,7 @@ auto HttpResponse::addHeader(string_view header) -> void {
     this->headers.emplace_back(byte{'\n'});
 }
 
-auto HttpResponse::setBody(std::span<const std::byte> newBody) -> void {
+auto HttpResponse::setBody(span<const byte> newBody) -> void {
     this->body.clear();
 
     this->body.emplace_back(byte{'\r'});

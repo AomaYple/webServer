@@ -1,6 +1,6 @@
 ## 项目介绍
 
-本项目是linux下一个基于c++23和liburing的异步高并发Proactor模式服务器，利用liburing的特性实现真正的异步收发
+本项目是linux下一个基于c++23和协程的liburing的异步高并发Proactor模式服务器，利用liburing的特性实现真正的异步收发
 
 ## 项目测试
 
@@ -46,7 +46,7 @@ cd build/webServer
 
 ## 并发模型
 
-每个线程都独立的持有一个io_uring实例和server实例，之间互不干扰，每个线程都是一个独立的事件循环，不用为了线程间同步用锁降低性能，利用SO_REUSEADDR和SO_REUSEPORT让多个独立的server绑定到同一地址和端口上，新连接随机分配到一个server上，然后处理连接的读写和释放
+每个线程都独立的持有一个调度器，之间互不干扰，每个调度器都是一个独立的任务循环，不用为了线程间同步用锁降低性能，利用SO_REUSEADDR和SO_REUSEPORT让多个独立的server绑定到同一地址和端口上，新连接随机分配到一个server上，然后处理连接的读写和释放，调度器会自动管理协程的注册，恢复和删除
 
 ## 定时器
 
