@@ -1,10 +1,12 @@
 #pragma once
 
-enum class TaskType : unsigned char { Accept, Timeout, Receive, Send, Cancel, Close };
+#include <cstdint>
+
+enum class TaskType : uint8_t { Accept, Timeout, Receive, Send, Cancel, Close };
 
 struct UserData {
-    UserData(TaskType taskType, unsigned int fileDescriptor) noexcept;
+    UserData(TaskType taskType, uint32_t fileDescriptor) noexcept;
 
     const TaskType taskType;
-    const unsigned int fileDescriptor;
+    const uint32_t fileDescriptor;
 };

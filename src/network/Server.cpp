@@ -11,10 +11,10 @@
 
 using namespace std;
 
-auto Server::create(unsigned short port) -> unsigned int {
-    const int fileDescriptor{Server::socket(AF_INET, SOCK_STREAM, 0)};
+auto Server::create(uint16_t port) -> uint32_t {
+    const int32_t fileDescriptor{Server::socket(AF_INET, SOCK_STREAM, 0)};
 
-    const int optionValue{1};
+    const int32_t optionValue{1};
     Server::setSocketOption(fileDescriptor, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, as_bytes(span{&optionValue, 1}));
 
     sockaddr_in address{};
@@ -27,10 +27,10 @@ auto Server::create(unsigned short port) -> unsigned int {
 
     Server::listen(fileDescriptor, SOMAXCONN);
 
-    return static_cast<unsigned int>(fileDescriptor);
+    return static_cast<uint32_t>(fileDescriptor);
 }
 
-Server::Server(unsigned int fileDescriptorIndex) noexcept
+Server::Server(uint32_t fileDescriptorIndex) noexcept
     : fileDescriptorIndex{fileDescriptorIndex}, acceptTask{nullptr}, cancelTask{nullptr}, closeTask{nullptr} {}
 
 Server::Server(Server &&other) noexcept
@@ -75,13 +75,13 @@ auto Server::listen(int fileDescriptor, int number, source_location sourceLocati
                                        sourceLocation, strerror(errno))};
 }
 
-auto Server::getFileDescriptorIndex() const noexcept -> unsigned int { return this->fileDescriptorIndex; }
+auto Server::getFileDescriptorIndex() const noexcept -> uint32_t { return this->fileDescriptorIndex; }
 
 auto Server::startAccept(io_uring_sqe *sqe) const noexcept -> void {
-    const Submission submission{sqe, static_cast<int>(this->fileDescriptorIndex), nullptr, nullptr, 0};
+    const Submission submission{sqe, static_cast<int32_t>(this->fileDescriptorIndex), nullptr, nullptr, 0};
 
     const UserData userData{TaskType::Accept, this->fileDescriptorIndex};
-    submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
+    submission.setUserData(reinterpret_cast<const uint64_t &>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
 }
@@ -90,17 +90,17 @@ auto Server::accept() const noexcept -> const Awaiter & { return this->awaiter; 
 
 auto Server::setAcceptTask(Task &&task) noexcept -> void { this->acceptTask = std::move(task); }
 
-auto Server::resumeAccept(pair<int, unsigned int> result) -> void {
+auto Server::resumeAccept(pair<int32_t, uint32_t> result) -> void {
     this->awaiter.setResult(result);
 
     this->acceptTask.resume();
 }
 
 auto Server::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
-    const Submission submission{sqe, static_cast<int>(this->fileDescriptorIndex), IORING_ASYNC_CANCEL_ALL};
+    const Submission submission{sqe, static_cast<int32_t>(this->fileDescriptorIndex), IORING_ASYNC_CANCEL_ALL};
 
     const UserData userData{TaskType::Cancel, this->fileDescriptorIndex};
-    submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
+    submission.setUserData(reinterpret_cast<const uint64_t &>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
 
@@ -109,7 +109,7 @@ auto Server::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
 
 auto Server::setCancelTask(Task &&task) noexcept -> void { this->cancelTask = std::move(task); }
 
-auto Server::resumeCancel(pair<int, unsigned int> result) -> void {
+auto Server::resumeCancel(pair<int32_t, uint32_t> result) -> void {
     this->awaiter.setResult(result);
 
     this->cancelTask.resume();
@@ -119,14 +119,14 @@ auto Server::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, this->fileDescriptorIndex};
 
     const UserData userData{TaskType::Close, this->fileDescriptorIndex};
-    submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
+    submission.setUserData(reinterpret_cast<const uint64_t &>(userData));
 
     return this->awaiter;
 }
 
 auto Server::setCloseTask(Task &&task) noexcept -> void { this->closeTask = std::move(task); }
 
-auto Server::resumeClose(pair<int, unsigned int> result) -> void {
+auto Server::resumeClose(pair<int32_t, uint32_t> result) -> void {
     this->awaiter.setResult(result);
 
     this->closeTask.resume();

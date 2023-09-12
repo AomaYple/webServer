@@ -42,7 +42,7 @@ auto Http::readFile(string_view filepath, source_location sourceLocation) -> vec
     const auto size{file.tellg()};
     file.seekg(0, ios::beg);
 
-    vector<byte> buffer(size, byte{0});
+    vector<byte> buffer((size * sizeof(char)) / sizeof(byte), byte{0});
 
     file.read(reinterpret_cast<char *>(buffer.data()), size);
     if (file.gcount() != size)
@@ -55,15 +55,15 @@ auto Http::readFile(string_view filepath, source_location sourceLocation) -> vec
 auto Http::brotli(span<const byte> data, source_location sourceLocation) -> vector<byte> {
     size_t size{BrotliEncoderMaxCompressedSize(data.size())};
 
-    vector<byte> buffer(size, byte{0});
+    vector<byte> buffer((size * sizeof(uint8_t)) / sizeof(byte), byte{0});
 
     if (BrotliEncoderCompress(BROTLI_MAX_QUALITY, BROTLI_MAX_WINDOW_BITS, BROTLI_DEFAULT_MODE, data.size(),
-                              reinterpret_cast<const unsigned char *>(data.data()), &size,
-                              reinterpret_cast<unsigned char *>(buffer.data())) != BROTLI_TRUE)
+                              reinterpret_cast<const uint8_t *>(data.data()), &size,
+                              reinterpret_cast<uint8_t *>(buffer.data())) != BROTLI_TRUE)
         throw Exception{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
                                        sourceLocation, "brotli compression error")};
 
-    buffer.resize(size);
+    buffer.resize((size * sizeof(uint8_t)) / sizeof(byte));
 
     return buffer;
 }

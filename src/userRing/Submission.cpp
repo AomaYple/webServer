@@ -10,17 +10,17 @@ Submission::Submission(io_uring_sqe *sqe, int fileDescriptor, sockaddr *address,
 
 Submission::Submission(io_uring_sqe *sqe, int fileDescriptor, span<byte> buffer, __u64 offset) noexcept
     : submission{sqe} {
-    io_uring_prep_read(this->submission, fileDescriptor, buffer.data(), buffer.size(), offset);
+    io_uring_prep_read(this->submission, fileDescriptor, buffer.data(), buffer.size_bytes(), offset);
 }
 
 Submission::Submission(io_uring_sqe *sqe, int fileDescriptor, span<byte> buffer, int flags) noexcept : submission{sqe} {
-    io_uring_prep_recv_multishot(this->submission, fileDescriptor, buffer.data(), buffer.size(), flags);
+    io_uring_prep_recv_multishot(this->submission, fileDescriptor, buffer.data(), buffer.size_bytes(), flags);
 }
 
 Submission::Submission(io_uring_sqe *sqe, int fileDescriptor, span<const byte> buffer, int flags,
                        unsigned int zeroCopyFlags) noexcept
     : submission{sqe} {
-    io_uring_prep_send_zc(this->submission, fileDescriptor, buffer.data(), buffer.size(), flags, zeroCopyFlags);
+    io_uring_prep_send_zc(this->submission, fileDescriptor, buffer.data(), buffer.size_bytes(), flags, zeroCopyFlags);
 }
 
 Submission::Submission(io_uring_sqe *sqe, int fileDescriptor, unsigned int flags) noexcept : submission{sqe} {

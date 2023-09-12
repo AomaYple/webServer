@@ -6,7 +6,7 @@
 
 class Log {
 public:
-    enum class Level : unsigned char { Info, Warn, Error, Fatal };
+    enum class Level : uint8_t { Info, Warn, Error, Fatal };
 
 private:
     struct Node {

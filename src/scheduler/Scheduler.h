@@ -35,7 +35,7 @@ private:
 
     static constinit thread_local bool instance;
     static constinit std::mutex lock;
-    static constinit int sharedFileDescriptor;
+    static constinit int32_t sharedFileDescriptor;
     static constinit std::atomic_uint16_t cpuCode;
 
     std::shared_ptr<UserRing> userRing;
@@ -43,5 +43,5 @@ private:
     Server server;
     Timer timer;
     Database database;
-    std::unordered_map<unsigned int, Client> clients;
+    std::unordered_map<uint32_t, Client> clients;
 };

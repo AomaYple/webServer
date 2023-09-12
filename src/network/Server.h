@@ -11,9 +11,9 @@
 
 class Server {
 public:
-    [[nodiscard]] static auto create(unsigned short port) -> unsigned int;
+    [[nodiscard]] static auto create(uint16_t port) -> uint32_t;
 
-    explicit Server(unsigned int fileDescriptorIndex) noexcept;
+    explicit Server(uint32_t fileDescriptorIndex) noexcept;
 
     Server(const Server &) = delete;
 
@@ -36,7 +36,7 @@ private:
                        std::source_location sourceLocation = std::source_location::current()) -> void;
 
 public:
-    [[nodiscard]] auto getFileDescriptorIndex() const noexcept -> unsigned int;
+    [[nodiscard]] auto getFileDescriptorIndex() const noexcept -> uint32_t;
 
     auto startAccept(io_uring_sqe *sqe) const noexcept -> void;
 
@@ -44,22 +44,22 @@ public:
 
     auto setAcceptTask(Task &&task) noexcept -> void;
 
-    auto resumeAccept(std::pair<int, unsigned int> result) -> void;
+    auto resumeAccept(std::pair<int32_t, uint32_t> result) -> void;
 
     [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
     auto setCancelTask(Task &&task) noexcept -> void;
 
-    auto resumeCancel(std::pair<int, unsigned int> result) -> void;
+    auto resumeCancel(std::pair<int32_t, uint32_t> result) -> void;
 
     [[nodiscard]] auto close(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
     auto setCloseTask(Task &&task) noexcept -> void;
 
-    auto resumeClose(std::pair<int, unsigned int> result) -> void;
+    auto resumeClose(std::pair<int32_t, uint32_t> result) -> void;
 
 private:
-    const unsigned int fileDescriptorIndex;
+    const uint32_t fileDescriptorIndex;
     Task acceptTask, cancelTask, closeTask;
     Awaiter awaiter;
 };

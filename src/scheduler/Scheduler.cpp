@@ -48,7 +48,8 @@ Scheduler::Scheduler()
     this->userRing->registerSparseFileDescriptors(UserRing::getFileDescriptorLimit());
     this->userRing->allocateFileDescriptorRange(2, UserRing::getFileDescriptorLimit() - 2);
 
-    const array<int, 2> fileDescriptors{static_cast<int>(Server::create(9999)), static_cast<int>(Timer::create())};
+    const array<int32_t, 2> fileDescriptors{static_cast<int32_t>(Server::create(9999)),
+                                            static_cast<int32_t>(Timer::create())};
 
     this->userRing->updateFileDescriptors(0, fileDescriptors);
 }
@@ -72,10 +73,10 @@ auto Scheduler::run() -> void {
         unsigned int completionCount{this->userRing->forEachCompletion([this](io_uring_cqe *cqe) {
             const Completion completion{cqe};
 
-            const unsigned long completionUserData{completion.getUserData()};
+            const uint64_t completionUserData{completion.getUserData()};
             const UserData userData{reinterpret_cast<const UserData &>(completionUserData)};
 
-            const pair<int, unsigned int> result{completion.getResult(), completion.getFlags()};
+            const pair<int32_t, uint32_t> result{completion.getResult(), completion.getFlags()};
 
             switch (userData.taskType) {
                 case TaskType::Accept:
@@ -141,10 +142,10 @@ auto Scheduler::accept(source_location sourceLocation) -> Task {
     this->server.startAccept(this->userRing->getSqe());
 
     while (true) {
-        const pair<int, unsigned int> result{co_await this->server.accept()};
+        const pair<int32_t, uint32_t> result{co_await this->server.accept()};
 
         if (result.first >= 0) {
-            this->clients.emplace(result.first, Client{static_cast<unsigned int>(result.first), 60});
+            this->clients.emplace(result.first, Client{static_cast<uint32_t>(result.first), 60});
 
             Client &client{this->clients.at(result.first)};
 
@@ -161,10 +162,10 @@ auto Scheduler::accept(source_location sourceLocation) -> Task {
 
 auto Scheduler::timing(source_location sourceLocation) -> Task {
     while (true) {
-        const pair<int, unsigned int> result{co_await this->timer.timing(this->userRing->getSqe())};
+        const pair<int32_t, uint32_t> result{co_await this->timer.timing(this->userRing->getSqe())};
 
-        if (result.first == sizeof(unsigned long)) {
-            ranges::for_each(this->timer.clearTimeout(), [this](unsigned int fileDescriptor) {
+        if (result.first == sizeof(uint64_t)) {
+            ranges::for_each(this->timer.clearTimeout(), [this](uint32_t fileDescriptor) {
                 Client &client{this->clients.at(fileDescriptor)};
 
                 Task task{this->cancel(client)};
@@ -181,10 +182,11 @@ auto Scheduler::receive(Client &client, source_location sourceLocation) -> Task 
     client.startReceive(this->userRing->getSqe(), this->bufferRing.getId());
 
     while (true) {
-        const pair<int, unsigned int> result{co_await client.receive()};
+        const pair<int32_t, uint32_t> result{co_await client.receive()};
 
         if (result.first > 0) {
-            client.writeData(this->bufferRing.getData(result.second >> IORING_CQE_BUFFER_SHIFT, result.first));
+            client.writeData(
+                    this->bufferRing.getData((result.second >> IORING_CQE_BUFFER_SHIFT) / sizeof(byte), result.first));
 
             if (!(result.second & IORING_CQE_F_SOCK_NONEMPTY)) {
                 this->timer.update(client.getFileDescriptorIndex(), client.getTimeout());
@@ -213,7 +215,7 @@ auto Scheduler::send(Client &client, source_location sourceLocation) -> Task {
 
     client.clearBuffer();
 
-    const pair<int, unsigned int> result{co_await client.send(this->userRing->getSqe(), std::move(response))};
+    const pair<int32_t, uint32_t> result{co_await client.send(this->userRing->getSqe(), std::move(response))};
 
     client.clearBuffer();
 
@@ -230,7 +232,7 @@ auto Scheduler::send(Client &client, source_location sourceLocation) -> Task {
 }
 
 auto Scheduler::cancel(Client &client, source_location sourceLocation) const -> Task {
-    const pair<int, unsigned int> result{co_await client.cancel(this->userRing->getSqe())};
+    const pair<int32_t, uint32_t> result{co_await client.cancel(this->userRing->getSqe())};
 
     Task task{this->close(client)};
     task.resume();
@@ -242,7 +244,7 @@ auto Scheduler::cancel(Client &client, source_location sourceLocation) const -> 
 }
 
 auto Scheduler::close(const Client &client, source_location sourceLocation) const -> Task {
-    const pair<int, unsigned int> result{co_await client.close(this->userRing->getSqe())};
+    const pair<int32_t, uint32_t> result{co_await client.close(this->userRing->getSqe())};
 
     if (result.first < 0)
         throw Exception{Log::formatLog(Log::Level::Error, chrono::system_clock::now(), this_thread::get_id(),
@@ -251,5 +253,5 @@ auto Scheduler::close(const Client &client, source_location sourceLocation) cons
 
 constinit thread_local bool Scheduler::instance{false};
 constinit std::mutex Scheduler::lock;
-constinit int Scheduler::sharedFileDescriptor{-1};
+constinit int32_t Scheduler::sharedFileDescriptor{-1};
 constinit std::atomic_uint16_t Scheduler::cpuCode{0};
