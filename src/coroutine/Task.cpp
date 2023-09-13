@@ -17,7 +17,7 @@ Task::Task(Task &&other) noexcept : handle{exchange(other.handle, nullptr)} {}
 
 auto Task::operator=(Task &&other) noexcept -> Task & {
     if (this != &other) {
-        if (this->handle) this->handle.destroy();
+        this->destroy();
         this->handle = exchange(other.handle, nullptr);
     }
     return *this;
@@ -25,6 +25,8 @@ auto Task::operator=(Task &&other) noexcept -> Task & {
 
 auto Task::resume() const -> void { this->handle(); }
 
-Task::~Task() {
+Task::~Task() { this->destroy(); }
+
+auto Task::destroy() const -> void {
     if (this->handle) this->handle.destroy();
 }

@@ -27,5 +27,7 @@ public:
     ~Task();
 
 private:
+    auto destroy() const -> void;
+
     std::coroutine_handle<promise_type> handle;
 };
