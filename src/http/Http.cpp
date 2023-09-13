@@ -158,7 +158,7 @@ auto Http::parseResource(HttpResponse &httpResponse, string_view range, span<con
         const auto secondSplitPoint{ranges::search(range, point)};
 
         const string stringStart{splitPoint.begin() + 1, secondSplitPoint.begin()};
-        unsigned long digitStart{stoul(stringStart)}, digitEnd;
+        uint64_t digitStart{stoul(stringStart)}, digitEnd;
 
         string stringEnd{secondSplitPoint.begin() + 1, range.end()};
         if (stringEnd.empty()) {
@@ -180,7 +180,7 @@ auto Http::parseResource(HttpResponse &httpResponse, string_view range, span<con
 
         httpResponse.addHeader("Content-Range: bytes " + stringStart + "-" + stringEnd + "/" + to_string(body.size()));
 
-        body = {body.begin() + static_cast<long>(digitStart), body.begin() + static_cast<long>(digitEnd + 1)};
+        body = {body.begin() + static_cast<int64_t>(digitStart), body.begin() + static_cast<int64_t>(digitEnd + 1)};
     } else if (body.size() > maxSize) {
         httpResponse.setStatusCode("206 Partial Content");
 
