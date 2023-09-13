@@ -1,9 +1,9 @@
 #pragma once
 
 #include "../database/Database.h"
-#include "../network/Client.h"
-#include "../network/Server.h"
-#include "../network/Timer.h"
+#include "../socket/Client.h"
+#include "../socket/Server.h"
+#include "../socket/Timer.h"
 #include "../userRing/BufferRing.h"
 
 class Scheduler {
@@ -17,6 +17,8 @@ public:
     [[noreturn]] auto run() -> void;
 
 private:
+    auto frame(io_uring_cqe *cqe) -> void;
+
     [[nodiscard]] auto accept(std::source_location sourceLocation = std::source_location::current()) -> Task;
 
     [[nodiscard]] auto timing(std::source_location sourceLocation = std::source_location::current()) -> Task;

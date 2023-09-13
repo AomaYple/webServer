@@ -1,7 +1,7 @@
 #include "Database.h"
 
-#include "../exception/Exception.h"
 #include "../log/Log.h"
+#include "DatabaseCallError.h"
 
 using namespace std;
 
@@ -19,8 +19,8 @@ auto Database::initialize(source_location sourceLocation) -> void {
     lock_guard lockGuard{Database::lock};
 
     if (mysql_init(&this->connection) == nullptr)
-        throw Exception{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
-                                       sourceLocation, "initialization error")};
+        throw DatabaseCallError{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
+                                               sourceLocation, "initialization error")};
 }
 
 auto Database::connect(string_view host, string_view user, string_view password, string_view database,
@@ -28,8 +28,8 @@ auto Database::connect(string_view host, string_view user, string_view password,
                        source_location sourceLocation) -> void {
     if (mysql_real_connect(&this->connection, host.data(), user.data(), password.data(), database.data(), port,
                            unixSocket.data(), clientFlag) == nullptr)
-        throw Exception{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
-                                       sourceLocation, mysql_error(&this->connection))};
+        throw DatabaseCallError{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
+                                               sourceLocation, mysql_error(&this->connection))};
 }
 
 auto Database::consult(string_view statement) -> vector<vector<string>> {
@@ -58,8 +58,8 @@ auto Database::consult(string_view statement) -> vector<vector<string>> {
 
 auto Database::query(string_view statement, source_location sourceLocation) -> void {
     if (mysql_real_query(&this->connection, statement.data(), statement.size()) != 0)
-        throw Exception{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
-                                       sourceLocation, mysql_error(&this->connection))};
+        throw DatabaseCallError{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
+                                               sourceLocation, mysql_error(&this->connection))};
 }
 
 auto Database::storeResult(source_location sourceLocation) -> MYSQL_RES * {
@@ -68,8 +68,8 @@ auto Database::storeResult(source_location sourceLocation) -> MYSQL_RES * {
     if (result == nullptr) {
         const string_view error{mysql_error(&this->connection)};
         if (!error.empty())
-            throw Exception{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
-                                           sourceLocation, string{error})};
+            throw DatabaseCallError{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(),
+                                                   this_thread::get_id(), sourceLocation, string{error})};
     }
 
     return result;

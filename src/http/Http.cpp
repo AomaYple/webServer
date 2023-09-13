@@ -1,8 +1,8 @@
 #include "Http.h"
 
 #include "../database/Database.h"
-#include "../exception/Exception.h"
 #include "../log/Log.h"
+#include "HttpParseError.h"
 #include "HttpRequest.h"
 #include "HttpResponse.h"
 
@@ -36,8 +36,8 @@ Http::Http()
 auto Http::readFile(string_view filepath, source_location sourceLocation) -> vector<byte> {
     ifstream file{string{filepath}, ios::binary | ios::ate};
     if (!file)
-        throw Exception{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
-                                       sourceLocation, "file not found: " + string{filepath})};
+        throw HttpParseError{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
+                                            sourceLocation, "file not found: " + string{filepath})};
 
     const auto size{file.tellg()};
     file.seekg(0, ios::beg);
@@ -46,8 +46,8 @@ auto Http::readFile(string_view filepath, source_location sourceLocation) -> vec
 
     file.read(reinterpret_cast<char *>(buffer.data()), size);
     if (file.gcount() != size)
-        throw Exception{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
-                                       sourceLocation, "file read error: " + string{filepath})};
+        throw HttpParseError{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
+                                            sourceLocation, "file read error: " + string{filepath})};
 
     return buffer;
 }
@@ -60,8 +60,8 @@ auto Http::brotli(span<const byte> data, source_location sourceLocation) -> vect
     if (BrotliEncoderCompress(BROTLI_MAX_QUALITY, BROTLI_MAX_WINDOW_BITS, BROTLI_DEFAULT_MODE, data.size(),
                               reinterpret_cast<const uint8_t *>(data.data()), &size,
                               reinterpret_cast<uint8_t *>(buffer.data())) != BROTLI_TRUE)
-        throw Exception{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
-                                       sourceLocation, "brotli compression error")};
+        throw HttpParseError{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
+                                            sourceLocation, "brotli compression error")};
 
     buffer.resize((size * sizeof(uint8_t)) / sizeof(byte));
 
@@ -86,10 +86,11 @@ auto Http::parse(string_view request, Database &database) -> vector<byte> {
             httpResponse.addHeader("Content-Length: 0");
             httpResponse.setBody({});
 
-            throw Exception{Log::formatLog(Log::Level::Warn, chrono::system_clock::now(), this_thread::get_id(),
-                                           source_location::current(), "unsupported HTTP method: " + string{method})};
+            throw HttpParseError{Log::formatLog(Log::Level::Warn, chrono::system_clock::now(), this_thread::get_id(),
+                                                source_location::current(),
+                                                "unsupported HTTP method: " + string{method})};
         }
-    } catch (const Exception &exception) { Log::produce(exception.what()); }
+    } catch (const HttpParseError &httpParseError) { Log::produce(httpParseError.what()); }
 
     return httpResponse.combine();
 }
@@ -101,8 +102,8 @@ auto Http::parseVersion(HttpResponse &httpResponse, string_view version, source_
         httpResponse.addHeader("Content-Length: 0");
         httpResponse.setBody({});
 
-        throw Exception{Log::formatLog(Log::Level::Warn, chrono::system_clock::now(), this_thread::get_id(),
-                                       sourceLocation, "unsupported HTTP version: " + string{version})};
+        throw HttpParseError{Log::formatLog(Log::Level::Warn, chrono::system_clock::now(), this_thread::get_id(),
+                                            sourceLocation, "unsupported HTTP version: " + string{version})};
     }
 
     httpResponse.setVersion(version);
@@ -126,8 +127,8 @@ auto Http::parseUrl(HttpResponse &httpResponse, string_view url, source_location
         httpResponse.addHeader("Content-Length: 0");
         httpResponse.setBody({});
 
-        throw Exception{Log::formatLog(Log::Level::Warn, chrono::system_clock::now(), this_thread::get_id(),
-                                       sourceLocation, "resource not found: " + string{url})};
+        throw HttpParseError{Log::formatLog(Log::Level::Warn, chrono::system_clock::now(), this_thread::get_id(),
+                                            sourceLocation, "resource not found: " + string{url})};
     }
 
     return result->second;
@@ -135,7 +136,7 @@ auto Http::parseUrl(HttpResponse &httpResponse, string_view url, source_location
 
 auto Http::parseTypeEncoding(HttpResponse &httpResponse, string_view url) -> void {
     if (url.ends_with("html")) {
-        httpResponse.addHeader("Content-Type: text/html; charset=utf-8");
+        httpResponse.addHeader("Content-Type: message/html; charset=utf-8");
         httpResponse.addHeader("Content-Encoding: br");
     } else if (url.ends_with("jpg"))
         httpResponse.addHeader("Content-Type: image/jpg");
@@ -173,8 +174,8 @@ auto Http::parseResource(HttpResponse &httpResponse, string_view range, span<con
             httpResponse.addHeader("Content-Length: 0");
             httpResponse.setBody({});
 
-            throw Exception{Log::formatLog(Log::Level::Warn, chrono::system_clock::now(), this_thread::get_id(),
-                                           sourceLocation, "range not satisfiable: " + string{range})};
+            throw HttpParseError{Log::formatLog(Log::Level::Warn, chrono::system_clock::now(), this_thread::get_id(),
+                                                sourceLocation, "range not satisfiable: " + string{range})};
         }
 
         httpResponse.addHeader("Content-Range: bytes " + stringStart + "-" + stringEnd + "/" + to_string(body.size()));
@@ -216,7 +217,7 @@ auto Http::parseLogin(HttpResponse &httpResponse, string_view id, string_view pa
 
             Http::parseResource(httpResponse, "", body, true);
         } else {
-            httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");
+            httpResponse.addHeader("Content-Type: message/plain; charset=utf-8");
 
             constexpr string_view body{"wrong password"};
 
@@ -224,7 +225,7 @@ auto Http::parseLogin(HttpResponse &httpResponse, string_view id, string_view pa
             httpResponse.setBody(as_bytes(span{body}));
         }
     } else {
-        httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");
+        httpResponse.addHeader("Content-Type: message/plain; charset=utf-8");
 
         constexpr string_view body{"wrong id"};
 
@@ -238,7 +239,7 @@ auto Http::parseRegister(HttpResponse &httpResponse, string_view password, Datab
 
     const vector<vector<string>> result{database.consult("select last_insert_id();")};
 
-    httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");
+    httpResponse.addHeader("Content-Type: message/plain; charset=utf-8");
 
     const string body{"id is " + result[0][0]};
 
