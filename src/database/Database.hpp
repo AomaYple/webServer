@@ -35,7 +35,7 @@ private:
 
     [[nodiscard]] static auto getColumnCount(MYSQL_RES *result) noexcept -> unsigned int;
 
-    [[nodiscard]] static auto getRow(MYSQL_RES *result) noexcept -> MYSQL_ROW;
+    [[nodiscard]] static auto getRow(MYSQL_RES *result) noexcept -> char **;
 
     static auto freeResult(MYSQL_RES *result) noexcept -> void;
 

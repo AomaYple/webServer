@@ -1,7 +1,5 @@
-#include "HttpParseError.h"
+#include "HttpParseError.hpp"
 
-using namespace std;
-
-HttpParseError::HttpParseError(string &&message) noexcept : message{std::move(message)} {}
+HttpParseError::HttpParseError(std::string &&message) noexcept : message{std::move(message)} {}
 
 auto HttpParseError::what() const noexcept -> const char * { return this->message.c_str(); }

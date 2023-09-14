@@ -1,12 +1,11 @@
-#include "BufferRing.h"
+#include "BufferRing.hpp"
 
-using namespace std;
-
-BufferRing::BufferRing(uint16_t bufferCount, uint32_t bufferSize, uint16_t id, const shared_ptr<UserRing> &userRing)
+BufferRing::BufferRing(unsigned short bufferCount, unsigned int bufferSize, unsigned short id,
+                       const std::shared_ptr<UserRing> &userRing)
     : bufferRing{userRing->setupBufferRing(bufferCount, id)},
-      buffers{vector<vector<byte>>(bufferCount, vector<byte>(bufferSize, byte{0}))}, id{id},
-      mask{static_cast<uint16_t>(io_uring_buf_ring_mask(bufferCount))}, offset{0}, userRing{userRing} {
-    for (uint16_t i{0}; i < static_cast<uint16_t>(this->buffers.size()); ++i) this->add(i);
+      buffers{std::vector<std::vector<std::byte>>(bufferCount, std::vector<std::byte>(bufferSize, std::byte{0}))},
+      id{id}, mask{static_cast<unsigned short>(io_uring_buf_ring_mask(bufferCount))}, offset{0}, userRing{userRing} {
+    for (unsigned short i{0}; i < static_cast<unsigned short>(this->buffers.size()); ++i) this->add(i);
 
     this->advanceCompletionBufferRingBuffer(0);
 }
@@ -15,25 +14,25 @@ BufferRing::BufferRing(BufferRing &&other) noexcept
     : bufferRing{other.bufferRing}, buffers{std::move(other.buffers)}, id{other.id}, mask{other.mask},
       offset{other.offset}, userRing{std::move(other.userRing)} {}
 
-auto BufferRing::add(uint16_t index) noexcept -> void {
-    const span<byte> buffer{this->buffers[index]};
+auto BufferRing::add(unsigned short index) noexcept -> void {
+    const std::span<std::byte> buffer{this->buffers[index]};
 
     io_uring_buf_ring_add(this->bufferRing, buffer.data(), buffer.size_bytes(), index, this->mask, this->offset++);
 }
 
-auto BufferRing::getId() const noexcept -> uint16_t { return this->id; }
+auto BufferRing::getId() const noexcept -> unsigned short { return this->id; }
 
-auto BufferRing::getData(uint16_t bufferIndex, uint32_t dataSize) -> vector<byte> {
-    const span<const byte> buffer{this->buffers[bufferIndex]};
+auto BufferRing::getData(unsigned short bufferIndex, unsigned int dataSize) -> std::vector<std::byte> {
+    const std::span<const std::byte> buffer{this->buffers[bufferIndex]};
 
-    vector<byte> data{buffer.begin(), buffer.begin() + dataSize};
+    std::vector<std::byte> data{buffer.begin(), buffer.begin() + dataSize};
 
     this->add(bufferIndex);
 
     return data;
 }
 
-auto BufferRing::advanceCompletionBufferRingBuffer(uint32_t completionCount) noexcept -> void {
+auto BufferRing::advanceCompletionBufferRingBuffer(unsigned int completionCount) noexcept -> void {
     this->userRing->advanceCompletionBufferRingBuffer(this->bufferRing, static_cast<int>(completionCount),
                                                       this->offset);
 

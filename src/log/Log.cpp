@@ -1,24 +1,23 @@
-#include "Log.h"
+#include "Log.hpp"
 
 #include <chrono>
 #include <filesystem>
 
-using namespace std;
-
-Log::Node::Node(string &&log, Node *next) noexcept : log{std::move(log)}, next{next} {}
+Log::Node::Node(std::string &&log, Node *next) noexcept : log{std::move(log)}, next{next} {}
 
 Log::Log()
-    : logFile{filesystem::current_path().string() + "/log.log", ofstream::trunc}, head{nullptr}, work{&Log::run, this} {
-}
+    : logFile{std::filesystem::current_path().string() + "/log.log", std::ofstream::trunc}, head{nullptr},
+      work{&Log::run, this} {}
 
 auto Log::run() -> void {
     while (true) {
-        this->notice.wait(false, memory_order_relaxed);
-        this->notice.clear(memory_order_relaxed);
+        this->notice.wait(false, std::memory_order_relaxed);
+        this->notice.clear(std::memory_order_relaxed);
 
-        Node *pointer{this->head.load(memory_order_relaxed)};
+        Node *pointer{this->head.load(std::memory_order_relaxed)};
 
-        while (!this->head.compare_exchange_weak(pointer, nullptr, memory_order_release, memory_order_relaxed))
+        while (!this->head.compare_exchange_weak(pointer, nullptr, std::memory_order_release,
+                                                 std::memory_order_relaxed))
             ;
 
         Log::consume(Log::invertLinkedList(pointer));
@@ -51,11 +50,11 @@ auto Log::consume(Node *pointer) -> void {
     }
 }
 
-auto Log::formatLog(Level level, chrono::system_clock::time_point timestamp, jthread::id jThreadId,
-                    source_location sourceLocation, string &&text) -> string {
-    constexpr array<string_view, 4> levels{"Info", "Warn", "Error", "Fatal"};
+auto Log::formatLog(Level level, std::chrono::system_clock::time_point timestamp, std::jthread::id jThreadId,
+                    std::source_location sourceLocation, std::string &&text) -> std::string {
+    constexpr std::array<std::string_view, 4> levels{"Info", "Warn", "Error", "Fatal"};
 
-    ostringstream jThreadIdStream;
+    std::ostringstream jThreadIdStream;
     jThreadIdStream << jThreadId;
 
     return format("{} {} {} {}:{}:{}:{} {}\n", levels[static_cast<unsigned char>(level)], timestamp,
@@ -63,14 +62,14 @@ auto Log::formatLog(Level level, chrono::system_clock::time_point timestamp, jth
                   sourceLocation.function_name(), std::move(text));
 }
 
-auto Log::produce(string &&log) -> void {
-    Node *const newHead{new Node{std::move(log), Log::instance.head.load(memory_order_relaxed)}};
+auto Log::produce(std::string &&log) -> void {
+    Node *const newHead{new Node{std::move(log), Log::instance.head.load(std::memory_order_relaxed)}};
 
-    while (!Log::instance.head.compare_exchange_weak(newHead->next, newHead, memory_order_release,
-                                                     memory_order_relaxed))
+    while (!Log::instance.head.compare_exchange_weak(newHead->next, newHead, std::memory_order_release,
+                                                     std::memory_order_relaxed))
         ;
 
-    Log::instance.notice.test_and_set(memory_order_relaxed);
+    Log::instance.notice.test_and_set(std::memory_order_relaxed);
     Log::instance.notice.notify_one();
 }
 

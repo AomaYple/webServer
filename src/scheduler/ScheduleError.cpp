@@ -1,7 +1,5 @@
-#include "ScheduleError.h"
+#include "ScheduleError.hpp"
 
-using namespace std;
-
-ScheduleError::ScheduleError(string &&message) noexcept : message{std::move(message)} {}
+ScheduleError::ScheduleError(std::string &&message) noexcept : message{std::move(message)} {}
 
 auto ScheduleError::what() const noexcept -> const char * { return this->message.c_str(); }

@@ -1,21 +1,20 @@
-#include "Scheduler.h"
+#include "Scheduler.hpp"
 
-#include "../http/Http.h"
-#include "../log/Log.h"
-#include "../userRing/Completion.h"
-#include "../userRing/UserData.h"
-#include "ScheduleError.h"
+#include "../http/Http.hpp"
+#include "../log/Log.hpp"
+#include "../userRing/Completion.hpp"
+#include "../userRing/UserData.hpp"
+#include "ScheduleError.hpp"
 
 #include <algorithm>
 #include <cstring>
 
-using namespace std;
-
 Scheduler::Scheduler()
-    : userRing{[](source_location sourceLocation = source_location::current()) {
+    : userRing{[](std::source_location sourceLocation = std::source_location::current()) {
           if (Scheduler::instance)
-              throw ScheduleError{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
-                                                 sourceLocation, "one scheduler instance per thread")};
+              throw ScheduleError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
+                                                 std::this_thread::get_id(), sourceLocation,
+                                                 "one scheduler instance per thread")};
           Scheduler::instance = true;
 
           io_uring_params params{};
@@ -23,17 +22,17 @@ Scheduler::Scheduler()
           params.flags = IORING_SETUP_SUBMIT_ALL | IORING_SETUP_CLAMP | IORING_SETUP_COOP_TASKRUN |
                          IORING_SETUP_TASKRUN_FLAG | IORING_SETUP_SINGLE_ISSUER | IORING_SETUP_DEFER_TASKRUN;
 
-          shared_ptr<UserRing> tempUserRing;
+          std::shared_ptr<UserRing> tempUserRing;
 
           {
-              const lock_guard lockGuard{Scheduler::lock};
+              const std::lock_guard lockGuard{Scheduler::lock};
 
               if (Scheduler::sharedFileDescriptor != -1) {
                   params.wq_fd = Scheduler::sharedFileDescriptor;
                   params.flags |= IORING_SETUP_ATTACH_WQ;
               }
 
-              tempUserRing = make_shared<UserRing>(1024, params);
+              tempUserRing = std::make_shared<UserRing>(1024, params);
 
               if (Scheduler::sharedFileDescriptor == -1)
                   Scheduler::sharedFileDescriptor = tempUserRing->getSelfFileDescriptor();
@@ -48,8 +47,7 @@ Scheduler::Scheduler()
     this->userRing->registerSparseFileDescriptors(UserRing::getFileDescriptorLimit());
     this->userRing->allocateFileDescriptorRange(2, UserRing::getFileDescriptorLimit() - 2);
 
-    const array<int32_t, 2> fileDescriptors{static_cast<int32_t>(Server::create(9999)),
-                                            static_cast<int32_t>(Timer::create())};
+    const std::array<int, 2> fileDescriptors{static_cast<int>(Server::create(9999)), static_cast<int>(Timer::create())};
 
     this->userRing->updateFileDescriptors(0, fileDescriptors);
 }
@@ -80,10 +78,10 @@ auto Scheduler::run() -> void {
 auto Scheduler::frame(io_uring_cqe *cqe) -> void {
     const Completion completion{cqe};
 
-    const uint64_t completionUserData{completion.getUserData()};
+    const unsigned long completionUserData{completion.getUserData()};
     const UserData userData{reinterpret_cast<const UserData &>(completionUserData)};
 
-    const pair<int32_t, uint32_t> result{completion.getResult(), completion.getFlags()};
+    const std::pair<int, unsigned int> result{completion.getResult(), completion.getFlags()};
 
     switch (userData.taskType) {
         case TaskType::Accept:
@@ -95,7 +93,7 @@ auto Scheduler::frame(io_uring_cqe *cqe) -> void {
 
             break;
         case TaskType::Receive:
-            if (result.first >= 0 || abs(result.first) != ECANCELED) {
+            if (result.first >= 0 || std::abs(result.first) != ECANCELED) {
                 Client &client{this->clients.at(userData.fileDescriptor)};
                 try {
                     client.resumeReceive(result);
@@ -141,14 +139,14 @@ auto Scheduler::frame(io_uring_cqe *cqe) -> void {
     }
 }
 
-auto Scheduler::accept(source_location sourceLocation) -> Task {
+auto Scheduler::accept(std::source_location sourceLocation) -> Task {
     this->server.startAccept(this->userRing->getSqe());
 
     while (true) {
-        const pair<int32_t, uint32_t> result{co_await this->server.accept()};
+        const std::pair<int, unsigned int> result{co_await this->server.accept()};
 
         if (result.first >= 0) {
-            this->clients.emplace(result.first, Client{static_cast<uint32_t>(result.first), 60});
+            this->clients.emplace(result.first, Client{static_cast<unsigned int>(result.first), 60});
 
             Client &client{this->clients.at(result.first)};
 
@@ -158,17 +156,18 @@ auto Scheduler::accept(source_location sourceLocation) -> Task {
             task.resume();
             client.setReceiveTask(std::move(task));
         } else
-            throw ScheduleError{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
-                                               sourceLocation, strerror(abs(result.first)))};
+            throw ScheduleError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
+                                               std::this_thread::get_id(), sourceLocation,
+                                               std::strerror(std::abs(result.first)))};
     }
 }
 
-auto Scheduler::timing(source_location sourceLocation) -> Task {
+auto Scheduler::timing(std::source_location sourceLocation) -> Task {
     while (true) {
-        const pair<int32_t, uint32_t> result{co_await this->timer.timing(this->userRing->getSqe())};
+        const std::pair<int, unsigned int> result{co_await this->timer.timing(this->userRing->getSqe())};
 
-        if (result.first == sizeof(uint64_t)) {
-            ranges::for_each(this->timer.clearTimeout(), [this](uint32_t fileDescriptor) {
+        if (result.first == sizeof(unsigned long)) {
+            std::ranges::for_each(this->timer.clearTimeout(), [this](unsigned int fileDescriptor) {
                 Client &client{this->clients.at(fileDescriptor)};
 
                 Task task{this->cancel(client)};
@@ -176,20 +175,20 @@ auto Scheduler::timing(source_location sourceLocation) -> Task {
                 client.setCancelTask(std::move(task));
             });
         } else
-            throw ScheduleError{Log::formatLog(Log::Level::Fatal, chrono::system_clock::now(), this_thread::get_id(),
-                                               sourceLocation, strerror(abs(result.first)))};
+            throw ScheduleError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
+                                               std::this_thread::get_id(), sourceLocation,
+                                               std::strerror(std::abs(result.first)))};
     }
 }
 
-auto Scheduler::receive(Client &client, source_location sourceLocation) -> Task {
+auto Scheduler::receive(Client &client, std::source_location sourceLocation) -> Task {
     client.startReceive(this->userRing->getSqe(), this->bufferRing.getId());
 
     while (true) {
-        const pair<int32_t, uint32_t> result{co_await client.receive()};
+        const std::pair<int, unsigned int> result{co_await client.receive()};
 
         if (result.first > 0) {
-            client.writeData(
-                    this->bufferRing.getData((result.second >> IORING_CQE_BUFFER_SHIFT) / sizeof(byte), result.first));
+            client.writeData(this->bufferRing.getData(result.second >> IORING_CQE_BUFFER_SHIFT, result.first));
 
             if (!(result.second & IORING_CQE_F_SOCK_NONEMPTY)) {
                 this->timer.update(client.getFileDescriptorIndex(), client.getTimeout());
@@ -205,20 +204,21 @@ auto Scheduler::receive(Client &client, source_location sourceLocation) -> Task 
             task.resume();
             client.setCancelTask(std::move(task));
 
-            throw ScheduleError{Log::formatLog(Log::Level::Warn, chrono::system_clock::now(), this_thread::get_id(),
-                                               sourceLocation, strerror(abs(result.first)))};
+            throw ScheduleError{Log::formatLog(Log::Level::Warn, std::chrono::system_clock::now(),
+                                               std::this_thread::get_id(), sourceLocation,
+                                               std::strerror(std::abs(result.first)))};
         }
     }
 }
 
-auto Scheduler::send(Client &client, source_location sourceLocation) -> Task {
-    const span<const byte> request{client.readData()};
-    vector<byte> response{
-            Http::parse(string_view{reinterpret_cast<const char *>(request.data()), request.size()}, this->database)};
+auto Scheduler::send(Client &client, std::source_location sourceLocation) -> Task {
+    const std::span<const std::byte> request{client.readData()};
+    std::vector<std::byte> response{Http::parse(
+            std::string_view{reinterpret_cast<const char *>(request.data()), request.size()}, this->database)};
 
     client.clearBuffer();
 
-    const pair<int32_t, uint32_t> result{co_await client.send(this->userRing->getSqe(), std::move(response))};
+    const std::pair<int, unsigned int> result{co_await client.send(this->userRing->getSqe(), std::move(response))};
 
     client.clearBuffer();
 
@@ -229,32 +229,35 @@ auto Scheduler::send(Client &client, source_location sourceLocation) -> Task {
         task.resume();
         client.setCancelTask(std::move(task));
 
-        throw ScheduleError{Log::formatLog(Log::Level::Warn, chrono::system_clock::now(), this_thread::get_id(),
-                                           sourceLocation, strerror(abs(result.first)))};
+        throw ScheduleError{Log::formatLog(Log::Level::Warn, std::chrono::system_clock::now(),
+                                           std::this_thread::get_id(), sourceLocation,
+                                           std::strerror(std::abs(result.first)))};
     }
 }
 
-auto Scheduler::cancel(Client &client, source_location sourceLocation) const -> Task {
-    const pair<int32_t, uint32_t> result{co_await client.cancel(this->userRing->getSqe())};
+auto Scheduler::cancel(Client &client, std::source_location sourceLocation) const -> Task {
+    const std::pair<int, unsigned int> result{co_await client.cancel(this->userRing->getSqe())};
 
     Task task{this->close(client)};
     task.resume();
     client.setCloseTask(std::move(task));
 
     if (result.first < 0)
-        throw ScheduleError{Log::formatLog(Log::Level::Error, chrono::system_clock::now(), this_thread::get_id(),
-                                           sourceLocation, strerror(abs(result.first)))};
+        throw ScheduleError{Log::formatLog(Log::Level::Error, std::chrono::system_clock::now(),
+                                           std::this_thread::get_id(), sourceLocation,
+                                           std::strerror(std::abs(result.first)))};
 }
 
-auto Scheduler::close(const Client &client, source_location sourceLocation) const -> Task {
-    const pair<int32_t, uint32_t> result{co_await client.close(this->userRing->getSqe())};
+auto Scheduler::close(const Client &client, std::source_location sourceLocation) const -> Task {
+    const std::pair<int, unsigned int> result{co_await client.close(this->userRing->getSqe())};
 
     if (result.first < 0)
-        throw ScheduleError{Log::formatLog(Log::Level::Error, chrono::system_clock::now(), this_thread::get_id(),
-                                           sourceLocation, strerror(abs(result.first)))};
+        throw ScheduleError{Log::formatLog(Log::Level::Error, std::chrono::system_clock::now(),
+                                           std::this_thread::get_id(), sourceLocation,
+                                           std::strerror(std::abs(result.first)))};
 }
 
 constinit thread_local bool Scheduler::instance{false};
 constinit std::mutex Scheduler::lock;
-constinit int32_t Scheduler::sharedFileDescriptor{-1};
-constinit std::atomic_uint16_t Scheduler::cpuCode{0};
+constinit int Scheduler::sharedFileDescriptor{-1};
+constinit std::atomic_ushort Scheduler::cpuCode{0};

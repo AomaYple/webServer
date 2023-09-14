@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../database/Database.h"
-#include "../socket/Client.h"
-#include "../socket/Server.h"
-#include "../socket/Timer.h"
-#include "../userRing/BufferRing.h"
+#include "../database/Database.hpp"
+#include "../socket/Client.hpp"
+#include "../socket/Server.hpp"
+#include "../socket/Timer.hpp"
+#include "../userRing/BufferRing.hpp"
 
 class Scheduler {
 public:
@@ -37,13 +37,13 @@ private:
 
     static constinit thread_local bool instance;
     static constinit std::mutex lock;
-    static constinit int32_t sharedFileDescriptor;
-    static constinit std::atomic_uint16_t cpuCode;
+    static constinit int sharedFileDescriptor;
+    static constinit std::atomic_ushort cpuCode;
 
     std::shared_ptr<UserRing> userRing;
     BufferRing bufferRing;
     Server server;
     Timer timer;
     Database database;
-    std::unordered_map<uint32_t, Client> clients;
+    std::unordered_map<unsigned int, Client> clients;
 };

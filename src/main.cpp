@@ -1,14 +1,12 @@
-#include "scheduler/Scheduler.h"
+#include "scheduler/Scheduler.hpp"
 
 #include <thread>
 
-using namespace std;
-
 auto main() -> int {
-    vector<jthread> works(jthread::hardware_concurrency() - 1);
+    std::vector<std::jthread> works(std::jthread::hardware_concurrency() - 1);
 
-    for (jthread &work: works) {
-        work = jthread([] {
+    for (std::jthread &work: works) {
+        work = std::jthread([] {
             Scheduler scheduler;
             scheduler.run();
         });

@@ -1,7 +1,5 @@
-#include "SystemCallError.h"
+#include "SystemCallError.hpp"
 
-using namespace std;
-
-SystemCallError::SystemCallError(string &&message) noexcept : message{std::move(message)} {}
+SystemCallError::SystemCallError(std::string &&message) noexcept : message{std::move(message)} {}
 
 auto SystemCallError::what() const noexcept -> const char * { return this->message.c_str(); }

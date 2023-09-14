@@ -2,8 +2,6 @@
 
 #include <liburing.h>
 
-#include <sys/resource.h>
-
 #include <functional>
 #include <source_location>
 #include <span>
@@ -11,7 +9,7 @@
 class UserRing {
 public:
     [[nodiscard]] static auto
-    getFileDescriptorLimit(std::source_location sourceLocation = std::source_location::current()) -> rlim_t;
+    getFileDescriptorLimit(std::source_location sourceLocation = std::source_location::current()) -> unsigned int;
 
     UserRing(unsigned int entries, io_uring_params &params,
              std::source_location sourceLocation = std::source_location::current());
