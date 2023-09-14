@@ -173,7 +173,7 @@ auto Http::parseResource(HttpResponse &httpResponse, std::string_view range, std
         } else
             digitEnd = stol(stringEnd);
 
-        if (digitStart > digitEnd || digitEnd >= body.size()) {
+        if (digitStart < 0 || digitStart > digitEnd || digitEnd >= body.size()) {
             httpResponse.setStatusCode("416 Range Not Satisfiable");
             httpResponse.addHeader("Content-Length: 0");
             httpResponse.setBody({});
@@ -216,7 +216,7 @@ auto Http::parsePost(HttpResponse &httpResponse, std::string_view message, Datab
 auto Http::parseLogin(HttpResponse &httpResponse, std::string_view id, std::string_view password, Database &database)
         -> void {
     const std::vector<std::vector<std::string>> result{
-            database.consult(format("select id, password from users where id = {};", id))};
+            database.consult(std::format("select id, password from users where id = {};", id))};
     if (!result.empty()) {
         if (password == result[0][1]) {
             constexpr std::string_view url{"index.html"};
@@ -244,7 +244,7 @@ auto Http::parseLogin(HttpResponse &httpResponse, std::string_view id, std::stri
 }
 
 auto Http::parseRegister(HttpResponse &httpResponse, std::string_view password, Database &database) -> void {
-    database.consult(format("insert into users (password) values ('{}');", password));
+    database.consult(std::format("insert into users (password) values ('{}');", password));
 
     const std::vector<std::vector<std::string>> result{database.consult("select last_insert_id();")};
 

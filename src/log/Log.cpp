@@ -57,9 +57,9 @@ auto Log::formatLog(Level level, std::chrono::system_clock::time_point timestamp
     std::ostringstream jThreadIdStream;
     jThreadIdStream << jThreadId;
 
-    return format("{} {} {} {}:{}:{}:{} {}\n", levels[static_cast<unsigned char>(level)], timestamp,
-                  jThreadIdStream.str(), sourceLocation.file_name(), sourceLocation.line(), sourceLocation.column(),
-                  sourceLocation.function_name(), std::move(text));
+    return std::format("{} {} {} {}:{}:{}:{} {}\n", levels[static_cast<unsigned char>(level)], timestamp,
+                       jThreadIdStream.str(), sourceLocation.file_name(), sourceLocation.line(),
+                       sourceLocation.column(), sourceLocation.function_name(), std::move(text));
 }
 
 auto Log::produce(std::string &&log) -> void {
