@@ -61,8 +61,6 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-mariadb的用户名和密码，在Database类的构造函数中修改
-
 ## 环境
 
 gcc13以上版本，cmake3.27.5以上版本，liburing2.4以上版本，linux内核版本6.1以上，ninja，brotli库，mariadb
