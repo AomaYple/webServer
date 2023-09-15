@@ -65,7 +65,7 @@ mariadb的用户名和密码，在Database类的构造函数中修改
 
 ## 环境
 
-gcc13以上版本，cmake3.27.4以上版本，liburing2.4以上版本，linux内核版本6.1以上，ninja，brotli库，mariadb
+gcc13以上版本，cmake3.27.5以上版本，liburing2.4以上版本，linux内核版本6.1以上，ninja，brotli库，mariadb
 
 ## 编译
 

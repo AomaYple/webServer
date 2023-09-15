@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.27.4)
+cmake_minimum_required(VERSION 3.27.5)
 
 project(webServer)
 
