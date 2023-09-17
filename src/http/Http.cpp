@@ -155,23 +155,22 @@ auto Http::parseResource(HttpResponse &httpResponse, std::string_view range, std
     if (!range.empty()) {
         httpResponse.setStatusCode("206 Partial Content");
 
-        std::string_view point{"="};
-        const auto splitPoint{std::ranges::search(range, point)};
+        range = range.substr(6);
+        const unsigned char splitPoint{static_cast<unsigned char>(range.find('-'))};
 
-        point = "-";
-        const auto secondSplitPoint{std::ranges::search(range, point)};
+        const std::string stringStart{range.begin(), range.begin() + splitPoint};
+        const long digitStart{std::stol(stringStart)};
 
-        const std::string stringStart{splitPoint.begin() + 1, secondSplitPoint.begin()};
-        long digitStart{stol(stringStart)}, digitEnd;
+        long digitEnd;
+        std::string stringEnd{range.begin() + splitPoint + 1, range.end()};
 
-        std::string stringEnd{secondSplitPoint.begin() + 1, range.end()};
         if (stringEnd.empty()) {
             digitEnd = digitStart + maxSize - 1;
             if (digitEnd > body.size()) digitEnd = static_cast<long>(body.size()) - 1;
 
             stringEnd = std::to_string(digitEnd);
         } else
-            digitEnd = stol(stringEnd);
+            digitEnd = std::stol(stringEnd);
 
         if (digitStart < 0 || digitStart > digitEnd || digitEnd >= body.size()) {
             httpResponse.setStatusCode("416 Range Not Satisfiable");
