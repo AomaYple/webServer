@@ -38,13 +38,9 @@ auto HttpRequest::parseLine(std::string_view line) -> std::array<std::string_vie
 }
 
 auto HttpRequest::parseHeader(std::string_view header) -> std::pair<std::string_view, std::string_view> {
-    std::array<std::string_view, 2> result;
+    const unsigned char splitPoint{static_cast<unsigned char>(header.find(": "))};
 
-    constexpr std::string_view delimiter{": "};
-    for (auto point{result.begin()}; const auto &wordView: header | std::views::split(delimiter))
-        *point++ = std::string_view{wordView};
-
-    return {result[0], result[1]};
+    return {header.substr(0, splitPoint), header.substr(splitPoint + 2)};
 }
 
 HttpRequest::HttpRequest(std::string_view method, std::string_view url, std::string_view version, std::string_view body,
