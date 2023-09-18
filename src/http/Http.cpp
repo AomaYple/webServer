@@ -140,7 +140,7 @@ auto Http::parseUrl(HttpResponse &httpResponse, std::string_view url, std::sourc
 
 auto Http::parseTypeEncoding(HttpResponse &httpResponse, std::string_view url) -> void {
     if (url.ends_with("html")) {
-        httpResponse.addHeader("Content-Type: message/html; charset=utf-8");
+        httpResponse.addHeader("Content-Type: text/html; charset=utf-8");
         httpResponse.addHeader("Content-Encoding: br");
     } else if (url.ends_with("jpg"))
         httpResponse.addHeader("Content-Type: image/jpg");
@@ -225,7 +225,7 @@ auto Http::parseLogin(HttpResponse &httpResponse, std::string_view id, std::stri
 
             Http::parseResource(httpResponse, "", body, true);
         } else {
-            httpResponse.addHeader("Content-Type: message/plain; charset=utf-8");
+            httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");
 
             constexpr std::string_view body{"wrong password"};
 
@@ -233,7 +233,7 @@ auto Http::parseLogin(HttpResponse &httpResponse, std::string_view id, std::stri
             httpResponse.setBody(std::as_bytes(std::span{body}));
         }
     } else {
-        httpResponse.addHeader("Content-Type: message/plain; charset=utf-8");
+        httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");
 
         constexpr std::string_view body{"wrong id"};
 
@@ -247,7 +247,7 @@ auto Http::parseRegister(HttpResponse &httpResponse, std::string_view password, 
 
     const std::vector<std::vector<std::string>> result{database.consult("select last_insert_id();")};
 
-    httpResponse.addHeader("Content-Type: message/plain; charset=utf-8");
+    httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");
 
     const std::string body{"id is " + result[0][0]};
 
