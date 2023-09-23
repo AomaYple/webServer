@@ -80,7 +80,9 @@ auto Scheduler::destroy() -> void {
             result = std::ranges::find_if(Scheduler::userRingFileDescriptors,
                                           [](int userRingFileDescriptor) { return userRingFileDescriptor != -1; });
 
-            Scheduler::sharedUserRingFileDescriptor = *result;
+            if (result != Scheduler::userRingFileDescriptors.cend()) Scheduler::sharedUserRingFileDescriptor = *result;
+            else
+                Scheduler::sharedUserRingFileDescriptor = -1;
         }
     }
 }
