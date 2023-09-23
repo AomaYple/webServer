@@ -13,20 +13,25 @@
 
 class Timer {
 public:
-    [[nodiscard]] static auto create() -> unsigned int;
-
     explicit Timer(unsigned int fileDescriptorIndex);
 
     Timer(const Timer &) = delete;
 
-    Timer(Timer &&) noexcept;
+    Timer(Timer &&) = default;
+
+    auto operator=(const Timer &) -> Timer & = delete;
+
+    auto operator=(Timer &&) -> Timer & = default;
+
+    ~Timer() = default;
+
+    [[nodiscard]] static auto create() -> unsigned int;
 
 private:
     [[nodiscard]] static auto
-    createFileDescriptor(int clockId, int flags, std::source_location sourceLocation = std::source_location::current())
-            -> int;
+    createFileDescriptor(std::source_location sourceLocation = std::source_location::current()) -> unsigned int;
 
-    static auto setTime(int fileDescriptor, int flags, const itimerspec &newTime, itimerspec *oldTime,
+    static auto setTime(unsigned int fileDescriptor,
                         std::source_location sourceLocation = std::source_location::current()) -> void;
 
 public:
@@ -61,7 +66,7 @@ public:
     auto resumeClose(std::pair<int, unsigned int> result) -> void;
 
 private:
-    const unsigned int fileDescriptorIndex;
+    unsigned int fileDescriptorIndex;
     unsigned char now;
     unsigned long expireCount;
     std::array<std::unordered_set<unsigned int>, 61> wheel;

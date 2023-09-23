@@ -14,14 +14,32 @@ private:
 
         Node(const Node &) = delete;
 
-        Node(Node &&) noexcept = default;
+        Node(Node &&) = default;
 
-        const std::string log;
+        auto operator=(const Node &) -> Node & = delete;
+
+        auto operator=(Node &&) -> Node & = default;
+
+        ~Node() = default;
+
+        std::string log;
         Node *next;
     };
 
     Log();
 
+public:
+    Log(const Log &) = delete;
+
+    Log(Log &&) = delete;
+
+    auto operator=(const Log &) -> Log & = delete;
+
+    auto operator=(Log &&) -> Log & = delete;
+
+    ~Log();
+
+private:
     [[noreturn]] auto run() -> void;
 
     [[nodiscard]] static auto invertLinkedList(Node *pointer) noexcept -> Node *;
@@ -29,8 +47,6 @@ private:
     auto consume(Node *pointer) -> void;
 
 public:
-    Log(const Log &) = delete;
-
     [[nodiscard]] static auto formatLog(Level level, std::chrono::system_clock::time_point timestamp,
                                         std::jthread::id jThreadId, std::source_location sourceLocation,
                                         std::string &&text) -> std::string;

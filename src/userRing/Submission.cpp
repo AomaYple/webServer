@@ -1,30 +1,34 @@
 #include "Submission.hpp"
 
-Submission::Submission(io_uring_sqe *sqe, int fileDescriptor, sockaddr *address, socklen_t *addressLength,
-                       int flags) noexcept
+Submission::Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, sockaddr *address, socklen_t *addressLength,
+                       unsigned char flags) noexcept
     : submission{sqe} {
-    io_uring_prep_multishot_accept_direct(this->submission, fileDescriptor, address, addressLength, flags);
+    io_uring_prep_multishot_accept_direct(this->submission, static_cast<int>(fileDescriptor), address, addressLength,
+                                          flags);
 }
 
-Submission::Submission(io_uring_sqe *sqe, int fileDescriptor, std::span<std::byte> buffer,
+Submission::Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, std::span<std::byte> buffer,
                        unsigned long offset) noexcept
     : submission{sqe} {
-    io_uring_prep_read(this->submission, fileDescriptor, buffer.data(), buffer.size_bytes(), offset);
+    io_uring_prep_read(this->submission, static_cast<int>(fileDescriptor), buffer.data(), buffer.size(), offset);
 }
 
-Submission::Submission(io_uring_sqe *sqe, int fileDescriptor, std::span<std::byte> buffer, int flags) noexcept
+Submission::Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, std::span<std::byte> buffer,
+                       unsigned int flags) noexcept
     : submission{sqe} {
-    io_uring_prep_recv_multishot(this->submission, fileDescriptor, buffer.data(), buffer.size_bytes(), flags);
+    io_uring_prep_recv_multishot(this->submission, static_cast<int>(fileDescriptor), buffer.data(), buffer.size(),
+                                 static_cast<int>(flags));
 }
 
-Submission::Submission(io_uring_sqe *sqe, int fileDescriptor, std::span<const std::byte> buffer, int flags,
-                       unsigned int zeroCopyFlags) noexcept
+Submission::Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, std::span<const std::byte> buffer,
+                       unsigned int flags, unsigned char zeroCopyFlags) noexcept
     : submission{sqe} {
-    io_uring_prep_send_zc(this->submission, fileDescriptor, buffer.data(), buffer.size_bytes(), flags, zeroCopyFlags);
+    io_uring_prep_send_zc(this->submission, static_cast<int>(fileDescriptor), buffer.data(), buffer.size(),
+                          static_cast<int>(flags), zeroCopyFlags);
 }
 
-Submission::Submission(io_uring_sqe *sqe, int fileDescriptor, unsigned int flags) noexcept : submission{sqe} {
-    io_uring_prep_cancel_fd(this->submission, fileDescriptor, flags);
+Submission::Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, unsigned char flags) noexcept : submission{sqe} {
+    io_uring_prep_cancel_fd(this->submission, static_cast<int>(fileDescriptor), flags);
 }
 
 Submission::Submission(io_uring_sqe *sqe, unsigned int fileDescriptorIndex) noexcept : submission{sqe} {
@@ -35,7 +39,7 @@ auto Submission::setUserData(unsigned long userData) const noexcept -> void {
     io_uring_sqe_set_data64(this->submission, userData);
 }
 
-auto Submission::setFlags(unsigned int flags) const noexcept -> void {
+auto Submission::setFlags(unsigned char flags) const noexcept -> void {
     io_uring_sqe_set_flags(this->submission, flags);
 }
 

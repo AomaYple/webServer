@@ -8,7 +8,13 @@ public:
 
     Completion(const Completion &) = delete;
 
-    Completion(Completion &&) noexcept = default;
+    Completion(Completion &&) = default;
+
+    auto operator=(const Completion &) -> Completion & = delete;
+
+    auto operator=(Completion &&) noexcept -> Completion & = default;
+
+    ~Completion() = default;
 
     [[nodiscard]] auto getUserData() const noexcept -> unsigned long;
 
@@ -17,5 +23,5 @@ public:
     [[nodiscard]] auto getFlags() const noexcept -> unsigned int;
 
 private:
-    const io_uring_cqe *const completion;
+    const io_uring_cqe *completion;
 };

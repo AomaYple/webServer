@@ -9,36 +9,29 @@
 
 #include <cstring>
 
-auto Server::create(unsigned short port) -> unsigned int {
-    const int fileDescriptor{Server::socket(AF_INET, SOCK_STREAM, 0)};
+Server::Server(unsigned int fileDescriptorIndex) noexcept
+    : fileDescriptorIndex{fileDescriptorIndex}, acceptTask{nullptr}, cancelTask{nullptr}, closeTask{nullptr} {}
 
-    const int optionValue{1};
-    Server::setSocketOption(fileDescriptor, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
-                            std::as_bytes(std::span{&optionValue, 1}));
+auto Server::create(unsigned short port) -> unsigned int {
+    const unsigned int fileDescriptor{Server::socket()};
+
+    Server::setSocketOption(fileDescriptor);
 
     sockaddr_in address{};
     address.sin_family = AF_INET;
     address.sin_port = htons(port);
 
-    Server::translateIpAddress(AF_INET, "127.0.0.1", std::as_writable_bytes(std::span{&address.sin_addr, 1}));
+    Server::translateIpAddress(address.sin_addr);
 
-    Server::bind(fileDescriptor, reinterpret_cast<const sockaddr *>(&address), sizeof(address));
+    Server::bind(fileDescriptor, address);
 
-    Server::listen(fileDescriptor, SOMAXCONN);
+    Server::listen(fileDescriptor);
 
-    return static_cast<unsigned int>(fileDescriptor);
+    return fileDescriptor;
 }
 
-Server::Server(unsigned int fileDescriptorIndex) noexcept
-    : fileDescriptorIndex{fileDescriptorIndex}, acceptTask{nullptr}, cancelTask{nullptr}, closeTask{nullptr} {}
-
-Server::Server(Server &&other) noexcept
-    : fileDescriptorIndex{other.fileDescriptorIndex}, acceptTask{std::move(other.acceptTask)},
-      cancelTask{std::move(other.cancelTask)}, closeTask{std::move(other.closeTask)},
-      awaiter{std::move(other.awaiter)} {}
-
-auto Server::socket(int domain, int type, int protocol, std::source_location sourceLocation) -> int {
-    const int fileDescriptor{::socket(domain, type, protocol)};
+auto Server::socket(std::source_location sourceLocation) -> unsigned int {
+    const int fileDescriptor{::socket(AF_INET, SOCK_STREAM, 0)};
 
     if (fileDescriptor == -1)
         throw SystemCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
@@ -47,29 +40,29 @@ auto Server::socket(int domain, int type, int protocol, std::source_location sou
     return fileDescriptor;
 }
 
-auto Server::setSocketOption(int fileDescriptor, int level, int optionName, std::span<const std::byte> optionValue,
-                             std::source_location sourceLocation) -> void {
-    if (setsockopt(fileDescriptor, level, optionName, optionValue.data(), optionValue.size()) == -1)
+auto Server::setSocketOption(unsigned int fileDescriptor, std::source_location sourceLocation) -> void {
+    constexpr int option{1};
+    if (setsockopt(static_cast<int>(fileDescriptor), SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option,
+                   sizeof(option)) == -1)
         throw SystemCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
                                              std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
 }
 
-auto Server::translateIpAddress(int domain, std::string_view ipAddress, std::span<std::byte> buffer,
-                                std::source_location sourceLocation) -> void {
-    if (inet_pton(domain, ipAddress.data(), buffer.data()) != 1)
+auto Server::translateIpAddress(in_addr &address, std::source_location sourceLocation) -> void {
+    if (inet_pton(AF_INET, "127.0.0.1", &address) != 1)
         throw SystemCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
                                              std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
 }
 
-auto Server::bind(int fileDescriptor, const sockaddr *address, socklen_t addressLength,
-                  std::source_location sourceLocation) -> void {
-    if (::bind(fileDescriptor, address, addressLength) == -1)
+auto Server::bind(unsigned int fileDescriptor, const sockaddr_in &address, std::source_location sourceLocation)
+        -> void {
+    if (::bind(static_cast<int>(fileDescriptor), reinterpret_cast<const sockaddr *>(&address), sizeof(address)) == -1)
         throw SystemCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
                                              std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
 }
 
-auto Server::listen(int fileDescriptor, int number, std::source_location sourceLocation) -> void {
-    if (::listen(fileDescriptor, number) == -1)
+auto Server::listen(unsigned int fileDescriptor, std::source_location sourceLocation) -> void {
+    if (::listen(static_cast<int>(fileDescriptor), SOMAXCONN) == -1)
         throw SystemCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
                                              std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
 }
@@ -77,10 +70,10 @@ auto Server::listen(int fileDescriptor, int number, std::source_location sourceL
 auto Server::getFileDescriptorIndex() const noexcept -> unsigned int { return this->fileDescriptorIndex; }
 
 auto Server::startAccept(io_uring_sqe *sqe) const noexcept -> void {
-    const Submission submission{sqe, static_cast<int>(this->fileDescriptorIndex), nullptr, nullptr, 0};
+    const Submission submission{sqe, this->fileDescriptorIndex, nullptr, nullptr, 0};
 
     const UserData userData{TaskType::Accept, this->fileDescriptorIndex};
-    submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
+    submission.setUserData(std::bit_cast<unsigned long>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
 }
@@ -96,10 +89,10 @@ auto Server::resumeAccept(std::pair<int, unsigned int> result) -> void {
 }
 
 auto Server::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
-    const Submission submission{sqe, static_cast<int>(this->fileDescriptorIndex), IORING_ASYNC_CANCEL_ALL};
+    const Submission submission{sqe, this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
 
     const UserData userData{TaskType::Cancel, this->fileDescriptorIndex};
-    submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
+    submission.setUserData(std::bit_cast<unsigned long>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
 
@@ -118,7 +111,7 @@ auto Server::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, this->fileDescriptorIndex};
 
     const UserData userData{TaskType::Close, this->fileDescriptorIndex};
-    submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
+    submission.setUserData(std::bit_cast<unsigned long>(userData));
 
     return this->awaiter;
 }

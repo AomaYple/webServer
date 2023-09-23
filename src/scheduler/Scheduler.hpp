@@ -1,10 +1,11 @@
 #pragma once
 
 #include "../database/Database.hpp"
-#include "../socket/Client.hpp"
 #include "../socket/Server.hpp"
 #include "../socket/Timer.hpp"
 #include "../userRing/BufferRing.hpp"
+
+class Client;
 
 class Scheduler {
 public:
@@ -12,8 +13,21 @@ public:
 
     Scheduler(const Scheduler &) = delete;
 
-    Scheduler(Scheduler &&) noexcept;
+    Scheduler(Scheduler &&) = default;
 
+    auto operator=(const Scheduler &) -> Scheduler & = delete;
+
+    auto operator=(Scheduler &&) noexcept -> Scheduler &;
+
+    ~Scheduler();
+
+private:
+    auto destroy() -> void;
+
+    static auto judgeOneThreadOneInstance(std::source_location sourceLocation = std::source_location::current())
+            -> void;
+
+public:
     [[noreturn]] auto run() -> void;
 
 private:
@@ -37,8 +51,8 @@ private:
 
     static constinit thread_local bool instance;
     static constinit std::mutex lock;
-    static constinit int sharedFileDescriptor;
-    static constinit std::atomic_ushort cpuCode;
+    static constinit int sharedUserRingFileDescriptor;
+    static std::vector<int> userRingFileDescriptors;
 
     std::shared_ptr<UserRing> userRing;
     BufferRing bufferRing;

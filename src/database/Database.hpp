@@ -10,17 +10,25 @@
 class Database {
 public:
     Database(std::string_view host, std::string_view user, std::string_view password, std::string_view database,
-             unsigned int port, std::string_view unixSocket, unsigned long clientFlag);
+             unsigned short port, std::string_view unixSocket, unsigned int clientFlag);
 
     Database(const Database &) = delete;
 
     Database(Database &&) noexcept;
 
+    auto operator=(const Database &) -> Database & = delete;
+
+    auto operator=(Database &&) noexcept -> Database &;
+
+    ~Database();
+
 private:
+    auto destroy() noexcept -> void;
+
     auto initialize(std::source_location sourceLocation = std::source_location::current()) -> void;
 
     auto connect(std::string_view host, std::string_view user, std::string_view password, std::string_view database,
-                 unsigned int port, std::string_view unixSocket, unsigned long clientFlag,
+                 unsigned short port, std::string_view unixSocket, unsigned int clientFlag,
                  std::source_location sourceLocation = std::source_location::current()) -> void;
 
 public:
@@ -30,19 +38,14 @@ private:
     auto query(std::string_view statement, std::source_location sourceLocation = std::source_location::current())
             -> void;
 
-    [[nodiscard]] auto storeResult(std::source_location sourceLocation = std::source_location::current())
-            -> MYSQL_RES *;
+    [[nodiscard]] auto getResult(std::source_location sourceLocation = std::source_location::current()) -> MYSQL_RES *;
 
-    [[nodiscard]] static auto getColumnCount(MYSQL_RES *result) noexcept -> unsigned int;
+    [[nodiscard]] static auto getColumnCount(MYSQL_RES &result) noexcept -> unsigned int;
 
-    [[nodiscard]] static auto getRow(MYSQL_RES *result) noexcept -> char **;
+    [[nodiscard]] static auto getRow(MYSQL_RES &result) noexcept -> char **;
 
-    static auto freeResult(MYSQL_RES *result) noexcept -> void;
+    static auto freeResult(MYSQL_RES &result) noexcept -> void;
 
-public:
-    ~Database();
-
-private:
     static constinit std::mutex lock;
 
     MYSQL connection;

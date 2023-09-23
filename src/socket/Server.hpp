@@ -5,34 +5,39 @@
 
 #include <liburing.h>
 
+#include <netinet/in.h>
 #include <source_location>
-#include <span>
-#include <string_view>
 
 class Server {
 public:
-    [[nodiscard]] static auto create(unsigned short port) -> unsigned int;
-
     explicit Server(unsigned int fileDescriptorIndex) noexcept;
 
     Server(const Server &) = delete;
 
-    Server(Server &&) noexcept;
+    Server(Server &&) = default;
+
+    auto operator=(const Server &) -> Server & = delete;
+
+    auto operator=(Server &&) -> Server & = default;
+
+    ~Server() = default;
+
+    [[nodiscard]] static auto create(unsigned short port) -> unsigned int;
 
 private:
-    [[nodiscard]] static auto socket(int domain, int type, int protocol,
-                                     std::source_location sourceLocation = std::source_location::current()) -> int;
+    [[nodiscard]] static auto socket(std::source_location sourceLocation = std::source_location::current())
+            -> unsigned int;
 
-    static auto setSocketOption(int fileDescriptor, int level, int optionName, std::span<const std::byte> optionValue,
+    static auto setSocketOption(unsigned int fileDescriptor,
                                 std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    static auto translateIpAddress(int domain, std::string_view ipAddress, std::span<std::byte> buffer,
+    static auto translateIpAddress(in_addr &address,
                                    std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    static auto bind(int fileDescriptor, const sockaddr *address, socklen_t addressLength,
+    static auto bind(unsigned int fileDescriptor, const sockaddr_in &address,
                      std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    static auto listen(int fileDescriptor, int number,
+    static auto listen(unsigned int fileDescriptor,
                        std::source_location sourceLocation = std::source_location::current()) -> void;
 
 public:
@@ -59,7 +64,7 @@ public:
     auto resumeClose(std::pair<int, unsigned int> result) -> void;
 
 private:
-    const unsigned int fileDescriptorIndex;
+    unsigned int fileDescriptorIndex;
     Task acceptTask, cancelTask, closeTask;
     Awaiter awaiter;
 };

@@ -7,21 +7,16 @@ Client::Client(unsigned int fileDescriptorIndex, unsigned char timeout) noexcept
     : fileDescriptorIndex{fileDescriptorIndex}, timeout{timeout}, receiveTask{nullptr}, sendTask{nullptr},
       cancelTask{nullptr}, closeTask{nullptr} {}
 
-Client::Client(Client &&other) noexcept
-    : fileDescriptorIndex{other.fileDescriptorIndex}, timeout{other.timeout}, buffer{std::move(other.buffer)},
-      receiveTask{std::move(other.receiveTask)}, sendTask{std::move(other.sendTask)},
-      cancelTask{std::move(other.cancelTask)}, closeTask{std::move(other.closeTask)},
-      awaiter{std::move(other.awaiter)} {}
-
 auto Client::getFileDescriptorIndex() const noexcept -> unsigned int { return this->fileDescriptorIndex; }
 
 auto Client::getTimeout() const noexcept -> unsigned char { return this->timeout; }
 
 auto Client::startReceive(io_uring_sqe *sqe, unsigned short bufferRingId) const noexcept -> void {
-    const Submission submission{sqe, static_cast<int>(this->fileDescriptorIndex), {}, 0};
+    constexpr unsigned int flags{0};
+    const Submission submission{sqe, this->fileDescriptorIndex, {}, flags};
 
     const UserData userData{TaskType::Receive, this->fileDescriptorIndex};
-    submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
+    submission.setUserData(std::bit_cast<unsigned long>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE | IOSQE_BUFFER_SELECT);
 
@@ -45,10 +40,10 @@ auto Client::writeData(std::span<const std::byte> data) -> void {
 auto Client::send(io_uring_sqe *sqe, std::vector<std::byte> &&data) noexcept -> const Awaiter & {
     this->buffer = std::move(data);
 
-    const Submission submission{sqe, static_cast<int>(this->fileDescriptorIndex), this->buffer, 0, 0};
+    const Submission submission{sqe, this->fileDescriptorIndex, this->buffer, 0, 0};
 
     const UserData userData{TaskType::Send, this->fileDescriptorIndex};
-    submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
+    submission.setUserData(std::bit_cast<unsigned long>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
 
@@ -68,10 +63,10 @@ auto Client::readData() noexcept -> std::span<const std::byte> { return this->bu
 auto Client::clearBuffer() noexcept -> void { this->buffer.clear(); }
 
 auto Client::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
-    const Submission submission{sqe, static_cast<int>(this->fileDescriptorIndex), IORING_ASYNC_CANCEL_ALL};
+    const Submission submission{sqe, this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
 
     const UserData userData{TaskType::Cancel, this->fileDescriptorIndex};
-    submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
+    submission.setUserData(std::bit_cast<unsigned long>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
 
@@ -90,7 +85,7 @@ auto Client::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, this->fileDescriptorIndex};
 
     const UserData userData{TaskType::Close, this->fileDescriptorIndex};
-    submission.setUserData(reinterpret_cast<const unsigned long &>(userData));
+    submission.setUserData(std::bit_cast<unsigned long>(userData));
 
     return this->awaiter;
 }

@@ -39,13 +39,13 @@ auto Http::readFile(std::string_view filepath, std::source_location sourceLocati
                                             std::this_thread::get_id(), sourceLocation,
                                             "file not found: " + std::string{filepath})};
 
-    const auto size{file.tellg()};
+    const unsigned long size{static_cast<unsigned long>(file.tellg())};
     file.seekg(0, std::ios::beg);
 
     std::vector<std::byte> buffer(size, std::byte{0});
 
-    file.read(reinterpret_cast<char *>(buffer.data()), size);
-    if (file.gcount() != size)
+    file.read(reinterpret_cast<char *>(buffer.data()), static_cast<long>(size));
+    if (file.gcount() != static_cast<long>(size))
         throw HttpParseError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
                                             std::this_thread::get_id(), sourceLocation,
                                             "file read error: " + std::string{filepath})};
@@ -72,7 +72,7 @@ auto Http::brotli(std::span<const std::byte> data, std::source_location sourceLo
 auto Http::parse(std::string_view request, Database &database) -> std::vector<std::byte> {
     HttpResponse httpResponse;
 
-    const HttpRequest httpRequest{HttpRequest::parse(request)};
+    const HttpRequest httpRequest{request};
 
     try {
         Http::parseVersion(httpResponse, httpRequest.getVersion());
@@ -115,9 +115,9 @@ auto Http::parseVersion(HttpResponse &httpResponse, std::string_view version, st
 auto Http::parseGetHead(HttpResponse &httpResponse, const HttpRequest &httpRequest, bool writeBody) -> void {
     const std::string_view url{httpRequest.getUrl()};
 
-    const std::span<const std::byte> body{Http::instance.parseUrl(httpResponse, url)};
     Http::parseTypeEncoding(httpResponse, url);
 
+    const std::span<const std::byte> body{Http::instance.parseUrl(httpResponse, url)};
     Http::parseResource(httpResponse, httpRequest.getHeaderValue("Range"), body, writeBody);
 }
 
@@ -158,21 +158,21 @@ auto Http::parseResource(HttpResponse &httpResponse, std::string_view range, std
         range = range.substr(6);
         const unsigned char splitPoint{static_cast<unsigned char>(range.find('-'))};
 
-        const std::string stringStart{range.begin(), range.begin() + splitPoint};
-        const long digitStart{std::stol(stringStart)};
+        const std::string stringStart{range.cbegin(), range.cbegin() + splitPoint};
+        const unsigned long digitStart{std::stoul(stringStart)};
 
-        long digitEnd;
-        std::string stringEnd{range.begin() + splitPoint + 1, range.end()};
+        unsigned long digitEnd;
+        std::string stringEnd{range.cbegin() + splitPoint + 1, range.cend()};
 
         if (stringEnd.empty()) {
             digitEnd = digitStart + maxSize - 1;
-            if (digitEnd > body.size()) digitEnd = static_cast<long>(body.size()) - 1;
+            if (digitEnd > body.size()) digitEnd = body.size() - 1;
 
             stringEnd = std::to_string(digitEnd);
         } else
-            digitEnd = std::stol(stringEnd);
+            digitEnd = std::stoul(stringEnd);
 
-        if (digitStart < 0 || digitStart > digitEnd || digitEnd >= body.size()) {
+        if (digitStart > digitEnd || digitEnd >= body.size()) {
             httpResponse.setStatusCode("416 Range Not Satisfiable");
             httpResponse.addHeader("Content-Length: 0");
             httpResponse.setBody({});
@@ -182,17 +182,17 @@ auto Http::parseResource(HttpResponse &httpResponse, std::string_view range, std
                                                 "range not satisfiable: " + std::string{range})};
         }
 
-        httpResponse.addHeader("Content-Range: bytes " + stringStart + "-" + stringEnd + "/" +
+        httpResponse.addHeader("Content-Range: bytes " + stringStart + '-' + stringEnd + '/' +
                                std::to_string(body.size()));
 
-        body = {body.begin() + digitStart, body.begin() + digitEnd + 1};
+        body = {body.cbegin() + static_cast<long>(digitStart), body.cbegin() + static_cast<long>(digitEnd) + 1};
     } else if (body.size() > maxSize) {
         httpResponse.setStatusCode("206 Partial Content");
 
-        httpResponse.addHeader("Content-Range: bytes 0-" + std::to_string(maxSize - 1) + "/" +
+        httpResponse.addHeader("Content-Range: bytes 0-" + std::to_string(maxSize - 1) + '/' +
                                std::to_string(body.size()));
 
-        body = {body.begin(), body.begin() + maxSize};
+        body = {body.cbegin(), body.cbegin() + maxSize};
     } else
         httpResponse.setStatusCode("200 OK");
 

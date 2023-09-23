@@ -20,14 +20,18 @@ public:
 
     Task(Task &&) noexcept;
 
-    auto operator=(Task &&) noexcept -> Task &;
+    auto operator=(const Task &) -> Task & = delete;
 
-    auto resume() const -> void;
+    auto operator=(Task &&) noexcept -> Task &;
 
     ~Task();
 
 private:
     auto destroy() const -> void;
 
+public:
+    auto resume() const -> void;
+
+private:
     std::coroutine_handle<promise_type> handle;
 };

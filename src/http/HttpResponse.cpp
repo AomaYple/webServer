@@ -10,7 +10,7 @@ auto HttpResponse::setVersion(std::string_view newVersion) -> void {
     this->version.emplace_back(std::byte{'/'});
 
     const auto value{std::as_bytes(std::span{newVersion})};
-    this->version.insert(this->version.end(), value.begin(), value.end());
+    this->version.insert(this->version.cend(), value.cbegin(), value.cend());
 
     this->version.emplace_back(std::byte{' '});
 }
@@ -19,7 +19,7 @@ auto HttpResponse::setStatusCode(std::string_view newStatusCode) -> void {
     this->statusCode.clear();
 
     const auto value{std::as_bytes(std::span{newStatusCode})};
-    this->statusCode.insert(this->statusCode.end(), value.begin(), value.end());
+    this->statusCode.insert(this->statusCode.cend(), value.cbegin(), value.cend());
 
     this->statusCode.emplace_back(std::byte{'\r'});
     this->statusCode.emplace_back(std::byte{'\n'});
@@ -27,7 +27,7 @@ auto HttpResponse::setStatusCode(std::string_view newStatusCode) -> void {
 
 auto HttpResponse::addHeader(std::string_view header) -> void {
     const auto value{std::as_bytes(std::span{header})};
-    this->headers.insert(this->headers.end(), value.begin(), value.end());
+    this->headers.insert(this->headers.cend(), value.cbegin(), value.cend());
 
     this->headers.emplace_back(std::byte{'\r'});
     this->headers.emplace_back(std::byte{'\n'});
@@ -39,16 +39,16 @@ auto HttpResponse::setBody(std::span<const std::byte> newBody) -> void {
     this->body.emplace_back(std::byte{'\r'});
     this->body.emplace_back(std::byte{'\n'});
 
-    this->body.insert(this->body.end(), newBody.begin(), newBody.end());
+    this->body.insert(this->body.cend(), newBody.cbegin(), newBody.cend());
 }
 
 auto HttpResponse::combine() const -> std::vector<std::byte> {
     std::vector<std::byte> all;
 
-    all.insert(all.end(), this->version.begin(), this->version.end());
-    all.insert(all.end(), this->statusCode.begin(), this->statusCode.end());
-    all.insert(all.end(), this->headers.begin(), this->headers.end());
-    all.insert(all.end(), this->body.begin(), this->body.end());
+    all.insert(all.cend(), this->version.cbegin(), this->version.cend());
+    all.insert(all.cend(), this->statusCode.cbegin(), this->statusCode.cend());
+    all.insert(all.cend(), this->headers.cbegin(), this->headers.cend());
+    all.insert(all.cend(), this->body.cbegin(), this->body.cend());
 
     return all;
 }

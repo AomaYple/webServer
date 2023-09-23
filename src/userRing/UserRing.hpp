@@ -8,9 +8,6 @@
 
 class UserRing {
 public:
-    [[nodiscard]] static auto
-    getFileDescriptorLimit(std::source_location sourceLocation = std::source_location::current()) -> unsigned int;
-
     UserRing(unsigned int entries, io_uring_params &params,
              std::source_location sourceLocation = std::source_location::current());
 
@@ -18,7 +15,20 @@ public:
 
     UserRing(UserRing &&) noexcept;
 
-    [[nodiscard]] auto getSelfFileDescriptor() const noexcept -> int;
+    auto operator=(const UserRing &) -> UserRing & = delete;
+
+    auto operator=(UserRing &&) noexcept -> UserRing &;
+
+    ~UserRing();
+
+private:
+    auto destroy() noexcept -> void;
+
+public:
+    [[nodiscard]] static auto
+    getFileDescriptorLimit(std::source_location sourceLocation = std::source_location::current()) -> unsigned int;
+
+    [[nodiscard]] auto getSelfFileDescriptor() const noexcept -> unsigned int;
 
     auto registerSelfFileDescriptor(std::source_location sourceLocation = std::source_location::current()) -> void;
 
@@ -31,14 +41,14 @@ public:
     auto allocateFileDescriptorRange(unsigned int offset, unsigned int length,
                                      std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto updateFileDescriptors(unsigned int offset, std::span<const int> fileDescriptors,
+    auto updateFileDescriptors(unsigned int offset, std::span<const unsigned int> fileDescriptors,
                                std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    [[nodiscard]] auto setupBufferRing(unsigned int entries, int id,
+    [[nodiscard]] auto setupBufferRing(unsigned short entries, unsigned short id,
                                        std::source_location sourceLocation = std::source_location::current())
             -> io_uring_buf_ring *;
 
-    auto freeBufferRing(io_uring_buf_ring *bufferRing, unsigned int entries, int id,
+    auto freeBufferRing(io_uring_buf_ring *bufferRing, unsigned short entries, unsigned short id,
                         std::source_location sourceLocation = std::source_location::current()) -> void;
 
     auto submitWait(unsigned int waitCount, std::source_location sourceLocation = std::source_location::current())
@@ -49,10 +59,8 @@ public:
 
     [[nodiscard]] auto getSqe(std::source_location sourceLocation = std::source_location::current()) -> io_uring_sqe *;
 
-    auto advanceCompletionBufferRingBuffer(io_uring_buf_ring *bufferRing, int completionCount,
-                                           int bufferRingBufferCount) noexcept -> void;
-
-    ~UserRing();
+    auto advanceCompletionBufferRingBuffer(io_uring_buf_ring *bufferRing, unsigned int completionCount,
+                                           unsigned short bufferRingBufferCount) noexcept -> void;
 
 private:
     io_uring userRing;

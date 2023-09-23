@@ -11,9 +11,17 @@ public:
 
     BufferRing(const BufferRing &) = delete;
 
-    BufferRing(BufferRing &&) noexcept;
+    BufferRing(BufferRing &&) = default;
+
+    auto operator=(const BufferRing &) -> BufferRing & = delete;
+
+    auto operator=(BufferRing &&) noexcept -> BufferRing &;
+
+    ~BufferRing();
 
 private:
+    auto destroy() const -> void;
+
     auto add(unsigned short index) noexcept -> void;
 
 public:
@@ -23,12 +31,9 @@ public:
 
     auto advanceCompletionBufferRingBuffer(unsigned int completionCount) noexcept -> void;
 
-    ~BufferRing();
-
 private:
-    io_uring_buf_ring *const bufferRing;
+    io_uring_buf_ring *bufferRing;
     std::vector<std::vector<std::byte>> buffers;
-    const unsigned short id, mask;
-    unsigned short offset;
+    unsigned short id, mask, offset;
     std::shared_ptr<UserRing> userRing;
 };

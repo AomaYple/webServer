@@ -5,6 +5,6 @@ enum class TaskType : unsigned char { Accept, Timeout, Receive, Send, Cancel, Cl
 struct UserData {
     UserData(TaskType taskType, unsigned int fileDescriptor) noexcept;
 
-    const TaskType taskType;
-    const unsigned int fileDescriptor;
+    TaskType taskType;
+    unsigned int fileDescriptor;
 };

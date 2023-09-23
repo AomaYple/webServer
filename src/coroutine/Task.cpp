@@ -16,15 +16,17 @@ Task::Task(Task &&other) noexcept : handle{std::exchange(other.handle, nullptr)}
 auto Task::operator=(Task &&other) noexcept -> Task & {
     if (this != &other) {
         this->destroy();
+
         this->handle = std::exchange(other.handle, nullptr);
     }
+
     return *this;
 }
-
-auto Task::resume() const -> void { this->handle(); }
 
 Task::~Task() { this->destroy(); }
 
 auto Task::destroy() const -> void {
     if (this->handle) this->handle.destroy();
 }
+
+auto Task::resume() const -> void { this->handle(); }

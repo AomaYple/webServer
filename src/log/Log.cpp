@@ -6,8 +6,9 @@
 Log::Node::Node(std::string &&log, Node *next) noexcept : log{std::move(log)}, next{next} {}
 
 Log::Log()
-    : logFile{std::filesystem::current_path().string() + "/log.log", std::ofstream::trunc}, head{nullptr},
-      work{&Log::run, this} {}
+    : logFile{std::filesystem::current_path().string() + "/log.log", std::ofstream::trunc}, work{&Log::run, this} {}
+
+Log::~Log() { Log::consume(Log::invertLinkedList(this->head.load(std::memory_order_relaxed))); }
 
 auto Log::run() -> void {
     while (true) {

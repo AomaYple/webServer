@@ -14,7 +14,13 @@ public:
 
     Client(const Client &) = delete;
 
-    Client(Client &&) noexcept;
+    Client(Client &&) = default;
+
+    auto operator=(const Client &) -> Client & = delete;
+
+    auto operator=(Client &&) -> Client & = default;
+
+    ~Client() = default;
 
     [[nodiscard]] auto getFileDescriptorIndex() const noexcept -> unsigned int;
 
@@ -53,8 +59,8 @@ public:
     auto resumeClose(std::pair<int, unsigned int> result) -> void;
 
 private:
-    const unsigned int fileDescriptorIndex;
-    const unsigned char timeout;
+    unsigned int fileDescriptorIndex;
+    unsigned char timeout;
     std::vector<std::byte> buffer;
     Task receiveTask, sendTask, cancelTask, closeTask;
     Awaiter awaiter;

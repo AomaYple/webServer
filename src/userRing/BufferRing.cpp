@@ -10,14 +10,31 @@ BufferRing::BufferRing(unsigned short bufferCount, unsigned int bufferSize, unsi
     this->advanceCompletionBufferRingBuffer(0);
 }
 
-BufferRing::BufferRing(BufferRing &&other) noexcept
-    : bufferRing{other.bufferRing}, buffers{std::move(other.buffers)}, id{other.id}, mask{other.mask},
-      offset{other.offset}, userRing{std::move(other.userRing)} {}
+auto BufferRing::operator=(BufferRing &&other) noexcept -> BufferRing & {
+    if (this != &other) {
+        this->destroy();
+
+        this->bufferRing = other.bufferRing;
+        this->buffers = std::move(other.buffers);
+        this->id = other.id;
+        this->mask = other.mask;
+        this->offset = other.offset;
+        this->userRing = std::move(other.userRing);
+    }
+
+    return *this;
+}
+
+BufferRing::~BufferRing() { this->destroy(); }
+
+auto BufferRing::destroy() const -> void {
+    if (this->userRing != nullptr) this->userRing->freeBufferRing(this->bufferRing, this->buffers.size(), this->id);
+}
 
 auto BufferRing::add(unsigned short index) noexcept -> void {
     const std::span<std::byte> buffer{this->buffers[index]};
 
-    io_uring_buf_ring_add(this->bufferRing, buffer.data(), buffer.size_bytes(), index, this->mask, this->offset++);
+    io_uring_buf_ring_add(this->bufferRing, buffer.data(), buffer.size(), index, this->mask, this->offset++);
 }
 
 auto BufferRing::getId() const noexcept -> unsigned short { return this->id; }
@@ -25,7 +42,7 @@ auto BufferRing::getId() const noexcept -> unsigned short { return this->id; }
 auto BufferRing::getData(unsigned short bufferIndex, unsigned int dataSize) -> std::vector<std::byte> {
     const std::span<const std::byte> buffer{this->buffers[bufferIndex]};
 
-    std::vector<std::byte> data{buffer.begin(), buffer.begin() + dataSize};
+    std::vector<std::byte> data{buffer.cbegin(), buffer.cbegin() + dataSize};
 
     this->add(bufferIndex);
 
@@ -33,12 +50,7 @@ auto BufferRing::getData(unsigned short bufferIndex, unsigned int dataSize) -> s
 }
 
 auto BufferRing::advanceCompletionBufferRingBuffer(unsigned int completionCount) noexcept -> void {
-    this->userRing->advanceCompletionBufferRingBuffer(this->bufferRing, static_cast<int>(completionCount),
-                                                      this->offset);
+    this->userRing->advanceCompletionBufferRingBuffer(this->bufferRing, completionCount, this->offset);
 
     this->offset = 0;
-}
-
-BufferRing::~BufferRing() {
-    if (this->userRing != nullptr) this->userRing->freeBufferRing(this->bufferRing, this->buffers.size(), this->id);
 }

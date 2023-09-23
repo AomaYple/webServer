@@ -2,20 +2,16 @@
 
 #include "../http/Http.hpp"
 #include "../log/Log.hpp"
+#include "../socket/Client.hpp"
 #include "../userRing/Completion.hpp"
 #include "../userRing/UserData.hpp"
 #include "ScheduleError.hpp"
 
-#include <algorithm>
 #include <cstring>
 
 Scheduler::Scheduler()
-    : userRing{[](std::source_location sourceLocation = std::source_location::current()) {
-          if (Scheduler::instance)
-              throw ScheduleError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
-                                                 std::this_thread::get_id(), sourceLocation,
-                                                 "one scheduler instance per thread")};
-          Scheduler::instance = true;
+    : userRing{[]() {
+          Scheduler::judgeOneThreadOneInstance();
 
           io_uring_params params{};
 
@@ -27,15 +23,20 @@ Scheduler::Scheduler()
           {
               const std::lock_guard lockGuard{Scheduler::lock};
 
-              if (Scheduler::sharedFileDescriptor != -1) {
-                  params.wq_fd = Scheduler::sharedFileDescriptor;
+              if (Scheduler::sharedUserRingFileDescriptor != -1) {
+                  params.wq_fd = Scheduler::sharedUserRingFileDescriptor;
                   params.flags |= IORING_SETUP_ATTACH_WQ;
               }
 
               tempUserRing = std::make_shared<UserRing>(1024, params);
 
-              if (Scheduler::sharedFileDescriptor == -1)
-                  Scheduler::sharedFileDescriptor = tempUserRing->getSelfFileDescriptor();
+              if (Scheduler::sharedUserRingFileDescriptor == -1)
+                  Scheduler::sharedUserRingFileDescriptor = static_cast<int>(tempUserRing->getSelfFileDescriptor());
+
+              const auto result{std::ranges::find(Scheduler::userRingFileDescriptors, -1)};
+              *result = static_cast<int>(tempUserRing->getSelfFileDescriptor());
+
+              tempUserRing->registerCpu(std::distance(Scheduler::userRingFileDescriptors.begin(), result));
           }
 
           return tempUserRing;
@@ -43,18 +44,54 @@ Scheduler::Scheduler()
       bufferRing{1024, 1024, 0, this->userRing}, server{0}, timer{1},
       database{{}, "AomaYple", "38820233", "webServer", 0, {}, 0} {
     this->userRing->registerSelfFileDescriptor();
-    this->userRing->registerCpu(Scheduler::cpuCode++);
     this->userRing->registerSparseFileDescriptors(UserRing::getFileDescriptorLimit());
     this->userRing->allocateFileDescriptorRange(2, UserRing::getFileDescriptorLimit() - 2);
 
-    const std::array<int, 2> fileDescriptors{static_cast<int>(Server::create(9999)), static_cast<int>(Timer::create())};
+    const std::array<unsigned int, 2> fileDescriptors{Server::create(9999), Timer::create()};
 
     this->userRing->updateFileDescriptors(0, fileDescriptors);
 }
 
-Scheduler::Scheduler(Scheduler &&other) noexcept
-    : userRing{std::move(other.userRing)}, bufferRing{std::move(other.bufferRing)}, server{std::move(other.server)},
-      timer{std::move(other.timer)}, database{std::move(other.database)}, clients{std::move(other.clients)} {}
+auto Scheduler::operator=(Scheduler &&other) noexcept -> Scheduler & {
+    if (this != &other) {
+        this->destroy();
+
+        this->userRing = std::move(other.userRing);
+        this->bufferRing = std::move(other.bufferRing);
+        this->server = std::move(other.server);
+        this->timer = std::move(other.timer);
+        this->database = std::move(other.database);
+        this->clients = std::move(other.clients);
+    }
+
+    return *this;
+}
+
+Scheduler::~Scheduler() { this->destroy(); }
+
+auto Scheduler::destroy() -> void {
+    if (this->userRing != nullptr) {
+        Scheduler::instance = false;
+
+        auto result{std::ranges::find(Scheduler::userRingFileDescriptors, this->userRing->getSelfFileDescriptor())};
+        *result = -1;
+
+        if (static_cast<int>(this->userRing->getSelfFileDescriptor()) == Scheduler::sharedUserRingFileDescriptor) {
+            result = std::ranges::find_if(Scheduler::userRingFileDescriptors,
+                                          [](int userRingFileDescriptor) { return userRingFileDescriptor != -1; });
+
+            Scheduler::sharedUserRingFileDescriptor = *result;
+        }
+    }
+}
+
+auto Scheduler::judgeOneThreadOneInstance(std::source_location sourceLocation) -> void {
+    if (Scheduler::instance)
+        throw ScheduleError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
+                                           std::this_thread::get_id(), sourceLocation,
+                                           "one scheduler instance per thread")};
+    Scheduler::instance = true;
+}
 
 auto Scheduler::run() -> void {
     Task task{this->accept()};
@@ -79,7 +116,7 @@ auto Scheduler::frame(io_uring_cqe *cqe) -> void {
     const Completion completion{cqe};
 
     const unsigned long completionUserData{completion.getUserData()};
-    const UserData userData{reinterpret_cast<const UserData &>(completionUserData)};
+    const UserData userData{std::bit_cast<UserData>(completionUserData)};
 
     const std::pair<int, unsigned int> result{completion.getResult(), completion.getFlags()};
 
@@ -167,13 +204,13 @@ auto Scheduler::timing(std::source_location sourceLocation) -> Task {
         const std::pair<int, unsigned int> result{co_await this->timer.timing(this->userRing->getSqe())};
 
         if (result.first == sizeof(unsigned long)) {
-            std::ranges::for_each(this->timer.clearTimeout(), [this](unsigned int fileDescriptor) {
+            for (const unsigned int fileDescriptor: this->timer.clearTimeout()) {
                 Client &client{this->clients.at(fileDescriptor)};
 
                 Task task{this->cancel(client)};
                 task.resume();
                 client.setCancelTask(std::move(task));
-            });
+            }
         } else
             throw ScheduleError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
                                                std::this_thread::get_id(), sourceLocation,
@@ -259,5 +296,5 @@ auto Scheduler::close(const Client &client, std::source_location sourceLocation)
 
 constinit thread_local bool Scheduler::instance{false};
 constinit std::mutex Scheduler::lock;
-constinit int Scheduler::sharedFileDescriptor{-1};
-constinit std::atomic_ushort Scheduler::cpuCode{0};
+constinit int Scheduler::sharedUserRingFileDescriptor{-1};
+std::vector<int> Scheduler::userRingFileDescriptors{std::vector<int>(std::jthread::hardware_concurrency(), -1)};
