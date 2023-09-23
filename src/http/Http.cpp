@@ -204,7 +204,7 @@ auto Http::parsePost(HttpResponse &httpResponse, std::string_view message, Datab
     httpResponse.setStatusCode("200 OK");
 
     std::array<std::string_view, 4> values;
-    for (auto point{values.cbegin()}; const auto &valueView: std::views::split(message, '&'))
+    for (auto point{values.begin()}; const auto &valueView: std::views::split(message, '&'))
         for (const auto &subValueView: std::views::split(valueView, '=')) *point++ = std::string_view{subValueView};
 
     if (values[0] == "id") Http::parseLogin(httpResponse, values[1], values[3], database);
