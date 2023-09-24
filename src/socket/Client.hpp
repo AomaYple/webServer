@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../coroutine/Awaiter.hpp"
-#include "../coroutine/Task.hpp"
+#include "../coroutine/Generator.hpp"
 
 #include <liburing.h>
 
@@ -30,7 +30,7 @@ public:
 
     [[nodiscard]] auto receive() const noexcept -> const Awaiter &;
 
-    auto setReceiveTask(Task &&task) noexcept -> void;
+    auto setReceiveGenerator(Generator &&generator) noexcept -> void;
 
     auto resumeReceive(std::pair<int, unsigned int> result) -> void;
 
@@ -38,7 +38,7 @@ public:
 
     [[nodiscard]] auto send(io_uring_sqe *sqe, std::vector<std::byte> &&data) noexcept -> const Awaiter &;
 
-    auto setSendTask(Task &&task) noexcept -> void;
+    auto setSendGenerator(Generator &&generator) noexcept -> void;
 
     auto resumeSend(std::pair<int, unsigned int> result) -> void;
 
@@ -46,15 +46,9 @@ public:
 
     auto clearBuffer() noexcept -> void;
 
-    [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
-
-    auto setCancelTask(Task &&task) noexcept -> void;
-
-    auto resumeCancel(std::pair<int, unsigned int> result) -> void;
-
     [[nodiscard]] auto close(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
-    auto setCloseTask(Task &&task) noexcept -> void;
+    auto setCloseGenerator(Generator &&generator) noexcept -> void;
 
     auto resumeClose(std::pair<int, unsigned int> result) -> void;
 
@@ -62,6 +56,6 @@ private:
     unsigned int fileDescriptorIndex;
     unsigned char timeout;
     std::vector<std::byte> buffer;
-    Task receiveTask, sendTask, cancelTask, closeTask;
+    Generator receiveGenerator, sendGenerator, closeGenerator;
     Awaiter awaiter;
 };

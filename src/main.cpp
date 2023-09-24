@@ -5,12 +5,11 @@
 auto main() -> int {
     std::vector<std::jthread> works(std::jthread::hardware_concurrency() - 1);
 
-    for (std::jthread &work: works) {
+    for (std::jthread &work: works)
         work = std::jthread([] {
             Scheduler scheduler;
             scheduler.run();
         });
-    }
 
     Scheduler scheduler;
     scheduler.run();

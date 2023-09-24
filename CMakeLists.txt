@@ -17,37 +17,9 @@ endif ()
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME})
 
-add_executable(${PROJECT_NAME}
-        src/coroutine/Awaiter.cpp
-        src/coroutine/Task.cpp
+file(GLOB_RECURSE SOURCES src/*.cpp)
 
-        src/database/Database.cpp
-        src/database/DatabaseCallError.cpp
-
-        src/http/Http.cpp
-        src/http/HttpParseError.cpp
-        src/http/HttpRequest.cpp
-        src/http/HttpResponse.cpp
-
-        src/log/Log.cpp
-
-        src/scheduler/ScheduleError.cpp
-        src/scheduler/Scheduler.cpp
-
-        src/socket/Client.cpp
-        src/socket/Server.cpp
-        src/socket/SystemCallError.cpp
-        src/socket/Timer.cpp
-
-        src/userRing/BufferRing.cpp
-        src/userRing/Completion.cpp
-        src/userRing/Submission.cpp
-        src/userRing/UserData.cpp
-        src/userRing/UserRing.cpp
-        src/userRing/UserRingCallError.cpp
-
-        src/main.cpp
-)
+add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         uring

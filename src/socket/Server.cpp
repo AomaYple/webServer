@@ -9,8 +9,7 @@
 
 #include <cstring>
 
-Server::Server(unsigned int fileDescriptorIndex) noexcept
-    : fileDescriptorIndex{fileDescriptorIndex}, acceptTask{nullptr}, cancelTask{nullptr}, closeTask{nullptr} {}
+Server::Server(unsigned int fileDescriptorIndex) noexcept : fileDescriptorIndex{fileDescriptorIndex} {}
 
 auto Server::create(unsigned short port) -> unsigned int {
     const unsigned int fileDescriptor{Server::socket()};
@@ -72,7 +71,7 @@ auto Server::getFileDescriptorIndex() const noexcept -> unsigned int { return th
 auto Server::startAccept(io_uring_sqe *sqe) const noexcept -> void {
     const Submission submission{sqe, this->fileDescriptorIndex, nullptr, nullptr, 0};
 
-    const UserData userData{TaskType::Accept, this->fileDescriptorIndex};
+    const UserData userData{EventType::Accept, this->fileDescriptorIndex};
     submission.setUserData(std::bit_cast<unsigned long>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
@@ -80,46 +79,29 @@ auto Server::startAccept(io_uring_sqe *sqe) const noexcept -> void {
 
 auto Server::accept() const noexcept -> const Awaiter & { return this->awaiter; }
 
-auto Server::setAcceptTask(Task &&task) noexcept -> void { this->acceptTask = std::move(task); }
+auto Server::setAcceptGenerator(Generator &&generator) noexcept -> void {
+    this->acceptGenerator = std::move(generator);
+}
 
 auto Server::resumeAccept(std::pair<int, unsigned int> result) -> void {
     this->awaiter.setResult(result);
 
-    this->acceptTask.resume();
-}
-
-auto Server::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
-    const Submission submission{sqe, this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
-
-    const UserData userData{TaskType::Cancel, this->fileDescriptorIndex};
-    submission.setUserData(std::bit_cast<unsigned long>(userData));
-
-    submission.setFlags(IOSQE_FIXED_FILE);
-
-    return this->awaiter;
-}
-
-auto Server::setCancelTask(Task &&task) noexcept -> void { this->cancelTask = std::move(task); }
-
-auto Server::resumeCancel(std::pair<int, unsigned int> result) -> void {
-    this->awaiter.setResult(result);
-
-    this->cancelTask.resume();
+    this->acceptGenerator.resume();
 }
 
 auto Server::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, this->fileDescriptorIndex};
 
-    const UserData userData{TaskType::Close, this->fileDescriptorIndex};
+    const UserData userData{EventType::Close, this->fileDescriptorIndex};
     submission.setUserData(std::bit_cast<unsigned long>(userData));
 
     return this->awaiter;
 }
 
-auto Server::setCloseTask(Task &&task) noexcept -> void { this->closeTask = std::move(task); }
+auto Server::setCloseGenerator(Generator &&generator) noexcept -> void { this->closeGenerator = std::move(generator); }
 
 auto Server::resumeClose(std::pair<int, unsigned int> result) -> void {
     this->awaiter.setResult(result);
 
-    this->closeTask.resume();
+    this->closeGenerator.resume();
 }

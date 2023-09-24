@@ -9,9 +9,7 @@
 
 #include <cstring>
 
-Timer::Timer(unsigned int fileDescriptorIndex)
-    : fileDescriptorIndex{fileDescriptorIndex}, now{0}, expireCount{0}, timingTask{nullptr}, cancelTask{nullptr},
-      closeTask{nullptr} {}
+Timer::Timer(unsigned int fileDescriptorIndex) : fileDescriptorIndex{fileDescriptorIndex}, now{0}, expireCount{0} {}
 
 auto Timer::create() -> unsigned int {
     const unsigned int fileDescriptor{Timer::createFileDescriptor()};
@@ -47,7 +45,7 @@ auto Timer::timing(io_uring_sqe *sqe) noexcept -> const Awaiter & {
                                 {std::as_writable_bytes(std::span{&this->expireCount, 1})},
                                 offset};
 
-    const UserData userData{TaskType::Timeout, this->fileDescriptorIndex};
+    const UserData userData{EventType::Timeout, this->fileDescriptorIndex};
     submission.setUserData(std::bit_cast<unsigned long>(userData));
 
     submission.setFlags(IOSQE_FIXED_FILE);
@@ -55,12 +53,12 @@ auto Timer::timing(io_uring_sqe *sqe) noexcept -> const Awaiter & {
     return this->awaiter;
 }
 
-auto Timer::setTimingTask(Task &&task) noexcept -> void { this->timingTask = std::move(task); }
+auto Timer::setTimingGenerator(Generator &&generator) noexcept -> void { this->timingGenerator = std::move(generator); }
 
 auto Timer::resumeTiming(std::pair<int, unsigned int> result) -> void {
     this->awaiter.setResult(result);
 
-    this->timingTask.resume();
+    this->timingGenerator.resume();
 }
 
 auto Timer::clearTimeout() -> std::vector<unsigned int> {
@@ -114,38 +112,19 @@ auto Timer::remove(unsigned int fileDescriptor) -> void {
     this->location.erase(fileDescriptor);
 }
 
-auto Timer::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
-    const Submission submission{sqe, this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
-
-    const UserData userData{TaskType::Cancel, this->fileDescriptorIndex};
-    submission.setUserData(std::bit_cast<unsigned long>(userData));
-
-    submission.setFlags(IOSQE_FIXED_FILE);
-
-    return this->awaiter;
-}
-
-auto Timer::setCancelTask(Task &&task) noexcept -> void { this->cancelTask = std::move(task); }
-
-auto Timer::resumeCancel(std::pair<int, unsigned int> result) -> void {
-    this->awaiter.setResult(result);
-
-    this->cancelTask.resume();
-}
-
 auto Timer::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, this->fileDescriptorIndex};
 
-    const UserData userData{TaskType::Close, this->fileDescriptorIndex};
+    const UserData userData{EventType::Close, this->fileDescriptorIndex};
     submission.setUserData(std::bit_cast<unsigned long>(userData));
 
     return this->awaiter;
 }
 
-auto Timer::setCloseTask(Task &&task) noexcept -> void { this->closeTask = std::move(task); }
+auto Timer::setCloseGenerator(Generator &&generator) noexcept -> void { this->closeGenerator = std::move(generator); }
 
 auto Timer::resumeClose(std::pair<int, unsigned int> result) -> void {
     this->awaiter.setResult(result);
 
-    this->closeTask.resume();
+    this->closeGenerator.resume();
 }

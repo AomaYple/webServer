@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../coroutine/Awaiter.hpp"
-#include "../coroutine/Task.hpp"
+#include "../coroutine/Generator.hpp"
 
 #include <liburing.h>
 
@@ -39,7 +39,7 @@ public:
 
     [[nodiscard]] auto timing(io_uring_sqe *sqe) noexcept -> const Awaiter &;
 
-    auto setTimingTask(Task &&task) noexcept -> void;
+    auto setTimingGenerator(Generator &&generator) noexcept -> void;
 
     auto resumeTiming(std::pair<int, unsigned int> result) -> void;
 
@@ -53,15 +53,9 @@ public:
 
     auto remove(unsigned int fileDescriptor) -> void;
 
-    [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
-
-    auto setCancelTask(Task &&task) noexcept -> void;
-
-    auto resumeCancel(std::pair<int, unsigned int> result) -> void;
-
     [[nodiscard]] auto close(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
-    auto setCloseTask(Task &&task) noexcept -> void;
+    auto setCloseGenerator(Generator &&generator) noexcept -> void;
 
     auto resumeClose(std::pair<int, unsigned int> result) -> void;
 
@@ -71,6 +65,6 @@ private:
     unsigned long expireCount;
     std::array<std::unordered_set<unsigned int>, 61> wheel;
     std::unordered_map<unsigned int, unsigned char> location;
-    Task timingTask, cancelTask, closeTask;
+    Generator timingGenerator, closeGenerator;
     Awaiter awaiter;
 };

@@ -2,10 +2,10 @@
 
 #include <coroutine>
 
-class Task {
+class Generator {
 public:
     struct promise_type {
-        [[nodiscard]] auto get_return_object() -> Task;
+        [[nodiscard]] auto get_return_object() -> Generator;
 
         [[nodiscard]] constexpr auto initial_suspend() const noexcept -> std::suspend_always { return {}; }
 
@@ -14,17 +14,17 @@ public:
         auto unhandled_exception() const -> void;
     };
 
-    explicit Task(std::coroutine_handle<promise_type> handle) noexcept;
+    explicit Generator(std::coroutine_handle<promise_type> handle = nullptr) noexcept;
 
-    Task(const Task &) = delete;
+    Generator(const Generator &) = delete;
 
-    Task(Task &&) noexcept;
+    Generator(Generator &&) noexcept;
 
-    auto operator=(const Task &) -> Task & = delete;
+    auto operator=(const Generator &) -> Generator & = delete;
 
-    auto operator=(Task &&) noexcept -> Task &;
+    auto operator=(Generator &&) noexcept -> Generator &;
 
-    ~Task();
+    ~Generator();
 
 private:
     auto destroy() const -> void;

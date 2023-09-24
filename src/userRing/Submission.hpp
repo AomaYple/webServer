@@ -18,8 +18,6 @@ public:
     Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, std::span<const std::byte> buffer, unsigned int flags,
                unsigned char zeroCopyFlags) noexcept;
 
-    Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, unsigned char flags) noexcept;
-
     Submission(io_uring_sqe *sqe, unsigned int fileDescriptorIndex) noexcept;
 
     Submission(const Submission &) = delete;

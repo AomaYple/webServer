@@ -13,19 +13,19 @@ public:
 
     Scheduler(const Scheduler &) = delete;
 
-    Scheduler(Scheduler &&) = default;
+    Scheduler(Scheduler &&) = delete;
 
     auto operator=(const Scheduler &) -> Scheduler & = delete;
 
-    auto operator=(Scheduler &&) noexcept -> Scheduler &;
+    auto operator=(Scheduler &&) -> Scheduler & = delete;
 
     ~Scheduler();
 
 private:
-    auto destroy() -> void;
-
     static auto judgeOneThreadOneInstance(std::source_location sourceLocation = std::source_location::current())
             -> void;
+
+    auto releaseResources() -> void;
 
 public:
     [[noreturn]] auto run() -> void;
@@ -33,21 +33,22 @@ public:
 private:
     auto frame(io_uring_cqe *cqe) -> void;
 
-    [[nodiscard]] auto accept(std::source_location sourceLocation = std::source_location::current()) -> Task;
+    [[nodiscard]] auto accept(std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
-    [[nodiscard]] auto timing(std::source_location sourceLocation = std::source_location::current()) -> Task;
+    [[nodiscard]] auto timing(std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
     [[nodiscard]] auto receive(Client &client, std::source_location sourceLocation = std::source_location::current())
-            -> Task;
+            -> Generator;
 
     [[nodiscard]] auto send(Client &client, std::source_location sourceLocation = std::source_location::current())
-            -> Task;
+            -> Generator;
 
-    [[nodiscard]] auto cancel(Client &client,
-                              std::source_location sourceLocation = std::source_location::current()) const -> Task;
+    [[nodiscard]] auto closeClient(const Client &client,
+                                   std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
-    [[nodiscard]] auto close(const Client &client,
-                             std::source_location sourceLocation = std::source_location::current()) const -> Task;
+    [[nodiscard]] auto closeServer(std::source_location sourceLocation = std::source_location::current()) -> Generator;
+
+    [[nodiscard]] auto closeTimer(std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
     static constinit thread_local bool instance;
     static constinit std::mutex lock;

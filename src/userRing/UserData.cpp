@@ -1,4 +1,4 @@
 #include "UserData.hpp"
 
-UserData::UserData(TaskType taskType, unsigned int fileDescriptor) noexcept
-    : taskType{taskType}, fileDescriptor{fileDescriptor} {}
+UserData::UserData(EventType eventType, unsigned int fileDescriptor) noexcept
+    : eventType{eventType}, fileDescriptor{fileDescriptor} {}

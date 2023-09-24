@@ -1,10 +1,10 @@
 #pragma once
 
-enum class TaskType : unsigned char { Accept, Timeout, Receive, Send, Cancel, Close };
+enum class EventType : unsigned char { Accept, Timeout, Receive, Send, Close };
 
 struct UserData {
-    UserData(TaskType taskType, unsigned int fileDescriptor) noexcept;
+    UserData(EventType eventType, unsigned int fileDescriptor) noexcept;
 
-    TaskType taskType;
+    EventType eventType;
     unsigned int fileDescriptor;
 };

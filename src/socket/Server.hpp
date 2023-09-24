@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../coroutine/Awaiter.hpp"
-#include "../coroutine/Task.hpp"
+#include "../coroutine/Generator.hpp"
 
 #include <liburing.h>
 
@@ -47,24 +47,18 @@ public:
 
     [[nodiscard]] auto accept() const noexcept -> const Awaiter &;
 
-    auto setAcceptTask(Task &&task) noexcept -> void;
+    auto setAcceptGenerator(Generator &&generator) noexcept -> void;
 
     auto resumeAccept(std::pair<int, unsigned int> result) -> void;
 
-    [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
-
-    auto setCancelTask(Task &&task) noexcept -> void;
-
-    auto resumeCancel(std::pair<int, unsigned int> result) -> void;
-
     [[nodiscard]] auto close(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
-    auto setCloseTask(Task &&task) noexcept -> void;
+    auto setCloseGenerator(Generator &&generator) noexcept -> void;
 
     auto resumeClose(std::pair<int, unsigned int> result) -> void;
 
 private:
     unsigned int fileDescriptorIndex;
-    Task acceptTask, cancelTask, closeTask;
+    Generator acceptGenerator, closeGenerator;
     Awaiter awaiter;
 };
