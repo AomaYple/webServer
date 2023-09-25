@@ -46,6 +46,12 @@ public:
 
     auto clearBuffer() noexcept -> void;
 
+    auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
+
+    auto setCancelGenerator(Generator &&generator) noexcept -> void;
+
+    auto resumeCancel(std::pair<int, unsigned int> result) -> void;
+
     [[nodiscard]] auto close(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
     auto setCloseGenerator(Generator &&generator) noexcept -> void;
@@ -56,6 +62,6 @@ private:
     unsigned int fileDescriptorIndex;
     unsigned char timeout;
     std::vector<std::byte> buffer;
-    Generator receiveGenerator, sendGenerator, closeGenerator;
+    Generator receiveGenerator, sendGenerator, cancelGenerator, closeGenerator;
     Awaiter awaiter;
 };

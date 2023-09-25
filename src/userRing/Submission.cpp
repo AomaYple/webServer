@@ -27,6 +27,10 @@ Submission::Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, std::span
                           static_cast<int>(flags), zeroCopyFlags);
 }
 
+Submission::Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, unsigned char flags) noexcept : submission{sqe} {
+    io_uring_prep_cancel_fd(this->submission, static_cast<int>(fileDescriptor), flags);
+}
+
 Submission::Submission(io_uring_sqe *sqe, unsigned int fileDescriptorIndex) noexcept : submission{sqe} {
     io_uring_prep_close_direct(this->submission, fileDescriptorIndex);
 }

@@ -159,19 +159,20 @@ auto Scheduler::frame(io_uring_cqe *cqe) -> void {
             this->timer.resumeTiming(result);
 
             break;
-        case EventType::Receive: {
-            Client &client{this->clients.at(userData.fileDescriptor)};
+        case EventType::Receive:
+            if (result.first >= 0 || std::abs(result.first) != ECANCELED) {
+                Client &client{this->clients.at(userData.fileDescriptor)};
 
-            try {
-                client.resumeReceive(result);
-            } catch (const ScheduleError &scheduleError) {
-                client.setReceiveGenerator(Generator{});
+                try {
+                    client.resumeReceive(result);
+                } catch (const ScheduleError &scheduleError) {
+                    client.setReceiveGenerator(Generator{});
 
-                Log::produce(scheduleError.what());
+                    Log::produce(scheduleError.what());
+                }
             }
-        }
 
-        break;
+            break;
         case EventType::Send:
             if (!(result.second & IORING_CQE_F_NOTIF)) {
                 Client &client{this->clients.at(userData.fileDescriptor)};
@@ -184,6 +185,17 @@ auto Scheduler::frame(io_uring_cqe *cqe) -> void {
             }
 
             break;
+        case EventType::Cancel: {
+            Client &client{this->clients.at(userData.fileDescriptor)};
+
+            try {
+                client.resumeCancel(result);
+            } catch (const ScheduleError &scheduleError) { Log::produce(scheduleError.what()); }
+
+            client.setCancelGenerator(Generator{});
+        }
+
+        break;
         case EventType::Close:
             try {
                 this->clients.at(userData.fileDescriptor).resumeClose(result);
@@ -226,9 +238,9 @@ auto Scheduler::timing(std::source_location sourceLocation) -> Generator {
             for (const unsigned int fileDescriptor: this->timer.clearTimeout()) {
                 Client &client{this->clients.at(fileDescriptor)};
 
-                Generator generator{this->closeClient(client)};
+                Generator generator{this->cancelClient(client)};
                 generator.resume();
-                client.setCloseGenerator(std::move(generator));
+                client.setCancelGenerator(std::move(generator));
             }
         } else
             throw ScheduleError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
@@ -256,9 +268,9 @@ auto Scheduler::receive(Client &client, std::source_location sourceLocation) -> 
         } else {
             this->timer.remove(client.getFileDescriptorIndex());
 
-            Generator generator{this->closeClient(client)};
+            Generator generator{this->cancelClient(client)};
             generator.resume();
-            client.setCloseGenerator(std::move(generator));
+            client.setCancelGenerator(std::move(generator));
 
             throw ScheduleError{Log::formatLog(Log::Level::Error, std::chrono::system_clock::now(),
                                                std::this_thread::get_id(), sourceLocation,
@@ -281,14 +293,27 @@ auto Scheduler::send(Client &client, std::source_location sourceLocation) -> Gen
     if (result.first <= 0) {
         this->timer.remove(client.getFileDescriptorIndex());
 
-        Generator generator{this->closeClient(client)};
+        Generator generator{this->cancelClient(client)};
         generator.resume();
-        client.setCloseGenerator(std::move(generator));
+        client.setCancelGenerator(std::move(generator));
 
         throw ScheduleError{Log::formatLog(Log::Level::Error, std::chrono::system_clock::now(),
                                            std::this_thread::get_id(), sourceLocation,
                                            std::strerror(std::abs(result.first)))};
     }
+}
+
+auto Scheduler::cancelClient(Client &client, std::source_location sourceLocation) -> Generator {
+    const std::pair<int, unsigned int> result{co_await client.cancel(this->userRing->getSqe())};
+
+    Generator generator{this->closeClient(client)};
+    generator.resume();
+    client.setCloseGenerator(std::move(generator));
+
+    if (result.first < 0)
+        throw ScheduleError{Log::formatLog(Log::Level::Error, std::chrono::system_clock::now(),
+                                           std::this_thread::get_id(), sourceLocation,
+                                           std::strerror(std::abs(result.first)))};
 }
 
 auto Scheduler::closeClient(const Client &client, std::source_location sourceLocation) -> Generator {

@@ -63,6 +63,27 @@ auto Client::readData() noexcept -> std::span<const std::byte> { return this->bu
 
 auto Client::clearBuffer() noexcept -> void { this->buffer.clear(); }
 
+auto Client::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
+    const Submission submission{sqe, this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
+
+    const UserData userData{EventType::Cancel, this->fileDescriptorIndex};
+    submission.setUserData(std::bit_cast<unsigned long>(userData));
+
+    submission.setFlags(IOSQE_FIXED_FILE);
+
+    return this->awaiter;
+}
+
+auto Client::setCancelGenerator(Generator &&generator) noexcept -> void {
+    this->cancelGenerator = std::move(generator);
+}
+
+auto Client::resumeCancel(std::pair<int, unsigned int> result) -> void {
+    this->awaiter.setResult(result);
+
+    this->cancelGenerator.resume();
+}
+
 auto Client::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, this->fileDescriptorIndex};
 

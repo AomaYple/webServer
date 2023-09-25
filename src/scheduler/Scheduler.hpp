@@ -43,6 +43,9 @@ private:
     [[nodiscard]] auto send(Client &client, std::source_location sourceLocation = std::source_location::current())
             -> Generator;
 
+    [[nodiscard]] auto cancelClient(Client &client,
+                                    std::source_location sourceLocation = std::source_location::current()) -> Generator;
+
     [[nodiscard]] auto closeClient(const Client &client,
                                    std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
