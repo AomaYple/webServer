@@ -53,7 +53,7 @@ Scheduler::Scheduler()
 }
 
 Scheduler::~Scheduler() {
-    this->releaseResources();
+    this->closeAll();
 
     Scheduler::instance = false;
 
@@ -81,7 +81,47 @@ auto Scheduler::judgeOneThreadOneInstance(std::source_location sourceLocation) -
     Scheduler::instance = true;
 }
 
-auto Scheduler::releaseResources() -> void {
+auto Scheduler::cancelAll() -> void {
+    Generator generator{this->cancelServer()};
+    generator.resume();
+    this->server.setCancelGenerator(std::move(generator));
+
+    generator = this->cancelTimer();
+    generator.resume();
+    this->timer.setCancelGenerator(std::move(generator));
+
+    for (auto &client: this->clients) {
+        generator = this->cancelClient(client.second);
+        generator.resume();
+        client.second.setCancelGenerator(std::move(generator));
+    }
+
+    this->userRing->submitWait(2 + this->clients.size());
+
+    const unsigned int completionCount{this->userRing->forEachCompletion([this](const io_uring_cqe *cqe) {
+        const Completion completion{cqe};
+
+        const unsigned long completionUserData{completion.getUserData()};
+        const UserData userData{std::bit_cast<UserData>(completionUserData)};
+
+        const std::pair<int, unsigned int> result{completion.getResult(), completion.getFlags()};
+
+        if (userData.fileDescriptor == this->server.getFileDescriptorIndex()) this->server.resumeCancel(result);
+        else if (userData.fileDescriptor == this->timer.getFileDescriptorIndex())
+            this->timer.resumeCancel(result);
+        else {
+            Client &client{this->clients.at(userData.fileDescriptor)};
+
+            try {
+                client.resumeCancel(result);
+            } catch (const ScheduleError &scheduleError) { Log::produce(scheduleError.what()); }
+        }
+    })};
+
+    this->bufferRing.advanceCompletionBufferRingBuffer(completionCount);
+}
+
+auto Scheduler::closeAll() -> void {
     Generator generator{this->closeServer()};
     generator.resume();
     this->server.setCloseGenerator(std::move(generator));
@@ -98,7 +138,7 @@ auto Scheduler::releaseResources() -> void {
 
     this->userRing->submitWait(2 + this->clients.size());
 
-    const unsigned int completionCount{this->userRing->forEachCompletion([this](io_uring_cqe *cqe) {
+    const unsigned int completionCount{this->userRing->forEachCompletion([this](const io_uring_cqe *cqe) {
         const Completion completion{cqe};
 
         const unsigned long completionUserData{completion.getUserData()};
@@ -136,13 +176,15 @@ auto Scheduler::run() -> void {
         this->userRing->submitWait(1);
 
         const unsigned int completionCount{
-                this->userRing->forEachCompletion([this](io_uring_cqe *cqe) { this->frame(cqe); })};
+                this->userRing->forEachCompletion([this](const io_uring_cqe *cqe) { this->frame(cqe); })};
 
         this->bufferRing.advanceCompletionBufferRingBuffer(completionCount);
     }
+
+    this->cancelAll();
 }
 
-auto Scheduler::frame(io_uring_cqe *cqe) -> void {
+auto Scheduler::frame(const io_uring_cqe *cqe) -> void {
     const Completion completion{cqe};
 
     const unsigned long completionUserData{completion.getUserData()};
@@ -325,8 +367,26 @@ auto Scheduler::closeClient(const Client &client, std::source_location sourceLoc
                                            std::strerror(std::abs(result.first)))};
 }
 
+auto Scheduler::cancelServer(std::source_location sourceLocation) -> Generator {
+    const std::pair<int, unsigned int> result{co_await this->server.cancel(this->userRing->getSqe())};
+
+    if (result.first < 0)
+        throw ScheduleError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
+                                           std::this_thread::get_id(), sourceLocation,
+                                           std::strerror(std::abs(result.first)))};
+}
+
 auto Scheduler::closeServer(std::source_location sourceLocation) -> Generator {
     const std::pair<int, unsigned int> result{co_await this->server.close(this->userRing->getSqe())};
+
+    if (result.first < 0)
+        throw ScheduleError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
+                                           std::this_thread::get_id(), sourceLocation,
+                                           std::strerror(std::abs(result.first)))};
+}
+
+auto Scheduler::cancelTimer(std::source_location sourceLocation) -> Generator {
+    const std::pair<int, unsigned int> result{co_await this->timer.cancel(this->userRing->getSqe())};
 
     if (result.first < 0)
         throw ScheduleError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),

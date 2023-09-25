@@ -128,10 +128,11 @@ auto UserRing::submitWait(unsigned int waitCount, std::source_location sourceLoc
                                                std::strerror(std::abs(result)))};
 }
 
-auto UserRing::forEachCompletion(const std::function<auto(io_uring_cqe *cqe)->void> &task) noexcept -> unsigned int {
+auto UserRing::forEachCompletion(const std::function<auto(const io_uring_cqe *cqe)->void> &task) noexcept
+        -> unsigned int {
     unsigned int completionCount{0}, head;
 
-    io_uring_cqe *cqe;
+    const io_uring_cqe *cqe;
     io_uring_for_each_cqe(&this->userRing, head, cqe) {
         task(cqe);
         ++completionCount;

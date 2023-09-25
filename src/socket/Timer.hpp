@@ -53,6 +53,12 @@ public:
 
     auto remove(unsigned int fileDescriptor) -> void;
 
+    [[nodiscard]] auto cancel(io_uring_sqe *sqe) noexcept -> const Awaiter &;
+
+    auto setCancelGenerator(Generator &&generator) noexcept -> void;
+
+    auto resumeCancel(std::pair<int, unsigned int> result) -> void;
+
     [[nodiscard]] auto close(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
     auto setCloseGenerator(Generator &&generator) noexcept -> void;
@@ -65,6 +71,6 @@ private:
     unsigned long expireCount;
     std::array<std::unordered_set<unsigned int>, 61> wheel;
     std::unordered_map<unsigned int, unsigned char> location;
-    Generator timingGenerator, closeGenerator;
+    Generator timingGenerator, cancelGenerator, closeGenerator;
     Awaiter awaiter;
 };

@@ -51,6 +51,12 @@ public:
 
     auto resumeAccept(std::pair<int, unsigned int> result) -> void;
 
+    [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
+
+    auto setCancelGenerator(Generator &&generator) noexcept -> void;
+
+    auto resumeCancel(std::pair<int, unsigned int> result) -> void;
+
     [[nodiscard]] auto close(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
     auto setCloseGenerator(Generator &&generator) noexcept -> void;
@@ -59,6 +65,6 @@ public:
 
 private:
     unsigned int fileDescriptorIndex;
-    Generator acceptGenerator, closeGenerator;
+    Generator acceptGenerator, cancelGenerator, closeGenerator;
     Awaiter awaiter;
 };

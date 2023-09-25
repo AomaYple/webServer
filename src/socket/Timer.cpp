@@ -112,6 +112,25 @@ auto Timer::remove(unsigned int fileDescriptor) -> void {
     this->location.erase(fileDescriptor);
 }
 
+auto Timer::cancel(io_uring_sqe *sqe) noexcept -> const Awaiter & {
+    const Submission submission{sqe, this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
+
+    const UserData userData{EventType::Cancel, this->fileDescriptorIndex};
+    submission.setUserData(std::bit_cast<unsigned long>(userData));
+
+    submission.setFlags(IOSQE_FIXED_FILE);
+
+    return this->awaiter;
+}
+
+auto Timer::setCancelGenerator(Generator &&generator) noexcept -> void { this->cancelGenerator = std::move(generator); }
+
+auto Timer::resumeCancel(std::pair<int, unsigned int> result) -> void {
+    this->awaiter.setResult(result);
+
+    this->cancelGenerator.resume();
+}
+
 auto Timer::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, this->fileDescriptorIndex};
 

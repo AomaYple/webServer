@@ -54,7 +54,7 @@ public:
     auto submitWait(unsigned int waitCount, std::source_location sourceLocation = std::source_location::current())
             -> void;
 
-    [[nodiscard]] auto forEachCompletion(const std::function<auto(io_uring_cqe *cqe)->void> &task) noexcept
+    [[nodiscard]] auto forEachCompletion(const std::function<auto(const io_uring_cqe *cqe)->void> &task) noexcept
             -> unsigned int;
 
     [[nodiscard]] auto getSqe(std::source_location sourceLocation = std::source_location::current()) -> io_uring_sqe *;

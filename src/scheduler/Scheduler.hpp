@@ -25,13 +25,15 @@ private:
     static auto judgeOneThreadOneInstance(std::source_location sourceLocation = std::source_location::current())
             -> void;
 
-    auto releaseResources() -> void;
+    auto cancelAll() -> void;
+
+    auto closeAll() -> void;
 
 public:
     [[noreturn]] auto run() -> void;
 
 private:
-    auto frame(io_uring_cqe *cqe) -> void;
+    auto frame(const io_uring_cqe *cqe) -> void;
 
     [[nodiscard]] auto accept(std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
@@ -49,7 +51,11 @@ private:
     [[nodiscard]] auto closeClient(const Client &client,
                                    std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
+    [[nodiscard]] auto cancelServer(std::source_location sourceLocation = std::source_location::current()) -> Generator;
+
     [[nodiscard]] auto closeServer(std::source_location sourceLocation = std::source_location::current()) -> Generator;
+
+    [[nodiscard]] auto cancelTimer(std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
     [[nodiscard]] auto closeTimer(std::source_location sourceLocation = std::source_location::current()) -> Generator;
 

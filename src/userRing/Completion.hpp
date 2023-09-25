@@ -4,7 +4,7 @@
 
 class Completion {
 public:
-    explicit Completion(io_uring_cqe *cqe) noexcept;
+    explicit Completion(const io_uring_cqe *cqe) noexcept;
 
     Completion(const Completion &) = delete;
 
