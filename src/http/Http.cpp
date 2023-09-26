@@ -20,7 +20,7 @@ Http::Http()
 
           for (const auto &path:
                std::filesystem::directory_iterator(std::filesystem::current_path().string() + "/web")) {
-              std::string filename{path.path().filename().string()};
+              auto filename{path.path().filename().string()};
 
               std::vector<std::byte> fileContent{Http::readFile(path.path().string())};
 
@@ -39,7 +39,7 @@ auto Http::readFile(std::string_view filepath, std::source_location sourceLocati
                                             std::this_thread::get_id(), sourceLocation,
                                             "file not found: " + std::string{filepath})};
 
-    const unsigned long size{static_cast<unsigned long>(file.tellg())};
+    const auto size{static_cast<unsigned long>(file.tellg())};
     file.seekg(0, std::ios::beg);
 
     std::vector<std::byte> buffer(size, std::byte{0});
@@ -156,10 +156,10 @@ auto Http::parseResource(HttpResponse &httpResponse, std::string_view range, std
         httpResponse.setStatusCode("206 Partial Content");
 
         range = range.substr(6);
-        const unsigned char splitPoint{static_cast<unsigned char>(range.find('-'))};
+        const auto splitPoint{static_cast<unsigned char>(range.find('-'))};
 
         const std::string stringStart{range.cbegin(), range.cbegin() + splitPoint};
-        const unsigned long digitStart{std::stoul(stringStart)};
+        const auto digitStart{std::stoul(stringStart)};
 
         unsigned long digitEnd;
         std::string stringEnd{range.cbegin() + splitPoint + 1, range.cend()};

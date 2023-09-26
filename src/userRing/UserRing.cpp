@@ -8,7 +8,7 @@
 #include <cstring>
 
 UserRing::UserRing(unsigned int entries, io_uring_params &params, std::source_location sourceLocation) : userRing{} {
-    const short result{static_cast<short>(io_uring_queue_init_params(entries, &this->userRing, &params))};
+    const auto result{static_cast<short>(io_uring_queue_init_params(entries, &this->userRing, &params))};
 
     if (result != 0)
         throw UserRingCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
@@ -48,7 +48,7 @@ auto UserRing::getFileDescriptorLimit(std::source_location sourceLocation) -> un
 auto UserRing::getSelfFileDescriptor() const noexcept -> unsigned int { return this->userRing.ring_fd; }
 
 auto UserRing::registerSelfFileDescriptor(std::source_location sourceLocation) -> void {
-    const short result{static_cast<short>(io_uring_register_ring_fd(&this->userRing))};
+    const auto result{static_cast<short>(io_uring_register_ring_fd(&this->userRing))};
     if (result != 1)
         throw UserRingCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
                                                std::this_thread::get_id(), sourceLocation,
@@ -60,8 +60,7 @@ auto UserRing::registerCpu(unsigned short cpuCode, std::source_location sourceLo
 
     CPU_SET(cpuCode, &cpuSet);
 
-    const signed char result{
-            static_cast<signed char>(io_uring_register_iowq_aff(&this->userRing, sizeof(cpuSet), &cpuSet))};
+    const auto result{static_cast<signed char>(io_uring_register_iowq_aff(&this->userRing, sizeof(cpuSet), &cpuSet))};
     if (result != 0)
         throw UserRingCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
                                                std::this_thread::get_id(), sourceLocation,
@@ -70,7 +69,7 @@ auto UserRing::registerCpu(unsigned short cpuCode, std::source_location sourceLo
 
 auto UserRing::registerSparseFileDescriptors(unsigned int fileDescriptorCount, std::source_location sourceLocation)
         -> void {
-    const short result{static_cast<short>(io_uring_register_files_sparse(&this->userRing, fileDescriptorCount))};
+    const auto result{static_cast<short>(io_uring_register_files_sparse(&this->userRing, fileDescriptorCount))};
     if (result != 0)
         throw UserRingCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
                                                std::this_thread::get_id(), sourceLocation,
@@ -79,7 +78,7 @@ auto UserRing::registerSparseFileDescriptors(unsigned int fileDescriptorCount, s
 
 auto UserRing::allocateFileDescriptorRange(unsigned int offset, unsigned int length,
                                            std::source_location sourceLocation) -> void {
-    const short result{static_cast<short>(io_uring_register_file_alloc_range(&this->userRing, offset, length))};
+    const auto result{static_cast<short>(io_uring_register_file_alloc_range(&this->userRing, offset, length))};
     if (result != 0)
         throw UserRingCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
                                                std::this_thread::get_id(), sourceLocation,
@@ -113,7 +112,7 @@ auto UserRing::setupBufferRing(unsigned short entries, unsigned short id, std::s
 
 auto UserRing::freeBufferRing(io_uring_buf_ring *bufferRing, unsigned short entries, unsigned short id,
                               std::source_location sourceLocation) -> void {
-    const short result{static_cast<short>(io_uring_free_buf_ring(&this->userRing, bufferRing, entries, id))};
+    const auto result{static_cast<short>(io_uring_free_buf_ring(&this->userRing, bufferRing, entries, id))};
     if (result < 0)
         throw UserRingCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
                                                std::this_thread::get_id(), sourceLocation,

@@ -90,7 +90,7 @@ auto Scheduler::cancelAll() -> void {
     generator.resume();
     this->timer.setCancelGenerator(std::move(generator));
 
-    for (auto &client: this->clients) {
+    for (std::pair<const unsigned int, Client> &client: this->clients) {
         generator = this->cancelClient(client.second);
         generator.resume();
         client.second.setCancelGenerator(std::move(generator));
@@ -113,7 +113,7 @@ auto Scheduler::closeAll() -> void {
     generator.resume();
     this->timer.setCloseGenerator(std::move(generator));
 
-    for (auto &client: this->clients) {
+    for (std::pair<const unsigned int, Client> &client: this->clients) {
         generator = this->closeClient(client.second);
         generator.resume();
         client.second.setCloseGenerator(std::move(generator));

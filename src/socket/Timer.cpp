@@ -88,7 +88,7 @@ auto Timer::add(unsigned int fileDescriptor, unsigned char timeout, std::source_
         throw SystemCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
                                              std::this_thread::get_id(), sourceLocation, "timeout is too large")};
 
-    const unsigned char point{static_cast<unsigned char>((this->now + timeout) % this->wheel.size())};
+    const auto point{static_cast<unsigned char>((this->now + timeout) % this->wheel.size())};
 
     this->location.emplace(fileDescriptor, point);
     this->wheel[point].emplace(fileDescriptor);
@@ -101,7 +101,7 @@ auto Timer::update(unsigned int fileDescriptor, unsigned char timeout, std::sour
         throw SystemCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
                                              std::this_thread::get_id(), sourceLocation, "timeout is too large")};
 
-    const unsigned char point{static_cast<unsigned char>((this->now + timeout) % this->wheel.size())};
+    const auto point{static_cast<unsigned char>((this->now + timeout) % this->wheel.size())};
 
     this->wheel[point].emplace(fileDescriptor);
     this->location.at(fileDescriptor) = point;

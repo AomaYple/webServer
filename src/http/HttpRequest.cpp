@@ -3,7 +3,7 @@
 #include <ranges>
 
 HttpRequest::HttpRequest(std::string_view request) {
-    bool isParseLine{false}, isParseBody{false};
+    auto isParseLine{false}, isParseBody{false};
 
     constexpr std::string_view delimiter{"\r\n"};
     for (const auto &valueView: request | std::views::split(delimiter)) {
@@ -48,7 +48,7 @@ auto HttpRequest::getUrl() const noexcept -> std::string_view { return this->url
 auto HttpRequest::getHeaderValue(std::string_view filed) const -> std::string_view {
     const auto result{this->headers.find(filed)};
 
-    return result == this->headers.end() ? std::string_view{} : result->second;
+    return result == this->headers.cend() ? std::string_view{} : result->second;
 }
 
 auto HttpRequest::getBody() const noexcept -> std::string_view { return this->body; }

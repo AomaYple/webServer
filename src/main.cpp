@@ -13,4 +13,6 @@ auto main() -> int {
 
     Scheduler scheduler;
     scheduler.run();
+
+    return 0;
 }
