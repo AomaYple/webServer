@@ -13,9 +13,8 @@ set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME})
 
-file(GLOB_RECURSE SOURCES src/*.cpp)
-
-add_executable(${PROJECT_NAME} ${SOURCES})
+file(GLOB_RECURSE files src/*.cpp)
+add_executable(${PROJECT_NAME} ${files})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         uring
