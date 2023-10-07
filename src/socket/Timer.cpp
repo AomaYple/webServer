@@ -1,6 +1,6 @@
 #include "Timer.hpp"
 
-#include "../log/Log.hpp"
+#include "../log/logger.hpp"
 #include "../userRing/Submission.hpp"
 #include "../userRing/UserData.hpp"
 #include "SystemCallError.hpp"
@@ -23,8 +23,8 @@ auto Timer::createFileDescriptor(std::source_location sourceLocation) -> unsigne
     const int fileDescriptor{timerfd_create(CLOCK_MONOTONIC, 0)};
 
     if (fileDescriptor == -1)
-        throw SystemCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
-                                             std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
+        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
+                                                std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
 
     return fileDescriptor;
 }
@@ -32,8 +32,8 @@ auto Timer::createFileDescriptor(std::source_location sourceLocation) -> unsigne
 auto Timer::setTime(unsigned int fileDescriptor, std::source_location sourceLocation) -> void {
     constexpr itimerspec time{{1, 0}, {1, 0}};
     if (timerfd_settime(static_cast<int>(fileDescriptor), 0, &time, nullptr) == -1)
-        throw SystemCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
-                                             std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
+        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
+                                                std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
 }
 
 auto Timer::getFileDescriptorIndex() const noexcept -> unsigned int { return this->fileDescriptorIndex; }
@@ -85,8 +85,8 @@ auto Timer::clearTimeout() -> std::vector<unsigned int> {
 
 auto Timer::add(unsigned int fileDescriptor, unsigned char timeout, std::source_location sourceLocation) -> void {
     if (timeout >= this->wheel.size())
-        throw SystemCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
-                                             std::this_thread::get_id(), sourceLocation, "timeout is too large")};
+        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
+                                                std::this_thread::get_id(), sourceLocation, "timeout is too large")};
 
     const auto point{static_cast<unsigned char>((this->now + timeout) % this->wheel.size())};
 
@@ -98,8 +98,8 @@ auto Timer::update(unsigned int fileDescriptor, unsigned char timeout, std::sour
     this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
 
     if (timeout >= this->wheel.size())
-        throw SystemCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
-                                             std::this_thread::get_id(), sourceLocation, "timeout is too large")};
+        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
+                                                std::this_thread::get_id(), sourceLocation, "timeout is too large")};
 
     const auto point{static_cast<unsigned char>((this->now + timeout) % this->wheel.size())};
 

@@ -7,11 +7,11 @@
 #include <vector>
 
 class Database;
-class HttpResponse;
-class HttpRequest;
+class http_response;
+class http_request;
 
-class Http {
-    Http();
+class http {
+    http();
 
     [[nodiscard]] static auto readFile(std::string_view filepath,
                                        std::source_location sourceLocation = std::source_location::current())
@@ -25,29 +25,29 @@ public:
     [[nodiscard]] static auto parse(std::string_view request, Database &database) -> std::vector<std::byte>;
 
 private:
-    static auto parseVersion(HttpResponse &httpResponse, std::string_view version,
+    static auto parseVersion(http_response &httpResponse, std::string_view version,
                              std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    static auto parseGetHead(HttpResponse &httpResponse, const HttpRequest &httpRequest, bool writeBody) -> void;
+    static auto parseGetHead(http_response &httpResponse, const http_request &httpRequest, bool writeBody) -> void;
 
-    [[nodiscard]] auto parseUrl(HttpResponse &httpResponse, std::string_view url,
+    [[nodiscard]] auto parseUrl(http_response &httpResponse, std::string_view url,
                                 std::source_location sourceLocation = std::source_location::current()) const
             -> std::span<const std::byte>;
 
-    static auto parseTypeEncoding(HttpResponse &httpResponse, std::string_view url) -> void;
+    static auto parseTypeEncoding(http_response &httpResponse, std::string_view url) -> void;
 
-    static auto parseResource(HttpResponse &httpResponse, std::string_view range, std::span<const std::byte> body,
+    static auto parseResource(http_response &httpResponse, std::string_view range, std::span<const std::byte> body,
                               bool writeBody, std::source_location sourceLocation = std::source_location::current())
             -> void;
 
-    static auto parsePost(HttpResponse &httpResponse, std::string_view message, Database &database) -> void;
+    static auto parsePost(http_response &httpResponse, std::string_view message, Database &database) -> void;
 
-    static auto parseLogin(HttpResponse &httpResponse, std::string_view id, std::string_view password,
+    static auto parseLogin(http_response &httpResponse, std::string_view id, std::string_view password,
                            Database &database) -> void;
 
-    static auto parseRegister(HttpResponse &httpResponse, std::string_view password, Database &database) -> void;
+    static auto parseRegister(http_response &httpResponse, std::string_view password, Database &database) -> void;
 
-    static const Http instance;
+    static const http instance;
 
     std::unordered_map<std::string, std::vector<std::byte>> resources;
 };

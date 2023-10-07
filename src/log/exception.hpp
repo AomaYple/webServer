@@ -1,13 +1,14 @@
 #pragma once
 
-#include <string>
+#include "log.hpp"
 
-class HttpParseError : public std::exception {
+class exception : std::exception {
 public:
-    explicit HttpParseError(std::string &&message) noexcept;
+    explicit exception(log &&log) noexcept;
 
     [[nodiscard]] auto what() const noexcept -> const char * override;
 
 private:
     std::string message;
+    log log;
 };

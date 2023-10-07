@@ -1,7 +1,7 @@
 #include "Scheduler.hpp"
 
-#include "../http/Http.hpp"
-#include "../log/Log.hpp"
+#include "../http/http.hpp"
+#include "../log/logger.hpp"
 #include "../socket/Client.hpp"
 #include "../userRing/Completion.hpp"
 #include "../userRing/UserData.hpp"
@@ -75,9 +75,9 @@ Scheduler::~Scheduler() {
 
 auto Scheduler::judgeOneThreadOneInstance(std::source_location sourceLocation) -> void {
     if (Scheduler::instance)
-        throw ScheduleError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
-                                           std::this_thread::get_id(), sourceLocation,
-                                           "one scheduler instance per thread")};
+        throw ScheduleError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
+                                              std::this_thread::get_id(), sourceLocation,
+                                              "one scheduler instance per thread")};
     Scheduler::instance = true;
 }
 
@@ -174,7 +174,7 @@ auto Scheduler::frame(const io_uring_cqe *cqe) -> void {
                 } catch (const ScheduleError &scheduleError) {
                     client.setReceiveGenerator(Generator{});
 
-                    Log::produce(scheduleError.what());
+                    logger::produce(<#initializer #>);
                 }
             }
 
@@ -185,7 +185,7 @@ auto Scheduler::frame(const io_uring_cqe *cqe) -> void {
 
                 try {
                     client.resumeSend(result);
-                } catch (const ScheduleError &scheduleError) { Log::produce(scheduleError.what()); }
+                } catch (const ScheduleError &scheduleError) { logger::produce(<#initializer #>); }
 
                 client.setSendGenerator(Generator{});
             }
@@ -205,7 +205,7 @@ auto Scheduler::frame(const io_uring_cqe *cqe) -> void {
 
                 try {
                     client.resumeCancel(result);
-                } catch (const ScheduleError &scheduleError) { Log::produce(scheduleError.what()); }
+                } catch (const ScheduleError &scheduleError) { logger::produce(<#initializer #>); }
 
                 client.setCancelGenerator(Generator{});
             }
@@ -223,7 +223,7 @@ auto Scheduler::frame(const io_uring_cqe *cqe) -> void {
             } else {
                 try {
                     this->clients.at(userData.fileDescriptor).resumeClose(result);
-                } catch (const ScheduleError &scheduleError) { Log::produce(scheduleError.what()); }
+                } catch (const ScheduleError &scheduleError) { logger::produce(<#initializer #>); }
 
                 this->clients.erase(userData.fileDescriptor);
             }
@@ -249,14 +249,14 @@ auto Scheduler::accept(std::source_location sourceLocation) -> Generator {
             generator.resume();
             client.setReceiveGenerator(std::move(generator));
         } else
-            throw ScheduleError{Log::formatLog(Log::Level::Error, std::chrono::system_clock::now(),
-                                               std::this_thread::get_id(), sourceLocation,
-                                               std::strerror(std::abs(result.first)))};
+            throw ScheduleError{logger::formatLog(logger::Level::Error, std::chrono::system_clock::now(),
+                                                  std::this_thread::get_id(), sourceLocation,
+                                                  std::strerror(std::abs(result.first)))};
 
         if (!(result.second & IORING_CQE_F_MORE))
-            throw ScheduleError{Log::formatLog(Log::Level::Error, std::chrono::system_clock::now(),
-                                               std::this_thread::get_id(), sourceLocation,
-                                               "cannot accept more connections")};
+            throw ScheduleError{logger::formatLog(logger::Level::Error, std::chrono::system_clock::now(),
+                                                  std::this_thread::get_id(), sourceLocation,
+                                                  "cannot accept more connections")};
     }
 }
 
@@ -273,9 +273,9 @@ auto Scheduler::timing(std::source_location sourceLocation) -> Generator {
                 client.setCancelGenerator(std::move(generator));
             }
         } else
-            throw ScheduleError{Log::formatLog(Log::Level::Error, std::chrono::system_clock::now(),
-                                               std::this_thread::get_id(), sourceLocation,
-                                               std::strerror(std::abs(result.first)))};
+            throw ScheduleError{logger::formatLog(logger::Level::Error, std::chrono::system_clock::now(),
+                                                  std::this_thread::get_id(), sourceLocation,
+                                                  std::strerror(std::abs(result.first)))};
     }
 }
 
@@ -302,20 +302,21 @@ auto Scheduler::receive(Client &client, std::source_location sourceLocation) -> 
             generator.resume();
             client.setCancelGenerator(std::move(generator));
 
-            throw ScheduleError{Log::formatLog(Log::Level::Error, std::chrono::system_clock::now(),
-                                               std::this_thread::get_id(), sourceLocation,
-                                               std::strerror(std::abs(result.first)))};
+            throw ScheduleError{logger::formatLog(logger::Level::Error, std::chrono::system_clock::now(),
+                                                  std::this_thread::get_id(), sourceLocation,
+                                                  std::strerror(std::abs(result.first)))};
         }
 
         if (!(result.second & IORING_CQE_F_MORE))
-            throw ScheduleError{Log::formatLog(Log::Level::Error, std::chrono::system_clock::now(),
-                                               std::this_thread::get_id(), sourceLocation, "cannot receive more data")};
+            throw ScheduleError{logger::formatLog(logger::Level::Error, std::chrono::system_clock::now(),
+                                                  std::this_thread::get_id(), sourceLocation,
+                                                  "cannot receive more log")};
     }
 }
 
 auto Scheduler::send(Client &client, std::source_location sourceLocation) -> Generator {
     const std::span<const std::byte> request{client.readData()};
-    std::vector<std::byte> response{Http::parse(
+    std::vector<std::byte> response{http::parse(
             std::string_view{reinterpret_cast<const char *>(request.data()), request.size()}, this->database)};
 
     client.clearBuffer();
@@ -331,9 +332,9 @@ auto Scheduler::send(Client &client, std::source_location sourceLocation) -> Gen
         generator.resume();
         client.setCancelGenerator(std::move(generator));
 
-        throw ScheduleError{Log::formatLog(Log::Level::Error, std::chrono::system_clock::now(),
-                                           std::this_thread::get_id(), sourceLocation,
-                                           std::strerror(std::abs(result.first)))};
+        throw ScheduleError{logger::formatLog(logger::Level::Error, std::chrono::system_clock::now(),
+                                              std::this_thread::get_id(), sourceLocation,
+                                              std::strerror(std::abs(result.first)))};
     }
 }
 
@@ -345,54 +346,54 @@ auto Scheduler::cancelClient(Client &client, std::source_location sourceLocation
     client.setCloseGenerator(std::move(generator));
 
     if (result.first < 0)
-        throw ScheduleError{Log::formatLog(Log::Level::Error, std::chrono::system_clock::now(),
-                                           std::this_thread::get_id(), sourceLocation,
-                                           std::strerror(std::abs(result.first)))};
+        throw ScheduleError{logger::formatLog(logger::Level::Error, std::chrono::system_clock::now(),
+                                              std::this_thread::get_id(), sourceLocation,
+                                              std::strerror(std::abs(result.first)))};
 }
 
 auto Scheduler::closeClient(const Client &client, std::source_location sourceLocation) -> Generator {
     const std::pair<int, unsigned int> result{co_await client.close(this->userRing->getSqe())};
 
     if (result.first < 0)
-        throw ScheduleError{Log::formatLog(Log::Level::Error, std::chrono::system_clock::now(),
-                                           std::this_thread::get_id(), sourceLocation,
-                                           std::strerror(std::abs(result.first)))};
+        throw ScheduleError{logger::formatLog(logger::Level::Error, std::chrono::system_clock::now(),
+                                              std::this_thread::get_id(), sourceLocation,
+                                              std::strerror(std::abs(result.first)))};
 }
 
 auto Scheduler::cancelServer(std::source_location sourceLocation) -> Generator {
     const std::pair<int, unsigned int> result{co_await this->server.cancel(this->userRing->getSqe())};
 
     if (result.first < 0)
-        throw ScheduleError{Log::formatLog(Log::Level::Error, std::chrono::system_clock::now(),
-                                           std::this_thread::get_id(), sourceLocation,
-                                           std::strerror(std::abs(result.first)))};
+        throw ScheduleError{logger::formatLog(logger::Level::Error, std::chrono::system_clock::now(),
+                                              std::this_thread::get_id(), sourceLocation,
+                                              std::strerror(std::abs(result.first)))};
 }
 
 auto Scheduler::closeServer(std::source_location sourceLocation) -> Generator {
     const std::pair<int, unsigned int> result{co_await this->server.close(this->userRing->getSqe())};
 
     if (result.first < 0)
-        throw ScheduleError{Log::formatLog(Log::Level::Error, std::chrono::system_clock::now(),
-                                           std::this_thread::get_id(), sourceLocation,
-                                           std::strerror(std::abs(result.first)))};
+        throw ScheduleError{logger::formatLog(logger::Level::Error, std::chrono::system_clock::now(),
+                                              std::this_thread::get_id(), sourceLocation,
+                                              std::strerror(std::abs(result.first)))};
 }
 
 auto Scheduler::cancelTimer(std::source_location sourceLocation) -> Generator {
     const std::pair<int, unsigned int> result{co_await this->timer.cancel(this->userRing->getSqe())};
 
     if (result.first < 0)
-        throw ScheduleError{Log::formatLog(Log::Level::Error, std::chrono::system_clock::now(),
-                                           std::this_thread::get_id(), sourceLocation,
-                                           std::strerror(std::abs(result.first)))};
+        throw ScheduleError{logger::formatLog(logger::Level::Error, std::chrono::system_clock::now(),
+                                              std::this_thread::get_id(), sourceLocation,
+                                              std::strerror(std::abs(result.first)))};
 }
 
 auto Scheduler::closeTimer(std::source_location sourceLocation) -> Generator {
     const std::pair<int, unsigned int> result{co_await this->timer.close(this->userRing->getSqe())};
 
     if (result.first < 0)
-        throw ScheduleError{Log::formatLog(Log::Level::Error, std::chrono::system_clock::now(),
-                                           std::this_thread::get_id(), sourceLocation,
-                                           std::strerror(std::abs(result.first)))};
+        throw ScheduleError{logger::formatLog(logger::Level::Error, std::chrono::system_clock::now(),
+                                              std::this_thread::get_id(), sourceLocation,
+                                              std::strerror(std::abs(result.first)))};
 }
 
 constinit thread_local bool Scheduler::instance{false};

@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-#include "../log/Log.hpp"
+#include "../log/logger.hpp"
 #include "../userRing/Submission.hpp"
 #include "../userRing/UserData.hpp"
 #include "SystemCallError.hpp"
@@ -33,8 +33,8 @@ auto Server::socket(std::source_location sourceLocation) -> unsigned int {
     const int fileDescriptor{::socket(AF_INET, SOCK_STREAM, 0)};
 
     if (fileDescriptor == -1)
-        throw SystemCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
-                                             std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
+        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
+                                                std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
 
     return fileDescriptor;
 }
@@ -43,27 +43,27 @@ auto Server::setSocketOption(unsigned int fileDescriptor, std::source_location s
     constexpr int option{1};
     if (setsockopt(static_cast<int>(fileDescriptor), SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option,
                    sizeof(option)) == -1)
-        throw SystemCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
-                                             std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
+        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
+                                                std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
 }
 
 auto Server::translateIpAddress(in_addr &address, std::source_location sourceLocation) -> void {
     if (inet_pton(AF_INET, "127.0.0.1", &address) != 1)
-        throw SystemCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
-                                             std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
+        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
+                                                std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
 }
 
 auto Server::bind(unsigned int fileDescriptor, const sockaddr_in &address, std::source_location sourceLocation)
         -> void {
     if (::bind(static_cast<int>(fileDescriptor), reinterpret_cast<const sockaddr *>(&address), sizeof(address)) == -1)
-        throw SystemCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
-                                             std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
+        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
+                                                std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
 }
 
 auto Server::listen(unsigned int fileDescriptor, std::source_location sourceLocation) -> void {
     if (::listen(static_cast<int>(fileDescriptor), SOMAXCONN) == -1)
-        throw SystemCallError{Log::formatLog(Log::Level::Fatal, std::chrono::system_clock::now(),
-                                             std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
+        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
+                                                std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
 }
 
 auto Server::getFileDescriptorIndex() const noexcept -> unsigned int { return this->fileDescriptorIndex; }
