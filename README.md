@@ -47,9 +47,7 @@ wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生�
 
 ## 数据库
 
-数据库使用mariadb，通过对mariadb c api的简单封装，实现了数据库的连接与断开，查询和插入
-
-在编译前需要在mariadb中创建数据库和表，如下
+数据库使用mariadb，通过对mariadb c api的简单封装，实现了数据库的连接与断开，查询和插入，在运行前需要在mariadb中创建数据库和表，如下
 
 ```shell
 create database webServer;
@@ -63,7 +61,7 @@ CREATE TABLE `users` (
 
 ## 环境
 
-gcc13.2以上版本，liburing2.4以上版本，64位linux内核版本6.1以上，cmake，ninja，brotli，mariadb
+gcc13.2以上版本，liburing2.4以上版本，linux内核版本6.1以上，cmake，ninja，brotli，mariadb
 
 ## 编译
 
