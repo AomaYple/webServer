@@ -21,18 +21,18 @@ public:
 
     ~Scheduler();
 
+    static auto registerSignal(std::source_location sourceLocation = std::source_location::current()) -> void;
+
+    auto run() -> void;
+
 private:
-    static auto judgeOneThreadOneInstance(std::source_location sourceLocation = std::source_location::current())
-            -> void;
+    static auto initializeUserRing(std::source_location sourceLocation = std::source_location::current())
+            -> std::shared_ptr<UserRing>;
 
     auto cancelAll() -> void;
 
     auto closeAll() -> void;
 
-public:
-    [[noreturn]] auto run() -> void;
-
-private:
     auto frame(const io_uring_cqe *cqe) -> void;
 
     [[nodiscard]] auto accept(std::source_location sourceLocation = std::source_location::current()) -> Generator;
@@ -46,25 +46,32 @@ private:
             -> Generator;
 
     [[nodiscard]] auto cancelClient(Client &client,
-                                    std::source_location sourceLocation = std::source_location::current()) -> Generator;
+                                    std::source_location sourceLocation = std::source_location::current()) const
+            -> Generator;
 
     [[nodiscard]] auto closeClient(const Client &client,
-                                   std::source_location sourceLocation = std::source_location::current()) -> Generator;
+                                   std::source_location sourceLocation = std::source_location::current()) const
+            -> Generator;
 
-    [[nodiscard]] auto cancelServer(std::source_location sourceLocation = std::source_location::current()) -> Generator;
+    [[nodiscard]] auto cancelServer(std::source_location sourceLocation = std::source_location::current()) const
+            -> Generator;
 
-    [[nodiscard]] auto closeServer(std::source_location sourceLocation = std::source_location::current()) -> Generator;
+    [[nodiscard]] auto closeServer(std::source_location sourceLocation = std::source_location::current()) const
+            -> Generator;
 
-    [[nodiscard]] auto cancelTimer(std::source_location sourceLocation = std::source_location::current()) -> Generator;
+    [[nodiscard]] auto cancelTimer(std::source_location sourceLocation = std::source_location::current()) const
+            -> Generator;
 
-    [[nodiscard]] auto closeTimer(std::source_location sourceLocation = std::source_location::current()) -> Generator;
+    [[nodiscard]] auto closeTimer(std::source_location sourceLocation = std::source_location::current()) const
+            -> Generator;
 
     static constinit thread_local bool instance;
     static constinit std::mutex lock;
     static constinit int sharedUserRingFileDescriptor;
     static std::vector<int> userRingFileDescriptors;
+    static constinit std::atomic_flag switcher;
 
-    std::shared_ptr<UserRing> userRing;
+    const std::shared_ptr<UserRing> userRing;
     BufferRing bufferRing;
     Server server;
     Timer timer;

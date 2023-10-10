@@ -1,7 +1,7 @@
 #include "Client.hpp"
 
+#include "../userRing/Event.hpp"
 #include "../userRing/Submission.hpp"
-#include "../userRing/UserData.hpp"
 
 Client::Client(unsigned int fileDescriptorIndex, unsigned char timeout) noexcept
     : fileDescriptorIndex{fileDescriptorIndex}, timeout{timeout} {}
@@ -14,8 +14,8 @@ auto Client::startReceive(io_uring_sqe *sqe, unsigned short bufferRingId) const 
     constexpr unsigned int flags{0};
     const Submission submission{sqe, this->fileDescriptorIndex, {}, flags};
 
-    const UserData userData{EventType::Receive, this->fileDescriptorIndex};
-    submission.setUserData(std::bit_cast<unsigned long>(userData));
+    const Event event{Event::Type::receive, this->fileDescriptorIndex};
+    submission.setUserData(std::bit_cast<unsigned long>(event));
 
     submission.setFlags(IOSQE_FIXED_FILE | IOSQE_BUFFER_SELECT);
 
@@ -43,8 +43,8 @@ auto Client::send(io_uring_sqe *sqe, std::vector<std::byte> &&data) noexcept -> 
 
     const Submission submission{sqe, this->fileDescriptorIndex, this->buffer, 0, 0};
 
-    const UserData userData{EventType::Send, this->fileDescriptorIndex};
-    submission.setUserData(std::bit_cast<unsigned long>(userData));
+    const Event event{Event::Type::send, this->fileDescriptorIndex};
+    submission.setUserData(std::bit_cast<unsigned long>(event));
 
     submission.setFlags(IOSQE_FIXED_FILE);
 
@@ -66,8 +66,8 @@ auto Client::clearBuffer() noexcept -> void { this->buffer.clear(); }
 auto Client::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
 
-    const UserData userData{EventType::Cancel, this->fileDescriptorIndex};
-    submission.setUserData(std::bit_cast<unsigned long>(userData));
+    const Event event{Event::Type::cancel, this->fileDescriptorIndex};
+    submission.setUserData(std::bit_cast<unsigned long>(event));
 
     submission.setFlags(IOSQE_FIXED_FILE);
 
@@ -87,8 +87,8 @@ auto Client::resumeCancel(std::pair<int, unsigned int> result) -> void {
 auto Client::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, this->fileDescriptorIndex};
 
-    const UserData userData{EventType::Close, this->fileDescriptorIndex};
-    submission.setUserData(std::bit_cast<unsigned long>(userData));
+    const Event event{Event::Type::close, this->fileDescriptorIndex};
+    submission.setUserData(std::bit_cast<unsigned long>(event));
 
     return this->awaiter;
 }

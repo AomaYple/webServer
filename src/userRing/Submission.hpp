@@ -28,7 +28,7 @@ public:
 
     auto operator=(const Submission &) -> Submission & = delete;
 
-    auto operator=(Submission &&) noexcept -> Submission & = default;
+    auto operator=(Submission &&) noexcept -> Submission & = delete;
 
     ~Submission() = default;
 
@@ -39,5 +39,5 @@ public:
     auto setBufferRingId(unsigned short bufferRingId) const noexcept -> void;
 
 private:
-    io_uring_sqe *submission;
+    io_uring_sqe *const submission;
 };

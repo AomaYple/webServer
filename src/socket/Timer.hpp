@@ -21,20 +21,12 @@ public:
 
     auto operator=(const Timer &) -> Timer & = delete;
 
-    auto operator=(Timer &&) -> Timer & = default;
+    auto operator=(Timer &&) -> Timer & = delete;
 
     ~Timer() = default;
 
     [[nodiscard]] static auto create() -> unsigned int;
 
-private:
-    [[nodiscard]] static auto
-    createFileDescriptor(std::source_location sourceLocation = std::source_location::current()) -> unsigned int;
-
-    static auto setTime(unsigned int fileDescriptor,
-                        std::source_location sourceLocation = std::source_location::current()) -> void;
-
-public:
     [[nodiscard]] auto getFileDescriptorIndex() const noexcept -> unsigned int;
 
     [[nodiscard]] auto timing(io_uring_sqe *sqe) noexcept -> const Awaiter &;
@@ -53,7 +45,7 @@ public:
 
     auto remove(unsigned int fileDescriptor) -> void;
 
-    [[nodiscard]] auto cancel(io_uring_sqe *sqe) noexcept -> const Awaiter &;
+    [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
     auto setCancelGenerator(Generator &&generator) noexcept -> void;
 
@@ -66,7 +58,13 @@ public:
     auto resumeClose(std::pair<int, unsigned int> result) -> void;
 
 private:
-    unsigned int fileDescriptorIndex;
+    [[nodiscard]] static auto
+    createFileDescriptor(std::source_location sourceLocation = std::source_location::current()) -> unsigned int;
+
+    static auto setTime(unsigned int fileDescriptor,
+                        std::source_location sourceLocation = std::source_location::current()) -> void;
+
+    const unsigned int fileDescriptorIndex;
     unsigned char now;
     unsigned long expireCount;
     std::array<std::unordered_set<unsigned int>, 61> wheel;

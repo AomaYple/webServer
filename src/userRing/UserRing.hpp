@@ -21,10 +21,6 @@ public:
 
     ~UserRing();
 
-private:
-    auto destroy() noexcept -> void;
-
-public:
     [[nodiscard]] static auto
     getFileDescriptorLimit(std::source_location sourceLocation = std::source_location::current()) -> unsigned int;
 
@@ -63,5 +59,7 @@ public:
                                            unsigned short bufferRingBufferCount) noexcept -> void;
 
 private:
+    auto destroy() noexcept -> void;
+
     io_uring userRing;
 };

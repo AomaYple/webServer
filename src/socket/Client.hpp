@@ -18,7 +18,7 @@ public:
 
     auto operator=(const Client &) -> Client & = delete;
 
-    auto operator=(Client &&) -> Client & = default;
+    auto operator=(Client &&) -> Client & = delete;
 
     ~Client() = default;
 
@@ -59,8 +59,8 @@ public:
     auto resumeClose(std::pair<int, unsigned int> result) -> void;
 
 private:
-    unsigned int fileDescriptorIndex;
-    unsigned char timeout;
+    const unsigned int fileDescriptorIndex;
+    const unsigned char timeout;
     std::vector<std::byte> buffer;
     Generator receiveGenerator, sendGenerator, cancelGenerator, closeGenerator;
     Awaiter awaiter;

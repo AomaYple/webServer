@@ -1,9 +1,8 @@
 #include "Server.hpp"
 
-#include "../log/logger.hpp"
+#include "../log/Exception.hpp"
+#include "../userRing/Event.hpp"
 #include "../userRing/Submission.hpp"
-#include "../userRing/UserData.hpp"
-#include "SystemCallError.hpp"
 
 #include <arpa/inet.h>
 
@@ -29,50 +28,13 @@ auto Server::create(unsigned short port) -> unsigned int {
     return fileDescriptor;
 }
 
-auto Server::socket(std::source_location sourceLocation) -> unsigned int {
-    const int fileDescriptor{::socket(AF_INET, SOCK_STREAM, 0)};
-
-    if (fileDescriptor == -1)
-        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
-
-    return fileDescriptor;
-}
-
-auto Server::setSocketOption(unsigned int fileDescriptor, std::source_location sourceLocation) -> void {
-    constexpr int option{1};
-    if (setsockopt(static_cast<int>(fileDescriptor), SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option,
-                   sizeof(option)) == -1)
-        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
-}
-
-auto Server::translateIpAddress(in_addr &address, std::source_location sourceLocation) -> void {
-    if (inet_pton(AF_INET, "127.0.0.1", &address) != 1)
-        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
-}
-
-auto Server::bind(unsigned int fileDescriptor, const sockaddr_in &address, std::source_location sourceLocation)
-        -> void {
-    if (::bind(static_cast<int>(fileDescriptor), reinterpret_cast<const sockaddr *>(&address), sizeof(address)) == -1)
-        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
-}
-
-auto Server::listen(unsigned int fileDescriptor, std::source_location sourceLocation) -> void {
-    if (::listen(static_cast<int>(fileDescriptor), SOMAXCONN) == -1)
-        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
-}
-
 auto Server::getFileDescriptorIndex() const noexcept -> unsigned int { return this->fileDescriptorIndex; }
 
 auto Server::startAccept(io_uring_sqe *sqe) const noexcept -> void {
     const Submission submission{sqe, this->fileDescriptorIndex, nullptr, nullptr, 0};
 
-    const UserData userData{EventType::Accept, this->fileDescriptorIndex};
-    submission.setUserData(std::bit_cast<unsigned long>(userData));
+    const Event event{Event::Type::accept, this->fileDescriptorIndex};
+    submission.setUserData(std::bit_cast<unsigned long>(event));
 
     submission.setFlags(IOSQE_FIXED_FILE);
 }
@@ -92,8 +54,8 @@ auto Server::resumeAccept(std::pair<int, unsigned int> result) -> void {
 auto Server::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
 
-    const UserData userData{EventType::Cancel, this->fileDescriptorIndex};
-    submission.setUserData(std::bit_cast<unsigned long>(userData));
+    const Event event{Event::Type::cancel, this->fileDescriptorIndex};
+    submission.setUserData(std::bit_cast<unsigned long>(event));
 
     submission.setFlags(IOSQE_FIXED_FILE);
 
@@ -113,8 +75,8 @@ auto Server::resumeCancel(std::pair<int, unsigned int> result) -> void {
 auto Server::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, this->fileDescriptorIndex};
 
-    const UserData userData{EventType::Close, this->fileDescriptorIndex};
-    submission.setUserData(std::bit_cast<unsigned long>(userData));
+    const Event event{Event::Type::close, this->fileDescriptorIndex};
+    submission.setUserData(std::bit_cast<unsigned long>(event));
 
     return this->awaiter;
 }
@@ -125,4 +87,35 @@ auto Server::resumeClose(std::pair<int, unsigned int> result) -> void {
     this->awaiter.setResult(result);
 
     this->closeGenerator.resume();
+}
+
+auto Server::socket(std::source_location sourceLocation) -> unsigned int {
+    const int fileDescriptor{::socket(AF_INET, SOCK_STREAM, 0)};
+
+    if (fileDescriptor == -1) throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+
+    return fileDescriptor;
+}
+
+auto Server::setSocketOption(unsigned int fileDescriptor, std::source_location sourceLocation) -> void {
+    constexpr int option{1};
+    if (setsockopt(static_cast<int>(fileDescriptor), SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option,
+                   sizeof(option)) == -1)
+        throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+}
+
+auto Server::translateIpAddress(in_addr &address, std::source_location sourceLocation) -> void {
+    if (inet_pton(AF_INET, "127.0.0.1", &address) != 1)
+        throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+}
+
+auto Server::bind(unsigned int fileDescriptor, const sockaddr_in &address, std::source_location sourceLocation)
+        -> void {
+    if (::bind(static_cast<int>(fileDescriptor), reinterpret_cast<const sockaddr *>(&address), sizeof(address)) == -1)
+        throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+}
+
+auto Server::listen(unsigned int fileDescriptor, std::source_location sourceLocation) -> void {
+    if (::listen(static_cast<int>(fileDescriptor), SOMAXCONN) == -1)
+        throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
 }

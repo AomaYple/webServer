@@ -27,16 +27,6 @@ auto BufferRing::operator=(BufferRing &&other) noexcept -> BufferRing & {
 
 BufferRing::~BufferRing() { this->destroy(); }
 
-auto BufferRing::destroy() const -> void {
-    if (this->userRing != nullptr) this->userRing->freeBufferRing(this->bufferRing, this->buffers.size(), this->id);
-}
-
-auto BufferRing::add(unsigned short index) noexcept -> void {
-    const std::span<std::byte> buffer{this->buffers[index]};
-
-    io_uring_buf_ring_add(this->bufferRing, buffer.data(), buffer.size(), index, this->mask, this->offset++);
-}
-
 auto BufferRing::getId() const noexcept -> unsigned short { return this->id; }
 
 auto BufferRing::getData(unsigned short bufferIndex, unsigned int dataSize) -> std::vector<std::byte> {
@@ -53,4 +43,14 @@ auto BufferRing::advanceCompletionBufferRingBuffer(unsigned int completionCount)
     this->userRing->advanceCompletionBufferRingBuffer(this->bufferRing, completionCount, this->offset);
 
     this->offset = 0;
+}
+
+auto BufferRing::destroy() const -> void {
+    if (this->userRing != nullptr) this->userRing->freeBufferRing(this->bufferRing, this->buffers.size(), this->id);
+}
+
+auto BufferRing::add(unsigned short index) noexcept -> void {
+    const std::span<std::byte> buffer{this->buffers[index]};
+
+    io_uring_buf_ring_add(this->bufferRing, buffer.data(), buffer.size(), index, this->mask, this->offset++);
 }

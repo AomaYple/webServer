@@ -22,6 +22,8 @@ public:
 
     ~Database();
 
+    auto consult(std::string_view statement) -> std::vector<std::vector<std::string>>;
+
 private:
     auto destroy() noexcept -> void;
 
@@ -31,10 +33,6 @@ private:
                  unsigned short port, std::string_view unixSocket, unsigned int clientFlag,
                  std::source_location sourceLocation = std::source_location::current()) -> void;
 
-public:
-    auto consult(std::string_view statement) -> std::vector<std::vector<std::string>>;
-
-private:
     auto query(std::string_view statement, std::source_location sourceLocation = std::source_location::current())
             -> void;
 
@@ -42,7 +40,7 @@ private:
 
     [[nodiscard]] static auto getColumnCount(MYSQL_RES &result) noexcept -> unsigned int;
 
-    [[nodiscard]] static auto getRow(MYSQL_RES &result) noexcept -> char **;
+    [[nodiscard]] static auto getRow(MYSQL_RES &result) noexcept -> const char *const *;
 
     static auto freeResult(MYSQL_RES &result) noexcept -> void;
 

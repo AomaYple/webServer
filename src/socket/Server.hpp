@@ -18,29 +18,12 @@ public:
 
     auto operator=(const Server &) -> Server & = delete;
 
-    auto operator=(Server &&) -> Server & = default;
+    auto operator=(Server &&) -> Server & = delete;
 
     ~Server() = default;
 
     [[nodiscard]] static auto create(unsigned short port) -> unsigned int;
 
-private:
-    [[nodiscard]] static auto socket(std::source_location sourceLocation = std::source_location::current())
-            -> unsigned int;
-
-    static auto setSocketOption(unsigned int fileDescriptor,
-                                std::source_location sourceLocation = std::source_location::current()) -> void;
-
-    static auto translateIpAddress(in_addr &address,
-                                   std::source_location sourceLocation = std::source_location::current()) -> void;
-
-    static auto bind(unsigned int fileDescriptor, const sockaddr_in &address,
-                     std::source_location sourceLocation = std::source_location::current()) -> void;
-
-    static auto listen(unsigned int fileDescriptor,
-                       std::source_location sourceLocation = std::source_location::current()) -> void;
-
-public:
     [[nodiscard]] auto getFileDescriptorIndex() const noexcept -> unsigned int;
 
     auto startAccept(io_uring_sqe *sqe) const noexcept -> void;
@@ -64,7 +47,22 @@ public:
     auto resumeClose(std::pair<int, unsigned int> result) -> void;
 
 private:
-    unsigned int fileDescriptorIndex;
+    [[nodiscard]] static auto socket(std::source_location sourceLocation = std::source_location::current())
+            -> unsigned int;
+
+    static auto setSocketOption(unsigned int fileDescriptor,
+                                std::source_location sourceLocation = std::source_location::current()) -> void;
+
+    static auto translateIpAddress(in_addr &address,
+                                   std::source_location sourceLocation = std::source_location::current()) -> void;
+
+    static auto bind(unsigned int fileDescriptor, const sockaddr_in &address,
+                     std::source_location sourceLocation = std::source_location::current()) -> void;
+
+    static auto listen(unsigned int fileDescriptor,
+                       std::source_location sourceLocation = std::source_location::current()) -> void;
+
+    const unsigned int fileDescriptorIndex;
     Generator acceptGenerator, cancelGenerator, closeGenerator;
     Awaiter awaiter;
 };

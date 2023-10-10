@@ -1,7 +1,6 @@
 #include "UserRing.hpp"
 
-#include "../log/logger.hpp"
-#include "UserRingCallError.hpp"
+#include "../log/Exception.hpp"
 
 #include <sys/resource.h>
 
@@ -10,10 +9,7 @@
 UserRing::UserRing(unsigned int entries, io_uring_params &params, std::source_location sourceLocation) : userRing{} {
     const auto result{static_cast<short>(io_uring_queue_init_params(entries, &this->userRing, &params))};
 
-    if (result != 0)
-        throw UserRingCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                  std::this_thread::get_id(), sourceLocation,
-                                                  std::strerror(std::abs(result)))};
+    if (result != 0) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
 }
 
 UserRing::UserRing(UserRing &&other) noexcept : userRing{other.userRing} { other.userRing.ring_fd = -1; }
@@ -31,16 +27,11 @@ auto UserRing::operator=(UserRing &&other) noexcept -> UserRing & {
 
 UserRing::~UserRing() { this->destroy(); }
 
-auto UserRing::destroy() noexcept -> void {
-    if (this->userRing.ring_fd != -1) io_uring_queue_exit(&this->userRing);
-}
-
 auto UserRing::getFileDescriptorLimit(std::source_location sourceLocation) -> unsigned int {
     rlimit limit{};
 
     if (getrlimit(RLIMIT_NOFILE, &limit) != 0)
-        throw UserRingCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                  std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
+        throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
 
     return limit.rlim_cur;
 }
@@ -49,10 +40,7 @@ auto UserRing::getSelfFileDescriptor() const noexcept -> unsigned int { return t
 
 auto UserRing::registerSelfFileDescriptor(std::source_location sourceLocation) -> void {
     const auto result{static_cast<short>(io_uring_register_ring_fd(&this->userRing))};
-    if (result != 1)
-        throw UserRingCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                  std::this_thread::get_id(), sourceLocation,
-                                                  std::strerror(std::abs(result)))};
+    if (result != 1) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
 }
 
 auto UserRing::registerCpu(unsigned short cpuCode, std::source_location sourceLocation) -> void {
@@ -61,28 +49,19 @@ auto UserRing::registerCpu(unsigned short cpuCode, std::source_location sourceLo
     CPU_SET(cpuCode, &cpuSet);
 
     const auto result{static_cast<signed char>(io_uring_register_iowq_aff(&this->userRing, sizeof(cpuSet), &cpuSet))};
-    if (result != 0)
-        throw UserRingCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                  std::this_thread::get_id(), sourceLocation,
-                                                  std::strerror(std::abs(result)))};
+    if (result != 0) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
 }
 
 auto UserRing::registerSparseFileDescriptors(unsigned int fileDescriptorCount, std::source_location sourceLocation)
         -> void {
     const auto result{static_cast<short>(io_uring_register_files_sparse(&this->userRing, fileDescriptorCount))};
-    if (result != 0)
-        throw UserRingCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                  std::this_thread::get_id(), sourceLocation,
-                                                  std::strerror(std::abs(result)))};
+    if (result != 0) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
 }
 
 auto UserRing::allocateFileDescriptorRange(unsigned int offset, unsigned int length,
                                            std::source_location sourceLocation) -> void {
     const auto result{static_cast<short>(io_uring_register_file_alloc_range(&this->userRing, offset, length))};
-    if (result != 0)
-        throw UserRingCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                  std::this_thread::get_id(), sourceLocation,
-                                                  std::strerror(std::abs(result)))};
+    if (result != 0) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
 }
 
 auto UserRing::updateFileDescriptors(unsigned int offset, std::span<const unsigned int> fileDescriptors,
@@ -91,10 +70,7 @@ auto UserRing::updateFileDescriptors(unsigned int offset, std::span<const unsign
 
     const int result{io_uring_register_files_update(&this->userRing, offset, realFileDescriptors.data(),
                                                     realFileDescriptors.size())};
-    if (result < 0)
-        throw UserRingCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                  std::this_thread::get_id(), sourceLocation,
-                                                  std::strerror(std::abs(result)))};
+    if (result < 0) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
 }
 
 auto UserRing::setupBufferRing(unsigned short entries, unsigned short id, std::source_location sourceLocation)
@@ -102,10 +78,7 @@ auto UserRing::setupBufferRing(unsigned short entries, unsigned short id, std::s
     int result;
 
     io_uring_buf_ring *const bufferRing{io_uring_setup_buf_ring(&this->userRing, entries, id, 0, &result)};
-    if (bufferRing == nullptr)
-        throw UserRingCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                  std::this_thread::get_id(), sourceLocation,
-                                                  std::strerror(std::abs(result)))};
+    if (bufferRing == nullptr) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
 
     return bufferRing;
 }
@@ -113,18 +86,12 @@ auto UserRing::setupBufferRing(unsigned short entries, unsigned short id, std::s
 auto UserRing::freeBufferRing(io_uring_buf_ring *bufferRing, unsigned short entries, unsigned short id,
                               std::source_location sourceLocation) -> void {
     const auto result{static_cast<short>(io_uring_free_buf_ring(&this->userRing, bufferRing, entries, id))};
-    if (result < 0)
-        throw UserRingCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                  std::this_thread::get_id(), sourceLocation,
-                                                  std::strerror(std::abs(result)))};
+    if (result < 0) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
 }
 
 auto UserRing::submitWait(unsigned int waitCount, std::source_location sourceLocation) -> void {
     const int result{io_uring_submit_and_wait(&this->userRing, waitCount)};
-    if (result < 0)
-        throw UserRingCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                  std::this_thread::get_id(), sourceLocation,
-                                                  std::strerror(std::abs(result)))};
+    if (result < 0) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
 }
 
 auto UserRing::forEachCompletion(const std::function<auto(const io_uring_cqe *cqe)->void> &task) noexcept
@@ -142,9 +109,7 @@ auto UserRing::forEachCompletion(const std::function<auto(const io_uring_cqe *cq
 
 auto UserRing::getSqe(std::source_location sourceLocation) -> io_uring_sqe * {
     io_uring_sqe *const sqe{io_uring_get_sqe(&this->userRing)};
-    if (sqe == nullptr)
-        throw UserRingCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                  std::this_thread::get_id(), sourceLocation, "no sqe available")};
+    if (sqe == nullptr) throw Exception{Log{Log::Level::fatal, "no sqe available", sourceLocation}};
 
     return sqe;
 }
@@ -153,4 +118,8 @@ auto UserRing::advanceCompletionBufferRingBuffer(io_uring_buf_ring *bufferRing, 
                                                  unsigned short bufferRingBufferCount) noexcept -> void {
     __io_uring_buf_ring_cq_advance(&this->userRing, bufferRing, static_cast<int>(completionCount),
                                    bufferRingBufferCount);
+}
+
+auto UserRing::destroy() noexcept -> void {
+    if (this->userRing.ring_fd != -1) io_uring_queue_exit(&this->userRing);
 }

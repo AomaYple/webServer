@@ -1,9 +1,8 @@
 #include "Timer.hpp"
 
-#include "../log/logger.hpp"
+#include "../log/Exception.hpp"
+#include "../userRing/Event.hpp"
 #include "../userRing/Submission.hpp"
-#include "../userRing/UserData.hpp"
-#include "SystemCallError.hpp"
 
 #include <sys/timerfd.h>
 
@@ -19,23 +18,6 @@ auto Timer::create() -> unsigned int {
     return fileDescriptor;
 }
 
-auto Timer::createFileDescriptor(std::source_location sourceLocation) -> unsigned int {
-    const int fileDescriptor{timerfd_create(CLOCK_MONOTONIC, 0)};
-
-    if (fileDescriptor == -1)
-        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
-
-    return fileDescriptor;
-}
-
-auto Timer::setTime(unsigned int fileDescriptor, std::source_location sourceLocation) -> void {
-    constexpr itimerspec time{{1, 0}, {1, 0}};
-    if (timerfd_settime(static_cast<int>(fileDescriptor), 0, &time, nullptr) == -1)
-        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                std::this_thread::get_id(), sourceLocation, std::strerror(errno))};
-}
-
 auto Timer::getFileDescriptorIndex() const noexcept -> unsigned int { return this->fileDescriptorIndex; }
 
 auto Timer::timing(io_uring_sqe *sqe) noexcept -> const Awaiter & {
@@ -45,8 +27,8 @@ auto Timer::timing(io_uring_sqe *sqe) noexcept -> const Awaiter & {
                                 {std::as_writable_bytes(std::span{&this->expireCount, 1})},
                                 offset};
 
-    const UserData userData{EventType::Timeout, this->fileDescriptorIndex};
-    submission.setUserData(std::bit_cast<unsigned long>(userData));
+    const Event event{Event::Type::timeout, this->fileDescriptorIndex};
+    submission.setUserData(std::bit_cast<unsigned long>(event));
 
     submission.setFlags(IOSQE_FIXED_FILE);
 
@@ -84,9 +66,7 @@ auto Timer::clearTimeout() -> std::vector<unsigned int> {
 }
 
 auto Timer::add(unsigned int fileDescriptor, unsigned char timeout, std::source_location sourceLocation) -> void {
-    if (timeout >= this->wheel.size())
-        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                std::this_thread::get_id(), sourceLocation, "timeout is too large")};
+    if (timeout >= this->wheel.size()) throw Exception{Log{Log::Level::fatal, "timeout is too large", sourceLocation}};
 
     const auto point{static_cast<unsigned char>((this->now + timeout) % this->wheel.size())};
 
@@ -97,9 +77,7 @@ auto Timer::add(unsigned int fileDescriptor, unsigned char timeout, std::source_
 auto Timer::update(unsigned int fileDescriptor, unsigned char timeout, std::source_location sourceLocation) -> void {
     this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
 
-    if (timeout >= this->wheel.size())
-        throw SystemCallError{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                std::this_thread::get_id(), sourceLocation, "timeout is too large")};
+    if (timeout >= this->wheel.size()) throw Exception{Log{Log::Level::fatal, "timeout is too large", sourceLocation}};
 
     const auto point{static_cast<unsigned char>((this->now + timeout) % this->wheel.size())};
 
@@ -112,11 +90,11 @@ auto Timer::remove(unsigned int fileDescriptor) -> void {
     this->location.erase(fileDescriptor);
 }
 
-auto Timer::cancel(io_uring_sqe *sqe) noexcept -> const Awaiter & {
+auto Timer::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
 
-    const UserData userData{EventType::Cancel, this->fileDescriptorIndex};
-    submission.setUserData(std::bit_cast<unsigned long>(userData));
+    const Event event{Event::Type::cancel, this->fileDescriptorIndex};
+    submission.setUserData(std::bit_cast<unsigned long>(event));
 
     submission.setFlags(IOSQE_FIXED_FILE);
 
@@ -134,8 +112,8 @@ auto Timer::resumeCancel(std::pair<int, unsigned int> result) -> void {
 auto Timer::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, this->fileDescriptorIndex};
 
-    const UserData userData{EventType::Close, this->fileDescriptorIndex};
-    submission.setUserData(std::bit_cast<unsigned long>(userData));
+    const Event event{Event::Type::close, this->fileDescriptorIndex};
+    submission.setUserData(std::bit_cast<unsigned long>(event));
 
     return this->awaiter;
 }
@@ -146,4 +124,18 @@ auto Timer::resumeClose(std::pair<int, unsigned int> result) -> void {
     this->awaiter.setResult(result);
 
     this->closeGenerator.resume();
+}
+
+auto Timer::createFileDescriptor(std::source_location sourceLocation) -> unsigned int {
+    const int fileDescriptor{timerfd_create(CLOCK_MONOTONIC, 0)};
+
+    if (fileDescriptor == -1) throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+
+    return fileDescriptor;
+}
+
+auto Timer::setTime(unsigned int fileDescriptor, std::source_location sourceLocation) -> void {
+    constexpr itimerspec time{{1, 0}, {1, 0}};
+    if (timerfd_settime(static_cast<int>(fileDescriptor), 0, &time, nullptr) == -1)
+        throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
 }

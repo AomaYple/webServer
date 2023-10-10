@@ -1,7 +1,6 @@
 #include "Database.hpp"
 
-#include "../log/logger.hpp"
-#include "database_call_error.hpp"
+#include "../log/Exception.hpp"
 
 Database::Database(std::string_view host, std::string_view user, std::string_view password, std::string_view database,
                    unsigned short port, std::string_view unixSocket, unsigned int clientFlag)
@@ -26,29 +25,6 @@ auto Database::operator=(Database &&other) noexcept -> Database & {
 
 Database::~Database() { this->destroy(); }
 
-auto Database::destroy() noexcept -> void {
-    if (this->connection.host != nullptr) mysql_close(&this->connection);
-}
-
-auto Database::initialize(std::source_location sourceLocation) -> void {
-    const std::lock_guard lockGuard{Database::lock};
-
-    if (mysql_init(&this->connection) == nullptr)
-        throw database_call_error{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                    std::this_thread::get_id(), sourceLocation,
-                                                    "initialization error")};
-}
-
-auto Database::connect(std::string_view host, std::string_view user, std::string_view password,
-                       std::string_view database, unsigned short port, std::string_view unixSocket,
-                       unsigned int clientFlag, std::source_location sourceLocation) -> void {
-    if (mysql_real_connect(&this->connection, host.data(), user.data(), password.data(), database.data(), port,
-                           unixSocket.data(), clientFlag) == nullptr)
-        throw database_call_error{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                    std::this_thread::get_id(), sourceLocation,
-                                                    mysql_error(&this->connection))};
-}
-
 auto Database::consult(std::string_view statement) -> std::vector<std::vector<std::string>> {
     std::vector<std::vector<std::string>> results;
 
@@ -60,7 +36,8 @@ auto Database::consult(std::string_view statement) -> std::vector<std::vector<st
 
     const unsigned int columnCount{Database::getColumnCount(*consultResult)};
 
-    for (char **row{Database::getRow(*consultResult)}; row != nullptr; row = Database::getRow(*consultResult)) {
+    for (const char *const *row{Database::getRow(*consultResult)}; row != nullptr;
+         row = Database::getRow(*consultResult)) {
         std::vector<std::string> result;
 
         for (unsigned int i{0}; i < columnCount; ++i) result.emplace_back(row[i]);
@@ -73,11 +50,28 @@ auto Database::consult(std::string_view statement) -> std::vector<std::vector<st
     return results;
 }
 
+auto Database::destroy() noexcept -> void {
+    if (this->connection.host != nullptr) mysql_close(&this->connection);
+}
+
+auto Database::initialize(std::source_location sourceLocation) -> void {
+    const std::lock_guard lockGuard{Database::lock};
+
+    if (mysql_init(&this->connection) == nullptr)
+        throw Exception{Log{Log::Level::fatal, "initialization of database failed", sourceLocation}};
+}
+
+auto Database::connect(std::string_view host, std::string_view user, std::string_view password,
+                       std::string_view database, unsigned short port, std::string_view unixSocket,
+                       unsigned int clientFlag, std::source_location sourceLocation) -> void {
+    if (mysql_real_connect(&this->connection, host.data(), user.data(), password.data(), database.data(), port,
+                           unixSocket.data(), clientFlag) == nullptr)
+        throw Exception{Log{Log::Level::fatal, mysql_error(&this->connection), sourceLocation}};
+}
+
 auto Database::query(std::string_view statement, std::source_location sourceLocation) -> void {
     if (mysql_real_query(&this->connection, statement.data(), statement.size()) != 0)
-        throw database_call_error{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                    std::this_thread::get_id(), sourceLocation,
-                                                    mysql_error(&this->connection))};
+        throw Exception{Log{Log::Level::fatal, mysql_error(&this->connection), sourceLocation}};
 }
 
 auto Database::getResult(std::source_location sourceLocation) -> MYSQL_RES * {
@@ -85,10 +79,7 @@ auto Database::getResult(std::source_location sourceLocation) -> MYSQL_RES * {
 
     if (result == nullptr) {
         const std::string_view error{mysql_error(&this->connection)};
-        if (!error.empty())
-            throw database_call_error{logger::formatLog(logger::Level::Fatal, std::chrono::system_clock::now(),
-                                                        std::this_thread::get_id(), sourceLocation,
-                                                        std::string{error})};
+        if (!error.empty()) throw Exception{Log{Log::Level::fatal, std::string{error}, sourceLocation}};
     }
 
     return result;
@@ -96,7 +87,7 @@ auto Database::getResult(std::source_location sourceLocation) -> MYSQL_RES * {
 
 auto Database::getColumnCount(MYSQL_RES &result) noexcept -> unsigned int { return mysql_num_fields(&result); }
 
-auto Database::getRow(MYSQL_RES &result) noexcept -> char ** { return mysql_fetch_row(&result); }
+auto Database::getRow(MYSQL_RES &result) noexcept -> const char *const * { return mysql_fetch_row(&result); }
 
 auto Database::freeResult(MYSQL_RES &result) noexcept -> void { mysql_free_result(&result); }
 
