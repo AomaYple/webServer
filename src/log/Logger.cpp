@@ -26,8 +26,8 @@ Logger::Logger()
     : logFile{std::filesystem::current_path().string() + "/log.log", std::ofstream::trunc},
       worker{&Logger::run, &Logger::instance} {}
 
-auto Logger::run(std::stop_token stopToken) -> void {
-    while (!stopToken.stop_requested()) {
+auto Logger::run() -> void {
+    while (!Logger::instance.worker.get_stop_token().stop_requested()) {
         this->notice.wait(false, std::memory_order_relaxed);
         this->notice.clear(std::memory_order_relaxed);
 
