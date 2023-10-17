@@ -23,7 +23,7 @@ public:
 private:
     Logger();
 
-    auto run() -> void;
+    auto run(std::stop_token stopToken) -> void;
 
     [[nodiscard]] static auto invertLinkedList(Node *pointer) noexcept -> const Node *;
 

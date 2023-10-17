@@ -2,20 +2,54 @@ cmake_minimum_required(VERSION 3.27.7)
 
 project(webServer)
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+add_executable(${PROJECT_NAME})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
-set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
+set_target_properties(${PROJECT_NAME} PROPERTIES
+        CXX_STANDARD 23
+        CXX_STANDARD_REQUIRED ON
+        COMPILE_WARNING_AS_ERROR ON
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}
+)
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Og -fsanitize=address,undefined,leak")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast")
+target_sources(${PROJECT_NAME} PRIVATE
+        src/coroutine/Awaiter.cpp
+        src/coroutine/Generator.cpp
 
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME})
+        src/database/Database.cpp
 
-file(GLOB_RECURSE sources CONFIGURE_DEPENDS src/*.cpp)
-add_executable(${PROJECT_NAME} ${sources})
+        src/http/Http.cpp
+        src/http/HttpRequest.cpp
+        src/http/HttpResponse.cpp
+
+        src/log/Exception.cpp
+        src/log/Log.cpp
+        src/log/Logger.cpp
+        src/log/Node.cpp
+
+        src/scheduler/Scheduler.cpp
+
+        src/socket/Client.cpp
+        src/socket/Server.cpp
+        src/socket/Timer.cpp
+
+        src/userRing/BufferRing.cpp
+        src/userRing/Completion.cpp
+        src/userRing/Event.cpp
+        src/userRing/Submission.cpp
+        src/userRing/UserRing.cpp
+
+        src/main.cpp
+)
+
+target_compile_options(${PROJECT_NAME} PRIVATE
+        -Wall -Wextra -Wpedantic
+        $<$<CONFIG:debug>:-Og -fsanitize=address,undefined,leak>
+        $<$<CONFIG:release>:-Ofast>
+)
+
+target_link_options(${PROJECT_NAME} PRIVATE
+        $<$<CONFIG:debug>:-fsanitize=address,undefined,leak>
+)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         uring
