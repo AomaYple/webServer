@@ -158,7 +158,7 @@ auto Scheduler::closeAll() -> void {
     this->bufferRing.advanceCompletionBufferRingBuffer(completionCount);
 }
 
-auto Scheduler::frame(const io_uring_cqe *cqe, std::source_location sourceLocation) -> void {
+auto Scheduler::frame(const io_uring_cqe *cqe) -> void {
     const Completion completion{cqe};
 
     const unsigned long completionUserData{completion.getUserData()};
@@ -231,15 +231,13 @@ auto Scheduler::frame(const io_uring_cqe *cqe, std::source_location sourceLocati
 
                 this->timer.setCloseGenerator(Generator{});
             } else {
-                auto findResult{this->clients.find(event.fileDescriptor)};
-                if (findResult != this->clients.end()) {
-                    try {
-                        findResult->second.resumeClose(result);
-                    } catch (Exception &exception) { Logger::produce(exception.getLog()); }
+                Client &client{this->clients.at(event.fileDescriptor)};
 
-                    this->clients.erase(findResult);
-                } else
-                    Logger::produce(Log{Log::Level::error, "cannot find client", sourceLocation});
+                try {
+                    client.resumeClose(result);
+                } catch (Exception &exception) { Logger::produce(exception.getLog()); }
+
+                this->clients.erase(event.fileDescriptor);
             }
 
             break;
