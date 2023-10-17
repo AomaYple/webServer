@@ -43,12 +43,12 @@ target_sources(${PROJECT_NAME} PRIVATE
 
 target_compile_options(${PROJECT_NAME} PRIVATE
         -Wall -Wextra -Wpedantic
-        $<$<CONFIG:debug>:-Og -fsanitize=address,undefined,leak>
-        $<$<CONFIG:release>:-Ofast>
+        $<$<CONFIG:Debug>:-Og -fsanitize=address,undefined,leak>
+        $<$<CONFIG:Release>:-Ofast>
 )
 
 target_link_options(${PROJECT_NAME} PRIVATE
-        $<$<CONFIG:debug>:-fsanitize=address,undefined,leak>
+        $<$<CONFIG:Debug>:-fsanitize=address,undefined,leak>
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
