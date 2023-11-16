@@ -29,7 +29,7 @@ private:
     auto destroy() const -> void;
 
     auto add(unsigned short index) noexcept -> void;
-    
+
     io_uring_buf_ring *bufferRing;
     std::vector<std::vector<std::byte>> buffers;
     unsigned short id, mask, offset;
