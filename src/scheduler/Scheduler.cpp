@@ -231,13 +231,15 @@ auto Scheduler::frame(const io_uring_cqe *cqe) -> void {
 
                 this->timer.setCloseGenerator(Generator{});
             } else {
-                Client &client{this->clients.at(event.fileDescriptor)};
+                auto findResult{this->clients.find(event.fileDescriptor)};
 
-                try {
-                    client.resumeClose(result);
-                } catch (Exception &exception) { Logger::produce(exception.getLog()); }
+                if (findResult != this->clients.cend()) {
+                    try {
+                        findResult->second.resumeClose(result);
+                    } catch (Exception &exception) { Logger::produce(exception.getLog()); }
 
-                this->clients.erase(event.fileDescriptor);
+                    this->clients.erase(findResult);
+                }
             }
 
             break;
