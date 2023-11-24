@@ -37,10 +37,10 @@ public:
 
     [[nodiscard]] auto clearTimeout() -> std::vector<unsigned int>;
 
-    auto add(unsigned int fileDescriptor, unsigned char timeout,
+    auto add(unsigned int fileDescriptor, unsigned short timeout,
              std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto update(unsigned int fileDescriptor, unsigned char timeout,
+    auto update(unsigned int fileDescriptor, unsigned short timeout,
                 std::source_location sourceLocation = std::source_location::current()) -> void;
 
     auto remove(unsigned int fileDescriptor) -> void;
@@ -65,10 +65,10 @@ private:
                         std::source_location sourceLocation = std::source_location::current()) -> void;
 
     const unsigned int fileDescriptorIndex;
-    unsigned char now;
+    unsigned short now;
     unsigned long expireCount;
-    std::array<std::unordered_set<unsigned int>, 61> wheel;
-    std::unordered_map<unsigned int, unsigned char> location;
+    std::array<std::unordered_set<unsigned int>, 65535> wheel;
+    std::unordered_map<unsigned int, unsigned short> location;
     Generator timingGenerator, cancelGenerator, closeGenerator;
     Awaiter awaiter;
 };

@@ -3,12 +3,12 @@
 #include "../userRing/Event.hpp"
 #include "../userRing/Submission.hpp"
 
-Client::Client(unsigned int fileDescriptorIndex, unsigned char timeout) noexcept
+Client::Client(unsigned int fileDescriptorIndex, unsigned short timeout) noexcept
     : fileDescriptorIndex{fileDescriptorIndex}, timeout{timeout} {}
 
 auto Client::getFileDescriptorIndex() const noexcept -> unsigned int { return this->fileDescriptorIndex; }
 
-auto Client::getTimeout() const noexcept -> unsigned char { return this->timeout; }
+auto Client::getTimeout() const noexcept -> unsigned short { return this->timeout; }
 
 auto Client::startReceive(io_uring_sqe *sqe, unsigned short bufferRingId) const noexcept -> void {
     constexpr unsigned int flags{0};

@@ -10,7 +10,7 @@
 
 class Client {
 public:
-    Client(unsigned int fileDescriptorIndex, unsigned char timeout) noexcept;
+    Client(unsigned int fileDescriptorIndex, unsigned short timeout) noexcept;
 
     Client(const Client &) = delete;
 
@@ -24,7 +24,7 @@ public:
 
     [[nodiscard]] auto getFileDescriptorIndex() const noexcept -> unsigned int;
 
-    [[nodiscard]] auto getTimeout() const noexcept -> unsigned char;
+    [[nodiscard]] auto getTimeout() const noexcept -> unsigned short;
 
     auto startReceive(io_uring_sqe *sqe, unsigned short bufferRingId) const noexcept -> void;
 
@@ -60,7 +60,7 @@ public:
 
 private:
     const unsigned int fileDescriptorIndex;
-    const unsigned char timeout;
+    const unsigned short timeout;
     std::vector<std::byte> buffer;
     Generator receiveGenerator, sendGenerator, cancelGenerator, closeGenerator;
     Awaiter awaiter;

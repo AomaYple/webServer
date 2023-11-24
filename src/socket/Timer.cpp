@@ -65,21 +65,21 @@ auto Timer::clearTimeout() -> std::vector<unsigned int> {
     return timeoutFileDescriptors;
 }
 
-auto Timer::add(unsigned int fileDescriptor, unsigned char timeout, std::source_location sourceLocation) -> void {
+auto Timer::add(unsigned int fileDescriptor, unsigned short timeout, std::source_location sourceLocation) -> void {
     if (timeout >= this->wheel.size()) throw Exception{Log{Log::Level::fatal, "timeout is too large", sourceLocation}};
 
-    const auto point{static_cast<unsigned char>((this->now + timeout) % this->wheel.size())};
+    const unsigned short point{static_cast<unsigned short>((this->now + timeout) % this->wheel.size())};
 
     this->location.emplace(fileDescriptor, point);
     this->wheel[point].emplace(fileDescriptor);
 }
 
-auto Timer::update(unsigned int fileDescriptor, unsigned char timeout, std::source_location sourceLocation) -> void {
+auto Timer::update(unsigned int fileDescriptor, unsigned short timeout, std::source_location sourceLocation) -> void {
     this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
 
     if (timeout >= this->wheel.size()) throw Exception{Log{Log::Level::fatal, "timeout is too large", sourceLocation}};
 
-    const auto point{static_cast<unsigned char>((this->now + timeout) % this->wheel.size())};
+    const unsigned short point{static_cast<unsigned short>((this->now + timeout) % this->wheel.size())};
 
     this->wheel[point].emplace(fileDescriptor);
     this->location.at(fileDescriptor) = point;
