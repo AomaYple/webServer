@@ -127,7 +127,7 @@ auto Scheduler::cancelAll() -> void {
         client.second.setCancelGenerator(std::move(generator));
     }
 
-    this->userRing->submitWait(this->clients.size() * 2 + 3);
+    this->userRing->submitWait(4 + this->clients.size() * 2);
 
     const unsigned int completionCount{
             this->userRing->forEachCompletion([this](const io_uring_cqe *cqe) { this->frame(cqe); })};
