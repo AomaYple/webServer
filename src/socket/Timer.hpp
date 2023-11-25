@@ -67,7 +67,7 @@ private:
     const unsigned int fileDescriptorIndex;
     unsigned short now;
     unsigned long expireCount;
-    std::array<std::unordered_set<unsigned int>, 65535> wheel;
+    std::array<std::unordered_set<unsigned int>, 1801> wheel;
     std::unordered_map<unsigned int, unsigned short> location;
     Generator timingGenerator, cancelGenerator, closeGenerator;
     Awaiter awaiter;

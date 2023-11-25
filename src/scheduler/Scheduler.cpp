@@ -158,7 +158,7 @@ auto Scheduler::closeAll() -> void {
     this->bufferRing.advanceCompletionBufferRingBuffer(completionCount);
 }
 
-auto Scheduler::frame(const io_uring_cqe *cqe) -> void {
+auto Scheduler::frame(const io_uring_cqe *cqe, std::source_location sourceLocation) -> void {
     const Completion completion{cqe};
 
     const unsigned long completionUserData{completion.getUserData()};
@@ -239,7 +239,8 @@ auto Scheduler::frame(const io_uring_cqe *cqe) -> void {
                     } catch (Exception &exception) { Logger::produce(exception.getLog()); }
 
                     this->clients.erase(findResult);
-                }
+                } else
+                    Logger::produce(Log{Log::Level::error, "cannot find client", sourceLocation});
             }
 
             break;
@@ -253,7 +254,7 @@ auto Scheduler::accept(std::source_location sourceLocation) -> Generator {
         const std::pair<int, unsigned int> result{co_await this->server.accept()};
 
         if (result.first >= 0) {
-            this->clients.emplace(result.first, Client{static_cast<unsigned int>(result.first), 3600});
+            this->clients.emplace(result.first, Client{static_cast<unsigned int>(result.first), 1800});
 
             Client &client{this->clients.at(result.first)};
 

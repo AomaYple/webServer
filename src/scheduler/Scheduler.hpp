@@ -33,7 +33,7 @@ private:
 
     auto closeAll() -> void;
 
-    auto frame(const io_uring_cqe *cqe) -> void;
+    auto frame(const io_uring_cqe *cqe, std::source_location sourceLocation = std::source_location::current()) -> void;
 
     [[nodiscard]] auto accept(std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
