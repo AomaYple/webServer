@@ -254,7 +254,7 @@ auto Scheduler::accept(std::source_location sourceLocation) -> Generator {
         const std::pair<int, unsigned int> result{co_await this->server.accept()};
 
         if (result.first >= 0) {
-            this->clients.emplace(result.first, Client{static_cast<unsigned int>(result.first), 1800});
+            this->clients.emplace(result.first, Client{static_cast<unsigned int>(result.first), 600});
 
             Client &client{this->clients.at(result.first)};
 
