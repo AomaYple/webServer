@@ -35,14 +35,6 @@ auto Timer::timing(io_uring_sqe *sqe) noexcept -> const Awaiter & {
     return this->awaiter;
 }
 
-auto Timer::setTimingGenerator(Generator &&generator) noexcept -> void { this->timingGenerator = std::move(generator); }
-
-auto Timer::resumeTiming(std::pair<int, unsigned int> result) -> void {
-    this->awaiter.setResult(result);
-
-    this->timingGenerator.resume();
-}
-
 auto Timer::clearTimeout() -> std::vector<unsigned int> {
     std::vector<unsigned int> timeoutFileDescriptors;
 
@@ -88,6 +80,14 @@ auto Timer::update(unsigned int fileDescriptor, unsigned short timeout, std::sou
 auto Timer::remove(unsigned int fileDescriptor) -> void {
     this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
     this->location.erase(fileDescriptor);
+}
+
+auto Timer::setTimingGenerator(Generator &&generator) noexcept -> void { this->timingGenerator = std::move(generator); }
+
+auto Timer::resumeTiming(std::pair<int, unsigned int> result) -> void {
+    this->awaiter.setResult(result);
+
+    this->timingGenerator.resume();
 }
 
 auto Timer::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {

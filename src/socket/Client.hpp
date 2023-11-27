@@ -26,6 +26,12 @@ public:
 
     [[nodiscard]] auto getTimeout() const noexcept -> unsigned short;
 
+    auto writeData(std::span<const std::byte> data) -> void;
+
+    [[nodiscard]] auto readData() noexcept -> std::span<const std::byte>;
+
+    auto clearBuffer() noexcept -> void;
+
     auto startReceive(io_uring_sqe *sqe, unsigned short bufferRingId) const noexcept -> void;
 
     [[nodiscard]] auto receive() const noexcept -> const Awaiter &;
@@ -34,17 +40,11 @@ public:
 
     auto resumeReceive(std::pair<int, unsigned int> result) -> void;
 
-    auto writeData(std::span<const std::byte> data) -> void;
-
     [[nodiscard]] auto send(io_uring_sqe *sqe, std::vector<std::byte> &&data) noexcept -> const Awaiter &;
 
     auto setSendGenerator(Generator &&generator) noexcept -> void;
 
     auto resumeSend(std::pair<int, unsigned int> result) -> void;
-
-    [[nodiscard]] auto readData() noexcept -> std::span<const std::byte>;
-
-    auto clearBuffer() noexcept -> void;
 
     auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 

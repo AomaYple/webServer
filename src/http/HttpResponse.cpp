@@ -42,7 +42,7 @@ auto HttpResponse::setBody(std::span<const std::byte> newBody) -> void {
     this->body.insert(this->body.cend(), newBody.cbegin(), newBody.cend());
 }
 
-auto HttpResponse::combine() const -> std::vector<std::byte> {
+auto HttpResponse::toBytes() const -> std::vector<std::byte> {
     std::vector<std::byte> all;
 
     all.insert(all.cend(), this->version.cbegin(), this->version.cend());

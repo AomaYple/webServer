@@ -31,10 +31,6 @@ public:
 
     [[nodiscard]] auto timing(io_uring_sqe *sqe) noexcept -> const Awaiter &;
 
-    auto setTimingGenerator(Generator &&generator) noexcept -> void;
-
-    auto resumeTiming(std::pair<int, unsigned int> result) -> void;
-
     [[nodiscard]] auto clearTimeout() -> std::vector<unsigned int>;
 
     auto add(unsigned int fileDescriptor, unsigned short timeout,
@@ -44,6 +40,10 @@ public:
                 std::source_location sourceLocation = std::source_location::current()) -> void;
 
     auto remove(unsigned int fileDescriptor) -> void;
+
+    auto setTimingGenerator(Generator &&generator) noexcept -> void;
+
+    auto resumeTiming(std::pair<int, unsigned int> result) -> void;
 
     [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
@@ -67,7 +67,7 @@ private:
     const unsigned int fileDescriptorIndex;
     unsigned short now;
     unsigned long expireCount;
-    std::array<std::unordered_set<unsigned int>, 1801> wheel;
+    std::array<std::unordered_set<unsigned int>, 601> wheel;
     std::unordered_map<unsigned int, unsigned short> location;
     Generator timingGenerator, cancelGenerator, closeGenerator;
     Awaiter awaiter;

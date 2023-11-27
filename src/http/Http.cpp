@@ -35,7 +35,7 @@ auto Http::parse(std::string_view request, Database &database, std::source_locat
         }
     } catch (Exception &exception) { Logger::produce(exception.getLog()); }
 
-    return httpResponse.combine();
+    return httpResponse.toBytes();
 }
 
 Http::Http()

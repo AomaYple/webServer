@@ -10,6 +10,14 @@ auto Client::getFileDescriptorIndex() const noexcept -> unsigned int { return th
 
 auto Client::getTimeout() const noexcept -> unsigned short { return this->timeout; }
 
+auto Client::writeData(std::span<const std::byte> data) -> void {
+    this->buffer.insert(this->buffer.cend(), data.cbegin(), data.cend());
+}
+
+auto Client::readData() noexcept -> std::span<const std::byte> { return this->buffer; }
+
+auto Client::clearBuffer() noexcept -> void { this->buffer.clear(); }
+
 auto Client::startReceive(io_uring_sqe *sqe, unsigned short bufferRingId) const noexcept -> void {
     constexpr unsigned int flags{0};
     const Submission submission{sqe, this->fileDescriptorIndex, {}, flags};
@@ -34,10 +42,6 @@ auto Client::resumeReceive(std::pair<int, unsigned int> result) -> void {
     this->receiveGenerator.resume();
 }
 
-auto Client::writeData(std::span<const std::byte> data) -> void {
-    this->buffer.insert(this->buffer.cend(), data.cbegin(), data.cend());
-}
-
 auto Client::send(io_uring_sqe *sqe, std::vector<std::byte> &&data) noexcept -> const Awaiter & {
     this->buffer = std::move(data);
 
@@ -58,10 +62,6 @@ auto Client::resumeSend(std::pair<int, unsigned int> result) -> void {
 
     this->sendGenerator.resume();
 }
-
-auto Client::readData() noexcept -> std::span<const std::byte> { return this->buffer; }
-
-auto Client::clearBuffer() noexcept -> void { this->buffer.clear(); }
 
 auto Client::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
     const Submission submission{sqe, this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
