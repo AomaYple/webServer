@@ -231,7 +231,7 @@ auto Scheduler::frame(const io_uring_cqe *cqe, std::source_location sourceLocati
 
                 this->timer.setCloseGenerator(Generator{});
             } else {
-                auto findResult{this->clients.find(event.fileDescriptor)};
+                const auto findResult{this->clients.find(event.fileDescriptor)};
 
                 if (findResult != this->clients.cend()) {
                     try {
