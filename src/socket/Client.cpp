@@ -10,13 +10,7 @@ auto Client::getFileDescriptorIndex() const noexcept -> unsigned int { return th
 
 auto Client::getTimeout() const noexcept -> unsigned short { return this->timeout; }
 
-auto Client::writeData(std::span<const std::byte> data) -> void {
-    this->buffer.insert(this->buffer.cend(), data.cbegin(), data.cend());
-}
-
-auto Client::readData() const -> std::span<const std::byte> { return this->buffer; }
-
-auto Client::clearBuffer() noexcept -> void { this->buffer.clear(); }
+auto Client::getBuffer() noexcept -> std::vector<std::byte> & { return this->buffer; }
 
 auto Client::startReceive(io_uring_sqe *sqe, unsigned short bufferRingId) const noexcept -> void {
     constexpr unsigned int flags{0};
@@ -42,9 +36,7 @@ auto Client::resumeReceive(std::pair<int, unsigned int> result) -> void {
     this->receiveGenerator.resume();
 }
 
-auto Client::send(io_uring_sqe *sqe, std::vector<std::byte> &&data) noexcept -> const Awaiter & {
-    this->buffer = std::move(data);
-
+auto Client::send(io_uring_sqe *sqe) noexcept -> const Awaiter & {
     const Submission submission{sqe, this->fileDescriptorIndex, this->buffer, 0, 0};
 
     const Event event{Event::Type::send, this->fileDescriptorIndex};

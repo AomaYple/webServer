@@ -295,7 +295,10 @@ auto Scheduler::receive(Client &client, std::source_location sourceLocation) -> 
         const std::pair<int, unsigned int> result{co_await client.receive()};
 
         if (result.first > 0) {
-            client.writeData(this->bufferRing.getData(result.second >> IORING_CQE_BUFFER_SHIFT, result.first));
+            std::vector<std::byte> &buffer{client.getBuffer()};
+            std::vector<std::byte> receivedData{
+                    this->bufferRing.getData(result.second >> IORING_CQE_BUFFER_SHIFT, result.first)};
+            buffer.insert(buffer.cend(), receivedData.cbegin(), receivedData.cend());
 
             if (!(result.second & IORING_CQE_F_SOCK_NONEMPTY)) {
                 this->timer.update(client.getFileDescriptorIndex(), client.getTimeout());
@@ -320,15 +323,15 @@ auto Scheduler::receive(Client &client, std::source_location sourceLocation) -> 
 }
 
 auto Scheduler::send(Client &client, std::source_location sourceLocation) -> Generator {
-    const std::span<const std::byte> request{client.readData()};
+    std::vector<std::byte> &buffer{client.getBuffer()};
     std::vector<std::byte> response{Http::parse(
-            std::string_view{reinterpret_cast<const char *>(request.data()), request.size()}, this->database)};
+            std::string_view{reinterpret_cast<const char *>(buffer.data()), buffer.size()}, this->database)};
 
-    client.clearBuffer();
+    buffer = std::move(response);
 
-    const std::pair<int, unsigned int> result{co_await client.send(this->userRing->getSqe(), std::move(response))};
+    const std::pair<int, unsigned int> result{co_await client.send(this->userRing->getSqe())};
 
-    client.clearBuffer();
+    buffer.clear();
 
     if (result.first <= 0) {
         this->timer.remove(client.getFileDescriptorIndex());
