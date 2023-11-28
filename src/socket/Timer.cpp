@@ -39,7 +39,7 @@ auto Timer::clearTimeout() -> std::vector<unsigned int> {
     std::vector<unsigned int> timeoutFileDescriptors;
 
     while (this->expireCount > 0) {
-        auto &fileDescriptors{this->wheel[this->now]};
+        std::unordered_set<unsigned int> &fileDescriptors{this->wheel[this->now]};
 
         for (const unsigned int fileDescriptor: fileDescriptors) {
             timeoutFileDescriptors.emplace_back(fileDescriptor);
