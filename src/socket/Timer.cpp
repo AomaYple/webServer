@@ -62,6 +62,10 @@ auto Timer::add(unsigned int fileDescriptor, unsigned short timeout, std::source
 
     const unsigned short point{static_cast<unsigned short>((this->now + timeout) % this->wheel.size())};
 
+    const auto findResult{this->location.find(fileDescriptor)};
+    if (findResult != this->location.cend())
+        throw Exception{Log{Log::Level::fatal, "file descriptor already exists", sourceLocation}};
+    
     this->location.emplace(fileDescriptor, point);
     this->wheel[point].emplace(fileDescriptor);
 }
