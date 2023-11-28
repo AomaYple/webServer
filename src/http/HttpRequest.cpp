@@ -3,7 +3,7 @@
 #include <ranges>
 
 HttpRequest::HttpRequest(std::string_view request) {
-    auto isParseLine{false}, isParseBody{false};
+    bool isParseLine{false}, isParseBody{false};
 
     constexpr std::string_view delimiter{"\r\n"};
     for (const auto &value_view: request | std::views::split(delimiter)) {

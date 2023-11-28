@@ -33,11 +33,9 @@ public:
 
     [[nodiscard]] auto clearTimeout() -> std::vector<unsigned int>;
 
-    auto add(unsigned int fileDescriptor, unsigned short timeout,
-             std::source_location sourceLocation = std::source_location::current()) -> void;
+    auto add(unsigned int fileDescriptor, unsigned short timeout) -> void;
 
-    auto update(unsigned int fileDescriptor, unsigned short timeout,
-                std::source_location sourceLocation = std::source_location::current()) -> void;
+    auto update(unsigned int fileDescriptor, unsigned short timeout) -> void;
 
     auto remove(unsigned int fileDescriptor) -> void;
 

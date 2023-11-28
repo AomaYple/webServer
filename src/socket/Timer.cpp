@@ -57,23 +57,15 @@ auto Timer::clearTimeout() -> std::vector<unsigned int> {
     return timeoutFileDescriptors;
 }
 
-auto Timer::add(unsigned int fileDescriptor, unsigned short timeout, std::source_location sourceLocation) -> void {
-    if (timeout >= this->wheel.size()) throw Exception{Log{Log::Level::fatal, "timeout is too large", sourceLocation}};
-
+auto Timer::add(unsigned int fileDescriptor, unsigned short timeout) -> void {
     const unsigned short point{static_cast<unsigned short>((this->now + timeout) % this->wheel.size())};
-
-    const auto findResult{this->wheel[point].find(fileDescriptor)};
-    if (findResult != this->wheel[point].cend())
-        throw Exception{Log{Log::Level::fatal, "file descriptor already exists", sourceLocation}};
 
     this->wheel[point].emplace(fileDescriptor);
     this->location.emplace(fileDescriptor, point);
 }
 
-auto Timer::update(unsigned int fileDescriptor, unsigned short timeout, std::source_location sourceLocation) -> void {
+auto Timer::update(unsigned int fileDescriptor, unsigned short timeout) -> void {
     this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
-
-    if (timeout >= this->wheel.size()) throw Exception{Log{Log::Level::fatal, "timeout is too large", sourceLocation}};
 
     const unsigned short point{static_cast<unsigned short>((this->now + timeout) % this->wheel.size())};
 

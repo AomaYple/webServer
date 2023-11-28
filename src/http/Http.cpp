@@ -139,8 +139,8 @@ auto Http::parseTypeEncoding(HttpResponse &httpResponse, std::string_view url) -
 }
 
 auto Http::parseResource(HttpResponse &httpResponse, std::string_view range, std::span<const std::byte> body,
-                         bool writeBody, std::source_location sourceLocation) -> void {
-    constexpr unsigned int maxSize{2097152};
+                         bool isWriteBody, std::source_location sourceLocation) -> void {
+    constexpr unsigned int maxSize{1048576};
 
     if (!range.empty()) {
         httpResponse.setStatusCode("206 Partial Content");
@@ -185,14 +185,14 @@ auto Http::parseResource(HttpResponse &httpResponse, std::string_view range, std
         httpResponse.setStatusCode("200 OK");
 
     httpResponse.addHeader("Content-Length: " + std::to_string(body.size()));
-    httpResponse.setBody(writeBody ? body : std::span<const std::byte>{});
+    httpResponse.setBody(isWriteBody ? body : std::span<const std::byte>{});
 }
 
-auto Http::parsePost(HttpResponse &httpResponse, std::string_view message, Database &database) -> void {
+auto Http::parsePost(HttpResponse &httpResponse, std::string_view request, Database &database) -> void {
     httpResponse.setStatusCode("200 OK");
 
     std::array<std::string_view, 4> values;
-    for (auto point{values.begin()}; const auto &valueView: std::views::split(message, '&'))
+    for (auto point{values.begin()}; const auto &valueView: std::views::split(request, '&'))
         for (const auto &subValueView: std::views::split(valueView, '=')) *point++ = std::string_view{subValueView};
 
     if (values[0] == "id") Http::parseLogin(httpResponse, values[1], values[3], database);

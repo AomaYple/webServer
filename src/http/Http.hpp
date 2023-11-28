@@ -39,10 +39,10 @@ private:
     static auto parseTypeEncoding(HttpResponse &httpResponse, std::string_view url) -> void;
 
     static auto parseResource(HttpResponse &httpResponse, std::string_view range, std::span<const std::byte> body,
-                              bool writeBody, std::source_location sourceLocation = std::source_location::current())
+                              bool isWriteBody, std::source_location sourceLocation = std::source_location::current())
             -> void;
 
-    static auto parsePost(HttpResponse &httpResponse, std::string_view message, Database &database) -> void;
+    static auto parsePost(HttpResponse &httpResponse, std::string_view request, Database &database) -> void;
 
     static auto parseLogin(HttpResponse &httpResponse, std::string_view id, std::string_view password,
                            Database &database) -> void;

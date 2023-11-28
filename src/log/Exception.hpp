@@ -21,6 +21,6 @@ public:
     [[nodiscard]] auto getLog() noexcept -> Log;
 
 private:
-    std::unique_ptr<std::string> message;
+    std::string message;
     Log log;
 };

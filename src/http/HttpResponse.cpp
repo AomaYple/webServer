@@ -9,7 +9,7 @@ auto HttpResponse::setVersion(std::string_view newVersion) -> void {
     this->version.emplace_back(std::byte{'P'});
     this->version.emplace_back(std::byte{'/'});
 
-    const auto value{std::as_bytes(std::span{newVersion})};
+    const std::span<const std::byte> value{std::as_bytes(std::span{newVersion})};
     this->version.insert(this->version.cend(), value.cbegin(), value.cend());
 
     this->version.emplace_back(std::byte{' '});
@@ -18,7 +18,7 @@ auto HttpResponse::setVersion(std::string_view newVersion) -> void {
 auto HttpResponse::setStatusCode(std::string_view newStatusCode) -> void {
     this->statusCode.clear();
 
-    const auto value{std::as_bytes(std::span{newStatusCode})};
+    const std::span<const std::byte> value{std::as_bytes(std::span{newStatusCode})};
     this->statusCode.insert(this->statusCode.cend(), value.cbegin(), value.cend());
 
     this->statusCode.emplace_back(std::byte{'\r'});
@@ -26,7 +26,7 @@ auto HttpResponse::setStatusCode(std::string_view newStatusCode) -> void {
 }
 
 auto HttpResponse::addHeader(std::string_view header) -> void {
-    const auto value{std::as_bytes(std::span{header})};
+    const std::span<const std::byte> value{std::as_bytes(std::span{header})};
     this->headers.insert(this->headers.cend(), value.cbegin(), value.cend());
 
     this->headers.emplace_back(std::byte{'\r'});
