@@ -26,7 +26,11 @@ public:
 
     [[nodiscard]] auto getTimeout() const noexcept -> unsigned short;
 
-    [[nodiscard]] auto getBuffer() noexcept -> std::vector<std::byte> &;
+    auto writeToBuffer(std::span<const std::byte> data) -> void;
+
+    [[nodiscard]] auto readFromBuffer() const -> std::span<const std::byte>;
+
+    auto clearBuffer() noexcept -> void;
 
     auto startReceive(io_uring_sqe *sqe, unsigned short bufferRingId) const noexcept -> void;
 
