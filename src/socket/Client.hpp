@@ -28,7 +28,7 @@ public:
 
     auto writeData(std::span<const std::byte> data) -> void;
 
-    [[nodiscard]] auto readData() noexcept -> std::span<const std::byte>;
+    [[nodiscard]] auto readData() const -> std::span<const std::byte>;
 
     auto clearBuffer() noexcept -> void;
 

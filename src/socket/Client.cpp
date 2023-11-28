@@ -14,7 +14,7 @@ auto Client::writeData(std::span<const std::byte> data) -> void {
     this->buffer.insert(this->buffer.cend(), data.cbegin(), data.cend());
 }
 
-auto Client::readData() noexcept -> std::span<const std::byte> { return this->buffer; }
+auto Client::readData() const -> std::span<const std::byte> { return this->buffer; }
 
 auto Client::clearBuffer() noexcept -> void { this->buffer.clear(); }
 
