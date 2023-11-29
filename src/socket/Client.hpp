@@ -46,7 +46,7 @@ public:
 
     auto resumeSend(Result result) -> void;
 
-    auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
+    [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
     auto setCancelGenerator(Generator &&generator) noexcept -> void;
 
