@@ -51,7 +51,9 @@ wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生�
 
 ```shell
 create database webServer;
+
 use webServer;
+
 CREATE TABLE `users` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `password` varchar(32) NOT NULL,
