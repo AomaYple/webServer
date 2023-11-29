@@ -203,30 +203,21 @@ auto Http::parsePost(HttpResponse &httpResponse, std::string_view request, Datab
 auto Http::parseLogin(HttpResponse &httpResponse, std::string_view id, std::string_view password, Database &database)
         -> void {
     const std::vector<std::vector<std::string>> result{
-            database.consult(std::format("select id, password from users where id = {};", id))};
-    if (!result.empty()) {
-        if (password == result[0][1]) {
-            constexpr std::string_view url{"index.html"};
-
-            const std::span<const std::byte> body{Http::instance.parseUrl(httpResponse, url)};
-            Http::parseTypeEncoding(httpResponse, url);
-
-            Http::parseResource(httpResponse, "", body, true);
-        } else {
-            httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");
-
-            constexpr std::string_view body{"wrong password"};
-
-            httpResponse.addHeader("Content-Length: " + std::to_string(body.size()));
-            httpResponse.setBody(std::as_bytes(std::span{body}));
-        }
-    } else {
+            database.consult(std::format("select * from users where id = {} and password = '{}';", id, password))};
+    if (result.empty()) {
         httpResponse.addHeader("Content-Type: text/plain; charset=utf-8");
 
-        constexpr std::string_view body{"wrong id"};
+        constexpr std::string_view body{"wrong id or password"};
 
         httpResponse.addHeader("Content-Length: " + std::to_string(body.size()));
         httpResponse.setBody(std::as_bytes(std::span{body}));
+    } else {
+        constexpr std::string_view url{"index.html"};
+
+        const std::span<const std::byte> body{Http::instance.parseUrl(httpResponse, url)};
+        Http::parseTypeEncoding(httpResponse, url);
+
+        Http::parseResource(httpResponse, "", body, true);
     }
 }
 
