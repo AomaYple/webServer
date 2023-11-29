@@ -8,7 +8,8 @@
 
 #include <cstring>
 
-Timer::Timer(unsigned int fileDescriptorIndex) : fileDescriptorIndex{fileDescriptorIndex}, now{0}, expireCount{0} {}
+Timer::Timer(unsigned int fileDescriptorIndex)
+    : fileDescriptorIndex{fileDescriptorIndex}, now{0}, expireCount{0}, awaiter{} {}
 
 auto Timer::create() -> unsigned int {
     const unsigned int fileDescriptor{Timer::createFileDescriptor()};
@@ -80,7 +81,7 @@ auto Timer::remove(unsigned int fileDescriptor) -> void {
 
 auto Timer::setTimingGenerator(Generator &&generator) noexcept -> void { this->timingGenerator = std::move(generator); }
 
-auto Timer::resumeTiming(std::pair<int, unsigned int> result) -> void {
+auto Timer::resumeTiming(Result result) -> void {
     this->awaiter.setResult(result);
 
     this->timingGenerator.resume();
@@ -99,7 +100,7 @@ auto Timer::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
 
 auto Timer::setCancelGenerator(Generator &&generator) noexcept -> void { this->cancelGenerator = std::move(generator); }
 
-auto Timer::resumeCancel(std::pair<int, unsigned int> result) -> void {
+auto Timer::resumeCancel(Result result) -> void {
     this->awaiter.setResult(result);
 
     this->cancelGenerator.resume();
@@ -116,7 +117,7 @@ auto Timer::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
 
 auto Timer::setCloseGenerator(Generator &&generator) noexcept -> void { this->closeGenerator = std::move(generator); }
 
-auto Timer::resumeClose(std::pair<int, unsigned int> result) -> void {
+auto Timer::resumeClose(Result result) -> void {
     this->awaiter.setResult(result);
 
     this->closeGenerator.resume();

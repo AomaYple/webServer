@@ -4,7 +4,7 @@
 #include "../userRing/Submission.hpp"
 
 Client::Client(unsigned int fileDescriptorIndex, unsigned short timeout) noexcept
-    : fileDescriptorIndex{fileDescriptorIndex}, timeout{timeout} {}
+    : fileDescriptorIndex{fileDescriptorIndex}, timeout{timeout}, awaiter{} {}
 
 auto Client::getFileDescriptorIndex() const noexcept -> unsigned int { return this->fileDescriptorIndex; }
 
@@ -36,7 +36,7 @@ auto Client::setReceiveGenerator(Generator &&generator) noexcept -> void {
     this->receiveGenerator = std::move(generator);
 }
 
-auto Client::resumeReceive(std::pair<int, unsigned int> result) -> void {
+auto Client::resumeReceive(Result result) -> void {
     this->awaiter.setResult(result);
 
     this->receiveGenerator.resume();
@@ -55,7 +55,7 @@ auto Client::send(io_uring_sqe *sqe) noexcept -> const Awaiter & {
 
 auto Client::setSendGenerator(Generator &&generator) noexcept -> void { this->sendGenerator = std::move(generator); }
 
-auto Client::resumeSend(std::pair<int, unsigned int> result) -> void {
+auto Client::resumeSend(Result result) -> void {
     this->awaiter.setResult(result);
 
     this->sendGenerator.resume();
@@ -76,7 +76,7 @@ auto Client::setCancelGenerator(Generator &&generator) noexcept -> void {
     this->cancelGenerator = std::move(generator);
 }
 
-auto Client::resumeCancel(std::pair<int, unsigned int> result) -> void {
+auto Client::resumeCancel(Result result) -> void {
     this->awaiter.setResult(result);
 
     this->cancelGenerator.resume();
@@ -93,7 +93,7 @@ auto Client::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
 
 auto Client::setCloseGenerator(Generator &&generator) noexcept -> void { this->closeGenerator = std::move(generator); }
 
-auto Client::resumeClose(std::pair<int, unsigned int> result) -> void {
+auto Client::resumeClose(Result result) -> void {
     this->awaiter.setResult(result);
 
     this->closeGenerator.resume();

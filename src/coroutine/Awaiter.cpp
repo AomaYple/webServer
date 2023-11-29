@@ -1,5 +1,5 @@
 #include "Awaiter.hpp"
 
-auto Awaiter::await_resume() const noexcept -> std::pair<int, unsigned int> { return this->result; }
+auto Awaiter::await_resume() const noexcept -> Result { return this->result; }
 
-auto Awaiter::setResult(std::pair<int, unsigned int> newResult) noexcept -> void { this->result = newResult; }
+auto Awaiter::setResult(Result newResult) noexcept -> void { this->result = newResult; }

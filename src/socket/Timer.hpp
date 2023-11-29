@@ -41,19 +41,19 @@ public:
 
     auto setTimingGenerator(Generator &&generator) noexcept -> void;
 
-    auto resumeTiming(std::pair<int, unsigned int> result) -> void;
+    auto resumeTiming(Result result) -> void;
 
     [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
     auto setCancelGenerator(Generator &&generator) noexcept -> void;
 
-    auto resumeCancel(std::pair<int, unsigned int> result) -> void;
+    auto resumeCancel(Result result) -> void;
 
     [[nodiscard]] auto close(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
     auto setCloseGenerator(Generator &&generator) noexcept -> void;
 
-    auto resumeClose(std::pair<int, unsigned int> result) -> void;
+    auto resumeClose(Result result) -> void;
 
 private:
     [[nodiscard]] static auto

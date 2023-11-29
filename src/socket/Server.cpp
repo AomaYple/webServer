@@ -8,7 +8,7 @@
 
 #include <cstring>
 
-Server::Server(unsigned int fileDescriptorIndex) noexcept : fileDescriptorIndex{fileDescriptorIndex} {}
+Server::Server(unsigned int fileDescriptorIndex) noexcept : fileDescriptorIndex{fileDescriptorIndex}, awaiter{} {}
 
 auto Server::create(unsigned short port) -> unsigned int {
     const unsigned int fileDescriptor{Server::socket()};
@@ -45,7 +45,7 @@ auto Server::setAcceptGenerator(Generator &&generator) noexcept -> void {
     this->acceptGenerator = std::move(generator);
 }
 
-auto Server::resumeAccept(std::pair<int, unsigned int> result) -> void {
+auto Server::resumeAccept(Result result) -> void {
     this->awaiter.setResult(result);
 
     this->acceptGenerator.resume();
@@ -66,7 +66,7 @@ auto Server::setCancelGenerator(Generator &&generator) noexcept -> void {
     this->cancelGenerator = std::move(generator);
 }
 
-auto Server::resumeCancel(std::pair<int, unsigned int> result) -> void {
+auto Server::resumeCancel(Result result) -> void {
     this->awaiter.setResult(result);
 
     this->cancelGenerator.resume();
@@ -83,7 +83,7 @@ auto Server::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
 
 auto Server::setCloseGenerator(Generator &&generator) noexcept -> void { this->closeGenerator = std::move(generator); }
 
-auto Server::resumeClose(std::pair<int, unsigned int> result) -> void {
+auto Server::resumeClose(Result result) -> void {
     this->awaiter.setResult(result);
 
     this->closeGenerator.resume();

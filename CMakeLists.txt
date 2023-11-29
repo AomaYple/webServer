@@ -14,6 +14,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 target_sources(${PROJECT_NAME} PRIVATE
         src/coroutine/Awaiter.cpp
         src/coroutine/Generator.cpp
+        src/coroutine/Result.cpp
 
         src/database/Database.cpp
 
