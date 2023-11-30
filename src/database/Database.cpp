@@ -36,14 +36,9 @@ auto Database::consult(std::string_view statement) -> std::vector<std::vector<st
 
     const unsigned int columnCount{Database::getColumnCount(*consultResult)};
 
-    for (const char *const *row{Database::getRow(*consultResult)}; row != nullptr;
-         row = Database::getRow(*consultResult)) {
-        std::vector<std::string> result;
-
-        for (unsigned int i{0}; i < columnCount; ++i) result.emplace_back(row[i]);
-
-        results.emplace_back(std::move(result));
-    }
+    for (std::vector<std::string> row{Database::getRow(*consultResult, columnCount)}; !row.empty();
+         row = Database::getRow(*consultResult, columnCount))
+        results.emplace_back(std::move(row));
 
     Database::freeResult(*consultResult);
 
@@ -87,7 +82,14 @@ auto Database::getResult(std::source_location sourceLocation) -> MYSQL_RES * {
 
 auto Database::getColumnCount(MYSQL_RES &result) noexcept -> unsigned int { return mysql_num_fields(&result); }
 
-auto Database::getRow(MYSQL_RES &result) noexcept -> const char *const * { return mysql_fetch_row(&result); }
+auto Database::getRow(MYSQL_RES &result, unsigned int columnCount) -> std::vector<std::string> {
+    std::vector<std::string> row;
+
+    const char *const *const rowPointer{mysql_fetch_row(&result)};
+    for (unsigned int i{0}; rowPointer != nullptr && i < columnCount; ++i) row.emplace_back(rowPointer[i]);
+
+    return row;
+}
 
 auto Database::freeResult(MYSQL_RES &result) noexcept -> void { mysql_free_result(&result); }
 

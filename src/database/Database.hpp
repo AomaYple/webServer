@@ -40,7 +40,7 @@ private:
 
     [[nodiscard]] static auto getColumnCount(MYSQL_RES &result) noexcept -> unsigned int;
 
-    [[nodiscard]] static auto getRow(MYSQL_RES &result) noexcept -> const char *const *;
+    [[nodiscard]] static auto getRow(MYSQL_RES &result, unsigned int columnCount) -> std::vector<std::string>;
 
     static auto freeResult(MYSQL_RES &result) noexcept -> void;
 
