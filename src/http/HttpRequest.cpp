@@ -6,8 +6,8 @@ HttpRequest::HttpRequest(std::string_view request) {
     bool isParseLine{false}, isParseBody{false};
 
     constexpr std::string_view delimiter{"\r\n"};
-    for (const auto &value_view: request | std::views::split(delimiter)) {
-        const std::string_view value{value_view};
+    for (const auto &view: request | std::views::split(delimiter)) {
+        const std::string_view value{view};
 
         if (!isParseLine) {
             isParseLine = true;

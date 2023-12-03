@@ -14,7 +14,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 target_sources(${PROJECT_NAME} PRIVATE
         src/coroutine/Awaiter.cpp
         src/coroutine/Generator.cpp
-        src/coroutine/Result.cpp
 
         src/database/Database.cpp
 
@@ -25,7 +24,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/log/Exception.cpp
         src/log/Log.cpp
         src/log/Logger.cpp
-        src/log/Node.cpp
+        src/log/LogQueue.cpp
 
         src/scheduler/Scheduler.cpp
 
@@ -36,6 +35,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/userRing/BufferRing.cpp
         src/userRing/Completion.cpp
         src/userRing/Event.cpp
+        src/userRing/Outcome.cpp
         src/userRing/Submission.cpp
         src/userRing/UserRing.cpp
 

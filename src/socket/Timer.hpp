@@ -41,19 +41,19 @@ public:
 
     auto setTimingGenerator(Generator &&generator) noexcept -> void;
 
-    auto resumeTiming(Result result) -> void;
+    auto resumeTiming(Outcome result) -> void;
 
     [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
     auto setCancelGenerator(Generator &&generator) noexcept -> void;
 
-    auto resumeCancel(Result result) -> void;
+    auto resumeCancel(Outcome result) -> void;
 
     [[nodiscard]] auto close(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
     auto setCloseGenerator(Generator &&generator) noexcept -> void;
 
-    auto resumeClose(Result result) -> void;
+    auto resumeClose(Outcome result) -> void;
 
 private:
     [[nodiscard]] static auto

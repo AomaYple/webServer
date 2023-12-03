@@ -36,8 +36,8 @@ auto Client::setReceiveGenerator(Generator &&generator) noexcept -> void {
     this->receiveGenerator = std::move(generator);
 }
 
-auto Client::resumeReceive(Result result) -> void {
-    this->awaiter.setResult(result);
+auto Client::resumeReceive(Outcome result) -> void {
+    this->awaiter.set_result(result);
 
     this->receiveGenerator.resume();
 }
@@ -55,8 +55,8 @@ auto Client::send(io_uring_sqe *sqe) noexcept -> const Awaiter & {
 
 auto Client::setSendGenerator(Generator &&generator) noexcept -> void { this->sendGenerator = std::move(generator); }
 
-auto Client::resumeSend(Result result) -> void {
-    this->awaiter.setResult(result);
+auto Client::resumeSend(Outcome result) -> void {
+    this->awaiter.set_result(result);
 
     this->sendGenerator.resume();
 }
@@ -76,8 +76,8 @@ auto Client::setCancelGenerator(Generator &&generator) noexcept -> void {
     this->cancelGenerator = std::move(generator);
 }
 
-auto Client::resumeCancel(Result result) -> void {
-    this->awaiter.setResult(result);
+auto Client::resumeCancel(Outcome result) -> void {
+    this->awaiter.set_result(result);
 
     this->cancelGenerator.resume();
 }
@@ -93,8 +93,8 @@ auto Client::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
 
 auto Client::setCloseGenerator(Generator &&generator) noexcept -> void { this->closeGenerator = std::move(generator); }
 
-auto Client::resumeClose(Result result) -> void {
-    this->awaiter.setResult(result);
+auto Client::resumeClose(Outcome result) -> void {
+    this->awaiter.set_result(result);
 
     this->closeGenerator.resume();
 }

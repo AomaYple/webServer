@@ -9,7 +9,7 @@
 UserRing::UserRing(unsigned int entries, io_uring_params &params, std::source_location sourceLocation) : userRing{} {
     const auto result{static_cast<short>(io_uring_queue_init_params(entries, &this->userRing, &params))};
 
-    if (result != 0) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
+    if (result != 0) throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(std::abs(result))}};
 }
 
 UserRing::UserRing(UserRing &&other) noexcept : userRing{other.userRing} { other.userRing.ring_fd = -1; }
@@ -31,7 +31,7 @@ auto UserRing::getFileDescriptorLimit(std::source_location sourceLocation) -> un
     rlimit limit{};
 
     if (getrlimit(RLIMIT_NOFILE, &limit) != 0)
-        throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+        throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(errno)}};
 
     return limit.rlim_cur;
 }
@@ -40,7 +40,7 @@ auto UserRing::getSelfFileDescriptor() const noexcept -> unsigned int { return t
 
 auto UserRing::registerSelfFileDescriptor(std::source_location sourceLocation) -> void {
     const auto result{static_cast<short>(io_uring_register_ring_fd(&this->userRing))};
-    if (result != 1) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
+    if (result != 1) throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(std::abs(result))}};
 }
 
 auto UserRing::registerCpu(unsigned short cpuCode, std::source_location sourceLocation) -> void {
@@ -49,19 +49,19 @@ auto UserRing::registerCpu(unsigned short cpuCode, std::source_location sourceLo
     CPU_SET(cpuCode, &cpuSet);
 
     const auto result{static_cast<signed char>(io_uring_register_iowq_aff(&this->userRing, sizeof(cpuSet), &cpuSet))};
-    if (result != 0) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
+    if (result != 0) throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(std::abs(result))}};
 }
 
 auto UserRing::registerSparseFileDescriptors(unsigned int fileDescriptorCount, std::source_location sourceLocation)
         -> void {
     const auto result{static_cast<short>(io_uring_register_files_sparse(&this->userRing, fileDescriptorCount))};
-    if (result != 0) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
+    if (result != 0) throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(std::abs(result))}};
 }
 
 auto UserRing::allocateFileDescriptorRange(unsigned int offset, unsigned int length,
                                            std::source_location sourceLocation) -> void {
     const auto result{static_cast<short>(io_uring_register_file_alloc_range(&this->userRing, offset, length))};
-    if (result != 0) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
+    if (result != 0) throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(std::abs(result))}};
 }
 
 auto UserRing::updateFileDescriptors(unsigned int offset, std::span<const unsigned int> fileDescriptors,
@@ -70,7 +70,7 @@ auto UserRing::updateFileDescriptors(unsigned int offset, std::span<const unsign
 
     const int result{io_uring_register_files_update(&this->userRing, offset, realFileDescriptors.data(),
                                                     realFileDescriptors.size())};
-    if (result < 0) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
+    if (result < 0) throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(std::abs(result))}};
 }
 
 auto UserRing::setupBufferRing(unsigned short entries, unsigned short id, std::source_location sourceLocation)
@@ -78,7 +78,7 @@ auto UserRing::setupBufferRing(unsigned short entries, unsigned short id, std::s
     int result;
 
     io_uring_buf_ring *const bufferRing{io_uring_setup_buf_ring(&this->userRing, entries, id, 0, &result)};
-    if (bufferRing == nullptr) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
+    if (bufferRing == nullptr) throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(std::abs(result))}};
 
     return bufferRing;
 }
@@ -86,12 +86,12 @@ auto UserRing::setupBufferRing(unsigned short entries, unsigned short id, std::s
 auto UserRing::freeBufferRing(io_uring_buf_ring *bufferRing, unsigned short entries, unsigned short id,
                               std::source_location sourceLocation) -> void {
     const auto result{static_cast<short>(io_uring_free_buf_ring(&this->userRing, bufferRing, entries, id))};
-    if (result < 0) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
+    if (result < 0) throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(std::abs(result))}};
 }
 
 auto UserRing::submitWait(unsigned int waitCount, std::source_location sourceLocation) -> void {
     const int result{io_uring_submit_and_wait(&this->userRing, waitCount)};
-    if (result < 0) throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}};
+    if (result < 0) throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(std::abs(result))}};
 }
 
 auto UserRing::forEachCompletion(const std::function<auto(const io_uring_cqe *cqe)->void> &task) noexcept
@@ -109,7 +109,7 @@ auto UserRing::forEachCompletion(const std::function<auto(const io_uring_cqe *cq
 
 auto UserRing::getSqe(std::source_location sourceLocation) -> io_uring_sqe * {
     io_uring_sqe *const sqe{io_uring_get_sqe(&this->userRing)};
-    if (sqe == nullptr) throw Exception{Log{Log::Level::fatal, "no sqe available", sourceLocation}};
+    if (sqe == nullptr) throw Exception{Log{Log::Level::fatal, sourceLocation, "no sqe available"}};
 
     return sqe;
 }

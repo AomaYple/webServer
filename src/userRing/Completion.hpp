@@ -1,27 +1,9 @@
 #pragma once
 
-#include <liburing.h>
+#include "Event.hpp"
+#include "Outcome.hpp"
 
-class Completion {
-public:
-    explicit Completion(const io_uring_cqe *cqe) noexcept;
-
-    Completion(const Completion &) = delete;
-
-    Completion(Completion &&) = default;
-
-    auto operator=(const Completion &) -> Completion & = delete;
-
-    auto operator=(Completion &&) noexcept -> Completion & = delete;
-
-    ~Completion() = default;
-
-    [[nodiscard]] auto getUserData() const noexcept -> unsigned long;
-
-    [[nodiscard]] auto getResult() const noexcept -> int;
-
-    [[nodiscard]] auto getFlags() const noexcept -> unsigned int;
-
-private:
-    const io_uring_cqe *const completion;
+struct Completion {
+    Event socketEvent;
+    Outcome outcome;
 };

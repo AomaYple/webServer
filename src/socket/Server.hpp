@@ -32,19 +32,19 @@ public:
 
     auto setAcceptGenerator(Generator &&generator) noexcept -> void;
 
-    auto resumeAccept(Result result) -> void;
+    auto resumeAccept(Outcome result) -> void;
 
     [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
     auto setCancelGenerator(Generator &&generator) noexcept -> void;
 
-    auto resumeCancel(Result result) -> void;
+    auto resumeCancel(Outcome result) -> void;
 
     [[nodiscard]] auto close(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
     auto setCloseGenerator(Generator &&generator) noexcept -> void;
 
-    auto resumeClose(Result result) -> void;
+    auto resumeClose(Outcome result) -> void;
 
 private:
     [[nodiscard]] static auto socket(std::source_location sourceLocation = std::source_location::current())

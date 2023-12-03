@@ -1,43 +1,42 @@
 #pragma once
 
-#include <liburing.h>
+#include "Event.hpp"
+
+#include <sys/socket.h>
 
 #include <span>
+#include <variant>
 
-class Submission {
-public:
-    Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, sockaddr *address, socklen_t *addressLength,
-               unsigned char flags) noexcept;
+struct Submission {
+    struct AcceptParameters {
+        sockaddr *address;
+        socklen_t *addressLength;
+        int flags;
+    };
 
-    Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, std::span<std::byte> buffer,
-               unsigned long offset) noexcept;
+    struct ReadParameters {
+        std::span<std::byte> buffer;
+        unsigned long offset;
+    };
 
-    Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, std::span<std::byte> buffer,
-               unsigned int flags) noexcept;
+    struct ReceiveParameters {
+        std::span<std::byte> buffer;
+        int flags;
+        unsigned short bufferRingId;
+    };
 
-    Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, std::span<const std::byte> buffer, unsigned int flags,
-               unsigned char zeroCopyFlags) noexcept;
+    struct SendParameters {
+        std::span<const std::byte> buffer;
+        int flags;
+        unsigned int zeroCopyFlags;
+    };
 
-    Submission(io_uring_sqe *sqe, unsigned int fileDescriptor, unsigned char flags) noexcept;
+    struct CancelParameters {};
 
-    Submission(io_uring_sqe *sqe, unsigned int fileDescriptorIndex) noexcept;
+    struct CloseParameters {};
 
-    Submission(const Submission &) = delete;
-
-    Submission(Submission &&) = default;
-
-    auto operator=(const Submission &) -> Submission & = delete;
-
-    auto operator=(Submission &&) noexcept -> Submission & = delete;
-
-    ~Submission() = default;
-
-    auto setUserData(unsigned long userData) const noexcept -> void;
-
-    auto setFlags(unsigned char flags) const noexcept -> void;
-
-    auto setBufferRingId(unsigned short bufferRingId) const noexcept -> void;
-
-private:
-    io_uring_sqe *const submission;
+    Event event;
+    unsigned int flags;
+    std::variant<AcceptParameters, ReadParameters, ReceiveParameters, SendParameters, CancelParameters, CloseParameters>
+            parameters;
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.hpp"
+#include "LogQueue.hpp"
 
 #include <fstream>
 
@@ -16,7 +16,7 @@ public:
 
     ~Logger();
 
-    static auto produce(Log &&log) -> void;
+    static auto push(Log &&log) -> void;
 
     static auto stop() noexcept -> void;
 
@@ -25,14 +25,12 @@ private:
 
     auto run(std::stop_token stopToken) -> void;
 
-    [[nodiscard]] static auto invertLinkedList(Node *pointer) noexcept -> const Node *;
-
-    auto consume(const Node *pointer) -> void;
+    auto output() -> void;
 
     static Logger instance;
 
     std::ofstream logFile;
-    std::atomic<Node *> head;
     std::atomic_flag notice;
+    LogQueue logQueue;
     std::jthread worker;
 };

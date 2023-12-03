@@ -5,7 +5,7 @@
 class Generator {
 public:
     struct promise_type {
-        [[nodiscard]] auto get_return_object() const -> Generator;
+        [[nodiscard]] auto get_return_object() const noexcept -> Generator;
 
         [[nodiscard]] constexpr auto initial_suspend() const noexcept -> std::suspend_always { return {}; }
 
@@ -29,7 +29,5 @@ public:
     auto resume() const -> void;
 
 private:
-    auto destroy() const -> void;
-
     std::coroutine_handle<const promise_type> handle;
 };

@@ -45,8 +45,8 @@ auto Server::setAcceptGenerator(Generator &&generator) noexcept -> void {
     this->acceptGenerator = std::move(generator);
 }
 
-auto Server::resumeAccept(Result result) -> void {
-    this->awaiter.setResult(result);
+auto Server::resumeAccept(Outcome result) -> void {
+    this->awaiter.set_result(result);
 
     this->acceptGenerator.resume();
 }
@@ -66,8 +66,8 @@ auto Server::setCancelGenerator(Generator &&generator) noexcept -> void {
     this->cancelGenerator = std::move(generator);
 }
 
-auto Server::resumeCancel(Result result) -> void {
-    this->awaiter.setResult(result);
+auto Server::resumeCancel(Outcome result) -> void {
+    this->awaiter.set_result(result);
 
     this->cancelGenerator.resume();
 }
@@ -83,8 +83,8 @@ auto Server::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
 
 auto Server::setCloseGenerator(Generator &&generator) noexcept -> void { this->closeGenerator = std::move(generator); }
 
-auto Server::resumeClose(Result result) -> void {
-    this->awaiter.setResult(result);
+auto Server::resumeClose(Outcome result) -> void {
+    this->awaiter.set_result(result);
 
     this->closeGenerator.resume();
 }
@@ -92,7 +92,7 @@ auto Server::resumeClose(Result result) -> void {
 auto Server::socket(std::source_location sourceLocation) -> unsigned int {
     const int fileDescriptor{::socket(AF_INET, SOCK_STREAM, 0)};
 
-    if (fileDescriptor == -1) throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+    if (fileDescriptor == -1) throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(errno)}};
 
     return fileDescriptor;
 }
@@ -101,21 +101,21 @@ auto Server::setSocketOption(unsigned int fileDescriptor, std::source_location s
     constexpr int option{1};
     if (setsockopt(static_cast<int>(fileDescriptor), SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option,
                    sizeof(option)) == -1)
-        throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+        throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(errno)}};
 }
 
 auto Server::translateIpAddress(in_addr &address, std::source_location sourceLocation) -> void {
     if (inet_pton(AF_INET, "127.0.0.1", &address) != 1)
-        throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+        throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(errno)}};
 }
 
 auto Server::bind(unsigned int fileDescriptor, const sockaddr_in &address, std::source_location sourceLocation)
         -> void {
     if (::bind(static_cast<int>(fileDescriptor), reinterpret_cast<const sockaddr *>(&address), sizeof(address)) == -1)
-        throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+        throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(errno)}};
 }
 
 auto Server::listen(unsigned int fileDescriptor, std::source_location sourceLocation) -> void {
     if (::listen(static_cast<int>(fileDescriptor), SOMAXCONN) == -1)
-        throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+        throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(errno)}};
 }

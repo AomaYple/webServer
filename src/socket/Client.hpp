@@ -38,25 +38,25 @@ public:
 
     auto setReceiveGenerator(Generator &&generator) noexcept -> void;
 
-    auto resumeReceive(Result result) -> void;
+    auto resumeReceive(Outcome result) -> void;
 
     [[nodiscard]] auto send(io_uring_sqe *sqe) noexcept -> const Awaiter &;
 
     auto setSendGenerator(Generator &&generator) noexcept -> void;
 
-    auto resumeSend(Result result) -> void;
+    auto resumeSend(Outcome result) -> void;
 
     [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
     auto setCancelGenerator(Generator &&generator) noexcept -> void;
 
-    auto resumeCancel(Result result) -> void;
+    auto resumeCancel(Outcome result) -> void;
 
     [[nodiscard]] auto close(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
 
     auto setCloseGenerator(Generator &&generator) noexcept -> void;
 
-    auto resumeClose(Result result) -> void;
+    auto resumeClose(Outcome result) -> void;
 
 private:
     const unsigned int fileDescriptorIndex;

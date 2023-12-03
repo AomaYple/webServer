@@ -1,6 +1,6 @@
 #pragma once
 
-struct Result {
+struct Outcome {
     int result;
     unsigned int flags;
 };

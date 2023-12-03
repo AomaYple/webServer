@@ -81,8 +81,8 @@ auto Timer::remove(unsigned int fileDescriptor) -> void {
 
 auto Timer::setTimingGenerator(Generator &&generator) noexcept -> void { this->timingGenerator = std::move(generator); }
 
-auto Timer::resumeTiming(Result result) -> void {
-    this->awaiter.setResult(result);
+auto Timer::resumeTiming(Outcome result) -> void {
+    this->awaiter.set_result(result);
 
     this->timingGenerator.resume();
 }
@@ -100,8 +100,8 @@ auto Timer::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
 
 auto Timer::setCancelGenerator(Generator &&generator) noexcept -> void { this->cancelGenerator = std::move(generator); }
 
-auto Timer::resumeCancel(Result result) -> void {
-    this->awaiter.setResult(result);
+auto Timer::resumeCancel(Outcome result) -> void {
+    this->awaiter.set_result(result);
 
     this->cancelGenerator.resume();
 }
@@ -117,8 +117,8 @@ auto Timer::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
 
 auto Timer::setCloseGenerator(Generator &&generator) noexcept -> void { this->closeGenerator = std::move(generator); }
 
-auto Timer::resumeClose(Result result) -> void {
-    this->awaiter.setResult(result);
+auto Timer::resumeClose(Outcome result) -> void {
+    this->awaiter.set_result(result);
 
     this->closeGenerator.resume();
 }
@@ -126,7 +126,7 @@ auto Timer::resumeClose(Result result) -> void {
 auto Timer::createFileDescriptor(std::source_location sourceLocation) -> unsigned int {
     const int fileDescriptor{timerfd_create(CLOCK_MONOTONIC, 0)};
 
-    if (fileDescriptor == -1) throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+    if (fileDescriptor == -1) throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(errno)}};
 
     return fileDescriptor;
 }
@@ -134,5 +134,5 @@ auto Timer::createFileDescriptor(std::source_location sourceLocation) -> unsigne
 auto Timer::setTime(unsigned int fileDescriptor, std::source_location sourceLocation) -> void {
     constexpr itimerspec time{{1, 0}, {1, 0}};
     if (timerfd_settime(static_cast<int>(fileDescriptor), 0, &time, nullptr) == -1)
-        throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+        throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(errno)}};
 }

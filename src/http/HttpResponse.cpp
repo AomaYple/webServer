@@ -43,12 +43,12 @@ auto HttpResponse::setBody(std::span<const std::byte> newBody) -> void {
 }
 
 auto HttpResponse::toBytes() const -> std::vector<std::byte> {
-    std::vector<std::byte> all;
+    std::vector<std::byte> bytes;
 
-    all.insert(all.cend(), this->version.cbegin(), this->version.cend());
-    all.insert(all.cend(), this->statusCode.cbegin(), this->statusCode.cend());
-    all.insert(all.cend(), this->headers.cbegin(), this->headers.cend());
-    all.insert(all.cend(), this->body.cbegin(), this->body.cend());
+    bytes.insert(bytes.cend(), this->version.cbegin(), this->version.cend());
+    bytes.insert(bytes.cend(), this->statusCode.cbegin(), this->statusCode.cend());
+    bytes.insert(bytes.cend(), this->headers.cbegin(), this->headers.cend());
+    bytes.insert(bytes.cend(), this->body.cbegin(), this->body.cend());
 
-    return all;
+    return bytes;
 }

@@ -12,70 +12,93 @@
 #include <format>
 #include <ranges>
 
-auto Http::parse(std::string_view request, Database &database, std::source_location sourceLocation)
+[[nodiscard]] auto readFile(std::string_view filepath,
+                            std::source_location sourceLocation = std::source_location::current())
+        -> std::vector<std::byte>;
+
+[[nodiscard]] auto brotli(std::span<const std::byte> data,
+                          std::source_location sourceLocation = std::source_location::current())
+        -> std::vector<std::byte>;
+
+auto parseVersion(HttpResponse &httpResponse, std::string_view version,
+                  std::source_location sourceLocation = std::source_location::current()) -> void;
+
+auto parseGetHead(HttpResponse &httpResponse, const HttpRequest &httpRequest, bool isWriteBody) -> void;
+
+[[nodiscard]] auto parseUrl(HttpResponse &httpResponse, std::string_view url,
+                            std::source_location sourceLocation = std::source_location::current())
+        -> std::span<const std::byte>;
+
+auto parseTypeEncode(HttpResponse &httpResponse, std::string_view url) -> void;
+
+auto parseResource(HttpResponse &httpResponse, std::string_view range, std::span<const std::byte> body,
+                   bool isWriteBody, std::source_location sourceLocation = std::source_location::current()) -> void;
+
+auto parsePost(HttpResponse &httpResponse, std::string_view request, Database &database) -> void;
+
+auto parseLogin(HttpResponse &httpResponse, std::string_view id, std::string_view password, Database &database) -> void;
+
+auto parseRegister(HttpResponse &httpResponse, std::string_view password, Database &database) -> void;
+
+const std::unordered_map<std::string, std::vector<std::byte>> resources{[] {
+    std::unordered_map<std::string, std::vector<std::byte>> resources;
+
+    resources.emplace("", std::vector<std::byte>{});
+
+    for (const auto &path: std::filesystem::directory_iterator(std::filesystem::current_path().string() + "/resources"))
+        for (const auto &subPath: std::filesystem::directory_iterator(path)) {
+            auto filename{subPath.path().filename().string()};
+
+            std::vector<std::byte> fileContent{readFile(subPath.path().string())};
+
+            if (filename.ends_with("html")) fileContent = brotli(fileContent);
+
+            resources.emplace(std::move(filename), std::move(fileContent));
+        }
+
+    return resources;
+}()};
+
+auto http::parse(std::string_view request, Database &database, std::source_location sourceLocation)
         -> std::vector<std::byte> {
     HttpResponse httpResponse;
 
     const HttpRequest httpRequest{request};
 
     try {
-        Http::parseVersion(httpResponse, httpRequest.getVersion());
+        parseVersion(httpResponse, httpRequest.getVersion());
 
         const std::string_view method{httpRequest.getMethod()};
 
-        if (method == "GET" || method == "HEAD") Http::parseGetHead(httpResponse, httpRequest, method == "GET");
+        if (method == "GET" || method == "HEAD") parseGetHead(httpResponse, httpRequest, method == "GET");
         else if (method == "POST") {
-            Http::parsePost(httpResponse, httpRequest.getBody(), database);
+            parsePost(httpResponse, httpRequest.getBody(), database);
         } else {
             httpResponse.setStatusCode("405 Method Not Allowed");
             httpResponse.addHeader("Content-Length: 0");
             httpResponse.setBody({});
 
-            throw Exception{Log{Log::Level::warn, "method not allowed: " + std::string{method}, sourceLocation}};
+            throw Exception{Log{Log::Level::warn, sourceLocation, "method not allowed: " + std::string{method}}};
         }
-    } catch (Exception &exception) { Logger::produce(exception.getLog()); }
+    } catch (Exception &exception) { Logger::push(std::move(exception.getLog())); }
 
     return httpResponse.toBytes();
 }
 
-Http::Http()
-    : resources{[] {
-          std::unordered_map<std::string, const std::vector<std::byte>> tempResources;
+auto readFile(std::string_view filepath, std::source_location sourceLocation) -> std::vector<std::byte> {
+    std::ifstream file{std::string{filepath}};
+    if (!file) throw Exception{Log{Log::Level::fatal, sourceLocation, "file open error: " + std::string{filepath}}};
 
-          tempResources.emplace("", std::vector<std::byte>{});
+    std::stringstream stringStream;
+    stringStream << file.rdbuf();
+    std::string content{stringStream.str()};
 
-          for (const auto &path:
-               std::filesystem::directory_iterator(std::filesystem::current_path().string() + "/resources"))
-              for (const auto &subPath: std::filesystem::directory_iterator(path)) {
-                  auto filename{subPath.path().filename().string()};
+    const std::span<const std::byte> contentView{std::as_bytes(std::span{content})};
 
-                  std::vector<std::byte> fileContent{Http::readFile(subPath.path().string())};
-
-                  if (filename.ends_with("html")) fileContent = Http::brotli(fileContent);
-
-                  tempResources.emplace(std::move(filename), std::move(fileContent));
-              }
-
-          return tempResources;
-      }()} {}
-
-auto Http::readFile(std::string_view filepath, std::source_location sourceLocation) -> std::vector<std::byte> {
-    std::ifstream file{std::string{filepath}, std::ios::ate};
-    if (!file) throw Exception{Log{Log::Level::fatal, "file not found: " + std::string{filepath}, sourceLocation}};
-
-    const auto size{static_cast<unsigned long>(file.tellg())};
-    file.seekg(0, std::ios::beg);
-
-    std::vector<std::byte> buffer(size, std::byte{0});
-
-    file.read(reinterpret_cast<char *>(buffer.data()), static_cast<long>(size));
-    if (file.gcount() != static_cast<long>(size))
-        throw Exception{Log{Log::Level::fatal, "file read error: " + std::string{filepath}, sourceLocation}};
-
-    return buffer;
+    return {contentView.cbegin(), contentView.cend()};
 }
 
-auto Http::brotli(std::span<const std::byte> data, std::source_location sourceLocation) -> std::vector<std::byte> {
+auto brotli(std::span<const std::byte> data, std::source_location sourceLocation) -> std::vector<std::byte> {
     unsigned long size{BrotliEncoderMaxCompressedSize(data.size())};
 
     std::vector<std::byte> buffer(size, std::byte{0});
@@ -83,52 +106,51 @@ auto Http::brotli(std::span<const std::byte> data, std::source_location sourceLo
     if (BrotliEncoderCompress(BROTLI_MAX_QUALITY, BROTLI_MAX_WINDOW_BITS, BROTLI_DEFAULT_MODE, data.size(),
                               reinterpret_cast<const unsigned char *>(data.data()), &size,
                               reinterpret_cast<unsigned char *>(buffer.data())) != BROTLI_TRUE)
-        throw Exception{Log{Log::Level::fatal, "brotli compression error", sourceLocation}};
+        throw Exception{Log{Log::Level::fatal, sourceLocation, "brotli compression error"}};
 
     buffer.resize(size);
 
     return buffer;
 }
 
-auto Http::parseVersion(HttpResponse &httpResponse, std::string_view version, std::source_location sourceLocation)
-        -> void {
+auto parseVersion(HttpResponse &httpResponse, std::string_view version, std::source_location sourceLocation) -> void {
     if (version != "1.1") {
         httpResponse.setVersion("1.1");
         httpResponse.setStatusCode("505 HTTP Version Not Supported");
         httpResponse.addHeader("Content-Length: 0");
         httpResponse.setBody({});
 
-        throw Exception{Log{Log::Level::warn, "http version not supported: " + std::string{version}, sourceLocation}};
+        throw Exception{Log{Log::Level::warn, sourceLocation, "http version not supported: " + std::string{version}}};
     }
 
     httpResponse.setVersion(version);
 }
 
-auto Http::parseGetHead(HttpResponse &httpResponse, const HttpRequest &httpRequest, bool writeBody) -> void {
+auto parseGetHead(HttpResponse &httpResponse, const HttpRequest &httpRequest, bool isWriteBody) -> void {
     const std::string_view url{httpRequest.getUrl()};
 
-    Http::parseTypeEncoding(httpResponse, url);
+    parseTypeEncode(httpResponse, url);
 
-    const std::span<const std::byte> body{Http::instance.parseUrl(httpResponse, url)};
-    Http::parseResource(httpResponse, httpRequest.getHeaderValue("Range"), body, writeBody);
+    const std::span<const std::byte> body{parseUrl(httpResponse, url)};
+    parseResource(httpResponse, httpRequest.getHeaderValue("Range"), body, isWriteBody);
 }
 
-auto Http::parseUrl(HttpResponse &httpResponse, std::string_view url, std::source_location sourceLocation) const
+auto parseUrl(HttpResponse &httpResponse, std::string_view url, std::source_location sourceLocation)
         -> std::span<const std::byte> {
-    const auto result{this->resources.find(std::string{url})};
+    const auto result{resources.find(std::string{url})};
 
-    if (result == this->resources.cend()) {
+    if (result == resources.cend()) {
         httpResponse.setStatusCode("404 Not Found");
         httpResponse.addHeader("Content-Length: 0");
         httpResponse.setBody({});
 
-        throw Exception{Log{Log::Level::warn, "url not found: " + std::string{url}, sourceLocation}};
+        throw Exception{Log{Log::Level::warn, sourceLocation, "url not found: " + std::string{url}}};
     }
 
     return result->second;
 }
 
-auto Http::parseTypeEncoding(HttpResponse &httpResponse, std::string_view url) -> void {
+auto parseTypeEncode(HttpResponse &httpResponse, std::string_view url) -> void {
     if (url.ends_with("html")) {
         httpResponse.addHeader("Content-Type: text/html; charset=utf-8");
         httpResponse.addHeader("Content-Encoding: br");
@@ -138,15 +160,15 @@ auto Http::parseTypeEncoding(HttpResponse &httpResponse, std::string_view url) -
         httpResponse.addHeader("Content-Type: video/mp4");
 }
 
-auto Http::parseResource(HttpResponse &httpResponse, std::string_view range, std::span<const std::byte> body,
-                         bool isWriteBody, std::source_location sourceLocation) -> void {
+auto parseResource(HttpResponse &httpResponse, std::string_view range, std::span<const std::byte> body,
+                   bool isWriteBody, std::source_location sourceLocation) -> void {
     constexpr unsigned int maxSize{1048576};
 
     if (!range.empty()) {
         httpResponse.setStatusCode("206 Partial Content");
 
         range = range.substr(6);
-        const auto splitPoint{static_cast<unsigned char>(range.find('-'))};
+        const unsigned long splitPoint{range.find('-')};
 
         const std::string stringStart{range.cbegin(), range.cbegin() + splitPoint};
         const auto digitStart{std::stoul(stringStart)};
@@ -167,7 +189,7 @@ auto Http::parseResource(HttpResponse &httpResponse, std::string_view range, std
             httpResponse.addHeader("Content-Length: 0");
             httpResponse.setBody({});
 
-            throw Exception{Log{Log::Level::warn, "range not satisfiable: " + std::string{range}, sourceLocation}};
+            throw Exception{Log{Log::Level::warn, sourceLocation, "range not satisfiable: " + std::string{range}}};
         }
 
         httpResponse.addHeader("Content-Range: bytes " + stringStart + '-' + stringEnd + '/' +
@@ -188,19 +210,19 @@ auto Http::parseResource(HttpResponse &httpResponse, std::string_view range, std
     httpResponse.setBody(isWriteBody ? body : std::span<const std::byte>{});
 }
 
-auto Http::parsePost(HttpResponse &httpResponse, std::string_view request, Database &database) -> void {
+auto parsePost(HttpResponse &httpResponse, std::string_view request, Database &database) -> void {
     httpResponse.setStatusCode("200 OK");
 
     std::array<std::string_view, 4> values;
     for (auto point{values.begin()}; const auto &valueView: std::views::split(request, '&'))
         for (const auto &subValueView: std::views::split(valueView, '=')) *point++ = std::string_view{subValueView};
 
-    if (values[0] == "id") Http::parseLogin(httpResponse, values[1], values[3], database);
+    if (values[0] == "id") parseLogin(httpResponse, values[1], values[3], database);
     else
-        Http::parseRegister(httpResponse, values[1], database);
+        parseRegister(httpResponse, values[1], database);
 }
 
-auto Http::parseLogin(HttpResponse &httpResponse, std::string_view id, std::string_view password, Database &database)
+auto parseLogin(HttpResponse &httpResponse, std::string_view id, std::string_view password, Database &database)
         -> void {
     const std::vector<std::vector<std::string>> result{
             database.consult(std::format("select * from users where id = {} and password = '{}';", id, password))};
@@ -214,14 +236,14 @@ auto Http::parseLogin(HttpResponse &httpResponse, std::string_view id, std::stri
     } else {
         constexpr std::string_view url{"index.html"};
 
-        const std::span<const std::byte> body{Http::instance.parseUrl(httpResponse, url)};
-        Http::parseTypeEncoding(httpResponse, url);
+        const std::span<const std::byte> body{parseUrl(httpResponse, url)};
+        parseTypeEncode(httpResponse, url);
 
-        Http::parseResource(httpResponse, "", body, true);
+        parseResource(httpResponse, "", body, true);
     }
 }
 
-auto Http::parseRegister(HttpResponse &httpResponse, std::string_view password, Database &database) -> void {
+auto parseRegister(HttpResponse &httpResponse, std::string_view password, Database &database) -> void {
     database.consult(std::format("insert into users (password) values ('{}');", password));
 
     const std::vector<std::vector<std::string>> result{database.consult("select last_insert_id();")};
@@ -233,5 +255,3 @@ auto Http::parseRegister(HttpResponse &httpResponse, std::string_view password, 
     httpResponse.addHeader("Content-Length: " + std::to_string(body.size()));
     httpResponse.setBody(std::as_bytes(std::span{body}));
 }
-
-const Http Http::instance;

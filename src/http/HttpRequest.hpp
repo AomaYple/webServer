@@ -23,5 +23,5 @@ private:
     auto parseHeader(std::string_view header) -> void;
 
     std::string_view method, url, version, body;
-    std::unordered_map<std::string_view, const std::string_view> headers;
+    std::unordered_map<std::string_view, std::string_view> headers;
 };

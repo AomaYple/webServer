@@ -10,7 +10,7 @@
 class Database {
 public:
     Database(std::string_view host, std::string_view user, std::string_view password, std::string_view database,
-             unsigned short port, std::string_view unixSocket, unsigned int clientFlag);
+             unsigned int port, std::string_view unixSocket, unsigned long clientFlag);
 
     Database(const Database &) = delete;
 
@@ -30,7 +30,7 @@ private:
     auto initialize(std::source_location sourceLocation = std::source_location::current()) -> void;
 
     auto connect(std::string_view host, std::string_view user, std::string_view password, std::string_view database,
-                 unsigned short port, std::string_view unixSocket, unsigned int clientFlag,
+                 unsigned int port, std::string_view unixSocket, unsigned long clientFlag,
                  std::source_location sourceLocation = std::source_location::current()) -> void;
 
     auto query(std::string_view statement, std::source_location sourceLocation = std::source_location::current())

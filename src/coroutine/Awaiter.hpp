@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Result.hpp"
+#include "../userRing/Outcome.hpp"
 
 #include <coroutine>
 
@@ -10,10 +10,10 @@ public:
 
     constexpr auto await_suspend([[maybe_unused]] std::coroutine_handle<> handle) const noexcept -> void {}
 
-    [[nodiscard]] auto await_resume() const noexcept -> Result;
+    [[nodiscard]] auto await_resume() const noexcept -> Outcome;
 
-    auto setResult(Result newResult) noexcept -> void;
+    auto setOutcome(Outcome newOutcome) noexcept -> void;
 
 private:
-    Result result;
+    Outcome outcome;
 };

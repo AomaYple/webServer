@@ -52,10 +52,10 @@ auto Scheduler::registerSignal(std::source_location sourceLocation) -> void {
     };
 
     if (sigaction(SIGTERM, &signalAction, nullptr) == -1)
-        throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+        throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(errno)}};
 
     if (sigaction(SIGINT, &signalAction, nullptr) == -1)
-        throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+        throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(errno)}};
 }
 
 auto Scheduler::run() -> void {
@@ -81,7 +81,7 @@ auto Scheduler::run() -> void {
 
 auto Scheduler::initializeUserRing(std::source_location sourceLocation) -> std::shared_ptr<UserRing> {
     if (Scheduler::instance)
-        throw Exception{Log{Log::Level::fatal, "one scheduler instance per thread", sourceLocation}};
+        throw Exception{Log{Log::Level::fatal, sourceLocation, "one scheduler instance per thread"}};
     Scheduler::instance = true;
 
     io_uring_params params{};
@@ -164,7 +164,7 @@ auto Scheduler::frame(const io_uring_cqe *cqe, std::source_location sourceLocati
     const unsigned long completionUserData{completion.getUserData()};
     const Event event{std::bit_cast<Event>(completionUserData)};
 
-    const Result result{completion.getResult(), completion.getFlags()};
+    const Outcome result{completion.getResult(), completion.getFlags()};
 
     switch (event.type) {
         case Event::Type::accept:
@@ -184,7 +184,7 @@ auto Scheduler::frame(const io_uring_cqe *cqe, std::source_location sourceLocati
                 } catch (Exception &exception) {
                     client.setReceiveGenerator(Generator{});
 
-                    Logger::produce(exception.getLog());
+                    Logger::push(exception.getLog());
                 }
             }
 
@@ -195,7 +195,7 @@ auto Scheduler::frame(const io_uring_cqe *cqe, std::source_location sourceLocati
 
                 try {
                     client.resumeSend(result);
-                } catch (Exception &exception) { Logger::produce(exception.getLog()); }
+                } catch (Exception &exception) { Logger::push(exception.getLog()); }
 
                 client.setSendGenerator(Generator{});
             }
@@ -215,7 +215,7 @@ auto Scheduler::frame(const io_uring_cqe *cqe, std::source_location sourceLocati
 
                 try {
                     client.resumeCancel(result);
-                } catch (Exception &exception) { Logger::produce(exception.getLog()); }
+                } catch (Exception &exception) { Logger::push(exception.getLog()); }
 
                 client.setCancelGenerator(Generator{});
             }
@@ -236,11 +236,11 @@ auto Scheduler::frame(const io_uring_cqe *cqe, std::source_location sourceLocati
                 if (findResult != this->clients.cend()) {
                     try {
                         findResult->second.resumeClose(result);
-                    } catch (Exception &exception) { Logger::produce(exception.getLog()); }
+                    } catch (Exception &exception) { Logger::push(exception.getLog()); }
 
                     this->clients.erase(findResult);
                 } else
-                    Logger::produce(Log{Log::Level::error, "cannot find client", sourceLocation});
+                    Logger::push(Log{Log::Level::error, sourceLocation, "cannot find client"});
             }
 
             break;
@@ -251,7 +251,7 @@ auto Scheduler::accept(std::source_location sourceLocation) -> Generator {
     this->server.startAccept(this->userRing->getSqe());
 
     while (true) {
-        const Result result{co_await this->server.accept()};
+        const Outcome result{co_await this->server.accept()};
 
         if (result.result >= 0) {
             this->clients.emplace(result.result, Client{static_cast<unsigned int>(result.result), 600});
@@ -264,16 +264,16 @@ auto Scheduler::accept(std::source_location sourceLocation) -> Generator {
             generator.resume();
             client.setReceiveGenerator(std::move(generator));
         } else
-            throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result.result)), sourceLocation}};
+            throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(std::abs(result.result))}};
 
         if (!(result.flags & IORING_CQE_F_MORE))
-            throw Exception{Log{Log::Level::fatal, "cannot accept more connections", sourceLocation}};
+            throw Exception{Log{Log::Level::fatal, sourceLocation, "cannot accept more connections"}};
     }
 }
 
 auto Scheduler::timing(std::source_location sourceLocation) -> Generator {
     while (true) {
-        const Result result{co_await this->timer.timing(this->userRing->getSqe())};
+        const Outcome result{co_await this->timer.timing(this->userRing->getSqe())};
 
         if (result.result == sizeof(unsigned long)) {
             for (const unsigned int fileDescriptor: this->timer.clearTimeout()) {
@@ -284,7 +284,7 @@ auto Scheduler::timing(std::source_location sourceLocation) -> Generator {
                 client.setCancelGenerator(std::move(generator));
             }
         } else
-            throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result.result)), sourceLocation}};
+            throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(std::abs(result.result))}};
     }
 }
 
@@ -292,7 +292,7 @@ auto Scheduler::receive(Client &client, std::source_location sourceLocation) -> 
     client.startReceive(this->userRing->getSqe(), this->bufferRing.getId());
 
     while (true) {
-        const Result result{co_await client.receive()};
+        const Outcome result{co_await client.receive()};
 
         if (result.result > 0) {
             client.writeToBuffer(this->bufferRing.getData(result.flags >> IORING_CQE_BUFFER_SHIFT, result.result));
@@ -311,23 +311,23 @@ auto Scheduler::receive(Client &client, std::source_location sourceLocation) -> 
             generator.resume();
             client.setCancelGenerator(std::move(generator));
 
-            throw Exception{Log{Log::Level::error, std::strerror(std::abs(result.result)), sourceLocation}};
+            throw Exception{Log{Log::Level::error, sourceLocation, std::strerror(std::abs(result.result))}};
         }
 
         if (!(result.flags & IORING_CQE_F_MORE))
-            throw Exception{Log{Log::Level::error, "cannot receive more data", sourceLocation}};
+            throw Exception{Log{Log::Level::error, sourceLocation, "cannot receive more data"}};
     }
 }
 
 auto Scheduler::send(Client &client, std::source_location sourceLocation) -> Generator {
     const std::span<const std::byte> request{client.readFromBuffer()};
-    std::vector<std::byte> response{Http::parse(
+    std::vector<std::byte> response{http::parse(
             std::string_view{reinterpret_cast<const char *>(request.data()), request.size()}, this->database)};
 
     client.clearBuffer();
     client.writeToBuffer(response);
 
-    const Result result{co_await client.send(this->userRing->getSqe())};
+    const Outcome result{co_await client.send(this->userRing->getSqe())};
 
     client.clearBuffer();
 
@@ -338,54 +338,54 @@ auto Scheduler::send(Client &client, std::source_location sourceLocation) -> Gen
         generator.resume();
         client.setCancelGenerator(std::move(generator));
 
-        throw Exception{Log{Log::Level::error, std::strerror(std::abs(result.result)), sourceLocation}};
+        throw Exception{Log{Log::Level::error, sourceLocation, std::strerror(std::abs(result.result))}};
     }
 }
 
 auto Scheduler::cancelClient(Client &client, std::source_location sourceLocation) const -> Generator {
-    const Result result{co_await client.cancel(this->userRing->getSqe())};
+    const Outcome result{co_await client.cancel(this->userRing->getSqe())};
 
     Generator generator{this->closeClient(client)};
     generator.resume();
     client.setCloseGenerator(std::move(generator));
 
     if (result.result < 0)
-        throw Exception{Log{Log::Level::error, std::strerror(std::abs(result.result)), sourceLocation}};
+        throw Exception{Log{Log::Level::error, sourceLocation, std::strerror(std::abs(result.result))}};
 }
 
 auto Scheduler::closeClient(const Client &client, std::source_location sourceLocation) const -> Generator {
-    const Result result{co_await client.close(this->userRing->getSqe())};
+    const Outcome result{co_await client.close(this->userRing->getSqe())};
 
     if (result.result < 0)
-        throw Exception{Log{Log::Level::error, std::strerror(std::abs(result.result)), sourceLocation}};
+        throw Exception{Log{Log::Level::error, sourceLocation, std::strerror(std::abs(result.result))}};
 }
 
 auto Scheduler::cancelServer(std::source_location sourceLocation) const -> Generator {
-    const Result result{co_await this->server.cancel(this->userRing->getSqe())};
+    const Outcome result{co_await this->server.cancel(this->userRing->getSqe())};
 
     if (result.result < 0)
-        throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result.result)), sourceLocation}};
+        throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(std::abs(result.result))}};
 }
 
 auto Scheduler::closeServer(std::source_location sourceLocation) const -> Generator {
-    const Result result{co_await this->server.close(this->userRing->getSqe())};
+    const Outcome result{co_await this->server.close(this->userRing->getSqe())};
 
     if (result.result < 0)
-        throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result.result)), sourceLocation}};
+        throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(std::abs(result.result))}};
 }
 
 auto Scheduler::cancelTimer(std::source_location sourceLocation) const -> Generator {
-    const Result result{co_await this->timer.cancel(this->userRing->getSqe())};
+    const Outcome result{co_await this->timer.cancel(this->userRing->getSqe())};
 
     if (result.result < 0)
-        throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result.result)), sourceLocation}};
+        throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(std::abs(result.result))}};
 }
 
 auto Scheduler::closeTimer(std::source_location sourceLocation) const -> Generator {
-    const Result result{co_await this->timer.close(this->userRing->getSqe())};
+    const Outcome result{co_await this->timer.close(this->userRing->getSqe())};
 
     if (result.result < 0)
-        throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(result.result)), sourceLocation}};
+        throw Exception{Log{Log::Level::fatal, sourceLocation, std::strerror(std::abs(result.result))}};
 }
 
 constinit thread_local bool Scheduler::instance{false};

@@ -3,7 +3,7 @@
 #include <exception>
 #include <utility>
 
-auto Generator::promise_type::get_return_object() const -> Generator {
+auto Generator::promise_type::get_return_object() const noexcept -> Generator {
     return Generator{std::coroutine_handle<const promise_type>::from_promise(*this)};
 }
 
@@ -15,7 +15,7 @@ Generator::Generator(Generator &&other) noexcept : handle{std::exchange(other.ha
 
 auto Generator::operator=(Generator &&other) noexcept -> Generator & {
     if (this != &other) {
-        this->destroy();
+        this->handle.destroy();
 
         this->handle = std::exchange(other.handle, nullptr);
     }
@@ -23,10 +23,8 @@ auto Generator::operator=(Generator &&other) noexcept -> Generator & {
     return *this;
 }
 
-Generator::~Generator() { this->destroy(); }
-
-auto Generator::resume() const -> void { this->handle(); }
-
-auto Generator::destroy() const -> void {
+Generator::~Generator() {
     if (this->handle) this->handle.destroy();
 }
+
+auto Generator::resume() const -> void { this->handle.resume(); }
