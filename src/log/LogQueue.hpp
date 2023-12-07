@@ -13,13 +13,13 @@ class LogQueue {
 public:
     LogQueue() noexcept = default;
 
-    LogQueue(const LogQueue &) = delete;
+    LogQueue(const LogQueue &) noexcept;
 
-    LogQueue(LogQueue &&other) noexcept;
+    auto operator=(const LogQueue &) noexcept -> LogQueue &;
 
-    auto operator=(const LogQueue &) -> LogQueue & = delete;
+    LogQueue(LogQueue &&) noexcept;
 
-    auto operator=(LogQueue &&other) noexcept -> LogQueue &;
+    auto operator=(LogQueue &&) noexcept -> LogQueue &;
 
     ~LogQueue();
 
@@ -27,14 +27,12 @@ public:
 
     [[nodiscard]] auto popAll() noexcept -> std::vector<Log>;
 
+    auto clear() noexcept -> void;
+
 private:
     [[nodiscard]] auto copy() const noexcept -> Node *;
 
-    auto destroy() noexcept -> void;
-
-    [[nodiscard]] static auto invert(Node *node) noexcept -> Node *;
-
-    static auto traverse(Node *node) -> std::vector<Log>;
+    [[nodiscard]] auto invert() noexcept -> Node *;
 
     std::atomic<Node *> head;
 };

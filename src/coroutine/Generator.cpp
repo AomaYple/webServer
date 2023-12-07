@@ -15,7 +15,7 @@ Generator::Generator(Generator &&other) noexcept : handle{std::exchange(other.ha
 
 auto Generator::operator=(Generator &&other) noexcept -> Generator & {
     if (this != &other) {
-        this->handle.destroy();
+        this->destroy();
 
         this->handle = std::exchange(other.handle, nullptr);
     }
@@ -23,8 +23,10 @@ auto Generator::operator=(Generator &&other) noexcept -> Generator & {
     return *this;
 }
 
-Generator::~Generator() {
-    if (this->handle) this->handle.destroy();
-}
+Generator::~Generator() { this->destroy(); }
 
 auto Generator::resume() const -> void { this->handle.resume(); }
+
+auto Generator::destroy() const noexcept -> void {
+    if (this->handle) this->handle.destroy();
+}

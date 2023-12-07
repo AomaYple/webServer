@@ -1,100 +1,71 @@
 #include "Client.hpp"
 
-#include "../userRing/Event.hpp"
 #include "../userRing/Submission.hpp"
 
-Client::Client(unsigned int fileDescriptorIndex, unsigned short timeout) noexcept
-    : fileDescriptorIndex{fileDescriptorIndex}, timeout{timeout}, awaiter{} {}
+Client::Client(int fileDescriptorIndex, BufferRing &&bufferRing, unsigned long seconds) noexcept
+    : fileDescriptorIndex{fileDescriptorIndex}, bufferRing{std::move(bufferRing)}, seconds{seconds}, awaiter{} {}
 
-auto Client::getFileDescriptorIndex() const noexcept -> unsigned int { return this->fileDescriptorIndex; }
+auto Client::getFileDescriptorIndex() const noexcept -> int { return this->fileDescriptorIndex; }
 
-auto Client::getTimeout() const noexcept -> unsigned short { return this->timeout; }
+auto Client::getBufferRingData(unsigned short bufferIndex, unsigned int dataSize) noexcept -> std::vector<std::byte> {
+    return this->bufferRing.getData(bufferIndex, dataSize);
+}
 
-auto Client::writeToBuffer(std::span<const std::byte> data) -> void {
+auto Client::getSeconds() const noexcept -> unsigned long { return this->seconds; }
+
+auto Client::writeToBuffer(std::span<const std::byte> data) noexcept -> void {
     this->buffer.insert(this->buffer.cend(), data.cbegin(), data.cend());
 }
 
-auto Client::readFromBuffer() const -> std::span<const std::byte> { return this->buffer; }
+auto Client::readFromBuffer() const noexcept -> std::span<const std::byte> { return this->buffer; }
 
 auto Client::clearBuffer() noexcept -> void { this->buffer.clear(); }
 
-auto Client::startReceive(io_uring_sqe *sqe, unsigned short bufferRingId) const noexcept -> void {
-    constexpr unsigned int flags{0};
-    const Submission submission{sqe, this->fileDescriptorIndex, {}, flags};
-
-    const Event event{Event::Type::receive, this->fileDescriptorIndex};
-    submission.setUserData(std::bit_cast<unsigned long>(event));
-
-    submission.setFlags(IOSQE_FIXED_FILE | IOSQE_BUFFER_SELECT);
-
-    submission.setBufferRingId(bufferRingId);
-}
-
-auto Client::receive() const noexcept -> const Awaiter & { return this->awaiter; }
+auto Client::setAwaiterOutcome(Outcome outcome) noexcept -> void { this->awaiter.setOutcome(outcome); }
 
 auto Client::setReceiveGenerator(Generator &&generator) noexcept -> void {
     this->receiveGenerator = std::move(generator);
 }
 
-auto Client::resumeReceive(Outcome result) -> void {
-    this->awaiter.set_result(result);
-
-    this->receiveGenerator.resume();
+auto Client::getReceiveSubmission() const noexcept -> Submission {
+    return Submission{Event{Event::Type::receive, this->fileDescriptorIndex}, IOSQE_FIXED_FILE | IOSQE_BUFFER_SELECT,
+                      Submission::ReceiveParameters{{}, this->bufferRing.getId()}};
 }
 
-auto Client::send(io_uring_sqe *sqe) noexcept -> const Awaiter & {
-    const Submission submission{sqe, this->fileDescriptorIndex, this->buffer, 0, 0};
+auto Client::receive() const noexcept -> const Awaiter & { return this->awaiter; }
 
-    const Event event{Event::Type::send, this->fileDescriptorIndex};
-    submission.setUserData(std::bit_cast<unsigned long>(event));
-
-    submission.setFlags(IOSQE_FIXED_FILE);
-
-    return this->awaiter;
-}
+auto Client::resumeReceive() const -> void { this->receiveGenerator.resume(); }
 
 auto Client::setSendGenerator(Generator &&generator) noexcept -> void { this->sendGenerator = std::move(generator); }
 
-auto Client::resumeSend(Outcome result) -> void {
-    this->awaiter.set_result(result);
-
-    this->sendGenerator.resume();
+auto Client::getSendSubmission() const noexcept -> Submission {
+    return Submission{Event{Event::Type::send, this->fileDescriptorIndex}, IOSQE_FIXED_FILE,
+                      Submission::SendParameters{this->buffer, 0, 0}};
 }
 
-auto Client::cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
-    const Submission submission{sqe, this->fileDescriptorIndex, IORING_ASYNC_CANCEL_ALL};
+auto Client::send() const noexcept -> const Awaiter & { return this->awaiter; }
 
-    const Event event{Event::Type::cancel, this->fileDescriptorIndex};
-    submission.setUserData(std::bit_cast<unsigned long>(event));
-
-    submission.setFlags(IOSQE_FIXED_FILE);
-
-    return this->awaiter;
-}
+auto Client::resumeSend() const -> void { this->sendGenerator.resume(); }
 
 auto Client::setCancelGenerator(Generator &&generator) noexcept -> void {
     this->cancelGenerator = std::move(generator);
 }
 
-auto Client::resumeCancel(Outcome result) -> void {
-    this->awaiter.set_result(result);
-
-    this->cancelGenerator.resume();
+auto Client::getCancelSubmission() const noexcept -> Submission {
+    return Submission{Event{Event::Type::cancel, this->fileDescriptorIndex}, IOSQE_FIXED_FILE,
+                      Submission::CancelParameters{IORING_ASYNC_CANCEL_ALL}};
 }
 
-auto Client::close(io_uring_sqe *sqe) const noexcept -> const Awaiter & {
-    const Submission submission{sqe, this->fileDescriptorIndex};
+auto Client::cancel() const noexcept -> const Awaiter & { return this->awaiter; }
 
-    const Event event{Event::Type::close, this->fileDescriptorIndex};
-    submission.setUserData(std::bit_cast<unsigned long>(event));
-
-    return this->awaiter;
-}
+auto Client::resumeCancel() const -> void { this->cancelGenerator.resume(); }
 
 auto Client::setCloseGenerator(Generator &&generator) noexcept -> void { this->closeGenerator = std::move(generator); }
 
-auto Client::resumeClose(Outcome result) -> void {
-    this->awaiter.set_result(result);
-
-    this->closeGenerator.resume();
+auto Client::getCloseSubmission() const noexcept -> Submission {
+    return Submission{Event{Event::Type::close, this->fileDescriptorIndex}, 0, Submission::CloseParameters{}};
 }
+
+auto Client::close() const noexcept -> const Awaiter & { return this->awaiter; }
+
+auto Client::resumeClose() const -> void { this->closeGenerator.resume(); }

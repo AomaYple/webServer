@@ -6,32 +6,32 @@
 
 class BufferRing {
 public:
-    BufferRing(unsigned short bufferCount, unsigned int bufferSize, unsigned short id,
-               const std::shared_ptr<UserRing> &userRing);
+    BufferRing(unsigned int entries, unsigned int bufferSize, int id,
+               const std::shared_ptr<UserRing> &userRing) noexcept;
 
     BufferRing(const BufferRing &) = delete;
 
-    BufferRing(BufferRing &&) = default;
-
     auto operator=(const BufferRing &) -> BufferRing & = delete;
 
-    auto operator=(BufferRing &&) noexcept -> BufferRing &;
+    BufferRing(BufferRing &&other) noexcept;
+
+    auto operator=(BufferRing &&other) noexcept -> BufferRing &;
 
     ~BufferRing();
 
-    [[nodiscard]] auto getId() const noexcept -> unsigned short;
+    [[nodiscard]] auto getId() const noexcept -> int;
 
-    [[nodiscard]] auto getData(unsigned short bufferIndex, unsigned int dataSize) -> std::vector<std::byte>;
-
-    auto advanceCompletionBufferRingBuffer(unsigned int completionCount) noexcept -> void;
+    [[nodiscard]] auto getData(unsigned short bufferIndex, unsigned int dataSize) noexcept -> std::vector<std::byte>;
 
 private:
-    auto destroy() const -> void;
+    auto destroy() const noexcept -> void;
 
-    auto add(unsigned short index) noexcept -> void;
+    auto addBuffer(unsigned short index) noexcept -> void;
 
-    io_uring_buf_ring *bufferRing;
+    auto advanceBuffer() noexcept -> void;
+
+    io_uring_buf_ring *handle;
     std::vector<std::vector<std::byte>> buffers;
-    unsigned short id, mask, offset;
+    int id, mask, offset;
     std::shared_ptr<UserRing> userRing;
 };

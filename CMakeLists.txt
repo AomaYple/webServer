@@ -17,13 +17,13 @@ target_sources(${PROJECT_NAME} PRIVATE
 
         src/database/Database.cpp
 
-        src/http/Http.cpp
+        src/http/http.cpp
         src/http/HttpRequest.cpp
         src/http/HttpResponse.cpp
 
         src/log/Exception.cpp
         src/log/Log.cpp
-        src/log/Logger.cpp
+        src/log/logger.cpp
         src/log/LogQueue.cpp
 
         src/scheduler/Scheduler.cpp

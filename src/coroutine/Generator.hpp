@@ -18,9 +18,9 @@ public:
 
     Generator(const Generator &) = delete;
 
-    Generator(Generator &&) noexcept;
-
     auto operator=(const Generator &) -> Generator & = delete;
+
+    Generator(Generator &&) noexcept;
 
     auto operator=(Generator &&) noexcept -> Generator &;
 
@@ -29,5 +29,7 @@ public:
     auto resume() const -> void;
 
 private:
+    auto destroy() const noexcept -> void;
+
     std::coroutine_handle<const promise_type> handle;
 };

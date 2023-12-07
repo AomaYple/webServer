@@ -1,6 +1,6 @@
 #include "HttpResponse.hpp"
 
-auto HttpResponse::setVersion(std::string_view newVersion) -> void {
+auto HttpResponse::setVersion(std::string_view newVersion) noexcept -> void {
     this->version.clear();
 
     this->version.emplace_back(std::byte{'H'});
@@ -15,7 +15,7 @@ auto HttpResponse::setVersion(std::string_view newVersion) -> void {
     this->version.emplace_back(std::byte{' '});
 }
 
-auto HttpResponse::setStatusCode(std::string_view newStatusCode) -> void {
+auto HttpResponse::setStatusCode(std::string_view newStatusCode) noexcept -> void {
     this->statusCode.clear();
 
     const std::span<const std::byte> value{std::as_bytes(std::span{newStatusCode})};
@@ -25,7 +25,7 @@ auto HttpResponse::setStatusCode(std::string_view newStatusCode) -> void {
     this->statusCode.emplace_back(std::byte{'\n'});
 }
 
-auto HttpResponse::addHeader(std::string_view header) -> void {
+auto HttpResponse::addHeader(std::string_view header) noexcept -> void {
     const std::span<const std::byte> value{std::as_bytes(std::span{header})};
     this->headers.insert(this->headers.cend(), value.cbegin(), value.cend());
 
@@ -33,7 +33,7 @@ auto HttpResponse::addHeader(std::string_view header) -> void {
     this->headers.emplace_back(std::byte{'\n'});
 }
 
-auto HttpResponse::setBody(std::span<const std::byte> newBody) -> void {
+auto HttpResponse::setBody(std::span<const std::byte> newBody) noexcept -> void {
     this->body.clear();
 
     this->body.emplace_back(std::byte{'\r'});
@@ -42,7 +42,7 @@ auto HttpResponse::setBody(std::span<const std::byte> newBody) -> void {
     this->body.insert(this->body.cend(), newBody.cbegin(), newBody.cend());
 }
 
-auto HttpResponse::toBytes() const -> std::vector<std::byte> {
+auto HttpResponse::toBytes() const noexcept -> std::vector<std::byte> {
     std::vector<std::byte> bytes;
 
     bytes.insert(bytes.cend(), this->version.cbegin(), this->version.cend());

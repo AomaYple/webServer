@@ -3,70 +3,77 @@
 #include "../coroutine/Awaiter.hpp"
 #include "../coroutine/Generator.hpp"
 
-#include <liburing.h>
-
 #include <array>
 #include <source_location>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
+class Submission;
+
 class Timer {
 public:
-    explicit Timer(unsigned int fileDescriptorIndex);
+    explicit Timer(int fileDescriptorIndex) noexcept;
 
     Timer(const Timer &) = delete;
 
-    Timer(Timer &&) = default;
-
     auto operator=(const Timer &) -> Timer & = delete;
+
+    Timer(Timer &&) = default;
 
     auto operator=(Timer &&) -> Timer & = delete;
 
     ~Timer() = default;
 
-    [[nodiscard]] static auto create() -> unsigned int;
+    [[nodiscard]] static auto create() noexcept -> int;
 
-    [[nodiscard]] auto getFileDescriptorIndex() const noexcept -> unsigned int;
+    [[nodiscard]] auto getFileDescriptorIndex() const noexcept -> int;
 
-    [[nodiscard]] auto timing(io_uring_sqe *sqe) noexcept -> const Awaiter &;
+    [[nodiscard]] auto clearTimeout() noexcept -> std::vector<int>;
 
-    [[nodiscard]] auto clearTimeout() -> std::vector<unsigned int>;
+    auto add(int fileDescriptor, unsigned long seconds) noexcept -> void;
 
-    auto add(unsigned int fileDescriptor, unsigned short timeout) -> void;
+    auto update(int fileDescriptor, unsigned long seconds) noexcept -> void;
 
-    auto update(unsigned int fileDescriptor, unsigned short timeout) -> void;
+    auto remove(int fileDescriptor) noexcept -> void;
 
-    auto remove(unsigned int fileDescriptor) -> void;
+    auto setAwaiterOutcome(Outcome outcome) noexcept -> void;
 
     auto setTimingGenerator(Generator &&generator) noexcept -> void;
 
-    auto resumeTiming(Outcome result) -> void;
+    [[nodiscard]] auto getTimingSubmission() noexcept -> Submission;
 
-    [[nodiscard]] auto cancel(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
+    [[nodiscard]] auto timing() const noexcept -> const Awaiter &;
+
+    auto resumeTiming() const -> void;
 
     auto setCancelGenerator(Generator &&generator) noexcept -> void;
 
-    auto resumeCancel(Outcome result) -> void;
+    [[nodiscard]] auto getCancelSubmission() const noexcept -> Submission;
 
-    [[nodiscard]] auto close(io_uring_sqe *sqe) const noexcept -> const Awaiter &;
+    [[nodiscard]] auto cancel() const noexcept -> const Awaiter &;
+
+    auto resumeCancel() const -> void;
 
     auto setCloseGenerator(Generator &&generator) noexcept -> void;
 
-    auto resumeClose(Outcome result) -> void;
+    [[nodiscard]] auto getCloseSubmission() const noexcept -> Submission;
+
+    [[nodiscard]] auto close() const noexcept -> const Awaiter &;
+
+    auto resumeClose() const -> void;
 
 private:
     [[nodiscard]] static auto
-    createFileDescriptor(std::source_location sourceLocation = std::source_location::current()) -> unsigned int;
+    createFileDescriptor(std::source_location sourceLocation = std::source_location::current()) noexcept -> int;
 
-    static auto setTime(unsigned int fileDescriptor,
-                        std::source_location sourceLocation = std::source_location::current()) -> void;
+    static auto setTime(int fileDescriptor,
+                        std::source_location sourceLocation = std::source_location::current()) noexcept -> void;
 
-    const unsigned int fileDescriptorIndex;
-    unsigned short now;
-    unsigned long expireCount;
-    std::array<std::unordered_set<unsigned int>, 601> wheel;
-    std::unordered_map<unsigned int, unsigned short> location;
+    const int fileDescriptorIndex;
+    unsigned long now, expireCount;
+    std::array<std::unordered_set<int>, 601> wheel;
+    std::unordered_map<int, unsigned long> location;
     Generator timingGenerator, cancelGenerator, closeGenerator;
     Awaiter awaiter;
 };

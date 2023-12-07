@@ -20,9 +20,8 @@ struct Submission {
     };
 
     struct ReceiveParameters {
-        std::span<std::byte> buffer;
         int flags;
-        unsigned short bufferRingId;
+        int bufferRingId;
     };
 
     struct SendParameters {
@@ -31,7 +30,9 @@ struct Submission {
         unsigned int zeroCopyFlags;
     };
 
-    struct CancelParameters {};
+    struct CancelParameters {
+        unsigned int flags;
+    };
 
     struct CloseParameters {};
 

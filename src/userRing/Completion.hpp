@@ -4,6 +4,6 @@
 #include "Outcome.hpp"
 
 struct Completion {
-    Event socketEvent;
+    Event event;
     Outcome outcome;
 };
