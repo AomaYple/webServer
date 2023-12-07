@@ -36,7 +36,8 @@ private:
     auto frame(const Completion &completion,
                std::source_location sourceLocation = std::source_location::current()) noexcept -> void;
 
-    [[nodiscard]] auto accept(std::source_location sourceLocation = std::source_location::current()) -> Generator;
+    [[nodiscard]] auto accept(std::source_location sourceLocation = std::source_location::current()) noexcept
+            -> Generator;
 
     [[nodiscard]] auto timing(std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
@@ -47,20 +48,23 @@ private:
             -> Generator;
 
     [[nodiscard]] auto cancelClient(Client &client,
-                                    std::source_location sourceLocation = std::source_location::current()) -> Generator;
+                                    std::source_location sourceLocation = std::source_location::current()) const
+            -> Generator;
 
     [[nodiscard]] auto closeClient(const Client &client,
-                                   std::source_location sourceLocation = std::source_location::current()) -> Generator;
-
-    [[nodiscard]] auto cancelServer(std::source_location sourceLocation = std::source_location::current()) -> Generator;
-
-    [[nodiscard]] auto closeServer(std::source_location sourceLocation = std::source_location::current()) const
+                                   std::source_location sourceLocation = std::source_location::current()) const
             -> Generator;
 
-    [[nodiscard]] auto cancelTimer(std::source_location sourceLocation = std::source_location::current()) const
+    [[nodiscard]] auto
+    cancelServer(std::source_location sourceLocation = std::source_location::current()) const noexcept -> Generator;
+
+    [[nodiscard]] auto closeServer(std::source_location sourceLocation = std::source_location::current()) const noexcept
             -> Generator;
 
-    [[nodiscard]] auto closeTimer(std::source_location sourceLocation = std::source_location::current()) const
+    [[nodiscard]] auto cancelTimer(std::source_location sourceLocation = std::source_location::current()) const noexcept
+            -> Generator;
+
+    [[nodiscard]] auto closeTimer(std::source_location sourceLocation = std::source_location::current()) const noexcept
             -> Generator;
 
     static constinit thread_local bool instance;

@@ -146,82 +146,90 @@ auto Scheduler::frame(const Completion &completion, std::source_location sourceL
     const Event event{std::bit_cast<Event>(completion.event)};
     const Outcome outcome{completion.outcome};
 
-    try {
-        switch (event.type) {
-            case Event::Type::accept:
-                if (outcome.result >= 0 || std::abs(outcome.result) != ECANCELED) {
-                    this->server.setAwaiterOutcome(outcome);
-                    this->server.resumeAccept();
-                }
+    switch (event.type) {
+        case Event::Type::accept:
+            if (outcome.result >= 0 || std::abs(outcome.result) != ECANCELED) {
+                this->server.setAwaiterOutcome(outcome);
+                this->server.resumeAccept();
+            }
 
-                break;
-            case Event::Type::timing:
-                if (outcome.result >= 0 || std::abs(outcome.result) != ECANCELED) {
-                    this->timer.setAwaiterOutcome(outcome);
-                    this->timer.resumeTiming();
-                }
+            break;
+        case Event::Type::timing:
+            if (outcome.result >= 0 || std::abs(outcome.result) != ECANCELED) {
+                this->timer.setAwaiterOutcome(outcome);
+                this->timer.resumeTiming();
+            }
 
-                break;
-            case Event::Type::receive:
-                if (outcome.result >= 0 || std::abs(outcome.result) != ECANCELED) {
-                    Client &client{this->clients.at(event.fileDescriptor)};
+            break;
+        case Event::Type::receive:
+            if (outcome.result >= 0 || std::abs(outcome.result) != ECANCELED) {
+                Client &client{this->clients.at(event.fileDescriptor)};
 
-                    client.setAwaiterOutcome(outcome);
+                client.setAwaiterOutcome(outcome);
+
+                try {
                     client.resumeReceive();
-                }
+                } catch (Exception &exception) { logger::push(std::move(exception.getLog())); }
+            }
 
-                break;
-            case Event::Type::send:
-                if (!(outcome.flags & IORING_CQE_F_NOTIF)) {
-                    Client &client{this->clients.at(event.fileDescriptor)};
+            break;
+        case Event::Type::send:
+            if (!(outcome.flags & IORING_CQE_F_NOTIF)) {
+                Client &client{this->clients.at(event.fileDescriptor)};
 
-                    client.setAwaiterOutcome(outcome);
+                client.setAwaiterOutcome(outcome);
+
+
+                try {
                     client.resumeSend();
-                }
+                } catch (Exception &exception) { logger::push(std::move(exception.getLog())); }
+            }
 
-                break;
-            case Event::Type::cancel:
-                if (event.fileDescriptor == this->server.getFileDescriptorIndex()) {
-                    this->server.setAwaiterOutcome(outcome);
-                    this->server.resumeCancel();
-                } else if (event.fileDescriptor == this->timer.getFileDescriptorIndex()) {
-                    this->timer.setAwaiterOutcome(outcome);
-                    this->timer.resumeCancel();
-                } else {
-                    Client &client{this->clients.at(event.fileDescriptor)};
+            break;
+        case Event::Type::cancel:
+            if (event.fileDescriptor == this->server.getFileDescriptorIndex()) {
+                this->server.setAwaiterOutcome(outcome);
+                this->server.resumeCancel();
+            } else if (event.fileDescriptor == this->timer.getFileDescriptorIndex()) {
+                this->timer.setAwaiterOutcome(outcome);
+                this->timer.resumeCancel();
+            } else {
+                Client &client{this->clients.at(event.fileDescriptor)};
 
-                    client.setAwaiterOutcome(outcome);
+                client.setAwaiterOutcome(outcome);
+
+                try {
                     client.resumeCancel();
-                }
+                } catch (Exception &exception) { logger::push(std::move(exception.getLog())); }
+            }
 
-                break;
-            case Event::Type::close:
-                if (event.fileDescriptor == this->server.getFileDescriptorIndex()) {
-                    this->server.setAwaiterOutcome(outcome);
-                    this->server.resumeClose();
-                } else if (event.fileDescriptor == this->timer.getFileDescriptorIndex()) {
-                    this->timer.setAwaiterOutcome(outcome);
-                    this->timer.resumeClose();
-                } else {
-                    const auto result{this->clients.find(event.fileDescriptor)};
-                    if (result != this->clients.cend()) {
-                        result->second.setAwaiterOutcome(outcome);
+            break;
+        case Event::Type::close:
+            if (event.fileDescriptor == this->server.getFileDescriptorIndex()) {
+                this->server.setAwaiterOutcome(outcome);
+                this->server.resumeClose();
+            } else if (event.fileDescriptor == this->timer.getFileDescriptorIndex()) {
+                this->timer.setAwaiterOutcome(outcome);
+                this->timer.resumeClose();
+            } else {
+                const auto result{this->clients.find(event.fileDescriptor)};
+                if (result != this->clients.cend()) {
+                    result->second.setAwaiterOutcome(outcome);
 
-                        try {
-                            result->second.resumeClose();
-                        } catch (Exception &exception) { logger::push(std::move(exception.getLog())); }
+                    try {
+                        result->second.resumeClose();
+                    } catch (Exception &exception) { logger::push(std::move(exception.getLog())); }
 
-                        this->clients.erase(result);
-                    } else
-                        throw Exception{Log{Log::Level::error, "cannot find client", sourceLocation}};
-                }
+                    this->clients.erase(result);
+                } else
+                    logger::push(Log{Log::Level::error, "cannot find client", sourceLocation});
+            }
 
-                break;
-        }
-    } catch (Exception &exception) { logger::push(std::move(exception.getLog())); }
+            break;
+    }
 }
 
-auto Scheduler::accept(std::source_location sourceLocation) -> Generator {
+auto Scheduler::accept(std::source_location sourceLocation) noexcept -> Generator {
     this->userRing->addSubmission(this->server.getAcceptSubmission());
 
     while (true) {
@@ -236,11 +244,19 @@ auto Scheduler::accept(std::source_location sourceLocation) -> Generator {
 
             client.setReceiveGenerator(this->receive(client));
             client.resumeReceive();
-        } else
-            throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(outcome.result)), sourceLocation}};
+        } else {
+            logger::push(Log{Log::Level::fatal, std::strerror(std::abs(outcome.result)), sourceLocation});
+            logger::flush();
 
-        if (!(outcome.flags & IORING_CQE_F_MORE))
-            throw Exception{Log{Log::Level::fatal, "cannot accept more connections", sourceLocation}};
+            std::terminate();
+        }
+
+        if (!(outcome.flags & IORING_CQE_F_MORE)) {
+            logger::push(Log{Log::Level::fatal, "cannot accept more connections", sourceLocation});
+            logger::flush();
+
+            std::terminate();
+        }
     }
 }
 
@@ -256,8 +272,12 @@ auto Scheduler::timing(std::source_location sourceLocation) -> Generator {
                 client.setCancelGenerator(this->cancelClient(client));
                 client.resumeCancel();
             }
-        } else
-            throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(outcome.result)), sourceLocation}};
+        } else {
+            logger::push(Log{Log::Level::fatal, std::strerror(std::abs(outcome.result)), sourceLocation});
+            logger::flush();
+
+            std::terminate();
+        }
     }
 }
 
@@ -266,7 +286,6 @@ auto Scheduler::receive(Client &client, std::source_location sourceLocation) -> 
 
     while (true) {
         const Outcome outcome{co_await client.receive()};
-
         if (outcome.result > 0) {
             client.writeToBuffer(client.getBufferRingData(outcome.flags >> IORING_CQE_BUFFER_SHIFT, outcome.result));
 
@@ -313,7 +332,7 @@ auto Scheduler::send(Client &client, std::source_location sourceLocation) -> Gen
     }
 }
 
-auto Scheduler::cancelClient(Client &client, std::source_location sourceLocation) -> Generator {
+auto Scheduler::cancelClient(Client &client, std::source_location sourceLocation) const -> Generator {
     this->userRing->addSubmission(client.getCancelSubmission());
     const Outcome outcome{co_await client.cancel()};
 
@@ -324,7 +343,7 @@ auto Scheduler::cancelClient(Client &client, std::source_location sourceLocation
         throw Exception{Log{Log::Level::error, std::strerror(std::abs(outcome.result)), sourceLocation}};
 }
 
-auto Scheduler::closeClient(const Client &client, std::source_location sourceLocation) -> Generator {
+auto Scheduler::closeClient(const Client &client, std::source_location sourceLocation) const -> Generator {
     this->userRing->addSubmission(client.getCloseSubmission());
 
     const Outcome outcome{co_await client.close()};
@@ -332,36 +351,52 @@ auto Scheduler::closeClient(const Client &client, std::source_location sourceLoc
         throw Exception{Log{Log::Level::error, std::strerror(std::abs(outcome.result)), sourceLocation}};
 }
 
-auto Scheduler::cancelServer(std::source_location sourceLocation) -> Generator {
+auto Scheduler::cancelServer(std::source_location sourceLocation) const noexcept -> Generator {
     this->userRing->addSubmission(this->server.getCancelSubmission());
 
     const Outcome outcome{co_await this->server.cancel()};
-    if (outcome.result < 0)
-        throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(outcome.result)), sourceLocation}};
+    if (outcome.result < 0) {
+        logger::push(Log{Log::Level::fatal, std::strerror(std::abs(outcome.result)), sourceLocation});
+        logger::flush();
+
+        std::terminate();
+    }
 }
 
-auto Scheduler::closeServer(std::source_location sourceLocation) const -> Generator {
+auto Scheduler::closeServer(std::source_location sourceLocation) const noexcept -> Generator {
     this->userRing->addSubmission(this->server.getCloseSubmission());
 
     const Outcome outcome{co_await this->server.close()};
-    if (outcome.result < 0)
-        throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(outcome.result)), sourceLocation}};
+    if (outcome.result < 0) {
+        logger::push(Log{Log::Level::fatal, std::strerror(std::abs(outcome.result)), sourceLocation});
+        logger::flush();
+
+        std::terminate();
+    }
 }
 
-auto Scheduler::cancelTimer(std::source_location sourceLocation) const -> Generator {
+auto Scheduler::cancelTimer(std::source_location sourceLocation) const noexcept -> Generator {
     this->userRing->addSubmission(this->timer.getCancelSubmission());
 
     const Outcome outcome{co_await this->timer.cancel()};
-    if (outcome.result < 0)
-        throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(outcome.result)), sourceLocation}};
+    if (outcome.result < 0) {
+        logger::push(Log{Log::Level::fatal, std::strerror(std::abs(outcome.result)), sourceLocation});
+        logger::flush();
+
+        std::terminate();
+    }
 }
 
-auto Scheduler::closeTimer(std::source_location sourceLocation) const -> Generator {
+auto Scheduler::closeTimer(std::source_location sourceLocation) const noexcept -> Generator {
     this->userRing->addSubmission(this->timer.getCloseSubmission());
 
     const Outcome outcome{co_await this->timer.close()};
-    if (outcome.result < 0)
-        throw Exception{Log{Log::Level::fatal, std::strerror(std::abs(outcome.result)), sourceLocation}};
+    if (outcome.result < 0) {
+        logger::push(Log{Log::Level::fatal, std::strerror(std::abs(outcome.result)), sourceLocation});
+        logger::flush();
+
+        std::terminate();
+    }
 }
 
 constinit thread_local bool Scheduler::instance{false};
