@@ -85,7 +85,7 @@ auto EventLoop::initializeRing(std::source_location sourceLocation) -> std::shar
         params.flags |= IORING_SETUP_ATTACH_WQ;
     }
 
-    std::shared_ptr<Ring> ring{std::make_shared<Ring>(1024, params)};
+    const std::shared_ptr<Ring> ring{std::make_shared<Ring>(1024, params)};
 
     if (EventLoop::sharedRingFileDescriptor == -1) EventLoop::sharedRingFileDescriptor = ring->getFileDescriptor();
 
@@ -161,7 +161,7 @@ auto EventLoop::received(int fileDescriptor, int result, unsigned int flags, std
     if ((flags & IORING_CQE_F_MORE) && result > 0) {
         std::vector<std::byte> &buffer{client.getBuffer()};
 
-        std::vector<std::byte> request{client.getReceivedData(flags >> IORING_CQE_BUFFER_SHIFT, result)};
+        const std::vector<std::byte> request{client.getReceivedData(flags >> IORING_CQE_BUFFER_SHIFT, result)};
         buffer.insert(buffer.cend(), request.begin(), request.end());
 
         if (!(flags & IORING_CQE_F_SOCK_NONEMPTY)) {

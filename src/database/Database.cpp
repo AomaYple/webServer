@@ -47,7 +47,7 @@ auto Database::inquire(std::string_view statement) -> std::vector<std::vector<st
 auto Database::initialize(std::source_location sourceLocation) -> MYSQL * {
     const std::lock_guard lockGuard{Database::lock};
 
-    MYSQL *handle{mysql_init(nullptr)};
+    MYSQL *const handle{mysql_init(nullptr)};
     if (handle == nullptr)
         throw Exception{Log{Log::Level::fatal, "initialization of Database handle failed", sourceLocation}};
 

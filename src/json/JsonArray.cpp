@@ -4,6 +4,7 @@
 
 JsonArray::JsonArray(std::string_view json) {
     if (json.empty()) return;
+
     for (auto point{json.cbegin() + 1}; *point != ']';) {
         switch (*point) {
             case ',':

@@ -34,13 +34,17 @@ auto HttpRequest::getHeaderValue(std::string_view filed) const -> std::string_vi
 auto HttpRequest::getBody() const noexcept -> std::string_view { return this->body; }
 
 auto HttpRequest::parseLine(std::string_view line) noexcept -> void {
-    unsigned long space{line.find(' ')};
-    this->method = line.substr(0, space);
-    line.remove_prefix(space + 1);
+    {
+        const unsigned long space{line.find(' ')};
+        this->method = line.substr(0, space);
+        line.remove_prefix(space + 1);
+    }
 
-    space = line.find(' ');
-    this->url = line.substr(0, space);
-    line.remove_prefix(space + 1);
+    {
+        const unsigned long space{line.find(' ')};
+        this->url = line.substr(0, space);
+        line.remove_prefix(space + 1);
+    }
 
     this->version = line;
 }
