@@ -37,6 +37,18 @@ wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生�
 
 数据库使用mariadb，通过对mariadb c api的简单封装，实现了数据库的连接与断开，查询和插入，在运行前需要在mariadb中创建数据库和表，如下
 
+```shell
+create database webServer;
+
+use webServer;
+
+CREATE TABLE `users` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `password` varchar(32) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
 ## 定时器
 
 利用时间轮实现定时器，定时器的精度为1s，会自动处理超时的文件描述符
@@ -52,18 +64,6 @@ wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生�
 ## http解析
 
 支持长连接，支持http1.1，支持GET和HEAD和POST请求，支持静态资源请求，支持br压缩，利用mariadb支持登陆与注册，支持网页，图片和视频的请求
-
-```shell
-create database webServer;
-
-use webServer;
-
-CREATE TABLE `users` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `password` varchar(32) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-```
 
 ## 环境
 
