@@ -10,7 +10,7 @@
 #include <format>
 #include <fstream>
 
-HttpParse::HttpParse(Database &&database) : database{std::move(database)} {}
+HttpParse::HttpParse(Database &&database) noexcept : database{std::move(database)} {}
 
 auto HttpParse::parse(std::string_view request) -> std::vector<std::byte> {
     this->httpRequest = HttpRequest{request};

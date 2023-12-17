@@ -24,7 +24,7 @@ public:
 
     [[nodiscard]] auto getSeconds() const noexcept -> std::chrono::seconds;
 
-    auto getBuffer() noexcept -> std::vector<std::byte> &;
+    [[nodiscard]] auto getBuffer() noexcept -> std::vector<std::byte> &;
 
     auto receive() const -> void;
 

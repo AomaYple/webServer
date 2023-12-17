@@ -25,10 +25,10 @@ public:
     auto run() -> void;
 
 private:
-    static auto initializeRing(std::source_location sourceLocation = std::source_location::current())
+    [[nodiscard]] static auto initializeRing(std::source_location sourceLocation = std::source_location::current())
             -> std::shared_ptr<Ring>;
 
-    static auto initializeHttpParse() -> HttpParse;
+    [[nodiscard]] static auto initializeHttpParse() -> HttpParse;
 
     auto frame(const Completion &completion) -> void;
 

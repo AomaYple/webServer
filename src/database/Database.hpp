@@ -9,7 +9,7 @@
 
 class Database {
 public:
-    constexpr Database() noexcept = default;
+    Database() = default;
 
     Database(const Database &) = delete;
 

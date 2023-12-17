@@ -10,14 +10,14 @@ public:
     explicit Log(Level level = Level::info, std::string &&text = "",
                  std::source_location sourceLocation = std::source_location::current(),
                  std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now(),
-                 std::jthread::id threadId = std::this_thread::get_id()) noexcept;
+                 std::jthread::id joinThreadId = std::this_thread::get_id()) noexcept;
 
     [[nodiscard]] auto toString() const -> std::string;
 
 private:
     Level level;
     std::chrono::system_clock::time_point timestamp;
-    std::jthread::id threadId;
+    std::jthread::id joinThreadId;
     std::source_location sourceLocation;
     std::string text;
 };

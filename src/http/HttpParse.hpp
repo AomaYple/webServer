@@ -6,7 +6,7 @@
 
 class HttpParse {
 public:
-    explicit HttpParse(Database &&database);
+    explicit HttpParse(Database &&database) noexcept;
 
     HttpParse(const HttpParse &) = delete;
 
