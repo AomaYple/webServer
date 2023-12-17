@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.27.9)
+cmake_minimum_required(VERSION 3.28.1)
 
 project(webServer)
 
@@ -12,44 +12,45 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 
 target_sources(${PROJECT_NAME} PRIVATE
-        src/coroutine/Awaiter.cpp
-        src/coroutine/Generator.cpp
-
         src/database/Database.cpp
 
-        src/http/http.cpp
+        src/eventLoop/EventLoop.cpp
+
+        src/fileDescriptor/Client.cpp
+        src/fileDescriptor/FileDescriptor.cpp
+        src/fileDescriptor/Server.cpp
+        src/fileDescriptor/Timer.cpp
+
+        src/http/HttpParse.cpp
         src/http/HttpRequest.cpp
         src/http/HttpResponse.cpp
+
+        src/json/JsonArray.cpp
+        src/json/JsonObject.cpp
+        src/json/JsonValue.cpp
 
         src/log/Exception.cpp
         src/log/Log.cpp
         src/log/logger.cpp
         src/log/LogQueue.cpp
 
-        src/scheduler/Scheduler.cpp
-
-        src/socket/Client.cpp
-        src/socket/Server.cpp
-        src/socket/Timer.cpp
-
-        src/userRing/BufferRing.cpp
-        src/userRing/Completion.cpp
-        src/userRing/Event.cpp
-        src/userRing/Outcome.cpp
-        src/userRing/Submission.cpp
-        src/userRing/UserRing.cpp
+        src/ring/Completion.cpp
+        src/ring/Event.cpp
+        src/ring/Ring.cpp
+        src/ring/RingBuffer.cpp
+        src/ring/Submission.cpp
 
         src/main.cpp
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE
         -Wall -Wextra -Wpedantic
-        $<$<CONFIG:Debug>:-Og -fsanitize=address,undefined,leak>
+        $<$<CONFIG:Debug>:-Og -fsanitize=address>
         $<$<CONFIG:Release>:-Ofast>
 )
 
 target_link_options(${PROJECT_NAME} PRIVATE
-        $<$<CONFIG:Debug>:-fsanitize=address,undefined,leak>
+        $<$<CONFIG:Debug>:-fsanitize=address>
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE

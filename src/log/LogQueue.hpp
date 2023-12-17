@@ -11,11 +11,11 @@ class LogQueue {
     };
 
 public:
-    LogQueue() noexcept = default;
+    constexpr LogQueue() noexcept = default;
 
-    LogQueue(const LogQueue &) noexcept;
+    LogQueue(const LogQueue &);
 
-    auto operator=(const LogQueue &) noexcept -> LogQueue &;
+    auto operator=(const LogQueue &) -> LogQueue &;
 
     LogQueue(LogQueue &&) noexcept;
 
@@ -23,14 +23,14 @@ public:
 
     ~LogQueue();
 
-    auto push(Log &&log) noexcept -> void;
+    auto push(Log &&log) -> void;
 
-    [[nodiscard]] auto popAll() noexcept -> std::vector<Log>;
+    [[nodiscard]] auto popAll() -> std::vector<Log>;
 
     auto clear() noexcept -> void;
 
 private:
-    [[nodiscard]] auto copy() const noexcept -> Node *;
+    [[nodiscard]] auto copy() const -> Node *;
 
     [[nodiscard]] auto invert() noexcept -> Node *;
 

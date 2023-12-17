@@ -1,13 +1,13 @@
 #pragma once
 
+#include <source_location>
+
 class Log;
 
 namespace logger {
-    auto initialize() noexcept -> void;
+    auto start(std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto destroy() noexcept -> void;
+    auto stop() noexcept -> void;
 
-    auto push(Log &&log) noexcept -> void;
-
-    auto flush() noexcept -> void;
+    auto push(Log &&log) -> void;
 }// namespace logger

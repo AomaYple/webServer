@@ -1,37 +1,56 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang='zh'>
 <head>
     <meta charset='UTF-8'>
-    <title>Register</title>
+    <title>注册</title>
+    <script>
+        window.onload = function () {
+            document.querySelector('form').addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                fetch('http://localhost:8080', {
+                    method: 'POST',
+                    headers: {
+                        'Content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        method: 'register',
+                        password: document.querySelector('input[name="password"]').value
+                    })
+                }).then(function (response) {
+                    if (response.ok) {
+                        const reader = response.body.getReader();
+
+                        reader.read().then(function (result) {
+                            const body = JSON.parse(new TextDecoder('utf-8').decode(result.value));
+
+                            alert('注册成功，id为' + body.id);
+                            window.location.href = 'http://localhost:8080/login.html'
+                        })
+                    } else {
+                        alert('请求失败' + response.status)
+                    }
+                })
+            })
+        }
+    </script>
 </head>
 <body>
 
-<form action='http://localhost:8080' method='post' onsubmit='return check()'>
+<form>
     <label>
-        password:<input id='password' maxlength='32' minlength='1' name='password' required='required' type='password'>
+        密码：<input maxlength='32' name='password' required='required' type='password'>
     </label>
     <br><br>
     <label>
-        repeatPassword:<input id='repeatPassword' maxlength='32' minlength='1' name='repeatPassword' required='required'
-                              type='password'>
+        再次输入密码：<input maxlength='32' name='repeatPassword' required='required' type='password'>
     </label>
     <br><br>
-    <button type='submit'>register</button>
-    <a href='http://localhost:8080/login.html'>Has Account?</a>
+
+    <button type='submit'>注册</button>
+
+    <a href='http://localhost:8080/login.html'>账号登录</a>
 </form>
-
-<script>
-    function check() {
-        let password = document.getElementById('password').value;
-        let repeatPassword = document.getElementById('repeatPassword').value;
-
-        if (password !== repeatPassword) {
-            alert('passwords are not the same');
-            return false;
-        } else
-            return true;
-    }
-</script>
 
 </body>
 </html>

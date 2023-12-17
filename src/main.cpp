@@ -1,25 +1,23 @@
+#include "eventLoop/EventLoop.hpp"
 #include "log/logger.hpp"
-#include "scheduler/Scheduler.hpp"
 
 #include <thread>
 
-auto main() noexcept -> int {
-    logger::initialize();
+auto main() -> int {
+    logger::start();
+    EventLoop::registerSignal();
 
-    std::vector<std::jthread> works(std::jthread::hardware_concurrency() - 1);
+    std::vector<std::jthread> works{std::jthread::hardware_concurrency() - 2};
+    for (auto &work: works)
+        work = std::jthread{[] {
+            EventLoop eventLoop;
+            eventLoop.run();
+        }};
 
-    Scheduler::registerSignal();
+    EventLoop eventLoop;
+    eventLoop.run();
 
-    for (std::jthread &work: works)
-        work = std::jthread([] {
-            Scheduler scheduler;
-            scheduler.run();
-        });
-
-    Scheduler scheduler;
-    scheduler.run();
-
-    logger::destroy();
+    logger::stop();
 
     return 0;
 }

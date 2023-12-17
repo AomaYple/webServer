@@ -1,22 +1,73 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang='zh'>
 <head>
     <meta charset='UTF-8'>
-    <title>Login</title>
+    <title>登录</title>
+
+    <script>
+        function check() {
+            const id = document.querySelector('input[name="id"]');
+            id.value = id.value.replace(/[^0-9]/g, '');
+
+            const maxId = "18446744073709551615";
+            for (let i = 0; id.value.length === maxId.length && i < id.value.length; ++i) {
+                if (id.value[i] > maxId[i]) {
+                    id.value = maxId;
+                    break
+                }
+            }
+        }
+
+        window.onload = function () {
+            document.querySelector('form').addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                fetch('http://localhost:8080', {
+                    method: 'POST',
+                    headers: {
+                        'Content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        method: 'login',
+                        id: document.querySelector('input[name="id"]').value,
+                        password: document.querySelector('input[name="password"]').value
+                    })
+                }).then(function (response) {
+                    if (response.ok) {
+                        const reader = response.body.getReader();
+
+                        reader.read().then(function (result) {
+                            const body = JSON.parse(new TextDecoder('utf-8').decode(result.value));
+                            if (body.success) {
+                                window.location.href = 'http://localhost:8080/index.html'
+                            } else {
+                                alert('登录失败：' + body.message);
+                            }
+                        })
+                    } else {
+                        alert('请求失败' + response.status)
+                    }
+                });
+            })
+        }
+    </script>
 </head>
 <body>
 
-<form action='http://localhost:8080' method='post'>
+<form>
     <label>
-        id:<input min='1' name='id' required='required' type='number'>
+        账号：<input maxlength='20' name='id' oninput='check()' required='required' type='text'>
     </label>
     <br><br>
+
     <label>
-        password:<input maxlength='32' minlength='1' name='password' required='required' type='password'>
+        密码：<input maxlength='32' name='password' required='required' type='password'>
     </label>
     <br><br>
-    <button type='submit'>login</button>
-    <a href='http://localhost:8080/register.html'>No Account?</a>
+
+    <button type='submit'>登录</button>
+
+    <a href='http://localhost:8080/register.html'>注册账号</a>
 </form>
 
 </body>

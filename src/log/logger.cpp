@@ -1,24 +1,19 @@
 #include "logger.hpp"
 
+#include "Exception.hpp"
 #include "LogQueue.hpp"
 
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 
 static constinit LogQueue logQueue;
 static std::ofstream logFile;
 static constinit std::atomic_flag notice;
-static constinit std::mutex lock;
 static std::jthread worker;
 
-auto logger::initialize() noexcept -> void {
+auto logger::start(std::source_location sourceLocation) -> void {
     logFile.open(std::filesystem::current_path().string() + "/log.log", std::ios::app);
-    if (!logFile) {
-        std::cout << "failed to open log file" << std::endl;
-
-        std::terminate();
-    }
+    if (!logFile) throw Exception{Log{Log::Level::fatal, "failed to open log file", sourceLocation}};
 
     worker = std::jthread([](std::stop_token stopToken) {
         while (!stopToken.stop_requested()) {
@@ -34,27 +29,18 @@ auto logger::initialize() noexcept -> void {
     });
 }
 
-auto logger::destroy() noexcept -> void {
+auto logger::stop() noexcept -> void {
     worker.request_stop();
 
     notice.test_and_set(std::memory_order_relaxed);
     notice.notify_one();
 }
 
-auto logger::push(Log &&log) noexcept -> void {
+auto logger::push(Log &&log) -> void {
     if (!worker.get_stop_token().stop_requested()) {
         logQueue.push(std::move(log));
 
         notice.test_and_set(std::memory_order_relaxed);
         notice.notify_one();
-    }
-}
-
-auto logger::flush() noexcept -> void {
-    const std::lock_guard lockGuard{lock};
-
-    for (const Log &log: logQueue.popAll()) {
-        logFile << log.toString();
-        logFile.flush();
     }
 }

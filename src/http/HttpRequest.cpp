@@ -1,24 +1,23 @@
 #include "HttpRequest.hpp"
 
-#include <ranges>
-
-HttpRequest::HttpRequest(std::string_view request) noexcept {
+HttpRequest::HttpRequest(std::string_view request) {
     bool isParseLine{false}, isParseBody{false};
 
-    static constexpr std::string_view delimiter{"\r\n"};
-    for (const auto &view: request | std::views::split(delimiter)) {
-        const std::string_view value{view};
-
+    for (unsigned long result{request.find("\r\n")}; result != std::string_view::npos && !isParseBody;
+         result = request.find("\r\n")) {
         if (!isParseLine) {
             isParseLine = true;
+            this->parseLine(request.substr(0, result));
 
-            this->parseLine(value);
-        } else if (!value.empty() && !isParseBody)
-            this->parseHeader(value);
-        else if (isParseBody)
-            this->body = value;
+            request.remove_prefix(result + 2);
+        } else if (result == 0) {
+            isParseBody = true;
+            this->body = request.substr(2);
+        } else {
+            this->parseHeader(request.substr(0, result));
 
-        isParseBody = value.empty();
+            request.remove_prefix(result + 2);
+        }
     }
 }
 
@@ -28,25 +27,25 @@ auto HttpRequest::getMethod() const noexcept -> std::string_view { return this->
 
 auto HttpRequest::getUrl() const noexcept -> std::string_view { return this->url; }
 
-auto HttpRequest::getHeaderValue(std::string_view filed) const noexcept -> std::string_view {
-    const auto result{this->headers.find(filed)};
+auto HttpRequest::containsHeader(std::string_view filed) const -> bool { return this->headers.contains(filed); }
 
-    return result == this->headers.cend() ? std::string_view{} : result->second;
-}
+auto HttpRequest::getHeaderValue(std::string_view filed) const -> std::string_view { return this->headers.at(filed); }
 
 auto HttpRequest::getBody() const noexcept -> std::string_view { return this->body; }
 
 auto HttpRequest::parseLine(std::string_view line) noexcept -> void {
-    const auto point{line.cbegin() + line.find(' ')};
-    this->method = {line.cbegin(), point};
+    unsigned long space{line.find(' ')};
+    this->method = line.substr(0, space);
+    line.remove_prefix(space + 1);
 
-    const auto nextPoint{line.cbegin() + line.find(' ', point - line.cbegin() + 2)};
-    this->url = {point + 2, nextPoint};
+    space = line.find(' ');
+    this->url = line.substr(0, space);
+    line.remove_prefix(space + 1);
 
-    this->version = {nextPoint + 6, line.cend()};
+    this->version = line;
 }
 
-auto HttpRequest::parseHeader(std::string_view header) noexcept -> void {
+auto HttpRequest::parseHeader(std::string_view header) -> void {
     const auto point{header.cbegin() + header.find(": ")};
     const std::string_view key{header.cbegin(), point}, value{point + 2, header.cend()};
 

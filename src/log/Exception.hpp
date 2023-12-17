@@ -2,17 +2,17 @@
 
 #include "Log.hpp"
 
-class Exception : std::exception {
+class Exception : public std::exception {
 public:
-    explicit Exception(Log &&log) noexcept;
+    explicit Exception(Log &&log);
 
     Exception(const Exception &) = default;
 
     auto operator=(const Exception &) -> Exception & = default;
 
-    Exception(Exception &&) = default;
+    Exception(Exception &&) noexcept = default;
 
-    auto operator=(Exception &&) -> Exception & = default;
+    auto operator=(Exception &&) noexcept -> Exception & = default;
 
     ~Exception() override = default;
 
@@ -21,6 +21,6 @@ public:
     [[nodiscard]] auto getLog() noexcept -> Log &;
 
 private:
-    std::string message;
+    std::string text;
     Log log;
 };

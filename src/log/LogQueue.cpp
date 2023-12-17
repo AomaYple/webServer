@@ -1,8 +1,8 @@
 #include "LogQueue.hpp"
 
-LogQueue::LogQueue(const LogQueue &other) noexcept : head{other.copy()} {}
+LogQueue::LogQueue(const LogQueue &other) : head{other.copy()} {}
 
-auto LogQueue::operator=(const LogQueue &other) noexcept -> LogQueue & {
+auto LogQueue::operator=(const LogQueue &other) -> LogQueue & {
     if (this != &other) {
         this->clear();
 
@@ -26,7 +26,7 @@ auto LogQueue::operator=(LogQueue &&other) noexcept -> LogQueue & {
 
 LogQueue::~LogQueue() { this->clear(); }
 
-auto LogQueue::push(Log &&log) noexcept -> void {
+auto LogQueue::push(Log &&log) -> void {
     Node *const newHead{new Node{std::move(log), this->head.load(std::memory_order_relaxed)}};
 
     while (!this->head.compare_exchange_weak(newHead->next, newHead, std::memory_order_release,
@@ -34,10 +34,10 @@ auto LogQueue::push(Log &&log) noexcept -> void {
         ;
 }
 
-auto LogQueue::popAll() noexcept -> std::vector<Log> {
+auto LogQueue::popAll() -> std::vector<Log> {
     std::vector<Log> logs;
 
-    for (Node *node{this->invert()}; node;) {
+    for (Node *node{this->invert()}; node != nullptr;) {
         logs.emplace_back(std::move(node->log));
 
         const Node *const oldNode{node};
@@ -58,27 +58,26 @@ auto LogQueue::clear() noexcept -> void {
     }
 }
 
-auto LogQueue::copy() const noexcept -> LogQueue::Node * {
-    Node *node{this->head.load(std::memory_order_relaxed)}, *otherNode{new Node};
+auto LogQueue::copy() const -> LogQueue::Node * {
+    Node *node{this->head.load(std::memory_order_relaxed)}, *newNode{new Node};
 
-    for (Node *current{otherNode}; node; node = node->next) {
+    for (Node *current{newNode}; node != nullptr; node = node->next) {
         current->next = new Node{node->log};
         current = current->next;
     }
 
-    const Node *const oldOtherNode{otherNode};
-    otherNode = otherNode->next;
-    delete oldOtherNode;
+    const Node *const oldNewNode{newNode};
+    newNode = newNode->next;
+    delete oldNewNode;
 
-    return otherNode;
+    return newNode;
 }
 
 auto LogQueue::invert() noexcept -> Node * {
     Node *node{this->head.exchange(nullptr, std::memory_order_relaxed)}, *previous{};
 
-    while (node) {
+    while (node != nullptr) {
         Node *const next{node->next};
-
         node->next = previous;
         previous = node;
         node = next;

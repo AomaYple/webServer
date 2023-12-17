@@ -1,48 +1,36 @@
 #include "HttpResponse.hpp"
 
-auto HttpResponse::setVersion(std::string_view newVersion) noexcept -> void {
-    this->version.clear();
+static constexpr std::array<const std::byte, 2> delimiter{std::byte{'\r'}, std::byte{'\n'}};
 
-    this->version.emplace_back(std::byte{'H'});
-    this->version.emplace_back(std::byte{'T'});
-    this->version.emplace_back(std::byte{'T'});
-    this->version.emplace_back(std::byte{'P'});
-    this->version.emplace_back(std::byte{'/'});
-
+auto HttpResponse::setVersion(std::string_view newVersion) -> void {
     const std::span<const std::byte> value{std::as_bytes(std::span{newVersion})};
-    this->version.insert(this->version.cend(), value.cbegin(), value.cend());
+    this->version = {value.cbegin(), value.cend()};
 
     this->version.emplace_back(std::byte{' '});
 }
 
-auto HttpResponse::setStatusCode(std::string_view newStatusCode) noexcept -> void {
-    this->statusCode.clear();
-
+auto HttpResponse::setStatusCode(std::string_view newStatusCode) -> void {
     const std::span<const std::byte> value{std::as_bytes(std::span{newStatusCode})};
-    this->statusCode.insert(this->statusCode.cend(), value.cbegin(), value.cend());
+    this->statusCode = {value.cbegin(), value.cend()};
 
-    this->statusCode.emplace_back(std::byte{'\r'});
-    this->statusCode.emplace_back(std::byte{'\n'});
+    this->statusCode.insert(this->statusCode.cend(), delimiter.cbegin(), delimiter.cend());
 }
 
-auto HttpResponse::addHeader(std::string_view header) noexcept -> void {
+auto HttpResponse::addHeader(std::string_view header) -> void {
     const std::span<const std::byte> value{std::as_bytes(std::span{header})};
     this->headers.insert(this->headers.cend(), value.cbegin(), value.cend());
 
-    this->headers.emplace_back(std::byte{'\r'});
-    this->headers.emplace_back(std::byte{'\n'});
+    this->headers.insert(this->headers.cend(), delimiter.cbegin(), delimiter.cend());
 }
 
-auto HttpResponse::setBody(std::span<const std::byte> newBody) noexcept -> void {
-    this->body.clear();
+auto HttpResponse::clearHeaders() noexcept -> void { this->headers.clear(); }
 
-    this->body.emplace_back(std::byte{'\r'});
-    this->body.emplace_back(std::byte{'\n'});
-
+auto HttpResponse::setBody(std::span<const std::byte> newBody) -> void {
+    this->body = {delimiter.cbegin(), delimiter.cend()};
     this->body.insert(this->body.cend(), newBody.cbegin(), newBody.cend());
 }
 
-auto HttpResponse::toBytes() const noexcept -> std::vector<std::byte> {
+auto HttpResponse::toBytes() const -> std::vector<std::byte> {
     std::vector<std::byte> bytes;
 
     bytes.insert(bytes.cend(), this->version.cbegin(), this->version.cend());
