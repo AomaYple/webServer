@@ -60,34 +60,32 @@ auto EventLoop::run() -> void {
 
     while (EventLoop::switcher.test(std::memory_order_relaxed)) {
         this->ring->wait(1);
-        this->ring->traverseCompletion([this](const Completion &completion) { this->frame(completion); });
-    }
-}
+        this->ring->traverseCompletion([this](const Completion &completion) {
+            const int result{completion.result}, fileDescriptor{completion.event.fileDescriptor};
+            const unsigned int flags{completion.flags};
 
-auto EventLoop::frame(const Completion &completion) -> void {
-    const int result{completion.result}, fileDescriptor{completion.event.fileDescriptor};
-    const unsigned int flags{completion.flags};
-
-    switch (completion.event.type) {
-        case Event::Type::accept:
-            if (result >= 0 || std::abs(result) != ECANCELED) this->accepted(result, flags);
-            break;
-        case Event::Type::timing:
-            if (result >= 0 || std::abs(result) != ECANCELED) this->timed(result);
-            break;
-        case Event::Type::receive:
-            if (result >= 0 || std::abs(result) != ECANCELED) this->received(fileDescriptor, result, flags);
-            break;
-        case Event::Type::send:
-            if (!(flags & IORING_CQE_F_NOTIF) || (result < 0 && std::abs(result) != ECANCELED))
-                this->sent(fileDescriptor, result);
-            break;
-        case Event::Type::cancel:
-            EventLoop::canceled(fileDescriptor, result);
-            break;
-        case Event::Type::close:
-            EventLoop::closed(fileDescriptor, result);
-            break;
+            switch (completion.event.type) {
+                case Event::Type::accept:
+                    if (result >= 0 || std::abs(result) != ECANCELED) this->accepted(result, flags);
+                    break;
+                case Event::Type::timing:
+                    if (result >= 0 || std::abs(result) != ECANCELED) this->timed(result);
+                    break;
+                case Event::Type::receive:
+                    if (result >= 0 || std::abs(result) != ECANCELED) this->received(fileDescriptor, result, flags);
+                    break;
+                case Event::Type::send:
+                    if (!(flags & IORING_CQE_F_NOTIF) || (result < 0 && std::abs(result) != ECANCELED))
+                        this->sent(fileDescriptor, result);
+                    break;
+                case Event::Type::cancel:
+                    EventLoop::canceled(fileDescriptor, result);
+                    break;
+                case Event::Type::close:
+                    EventLoop::closed(fileDescriptor, result);
+                    break;
+            }
+        });
     }
 }
 

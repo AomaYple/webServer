@@ -25,8 +25,6 @@ public:
     auto run() -> void;
 
 private:
-    auto frame(const Completion &completion) -> void;
-
     auto accepted(int result, unsigned int flags, std::source_location sourceLocation = std::source_location::current())
             -> void;
 
