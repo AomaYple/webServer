@@ -42,11 +42,9 @@ auto HttpResponse::toBytes() const -> std::vector<std::byte> {
     std::vector<std::byte> bytes{this->version.size() + this->statusCode.size() + this->headers.size() +
                                  this->body.size()};
 
-    std::copy(std::execution::par_unseq, this->version.cbegin(), this->version.cend(), bytes.begin());
-    std::copy(std::execution::par_unseq, this->statusCode.cbegin(), this->statusCode.cend(),
-              bytes.begin() + static_cast<long>(this->version.size()));
-    std::copy(std::execution::par_unseq, this->headers.cbegin(), this->headers.cend(),
-              bytes.begin() + static_cast<long>(this->version.size() + this->statusCode.size()));
+    std::ranges::copy(this->version, bytes.begin());
+    std::ranges::copy(this->statusCode, bytes.begin() + static_cast<long>(this->version.size()));
+    std::ranges::copy(this->headers, bytes.begin() + static_cast<long>(this->version.size() + this->statusCode.size()));
     std::copy(std::execution::par_unseq, this->body.cbegin(), this->body.cend(),
               bytes.end() - static_cast<long>(this->body.size()));
 
