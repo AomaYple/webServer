@@ -1,11 +1,11 @@
 #include "HttpParse.hpp"
 
 #include "../json/JsonValue.hpp"
-#include "../log/Exception.hpp"
 #include "../log/logger.hpp"
 
 #include <brotli/encode.h>
 
+#include <execution>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -83,8 +83,10 @@ auto HttpParse::parseMethod() -> void {
         }
 
         const std::string stringBody{jsonBody.toString()};
-        const std::span<const std::byte> spanBody{std::as_bytes(std::span{stringBody})};
-        this->body = {spanBody.cbegin(), spanBody.cend()};
+
+        this->body.resize(stringBody.size());
+        std::transform(std::execution::par_unseq, stringBody.cbegin(), stringBody.cend(), this->body.begin(),
+                       [](const char element) { return static_cast<std::byte>(element); });
     } else
         this->httpResponse.setStatusCode("405 Method Not Allowed");
 }
@@ -145,12 +147,12 @@ auto HttpParse::parseResource(const std::string &resourcePath) -> void {
         if (range.first > range.second || range.second >= resourceSize) {
             this->httpResponse.setStatusCode("416 Range Not Satisfiable");
             this->httpResponse.clearHeaders();
+
+            return;
         } else {
             this->httpResponse.setStatusCode("206 Partial Content");
             this->httpResponse.addHeader("Content-Range: bytes " + stringStart + '-' + stringEnd + '/' +
                                          std::to_string(resourceSize));
-
-            this->readResource(resourcePath, range);
         }
     } else if (resourceSize > maxSize) {
         this->httpResponse.setStatusCode("206 Partial Content");
@@ -158,13 +160,13 @@ auto HttpParse::parseResource(const std::string &resourcePath) -> void {
                                      std::to_string(resourceSize));
 
         range = {0, maxSize - 1};
-        this->readResource(resourcePath, range);
     } else {
         this->httpResponse.setStatusCode("200 OK");
 
         range = {0, resourceSize - 1};
-        this->readResource(resourcePath, range);
     }
+
+    this->readResource(resourcePath, range);
 }
 
 auto HttpParse::readResource(const std::string &resourcePath, std::pair<long, long> range,

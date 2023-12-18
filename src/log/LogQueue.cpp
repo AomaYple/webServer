@@ -3,11 +3,9 @@
 LogQueue::LogQueue(const LogQueue &other) : head{other.copy()} {}
 
 auto LogQueue::operator=(const LogQueue &other) -> LogQueue & {
-    if (this != &other) {
-        this->clear();
+    this->clear();
 
-        this->head.store(other.copy(), std::memory_order_relaxed);
-    }
+    this->head.store(other.copy(), std::memory_order_relaxed);
 
     return *this;
 }
@@ -15,11 +13,9 @@ auto LogQueue::operator=(const LogQueue &other) -> LogQueue & {
 LogQueue::LogQueue(LogQueue &&other) noexcept : head{other.head.exchange(nullptr, std::memory_order_relaxed)} {}
 
 auto LogQueue::operator=(LogQueue &&other) noexcept -> LogQueue & {
-    if (this != &other) {
-        this->clear();
+    this->clear();
 
-        this->head.store(other.head.exchange(nullptr, std::memory_order_relaxed), std::memory_order_relaxed);
-    }
+    this->head.store(other.head.exchange(nullptr, std::memory_order_relaxed), std::memory_order_relaxed);
 
     return *this;
 }

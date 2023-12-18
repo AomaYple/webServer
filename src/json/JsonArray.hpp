@@ -9,8 +9,6 @@ class JsonArray {
 public:
     explicit JsonArray(std::string_view json = std::string_view{});
 
-    [[nodiscard]] auto toString() const -> std::string;
-
     auto add(JsonValue &&value) -> void;
 
     [[nodiscard]] auto operator[](unsigned long index) const noexcept -> const JsonValue &;
@@ -18,6 +16,8 @@ public:
     [[nodiscard]] auto operator[](unsigned long index) noexcept -> JsonValue &;
 
     auto remove(long index) -> void;
+
+    [[nodiscard]] auto toString() const -> std::string;
 
     [[nodiscard]] auto stringSize() const -> unsigned long;
 

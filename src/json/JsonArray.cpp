@@ -2,6 +2,8 @@
 
 #include "JsonValue.hpp"
 
+#include <execution>
+
 JsonArray::JsonArray(std::string_view json) {
     if (json.empty()) return;
 
@@ -62,6 +64,14 @@ JsonArray::JsonArray(std::string_view json) {
     }
 }
 
+auto JsonArray::add(JsonValue &&value) -> void { this->values.emplace_back(std::move(value)); }
+
+auto JsonArray::operator[](unsigned long index) const noexcept -> const JsonValue & { return this->values[index]; }
+
+auto JsonArray::operator[](unsigned long index) noexcept -> JsonValue & { return this->values[index]; }
+
+auto JsonArray::remove(long index) -> void { this->values.erase(this->values.cbegin() + index); }
+
 auto JsonArray::toString() const -> std::string {
     std::string result{'['};
     for (const auto &value: this->values) result += value.toString() + ',';
@@ -72,19 +82,12 @@ auto JsonArray::toString() const -> std::string {
     return result;
 }
 
-auto JsonArray::add(JsonValue &&value) -> void { this->values.emplace_back(std::move(value)); }
-
-auto JsonArray::operator[](unsigned long index) const noexcept -> const JsonValue & { return this->values[index]; }
-
-auto JsonArray::operator[](unsigned long index) noexcept -> JsonValue & { return this->values[index]; }
-
-auto JsonArray::remove(long index) -> void { this->values.erase(this->values.cbegin() + index); }
-
 auto JsonArray::stringSize() const -> unsigned long {
     unsigned long size{2};
     if (this->values.size() > 1) size += this->values.size() - 1;
 
-    for (const auto &value: this->values) size += value.stringSize();
+    std::for_each(std::execution::unseq, this->values.cbegin(), this->values.cend(),
+                  [&size](const auto &value) { size += value.stringSize(); });
 
     return size;
 }

@@ -16,7 +16,7 @@ public:
 
     Server(Server &&) noexcept = default;
 
-    auto operator=(Server &&) -> Server & = delete;
+    auto operator=(Server &&) noexcept -> Server & = default;
 
     ~Server() = default;
 

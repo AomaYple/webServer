@@ -8,7 +8,7 @@ class HttpResponse {
 public:
     constexpr HttpResponse() noexcept = default;
 
-    auto setVersion(std::string_view newVersion) -> void;
+    auto setVersion(std::string_view element) -> void;
 
     auto setStatusCode(std::string_view newStatusCode) -> void;
 

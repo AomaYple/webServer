@@ -1,17 +1,13 @@
 #include "Database.hpp"
 
-#include "../log/Exception.hpp"
-
 #include <utility>
 
 Database::Database(Database &&other) noexcept : handle{std::exchange(other.handle, nullptr)} {}
 
 auto Database::operator=(Database &&other) noexcept -> Database & {
-    if (this != &other) {
-        this->destroy();
+    this->destroy();
 
-        this->handle = std::exchange(other.handle, nullptr);
-    }
+    this->handle = std::exchange(other.handle, nullptr);
 
     return *this;
 }
@@ -42,16 +38,6 @@ auto Database::inquire(std::string_view statement) -> std::vector<std::vector<st
     Database::freeResult(result);
 
     return outcome;
-}
-
-auto Database::initialize(std::source_location sourceLocation) -> MYSQL * {
-    const std::lock_guard lockGuard{Database::lock};
-
-    MYSQL *const handle{mysql_init(nullptr)};
-    if (handle == nullptr)
-        throw Exception{Log{Log::Level::fatal, "initialization of Database handle failed", sourceLocation}};
-
-    return handle;
 }
 
 auto Database::destroy() const noexcept -> void {

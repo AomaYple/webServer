@@ -37,71 +37,41 @@ auto JsonValue::getObject() const -> const JsonObject & { return std::get<JsonOb
 auto JsonValue::getObject() -> JsonObject & { return std::get<JsonObject>(this->value); }
 
 auto JsonValue::toString() const -> std::string {
-    std::string result;
-
     switch (this->type) {
         case Type::null:
-            result = "null";
-
-            break;
+            return "null";
         case Type::boolean:
-            result = std::get<bool>(this->value) ? "true" : "false";
-
-            break;
-        case Type::number: {
-            result = this->numberToString();
-
-            break;
-        }
+            return std::get<bool>(this->value) ? "true" : "false";
+        case Type::number:
+            return this->numberToString();
         case Type::string:
-            result = '"' + std::get<std::string>(this->value) + '"';
-
-            break;
+            return '"' + std::get<std::string>(this->value) + '"';
         case Type::array:
-            result = std::get<JsonArray>(this->value).toString();
-
-            break;
+            return std::get<JsonArray>(this->value).toString();
         case Type::object:
-            result = std::get<JsonObject>(this->value).toString();
-
-            break;
+            return std::get<JsonObject>(this->value).toString();
     }
 
-    return result;
+    return "";
 }
 
 auto JsonValue::stringSize() const -> unsigned long {
-    unsigned long size{0};
-
     switch (this->type) {
         case Type::null:
-            size = 4;
-
-            break;
+            return 4;
         case Type::boolean:
-            size = std::get<bool>(this->value) ? 4 : 5;
-
-            break;
-        case Type::number: {
-            size = this->numberToString().size();
-
-            break;
-        }
+            return std::get<bool>(this->value) ? 4 : 5;
+        case Type::number:
+            return this->numberToString().size();
         case Type::string:
-            size = std::get<std::string>(this->value).size() + 2;
-
-            break;
+            return std::get<std::string>(this->value).size() + 2;
         case Type::array:
-            size = std::get<JsonArray>(this->value).stringSize();
-
-            break;
+            return std::get<JsonArray>(this->value).stringSize();
         case Type::object:
-            size = std::get<JsonObject>(this->value).stringSize();
-
-            break;
+            return std::get<JsonObject>(this->value).stringSize();
     }
 
-    return size;
+    return 0;
 }
 
 auto JsonValue::numberToString() const -> std::string {

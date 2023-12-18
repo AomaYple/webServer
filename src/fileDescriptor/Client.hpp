@@ -16,7 +16,7 @@ public:
 
     Client(Client &&) noexcept = default;
 
-    auto operator=(Client &&) -> Client & = delete;
+    auto operator=(Client &&) noexcept -> Client & = default;
 
     ~Client() = default;
 
@@ -32,6 +32,6 @@ public:
 
 private:
     RingBuffer ringBuffer;
-    const std::chrono::seconds seconds;
+    std::chrono::seconds seconds;
     std::vector<std::byte> buffer;
 };

@@ -16,7 +16,7 @@ public:
 
     Timer(Timer &&) noexcept = default;
 
-    auto operator=(Timer &&) -> Timer & = delete;
+    auto operator=(Timer &&) noexcept -> Timer & = default;
 
     ~Timer() = default;
 

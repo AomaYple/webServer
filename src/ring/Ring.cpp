@@ -21,12 +21,10 @@ Ring::Ring(unsigned int entries, io_uring_params &params) : handle{Ring::initial
 Ring::Ring(Ring &&other) noexcept : handle{other.handle} { other.handle.ring_fd = -1; }
 
 auto Ring::operator=(Ring &&other) noexcept -> Ring & {
-    if (this != &other) {
-        this->destroy();
+    this->destroy();
 
-        this->handle = other.handle;
-        other.handle.ring_fd = -1;
-    }
+    this->handle = other.handle;
+    other.handle.ring_fd = -1;
 
     return *this;
 }

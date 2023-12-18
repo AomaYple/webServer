@@ -27,7 +27,6 @@ Server::Server(int fileDescriptor, std::shared_ptr<Ring> ring) : FileDescriptor(
 auto Server::accept() const -> void {
     const Submission submission{Event{Event::Type::accept, this->getFileDescriptor()}, IOSQE_FIXED_FILE,
                                 Submission::AcceptParameters{nullptr, nullptr, 0}};
-
     this->getRing()->submit(submission);
 }
 

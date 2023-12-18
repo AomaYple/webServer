@@ -12,22 +12,22 @@ public:
 
     auto operator=(const FileDescriptor &) -> FileDescriptor & = delete;
 
-    FileDescriptor(FileDescriptor &&) noexcept = default;
+    FileDescriptor(FileDescriptor &&) noexcept;
 
-    auto operator=(FileDescriptor &&) -> FileDescriptor & = delete;
+    auto operator=(FileDescriptor &&) noexcept -> FileDescriptor &;
 
-    ~FileDescriptor() = default;
+    ~FileDescriptor();
 
     [[nodiscard]] auto getFileDescriptor() const noexcept -> int;
-
-    auto cancel() const -> void;
-
-    auto close() const -> void;
 
 protected:
     [[nodiscard]] auto getRing() const noexcept -> std::shared_ptr<Ring>;
 
 private:
-    const int fileDescriptor;
+    auto cancel() const -> void;
+
+    auto close() const -> void;
+
+    int fileDescriptor;
     std::shared_ptr<Ring> ring;
 };

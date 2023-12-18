@@ -6,6 +6,7 @@
 #include <sys/timerfd.h>
 
 #include <cstring>
+#include <execution>
 
 auto Timer::create() -> int {
     const int fileDescriptor{Timer::createTimerFileDescriptor()};
@@ -21,25 +22,27 @@ auto Timer::clearTimeout() -> std::vector<int> {
     std::vector<int> result;
 
     while (this->expireCount > 0) {
-        {
-            std::unordered_map<int, std::chrono::seconds> &wheelPoint{this->wheel[this->now.count()]};
-            for (auto element{wheelPoint.cbegin()}; element != wheelPoint.cend();) {
-                if (element->second.count() == 0) {
-                    result.emplace_back(element->first);
-                    this->location.erase(element->first);
+        std::unordered_map<int, std::chrono::seconds> &wheelPoint{this->wheel[this->now.count()]};
+        for (auto element{wheelPoint.cbegin()}; element != wheelPoint.cend();) {
+            if (element->second.count() == 0) {
+                result.emplace_back(element->first);
+                this->location.erase(element->first);
 
-                    element = wheelPoint.erase(element);
-                } else
-                    ++element;
-            }
+                element = wheelPoint.erase(element);
+            } else
+                ++element;
         }
 
 
         this->now = ++this->now % this->wheel.size();
         if (this->now.count() == 0)
-            for (auto &wheelPoint: this->wheel)
-                for (auto &element: wheelPoint)
-                    if (element.second.count() != 0) --element.second;
+            std::for_each(std::execution::par_unseq, this->wheel.begin(), this->wheel.end(),
+                          [](std::unordered_map<int, std::chrono::seconds> &wheelPoint) {
+                              std::for_each(std::execution::par_unseq, wheelPoint.begin(), wheelPoint.end(),
+                                            [](std::pair<const int, std::chrono::seconds> &element) noexcept {
+                                                --element.second;
+                                            });
+                          });
 
         --this->expireCount;
     }
@@ -72,7 +75,6 @@ auto Timer::timing() -> void {
     const Submission submission{
             Event{Event::Type::timing, this->getFileDescriptor()}, IOSQE_FIXED_FILE,
             Submission::ReadParameters{std::as_writable_bytes(std::span{&this->expireCount, 1}), 0}};
-
     this->getRing()->submit(submission);
 }
 

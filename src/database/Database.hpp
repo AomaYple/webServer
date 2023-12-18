@@ -1,10 +1,9 @@
 #pragma once
 
+#include "../log/Exception.hpp"
+
 #include <mysql/mysql.h>
 
-#include <mutex>
-#include <source_location>
-#include <string_view>
 #include <vector>
 
 class Database {
@@ -28,9 +27,6 @@ public:
     auto inquire(std::string_view statement) -> std::vector<std::vector<std::string>>;
 
 private:
-    [[nodiscard]] static auto initialize(std::source_location sourceLocation = std::source_location::current())
-            -> MYSQL *;
-
     auto destroy() const noexcept -> void;
 
     auto query(std::string_view statement, std::source_location sourceLocation = std::source_location::current()) const
@@ -47,5 +43,13 @@ private:
 
     static constinit std::mutex lock;
 
-    MYSQL *handle{Database::initialize()};
+    MYSQL *handle{[](std::source_location sourceLocation = std::source_location::current()) {
+        const std::lock_guard lockGuard{Database::lock};
+
+        MYSQL *const temporaryHandle{mysql_init(nullptr)};
+        if (temporaryHandle == nullptr)
+            throw Exception{Log{Log::Level::fatal, "initialization of Database handle failed", sourceLocation}};
+
+        return temporaryHandle;
+    }()};
 };

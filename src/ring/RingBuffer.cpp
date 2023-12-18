@@ -1,6 +1,6 @@
 #include "RingBuffer.hpp"
 
-#include <utility>
+#include <execution>
 
 RingBuffer::RingBuffer(unsigned int entries, unsigned int bufferSize, int id, std::shared_ptr<Ring> ring)
     : handle{ring->setupRingBuffer(entries, id)},
@@ -15,16 +15,14 @@ RingBuffer::RingBuffer(RingBuffer &&other) noexcept
       offset{other.offset}, ring{std::move(other.ring)} {}
 
 auto RingBuffer::operator=(RingBuffer &&other) noexcept -> RingBuffer & {
-    if (this != &other) {
-        this->destroy();
+    this->destroy();
 
-        this->handle = std::exchange(other.handle, nullptr);
-        this->buffers = std::move(other.buffers);
-        this->id = other.id;
-        this->mask = other.mask;
-        this->offset = other.offset;
-        this->ring = std::move(other.ring);
-    }
+    this->handle = std::exchange(other.handle, nullptr);
+    this->buffers = std::move(other.buffers);
+    this->id = other.id;
+    this->mask = other.mask;
+    this->offset = other.offset;
+    this->ring = std::move(other.ring);
 
     return *this;
 }
@@ -35,7 +33,9 @@ auto RingBuffer::getId() const noexcept -> int { return this->id; }
 
 auto RingBuffer::getData(unsigned short index, unsigned int dataSize) -> std::vector<std::byte> {
     std::vector<std::byte> &buffer{this->buffers[index]};
-    std::vector<std::byte> data{buffer.cbegin(), buffer.cbegin() + dataSize};
+
+    std::vector<std::byte> data{dataSize};
+    std::copy(std::execution::par_unseq, buffer.cbegin(), buffer.cbegin() + dataSize, data.begin());
 
     buffer.resize(dataSize * 2);
 

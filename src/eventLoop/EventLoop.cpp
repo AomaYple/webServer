@@ -1,11 +1,11 @@
 #include "EventLoop.hpp"
 
 #include "../fileDescriptor/Client.hpp"
-#include "../log/Exception.hpp"
 #include "../log/logger.hpp"
 #include "../ring/Completion.hpp"
 
 #include <cstring>
+#include <execution>
 
 auto EventLoop::registerSignal(std::source_location sourceLocation) -> void {
     struct sigaction signalAction {};
@@ -36,8 +36,6 @@ EventLoop::EventLoop() {
 }
 
 EventLoop::~EventLoop() {
-    this->closeAll();
-
     {
         const std::lock_guard lockGuard{EventLoop::lock};
 
@@ -64,47 +62,6 @@ auto EventLoop::run() -> void {
         this->ring->wait(1);
         this->ring->traverseCompletion([this](const Completion &completion) { this->frame(completion); });
     }
-
-    this->cancelAll();
-}
-
-auto EventLoop::initializeRing(std::source_location sourceLocation) -> std::shared_ptr<Ring> {
-    if (EventLoop::instance)
-        throw Exception{Log{Log::Level::fatal, "one thread can only have one EventLoop", sourceLocation}};
-    EventLoop::instance = true;
-
-    io_uring_params params{};
-    params.flags = IORING_SETUP_SUBMIT_ALL | IORING_SETUP_CLAMP | IORING_SETUP_COOP_TASKRUN |
-                   IORING_SETUP_TASKRUN_FLAG | IORING_SETUP_SINGLE_ISSUER | IORING_SETUP_DEFER_TASKRUN;
-
-
-    const std::lock_guard lockGuard{EventLoop::lock};
-
-    if (EventLoop::sharedRingFileDescriptor != -1) {
-        params.wq_fd = EventLoop::sharedRingFileDescriptor;
-        params.flags |= IORING_SETUP_ATTACH_WQ;
-    }
-
-    const std::shared_ptr<Ring> ring{std::make_shared<Ring>(1024, params)};
-
-    if (EventLoop::sharedRingFileDescriptor == -1) EventLoop::sharedRingFileDescriptor = ring->getFileDescriptor();
-
-    const auto result{std::ranges::find(EventLoop::ringFileDescriptors, -1)};
-    if (result != EventLoop::ringFileDescriptors.cend()) {
-        *result = ring->getFileDescriptor();
-    } else
-        throw Exception{Log{Log::Level::fatal, "too many EventLoop", sourceLocation}};
-
-    return ring;
-}
-
-auto EventLoop::initializeHttpParse() -> HttpParse {
-    Database database;
-    database.connect({}, "AomaYple", "38820233", "webServer", 0, {}, 0);
-
-    HttpParse httpParse{std::move(database)};
-
-    return httpParse;
 }
 
 auto EventLoop::frame(const Completion &completion) -> void {
@@ -126,10 +83,10 @@ auto EventLoop::frame(const Completion &completion) -> void {
                 this->sent(fileDescriptor, result);
             break;
         case Event::Type::cancel:
-            this->canceled(fileDescriptor, result);
+            EventLoop::canceled(fileDescriptor, result);
             break;
         case Event::Type::close:
-            this->closed(fileDescriptor, result);
+            EventLoop::closed(fileDescriptor, result);
             break;
     }
 }
@@ -147,7 +104,7 @@ auto EventLoop::accepted(int result, unsigned int flags, std::source_location so
 
 auto EventLoop::timed(int result, std::source_location sourceLocation) -> void {
     if (result == sizeof(unsigned long)) {
-        for (const int fileDescriptor: this->timer.clearTimeout()) this->clients.at(fileDescriptor).cancel();
+        for (const int fileDescriptor: this->timer.clearTimeout()) this->clients.erase(fileDescriptor);
 
         this->timer.timing();
     } else
@@ -161,13 +118,15 @@ auto EventLoop::received(int fileDescriptor, int result, unsigned int flags, std
     if ((flags & IORING_CQE_F_MORE) && result > 0) {
         std::vector<std::byte> &buffer{client.getBuffer()};
 
-        const std::vector<std::byte> request{client.getReceivedData(flags >> IORING_CQE_BUFFER_SHIFT, result)};
-        buffer.insert(buffer.cend(), request.begin(), request.end());
+        const std::vector<std::byte> receivedData{client.getReceivedData(flags >> IORING_CQE_BUFFER_SHIFT, result)};
+        buffer.resize(buffer.size() + receivedData.size());
+        std::copy(std::execution::par_unseq, receivedData.cbegin(), receivedData.cend(),
+                  buffer.end() - static_cast<long>(receivedData.size()));
 
         if (!(flags & IORING_CQE_F_SOCK_NONEMPTY)) {
             buffer.emplace_back(std::byte{'\0'});
             std::vector<std::byte> response{this->httpParse.parse(
-                    std::string{reinterpret_cast<const char *>(buffer.data()), buffer.size() - 1})};
+                    std::string_view{reinterpret_cast<const char *>(buffer.data()), buffer.size() - 1})};
 
             buffer.clear();
             buffer = std::move(response);
@@ -176,8 +135,8 @@ auto EventLoop::received(int fileDescriptor, int result, unsigned int flags, std
             this->timer.update(fileDescriptor, client.getSeconds());
         }
     } else {
-        client.cancel();
         this->timer.remove(fileDescriptor);
+        this->clients.erase(fileDescriptor);
 
         logger::push(Log{Log::Level::error, std::strerror(std::abs(result)), sourceLocation});
     }
@@ -187,46 +146,24 @@ auto EventLoop::sent(int fileDescriptor, int result, std::source_location source
     Client &client{this->clients.at(fileDescriptor)};
 
     if (result < 0) {
-        client.cancel();
         this->timer.remove(fileDescriptor);
+        this->clients.erase(fileDescriptor);
 
         logger::push(Log{Log::Level::error, std::strerror(std::abs(result)), sourceLocation});
     } else
         client.getBuffer().clear();
 }
 
-auto EventLoop::canceled(int fileDescriptor, int result, std::source_location sourceLocation) const -> void {
-    if (result < 0) logger::push(Log{Log::Level::error, std::strerror(std::abs(result)), sourceLocation});
-
-    if (fileDescriptor == this->server.getFileDescriptor()) this->server.close();
-    else if (fileDescriptor == this->timer.getFileDescriptor())
-        this->timer.close();
-    else
-        this->clients.at(fileDescriptor).close();
+auto EventLoop::canceled(int fileDescriptor, int result, std::source_location sourceLocation) -> void {
+    if (result < 0)
+        logger::push(Log{Log::Level::error, std::to_string(fileDescriptor) + ": " + std::strerror(std::abs(result)),
+                         sourceLocation});
 }
 
 auto EventLoop::closed(int fileDescriptor, int result, std::source_location sourceLocation) -> void {
-    if (result < 0) logger::push(Log{Log::Level::error, std::strerror(std::abs(result)), sourceLocation});
-
-    this->clients.erase(fileDescriptor);
-}
-
-auto EventLoop::cancelAll() -> void {
-    this->server.cancel();
-    this->timer.cancel();
-    for (const auto &client: this->clients) client.second.cancel();
-
-    this->ring->wait(4 + this->clients.size() * 2);
-    this->ring->traverseCompletion([this](const Completion &completion) { this->frame(completion); });
-}
-
-auto EventLoop::closeAll() -> void {
-    this->server.close();
-    this->timer.close();
-    for (const auto &client: this->clients) client.second.close();
-
-    this->ring->wait(2 + this->clients.size());
-    this->ring->traverseCompletion([this](const Completion &completion) { this->frame(completion); });
+    if (result < 0)
+        logger::push(Log{Log::Level::error, std::to_string(fileDescriptor) + ": " + std::strerror(std::abs(result)),
+                         sourceLocation});
 }
 
 constinit thread_local bool EventLoop::instance{false};

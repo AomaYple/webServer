@@ -2,6 +2,8 @@
 
 #include "JsonValue.hpp"
 
+#include <execution>
+
 JsonObject::JsonObject(std::string_view json) {
     if (json.empty()) return;
 
@@ -63,6 +65,14 @@ JsonObject::JsonObject(std::string_view json) {
     }
 }
 
+auto JsonObject::add(std::string_view key, JsonValue &&value) -> void { this->values.emplace(key, std::move(value)); }
+
+auto JsonObject::operator[](const std::string &key) const -> const JsonValue & { return this->values.at(key); }
+
+auto JsonObject::operator[](const std::string &key) -> JsonValue & { return this->values.at(key); }
+
+auto JsonObject::remove(const std::string &key) -> void { this->values.erase(key); }
+
 auto JsonObject::toString() const -> std::string {
     std::string result{'{'};
     for (const auto &value: this->values) result += '"' + value.first + "\":" + value.second.toString() + ',';
@@ -73,19 +83,12 @@ auto JsonObject::toString() const -> std::string {
     return result;
 }
 
-auto JsonObject::add(std::string_view key, JsonValue &&value) -> void { this->values.emplace(key, std::move(value)); }
-
-auto JsonObject::operator[](const std::string &key) const -> const JsonValue & { return this->values.at(key); }
-
-auto JsonObject::operator[](const std::string &key) -> JsonValue & { return this->values.at(key); }
-
-auto JsonObject::remove(const std::string &key) -> void { this->values.erase(key); }
-
 auto JsonObject::stringSize() const -> unsigned long {
     unsigned long size{2};
     if (this->values.size() > 1) size += this->values.size() - 1;
 
-    for (const auto &value: this->values) size += value.first.size() + 3 + value.second.stringSize();
+    std::for_each(std::execution::unseq, this->values.cbegin(), this->values.cend(),
+                  [&size](const auto &value) { size += value.first.size() + 3 + value.second.stringSize(); });
 
     return size;
 }
