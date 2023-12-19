@@ -39,6 +39,6 @@ private:
 
     unsigned long expireCount{};
     std::chrono::seconds now{};
-    std::array<std::unordered_map<int, std::chrono::seconds>, 61> wheel;
-    std::unordered_map<int, std::chrono::seconds> location;
+    std::array<std::unordered_map<int, unsigned long>, 61> wheel;
+    std::unordered_map<int, unsigned long> location;
 };

@@ -22,9 +22,9 @@ auto Timer::clearTimeout() -> std::vector<int> {
     std::vector<int> result;
 
     while (this->expireCount > 0) {
-        std::unordered_map<int, std::chrono::seconds> &wheelPoint{this->wheel[this->now.count()]};
+        std::unordered_map<int, unsigned long> &wheelPoint{this->wheel[this->now.count()]};
         for (auto element{wheelPoint.cbegin()}; element != wheelPoint.cend();) {
-            if (element->second.count() == 0) {
+            if (element->second == 0) {
                 result.emplace_back(element->first);
                 this->location.erase(element->first);
 
@@ -37,11 +37,10 @@ auto Timer::clearTimeout() -> std::vector<int> {
         this->now = ++this->now % this->wheel.size();
         if (this->now.count() == 0)
             std::for_each(std::execution::par_unseq, this->wheel.begin(), this->wheel.end(),
-                          [](std::unordered_map<int, std::chrono::seconds> &wheelPoint) {
-                              std::for_each(std::execution::par_unseq, wheelPoint.begin(), wheelPoint.end(),
-                                            [](std::pair<const int, std::chrono::seconds> &element) noexcept {
-                                                --element.second;
-                                            });
+                          [](std::unordered_map<int, unsigned long> &wheelPoint) {
+                              std::for_each(
+                                      std::execution::par_unseq, wheelPoint.begin(), wheelPoint.end(),
+                                      [](std::pair<const int, unsigned long> &element) noexcept { --element.second; });
                           });
 
         --this->expireCount;
@@ -53,21 +52,21 @@ auto Timer::clearTimeout() -> std::vector<int> {
 auto Timer::add(int fileDescriptor, std::chrono::seconds seconds) -> void {
     const std::chrono::seconds level{seconds / (this->wheel.size() - 1)}, point{seconds % (this->wheel.size() - 1)};
 
-    this->wheel[point.count()].emplace(fileDescriptor, level);
-    this->location.emplace(fileDescriptor, point);
+    this->wheel[point.count()].emplace(fileDescriptor, level.count());
+    this->location.emplace(fileDescriptor, point.count());
 }
 
 auto Timer::update(int fileDescriptor, std::chrono::seconds seconds) -> void {
     const std::chrono::seconds level{seconds / (this->wheel.size() - 1)}, point{seconds % (this->wheel.size() - 1)};
 
-    this->wheel[this->location.at(fileDescriptor).count()].erase(fileDescriptor);
-    this->wheel[point.count()].emplace(fileDescriptor, level);
+    this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
+    this->wheel[point.count()].emplace(fileDescriptor, level.count());
 
-    this->location.at(fileDescriptor) = point;
+    this->location.at(fileDescriptor) = point.count();
 }
 
 auto Timer::remove(int fileDescriptor) -> void {
-    this->wheel[this->location.at(fileDescriptor).count()].erase(fileDescriptor);
+    this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
     this->location.erase(fileDescriptor);
 }
 
