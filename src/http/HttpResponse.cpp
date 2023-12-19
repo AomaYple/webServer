@@ -20,8 +20,7 @@ auto HttpResponse::setStatusCode(std::string_view newStatusCode) -> void {
 }
 
 auto HttpResponse::addHeader(std::string_view header) -> void {
-    this->headers.resize(this->headers.size() + header.size());
-    std::ranges::transform(header, this->headers.end() - static_cast<long>(header.size()),
+    std::ranges::transform(header, std::back_inserter(this->headers),
                            [](const char element) noexcept { return static_cast<std::byte>(element); });
 
     this->headers.emplace_back(std::byte{'\r'});
@@ -39,12 +38,13 @@ auto HttpResponse::setBody(std::span<const std::byte> newBody) -> void {
 }
 
 auto HttpResponse::toBytes() const -> std::vector<std::byte> {
-    std::vector<std::byte> bytes{this->version.size() + this->statusCode.size() + this->headers.size() +
-                                 this->body.size()};
+    std::vector<std::byte> bytes;
 
-    std::ranges::copy(this->version, bytes.begin());
-    std::ranges::copy(this->statusCode, bytes.begin() + static_cast<long>(this->version.size()));
-    std::ranges::copy(this->headers, bytes.begin() + static_cast<long>(this->version.size() + this->statusCode.size()));
+    std::ranges::copy(this->version, std::back_inserter(bytes));
+    std::ranges::copy(this->statusCode, std::back_inserter(bytes));
+    std::ranges::copy(this->headers, std::back_inserter(bytes));
+
+    bytes.resize(bytes.size() + this->body.size());
     std::copy(std::execution::par_unseq, this->body.cbegin(), this->body.cend(),
               bytes.end() - static_cast<long>(this->body.size()));
 
