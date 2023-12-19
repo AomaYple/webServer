@@ -91,7 +91,7 @@ auto EventLoop::run() -> void {
 
 auto EventLoop::accepted(int result, unsigned int flags, std::source_location sourceLocation) -> void {
     if ((flags & IORING_CQE_F_MORE) && result >= 0) {
-        Client client{result, this->ring, RingBuffer{1, 1024, result, this->ring}, std::chrono::seconds{60}};
+        Client client{result, this->ring, RingBuffer{1, 1024, result, this->ring}, 60};
 
         client.receive();
         this->timer.add(result, client.getSeconds());

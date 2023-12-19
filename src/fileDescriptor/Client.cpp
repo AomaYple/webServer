@@ -2,15 +2,14 @@
 
 #include "../ring/Submission.hpp"
 
-Client::Client(int fileDescriptor, std::shared_ptr<Ring> ring, RingBuffer &&ringBuffer,
-               std::chrono::seconds seconds) noexcept
+Client::Client(int fileDescriptor, std::shared_ptr<Ring> ring, RingBuffer &&ringBuffer, unsigned long seconds) noexcept
     : FileDescriptor{fileDescriptor, std::move(ring)}, ringBuffer{std::move(ringBuffer)}, seconds{seconds} {}
 
 auto Client::getReceivedData(unsigned short index, unsigned int dataSize) -> std::vector<std::byte> {
     return this->ringBuffer.getData(index, dataSize);
 }
 
-auto Client::getSeconds() const noexcept -> std::chrono::seconds { return this->seconds; }
+auto Client::getSeconds() const noexcept -> unsigned long { return this->seconds; }
 
 auto Client::getBuffer() noexcept -> std::vector<std::byte> & { return this->buffer; }
 

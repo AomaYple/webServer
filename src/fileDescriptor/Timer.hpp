@@ -2,8 +2,6 @@
 
 #include "FileDescriptor.hpp"
 
-#include <chrono>
-
 class Timer : public FileDescriptor {
 public:
     [[nodiscard]] static auto create() -> int;
@@ -22,9 +20,9 @@ public:
 
     [[nodiscard]] auto clearTimeout() -> std::vector<int>;
 
-    auto add(int fileDescriptor, std::chrono::seconds seconds) -> void;
+    auto add(int fileDescriptor, unsigned long seconds) -> void;
 
-    auto update(int fileDescriptor, std::chrono::seconds seconds) -> void;
+    auto update(int fileDescriptor, unsigned long seconds) -> void;
 
     auto remove(int fileDescriptor) -> void;
 
@@ -37,8 +35,7 @@ private:
     static auto setTime(int fileDescriptor, std::source_location sourceLocation = std::source_location::current())
             -> void;
 
-    unsigned long expireCount{};
-    std::chrono::seconds now{};
+    unsigned long expireCount{}, now{};
     std::array<std::unordered_map<int, unsigned long>, 61> wheel;
     std::unordered_map<int, unsigned long> location;
 };

@@ -22,7 +22,7 @@ auto Timer::clearTimeout() -> std::vector<int> {
     std::vector<int> result;
 
     while (this->expireCount > 0) {
-        std::unordered_map<int, unsigned long> &wheelPoint{this->wheel[this->now.count()]};
+        std::unordered_map<int, unsigned long> &wheelPoint{this->wheel[this->now]};
         for (auto element{wheelPoint.cbegin()}; element != wheelPoint.cend();) {
             if (element->second == 0) {
                 result.emplace_back(element->first);
@@ -33,9 +33,9 @@ auto Timer::clearTimeout() -> std::vector<int> {
                 ++element;
         }
 
-
-        this->now = ++this->now % this->wheel.size();
-        if (this->now.count() == 0)
+        ++this->now;
+        this->now %= this->wheel.size();
+        if (this->now == 0)
             std::for_each(std::execution::par_unseq, this->wheel.begin(), this->wheel.end(),
                           [](std::unordered_map<int, unsigned long> &wheelPoint) {
                               std::for_each(
@@ -49,20 +49,20 @@ auto Timer::clearTimeout() -> std::vector<int> {
     return result;
 }
 
-auto Timer::add(int fileDescriptor, std::chrono::seconds seconds) -> void {
-    const std::chrono::seconds level{seconds / (this->wheel.size() - 1)}, point{seconds % (this->wheel.size() - 1)};
+auto Timer::add(int fileDescriptor, unsigned long seconds) -> void {
+    const unsigned long level{seconds / (this->wheel.size() - 1)}, point{seconds % (this->wheel.size() - 1)};
 
-    this->wheel[point.count()].emplace(fileDescriptor, level.count());
-    this->location.emplace(fileDescriptor, point.count());
+    this->wheel[point].emplace(fileDescriptor, level);
+    this->location.emplace(fileDescriptor, point);
 }
 
-auto Timer::update(int fileDescriptor, std::chrono::seconds seconds) -> void {
-    const std::chrono::seconds level{seconds / (this->wheel.size() - 1)}, point{seconds % (this->wheel.size() - 1)};
+auto Timer::update(int fileDescriptor, unsigned long seconds) -> void {
+    const unsigned long level{seconds / (this->wheel.size() - 1)}, point{seconds % (this->wheel.size() - 1)};
 
     this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
-    this->wheel[point.count()].emplace(fileDescriptor, level.count());
+    this->wheel[point].emplace(fileDescriptor, level);
 
-    this->location.at(fileDescriptor) = point.count();
+    this->location.at(fileDescriptor) = point;
 }
 
 auto Timer::remove(int fileDescriptor) -> void {
