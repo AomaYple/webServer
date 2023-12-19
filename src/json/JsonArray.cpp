@@ -2,8 +2,6 @@
 
 #include "JsonValue.hpp"
 
-#include <execution>
-
 JsonArray::JsonArray(std::string_view json) {
     if (json.empty()) return;
 
@@ -86,8 +84,7 @@ auto JsonArray::stringSize() const -> unsigned long {
     unsigned long size{2};
     if (this->values.size() > 1) size += this->values.size() - 1;
 
-    std::for_each(std::execution::unseq, this->values.cbegin(), this->values.cend(),
-                  [&size](const auto &value) { size += value.stringSize(); });
+    for (const auto &value: this->values) size += value.stringSize();
 
     return size;
 }

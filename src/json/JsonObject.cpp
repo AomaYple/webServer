@@ -2,8 +2,6 @@
 
 #include "JsonValue.hpp"
 
-#include <execution>
-
 JsonObject::JsonObject(std::string_view json) {
     if (json.empty()) return;
 
@@ -87,8 +85,7 @@ auto JsonObject::stringSize() const -> unsigned long {
     unsigned long size{2};
     if (this->values.size() > 1) size += this->values.size() - 1;
 
-    std::for_each(std::execution::unseq, this->values.cbegin(), this->values.cend(),
-                  [&size](const auto &value) { size += value.first.size() + 3 + value.second.stringSize(); });
+    for (const auto &value: this->values) size += value.first.size() + 3 + value.second.stringSize();
 
     return size;
 }

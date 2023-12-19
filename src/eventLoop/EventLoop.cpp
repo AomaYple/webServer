@@ -5,7 +5,6 @@
 #include "../ring/Completion.hpp"
 
 #include <cstring>
-#include <execution>
 
 auto EventLoop::registerSignal(std::source_location sourceLocation) -> void {
     struct sigaction signalAction {};
@@ -117,9 +116,7 @@ auto EventLoop::received(int fileDescriptor, int result, unsigned int flags, std
         std::vector<std::byte> &buffer{client.getBuffer()};
 
         const std::vector<std::byte> receivedData{client.getReceivedData(flags >> IORING_CQE_BUFFER_SHIFT, result)};
-        buffer.resize(buffer.size() + receivedData.size());
-        std::copy(std::execution::par_unseq, receivedData.cbegin(), receivedData.cend(),
-                  buffer.end() - static_cast<long>(receivedData.size()));
+        buffer.insert(buffer.cend(), receivedData.cbegin(), receivedData.cend());
 
         if (!(flags & IORING_CQE_F_SOCK_NONEMPTY)) {
             buffer.emplace_back(std::byte{'\0'});

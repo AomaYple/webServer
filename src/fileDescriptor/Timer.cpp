@@ -6,7 +6,6 @@
 #include <sys/timerfd.h>
 
 #include <cstring>
-#include <execution>
 
 auto Timer::create() -> int {
     const int fileDescriptor{Timer::createTimerFileDescriptor()};
@@ -22,26 +21,24 @@ auto Timer::clearTimeout() -> std::vector<int> {
     std::vector<int> result;
 
     while (this->expireCount > 0) {
-        std::unordered_map<int, unsigned long> &wheelPoint{this->wheel[this->now]};
-        for (auto element{wheelPoint.cbegin()}; element != wheelPoint.cend();) {
-            if (element->second == 0) {
-                result.emplace_back(element->first);
-                this->location.erase(element->first);
+        {
+            std::unordered_map<int, unsigned long> &wheelPoint{this->wheel[this->now]};
+            for (auto element{wheelPoint.cbegin()}; element != wheelPoint.cend();) {
+                if (element->second == 0) {
+                    result.emplace_back(element->first);
+                    this->location.erase(element->first);
 
-                element = wheelPoint.erase(element);
-            } else
-                ++element;
+                    element = wheelPoint.erase(element);
+                } else
+                    ++element;
+            }
         }
 
         ++this->now;
         this->now %= this->wheel.size();
         if (this->now == 0)
-            std::for_each(std::execution::par_unseq, this->wheel.begin(), this->wheel.end(),
-                          [](std::unordered_map<int, unsigned long> &wheelPoint) {
-                              std::for_each(
-                                      std::execution::par_unseq, wheelPoint.begin(), wheelPoint.end(),
-                                      [](std::pair<const int, unsigned long> &element) noexcept { --element.second; });
-                          });
+            for (auto &wheelPoint: this->wheel)
+                for (auto &element: wheelPoint) --element.second;
 
         --this->expireCount;
     }

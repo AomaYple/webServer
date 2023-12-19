@@ -5,7 +5,6 @@
 
 #include <brotli/encode.h>
 
-#include <execution>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -83,10 +82,8 @@ auto HttpParse::parseMethod() -> void {
         }
 
         const std::string stringBody{jsonBody.toString()};
-
-        this->body.resize(stringBody.size());
-        std::transform(std::execution::par_unseq, stringBody.cbegin(), stringBody.cend(), this->body.begin(),
-                       [](const char element) { return static_cast<std::byte>(element); });
+        const std::span<const std::byte> spanBody{std::as_bytes(std::span{stringBody})};
+        this->body = {spanBody.cbegin(), spanBody.cend()};
     } else
         this->httpResponse.setStatusCode("405 Method Not Allowed");
 }

@@ -1,6 +1,6 @@
 #include "RingBuffer.hpp"
 
-#include <execution>
+#include <utility>
 
 RingBuffer::RingBuffer(unsigned int entries, unsigned int bufferSize, int id, std::shared_ptr<Ring> ring)
     : handle{ring->setupRingBuffer(entries, id)},
@@ -33,9 +33,7 @@ auto RingBuffer::getId() const noexcept -> int { return this->id; }
 
 auto RingBuffer::getData(unsigned short index, unsigned int dataSize) -> std::vector<std::byte> {
     std::vector<std::byte> &buffer{this->buffers[index]};
-
-    std::vector<std::byte> data{dataSize};
-    std::copy(std::execution::par_unseq, buffer.cbegin(), buffer.cbegin() + dataSize, data.begin());
+    std::vector<std::byte> data{buffer.cbegin(), buffer.cbegin() + dataSize};
 
     buffer.resize(dataSize * 2);
 
