@@ -22,18 +22,19 @@ public:
 
     auto connect(std::string_view host, std::string_view user, std::string_view password, std::string_view database,
                  unsigned int port, std::string_view unixSocket, unsigned long clientFlag,
-                 std::source_location sourceLocation = std::source_location::current()) const -> void;
+                 std::source_location sourceLocation = std::source_location::current()) -> void;
 
     auto inquire(std::string_view statement) -> std::vector<std::vector<std::string>>;
 
 private:
-    auto destroy() const noexcept -> void;
+    static auto initialize(std::source_location sourceLocation = std::source_location::current()) -> MYSQL;
 
-    auto query(std::string_view statement, std::source_location sourceLocation = std::source_location::current()) const
+    auto destroy() noexcept -> void;
+
+    auto query(std::string_view statement, std::source_location sourceLocation = std::source_location::current())
             -> void;
 
-    [[nodiscard]] auto getResult(std::source_location sourceLocation = std::source_location::current()) const
-            -> MYSQL_RES *;
+    [[nodiscard]] auto getResult(std::source_location sourceLocation = std::source_location::current()) -> MYSQL_RES *;
 
     [[nodiscard]] static auto getColumnCount(MYSQL_RES *result) noexcept -> unsigned int;
 
@@ -43,13 +44,5 @@ private:
 
     static constinit std::mutex lock;
 
-    MYSQL *handle{[](std::source_location sourceLocation = std::source_location::current()) {
-        const std::lock_guard lockGuard{Database::lock};
-
-        MYSQL *const temporaryHandle{mysql_init(nullptr)};
-        if (temporaryHandle == nullptr)
-            throw Exception{Log{Log::Level::fatal, "initialization of Database handle failed", sourceLocation}};
-
-        return temporaryHandle;
-    }()};
+    MYSQL handle{Database::initialize()};
 };

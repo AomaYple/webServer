@@ -29,8 +29,6 @@ private:
 
     auto parsePath() -> void;
 
-    auto parseType(const std::string &resourcePath) -> void;
-
     auto parseResource(const std::string &resourcePath) -> void;
 
     auto readResource(const std::string &resourcePath, std::pair<long, long> range,

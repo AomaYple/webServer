@@ -14,27 +14,41 @@ JsonValue::JsonValue(JsonObject &&value) noexcept : type{Type::object}, value{st
 
 auto JsonValue::getType() const noexcept -> enum JsonValue::Type { return this->type; }
 
-auto JsonValue::getNull() const noexcept -> std::nullptr_t { return std::get<std::nullptr_t>(this->value); }
+JsonValue::operator std::nullptr_t() const noexcept { return nullptr; }
 
-auto JsonValue::getBool() const -> bool { return std::get<bool>(this->value); }
+JsonValue::operator bool() const { return std::get<bool>(this->value); }
 
-auto JsonValue::getBool() -> bool & { return std::get<bool>(this->value); }
+JsonValue::operator double() const { return std::get<double>(this->value); }
 
-auto JsonValue::getNumber() const -> double { return std::get<double>(this->value); }
+JsonValue::operator std::string_view() const { return std::get<std::string>(this->value); }
 
-auto JsonValue::getNumber() -> double & { return std::get<double>(this->value); }
+JsonValue::operator std::string &() { return std::get<std::string>(this->value); }
 
-auto JsonValue::getString() const -> std::string_view { return std::get<std::string>(this->value); }
+JsonValue::operator const JsonArray &() const { return std::get<JsonArray>(this->value); }
 
-auto JsonValue::getString() -> std::string & { return std::get<std::string>(this->value); }
+JsonValue::operator JsonArray &() { return std::get<JsonArray>(this->value); }
 
-auto JsonValue::getArray() const -> const JsonArray & { return std::get<JsonArray>(this->value); }
+JsonValue::operator const JsonObject &() const { return std::get<JsonObject>(this->value); }
 
-auto JsonValue::getArray() -> JsonArray & { return std::get<JsonArray>(this->value); }
+JsonValue::operator JsonObject &() { return std::get<JsonObject>(this->value); }
 
-auto JsonValue::getObject() const -> const JsonObject & { return std::get<JsonObject>(this->value); }
+auto JsonValue::operator=(std::nullptr_t newValue) noexcept -> JsonValue & { return *this = JsonValue{newValue}; }
 
-auto JsonValue::getObject() -> JsonObject & { return std::get<JsonObject>(this->value); }
+auto JsonValue::operator=(bool newValue) noexcept -> JsonValue & { return *this = JsonValue{newValue}; }
+
+auto JsonValue::operator=(double newValue) noexcept -> JsonValue & { return *this = JsonValue{newValue}; }
+
+auto JsonValue::operator=(std::string &&newValue) noexcept -> JsonValue & {
+    return *this = JsonValue{std::move(newValue)};
+}
+
+auto JsonValue::operator=(JsonArray &&newValue) noexcept -> JsonValue & {
+    return *this = JsonValue{std::move(newValue)};
+}
+
+auto JsonValue::operator=(JsonObject &&newValue) noexcept -> JsonValue & {
+    return *this = JsonValue{std::move(newValue)};
+}
 
 auto JsonValue::toString() const -> std::string {
     switch (this->type) {

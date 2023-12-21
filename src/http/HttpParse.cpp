@@ -65,11 +65,11 @@ auto HttpParse::parseMethod() -> void {
         this->httpResponse.addHeader("Content-Type: application/json; charset=utf-8");
 
         const JsonObject requestBody{this->httpRequest.getBody()};
-        const std::string_view password{requestBody["password"].getString()};
+        const std::string_view password{requestBody["password"]};
 
         JsonObject jsonBody;
-        if (requestBody["method"].getString() == "login") {
-            const std::string_view id{requestBody["id"].getString()};
+        if (static_cast<std::string_view>(requestBody["method"]) == "login") {
+            const std::string_view id{requestBody["id"]};
             const std::vector<std::vector<std::string>> result{this->database.inquire(
                     std::format("select * from users where id = {} and password = '{}';", id, password))};
 
@@ -95,29 +95,37 @@ auto HttpParse::parsePath() -> void {
         return;
     }
 
-    std::string resourcePath;
-    for (const auto &path:
-         std::filesystem::recursive_directory_iterator{std::filesystem::current_path().string() + "/resources"})
-        if (path.is_regular_file() && path.path().filename() == url) resourcePath = path.path().string();
-
-    if (resourcePath.empty()) this->httpResponse.setStatusCode("404 Not Found");
-    else
-        this->parseType(resourcePath);
-}
-
-auto HttpParse::parseType(const std::string &resourcePath) -> void {
-    if (resourcePath.ends_with("html")) {
+    std::string_view folder;
+    if (url.ends_with("html")) {
         this->httpResponse.addHeader("Content-Type: text/html; charset=utf-8");
         this->httpResponse.addHeader("Content-Encoding: br");
         this->isBrotli = true;
-    } else if (resourcePath.ends_with("jpg"))
+
+        folder = "resources/web";
+    } else if (url.ends_with("jpg")) {
         this->httpResponse.addHeader("Content-Type: image/jpg");
-    else if (resourcePath.ends_with("ico"))
+
+        folder = "resources/images";
+    } else if (url.ends_with("ico")) {
         this->httpResponse.addHeader("Content-Type: image/x-icon");
-    else if (resourcePath.ends_with("mp4"))
+
+        folder = "resources";
+    } else if (url.ends_with("mp4")) {
         this->httpResponse.addHeader("Content-Type: video/mp4");
 
-    this->parseResource(resourcePath);
+        folder = "resources/videos";
+    }
+
+    std::string resourcePath;
+    for (const auto &path: std::filesystem::directory_iterator(folder))
+        if (path.path().filename() == url) {
+            resourcePath = path.path().string();
+            break;
+        }
+
+    if (resourcePath.empty()) this->httpResponse.setStatusCode("404 Not Found");
+    else
+        this->parseResource(resourcePath);
 }
 
 auto HttpParse::parseResource(const std::string &resourcePath) -> void {

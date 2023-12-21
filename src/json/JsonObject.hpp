@@ -6,6 +6,9 @@
 class JsonValue;
 
 class JsonObject {
+    friend class JsonValue;
+    friend class JsonArray;
+    
 public:
     explicit JsonObject(std::string_view json = std::string_view{});
 
@@ -19,8 +22,8 @@ public:
 
     [[nodiscard]] auto toString() const -> std::string;
 
+private:
     [[nodiscard]] auto stringSize() const -> unsigned long;
 
-private:
     std::unordered_map<std::string, JsonValue> values;
 };

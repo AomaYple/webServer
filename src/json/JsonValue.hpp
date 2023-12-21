@@ -6,6 +6,9 @@
 #include <variant>
 
 class JsonValue {
+    friend class JsonArray;
+    friend class JsonObject;
+
 public:
     enum class Type : unsigned char { null, boolean, number, string, array, object };
 
@@ -23,33 +26,41 @@ public:
 
     [[nodiscard]] auto getType() const noexcept -> Type;
 
-    [[nodiscard]] auto getNull() const noexcept -> std::nullptr_t;
+    explicit operator std::nullptr_t() const noexcept;
 
-    [[nodiscard]] auto getBool() const -> bool;
+    explicit operator bool() const;
 
-    [[nodiscard]] auto getBool() -> bool &;
+    explicit operator double() const;
 
-    [[nodiscard]] auto getNumber() const -> double;
+    explicit operator std::string_view() const;
 
-    [[nodiscard]] auto getNumber() -> double &;
+    explicit operator std::string &();
 
-    [[nodiscard]] auto getString() const -> std::string_view;
+    explicit operator const JsonArray &() const;
 
-    [[nodiscard]] auto getString() -> std::string &;
+    explicit operator JsonArray &();
 
-    [[nodiscard]] auto getArray() const -> const JsonArray &;
+    explicit operator const JsonObject &() const;
 
-    [[nodiscard]] auto getArray() -> JsonArray &;
+    explicit operator JsonObject &();
 
-    [[nodiscard]] auto getObject() const -> const JsonObject &;
+    auto operator=(std::nullptr_t newValue) noexcept -> JsonValue &;
 
-    [[nodiscard]] auto getObject() -> JsonObject &;
+    auto operator=(bool newValue) noexcept -> JsonValue &;
+
+    auto operator=(double newValue) noexcept -> JsonValue &;
+
+    auto operator=(std::string &&newValue) noexcept -> JsonValue &;
+
+    auto operator=(JsonArray &&newValue) noexcept -> JsonValue &;
+
+    auto operator=(JsonObject &&newValue) noexcept -> JsonValue &;
 
     [[nodiscard]] auto toString() const -> std::string;
 
+private:
     [[nodiscard]] auto stringSize() const -> unsigned long;
 
-private:
     [[nodiscard]] auto numberToString() const -> std::string;
 
     Type type;
