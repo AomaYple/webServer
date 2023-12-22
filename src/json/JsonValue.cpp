@@ -32,22 +32,46 @@ JsonValue::operator const JsonObject &() const { return std::get<JsonObject>(thi
 
 JsonValue::operator JsonObject &() { return std::get<JsonObject>(this->value); }
 
-auto JsonValue::operator=(std::nullptr_t newValue) noexcept -> JsonValue & { return *this = JsonValue{newValue}; }
+auto JsonValue::operator=(std::nullptr_t newValue) noexcept -> JsonValue & {
+    this->type = Type::null;
+    this->value = newValue;
 
-auto JsonValue::operator=(bool newValue) noexcept -> JsonValue & { return *this = JsonValue{newValue}; }
+    return *this;
+}
 
-auto JsonValue::operator=(double newValue) noexcept -> JsonValue & { return *this = JsonValue{newValue}; }
+auto JsonValue::operator=(bool newValue) noexcept -> JsonValue & {
+    this->type = Type::boolean;
+    this->value = newValue;
+
+    return *this;
+}
+
+auto JsonValue::operator=(double newValue) noexcept -> JsonValue & {
+    this->type = Type::number;
+    this->value = newValue;
+
+    return *this;
+}
 
 auto JsonValue::operator=(std::string &&newValue) noexcept -> JsonValue & {
-    return *this = JsonValue{std::move(newValue)};
+    this->type = Type::string;
+    this->value = std::move(newValue);
+
+    return *this;
 }
 
 auto JsonValue::operator=(JsonArray &&newValue) noexcept -> JsonValue & {
-    return *this = JsonValue{std::move(newValue)};
+    this->type = Type::array;
+    this->value = std::move(newValue);
+
+    return *this;
 }
 
 auto JsonValue::operator=(JsonObject &&newValue) noexcept -> JsonValue & {
-    return *this = JsonValue{std::move(newValue)};
+    this->type = Type::object;
+    this->value = std::move(newValue);
+
+    return *this;
 }
 
 auto JsonValue::toString() const -> std::string {

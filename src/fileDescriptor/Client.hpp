@@ -3,9 +3,11 @@
 #include "../ring/RingBuffer.hpp"
 #include "FileDescriptor.hpp"
 
+#include <queue>
+
 class Client : public FileDescriptor {
 public:
-    Client(int fileDescriptor, std::shared_ptr<Ring> ring, RingBuffer &&ringBuffer, unsigned long seconds) noexcept;
+    Client(int fileDescriptor, std::shared_ptr<Ring> ring, unsigned long seconds);
 
     Client(const Client &) = delete;
 
@@ -17,18 +19,18 @@ public:
 
     ~Client() = default;
 
-    [[nodiscard]] auto getReceivedData(unsigned short index, unsigned int dataSize) -> std::vector<std::byte>;
-
     [[nodiscard]] auto getSeconds() const noexcept -> unsigned long;
-
-    [[nodiscard]] auto getBuffer() noexcept -> std::vector<std::byte> &;
 
     auto receive() const -> void;
 
-    auto send() const -> void;
+    [[nodiscard]] auto getReceivedData(unsigned short index, unsigned int dataSize) -> std::vector<std::byte>;
+
+    auto send(std::vector<std::byte> &&data) -> void;
+
+    auto clearSentData() -> void;
 
 private:
     RingBuffer ringBuffer;
     unsigned long seconds;
-    std::vector<std::byte> buffer;
+    std::queue<std::vector<std::byte>> buffers;
 };

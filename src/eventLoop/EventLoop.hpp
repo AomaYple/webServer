@@ -25,6 +25,11 @@ public:
     auto run() -> void;
 
 private:
+    [[nodiscard]] static auto initializeRing(std::source_location sourceLocation = std::source_location::current())
+            -> std::shared_ptr<Ring>;
+
+    [[nodiscard]] static auto initializeHttpParse() -> HttpParse;
+
     auto accepted(int result, unsigned int flags, std::source_location sourceLocation = std::source_location::current())
             -> void;
 
@@ -33,11 +38,8 @@ private:
     auto received(int fileDescriptor, int result, unsigned int flags,
                   std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto sent(int fileDescriptor, int result, std::source_location sourceLocation = std::source_location::current())
-            -> void;
-
-    static auto canceled(int fileDescriptor, int result,
-                         std::source_location sourceLocation = std::source_location::current()) -> void;
+    auto sent(int fileDescriptor, int result, unsigned int flags,
+              std::source_location sourceLocation = std::source_location::current()) -> void;
 
     static auto closed(int fileDescriptor, int result,
                        std::source_location sourceLocation = std::source_location::current()) -> void;
@@ -48,45 +50,9 @@ private:
     static std::vector<int> ringFileDescriptors;
     static constinit std::atomic_flag switcher;
 
-    const std::shared_ptr<Ring> ring{[](std::source_location sourceLocation = std::source_location::current()) {
-        if (EventLoop::instance)
-            throw Exception{Log{Log::Level::fatal, "one thread can only have one EventLoop", sourceLocation}};
-        EventLoop::instance = true;
-
-        io_uring_params params{};
-        params.flags = IORING_SETUP_SUBMIT_ALL | IORING_SETUP_CLAMP | IORING_SETUP_COOP_TASKRUN |
-                       IORING_SETUP_TASKRUN_FLAG | IORING_SETUP_SINGLE_ISSUER | IORING_SETUP_DEFER_TASKRUN;
-
-
-        const std::lock_guard lockGuard{EventLoop::lock};
-
-        if (EventLoop::sharedRingFileDescriptor != -1) {
-            params.wq_fd = EventLoop::sharedRingFileDescriptor;
-            params.flags |= IORING_SETUP_ATTACH_WQ;
-        }
-
-        const std::shared_ptr<Ring> temporaryRing{std::make_shared<Ring>(1024, params)};
-
-        if (EventLoop::sharedRingFileDescriptor == -1)
-            EventLoop::sharedRingFileDescriptor = temporaryRing->getFileDescriptor();
-
-        const auto result{std::ranges::find(EventLoop::ringFileDescriptors, -1)};
-        if (result != EventLoop::ringFileDescriptors.cend()) {
-            *result = temporaryRing->getFileDescriptor();
-        } else
-            throw Exception{Log{Log::Level::fatal, "too many EventLoop", sourceLocation}};
-
-        return temporaryRing;
-    }()};
+    const std::shared_ptr<Ring> ring{EventLoop::initializeRing()};
     const Server server{0, this->ring};
     Timer timer{1, this->ring};
-    HttpParse httpParse{[] {
-        Database database;
-        database.connect({}, "AomaYple", "38820233", "webServer", 0, {}, 0);
-
-        HttpParse temporaryHttpParse{std::move(database)};
-
-        return temporaryHttpParse;
-    }()};
+    HttpParse httpParse{EventLoop::initializeHttpParse()};
     std::unordered_map<int, Client> clients;
 };

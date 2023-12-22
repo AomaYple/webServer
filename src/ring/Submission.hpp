@@ -30,14 +30,9 @@ struct Submission {
         unsigned int zeroCopyFlags;
     };
 
-    struct CancelParameters {
-        unsigned int flags;
-    };
-
     struct CloseParameters {};
 
     Event event;
     unsigned int flags;
-    std::variant<AcceptParameters, ReadParameters, ReceiveParameters, SendParameters, CancelParameters, CloseParameters>
-            parameters;
+    std::variant<AcceptParameters, ReadParameters, ReceiveParameters, SendParameters, CloseParameters> parameters;
 };

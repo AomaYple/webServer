@@ -17,6 +17,37 @@ auto Timer::create() -> int {
 Timer::Timer(int fileDescriptor, std::shared_ptr<Ring> ring) noexcept
     : FileDescriptor{fileDescriptor, std::move(ring)} {}
 
+auto Timer::timing() -> void {
+    const Submission submission{
+            Event{Event::Type::timing, this->getFileDescriptor()}, IOSQE_FIXED_FILE,
+            Submission::ReadParameters{std::as_writable_bytes(std::span{&this->expireCount, 1}), 0}};
+    this->getRing()->submit(submission);
+}
+
+auto Timer::add(int fileDescriptor, unsigned long seconds) -> void {
+    const unsigned long level{seconds / (this->wheel.size() - 1)}, point{seconds % (this->wheel.size() - 1)};
+
+    this->wheel[point].emplace(fileDescriptor, level);
+    this->location.emplace(fileDescriptor, point);
+}
+
+auto Timer::update(int fileDescriptor, unsigned long seconds) -> void {
+    const unsigned long level{seconds / (this->wheel.size() - 1)}, point{seconds % (this->wheel.size() - 1)};
+
+    this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
+    this->wheel[point].emplace(fileDescriptor, level);
+
+    this->location.at(fileDescriptor) = point;
+}
+
+auto Timer::remove(int fileDescriptor) -> void {
+    const auto result{this->location.find(fileDescriptor)};
+    if (result != this->location.cend()) {
+        this->wheel[result->second].erase(fileDescriptor);
+        this->location.erase(fileDescriptor);
+    }
+}
+
 auto Timer::clearTimeout() -> std::vector<int> {
     std::vector<int> result;
 
@@ -44,34 +75,6 @@ auto Timer::clearTimeout() -> std::vector<int> {
     }
 
     return result;
-}
-
-auto Timer::add(int fileDescriptor, unsigned long seconds) -> void {
-    const unsigned long level{seconds / (this->wheel.size() - 1)}, point{seconds % (this->wheel.size() - 1)};
-
-    this->wheel[point].emplace(fileDescriptor, level);
-    this->location.emplace(fileDescriptor, point);
-}
-
-auto Timer::update(int fileDescriptor, unsigned long seconds) -> void {
-    const unsigned long level{seconds / (this->wheel.size() - 1)}, point{seconds % (this->wheel.size() - 1)};
-
-    this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
-    this->wheel[point].emplace(fileDescriptor, level);
-
-    this->location.at(fileDescriptor) = point;
-}
-
-auto Timer::remove(int fileDescriptor) -> void {
-    this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
-    this->location.erase(fileDescriptor);
-}
-
-auto Timer::timing() -> void {
-    const Submission submission{
-            Event{Event::Type::timing, this->getFileDescriptor()}, IOSQE_FIXED_FILE,
-            Submission::ReadParameters{std::as_writable_bytes(std::span{&this->expireCount, 1}), 0}};
-    this->getRing()->submit(submission);
 }
 
 auto Timer::createTimerFileDescriptor(std::source_location sourceLocation) -> int {

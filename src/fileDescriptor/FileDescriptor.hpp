@@ -24,8 +24,6 @@ protected:
     [[nodiscard]] auto getRing() const noexcept -> std::shared_ptr<Ring>;
 
 private:
-    auto cancel() const -> void;
-
     auto close() const -> void;
 
     int fileDescriptor;

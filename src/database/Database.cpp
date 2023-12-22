@@ -1,27 +1,28 @@
 #include "Database.hpp"
 
-Database::Database(Database &&other) noexcept : handle{other.handle} { other.handle.free_me = 0; }
+#include <utility>
+
+Database::Database(Database &&other) noexcept : handle{std::exchange(other.handle, nullptr)} {}
 
 auto Database::operator=(Database &&other) noexcept -> Database & {
-    this->destroy();
+    this->close();
 
-    this->handle = other.handle;
-    other.handle.free_me = 0;
+    this->handle = std::exchange(other.handle, nullptr);
 
     return *this;
 }
 
-Database::~Database() { this->destroy(); }
+Database::~Database() { this->close(); }
 
 auto Database::connect(std::string_view host, std::string_view user, std::string_view password,
                        std::string_view database, unsigned int port, std::string_view unixSocket,
-                       unsigned long clientFlag, std::source_location sourceLocation) -> void {
-    if (mysql_real_connect(&this->handle, host.data(), user.data(), password.data(), database.data(), port,
+                       unsigned long clientFlag, std::source_location sourceLocation) const -> void {
+    if (mysql_real_connect(this->handle, host.data(), user.data(), password.data(), database.data(), port,
                            unixSocket.data(), clientFlag) == nullptr)
-        throw Exception{Log{Log::Level::error, mysql_error(&this->handle), sourceLocation}};
+        throw Exception{Log{Log::Level::error, mysql_error(this->handle), sourceLocation}};
 }
 
-auto Database::inquire(std::string_view statement) -> std::vector<std::vector<std::string>> {
+auto Database::inquire(std::string_view statement) const -> std::vector<std::vector<std::string>> {
     std::vector<std::vector<std::string>> outcome;
 
     this->query(statement);
@@ -39,33 +40,35 @@ auto Database::inquire(std::string_view statement) -> std::vector<std::vector<st
     return outcome;
 }
 
-auto Database::initialize(std::source_location sourceLocation) -> MYSQL {
-    MYSQL handle;
+auto Database::initialize(std::source_location sourceLocation) -> MYSQL * {
+    MYSQL *handle;
 
     {
         const std::lock_guard lockGuard{Database::lock};
 
-        if (mysql_init(&handle) == nullptr)
-            throw Exception{Log{Log::Level::fatal, "initialization of Database handle failed", sourceLocation}};
+        handle = mysql_init(nullptr);
     }
+
+    if (handle == nullptr)
+        throw Exception{Log{Log::Level::fatal, "initialization of Database handle failed", sourceLocation}};
 
     return handle;
 }
 
-auto Database::destroy() noexcept -> void {
-    if (this->handle.free_me != 0) mysql_close(&this->handle);
+auto Database::close() const noexcept -> void {
+    if (this->handle != nullptr) mysql_close(this->handle);
 }
 
-auto Database::query(std::string_view statement, std::source_location sourceLocation) -> void {
-    if (mysql_real_query(&this->handle, statement.data(), statement.size()) != 0)
-        throw Exception{Log{Log::Level::error, mysql_error(&this->handle), sourceLocation}};
+auto Database::query(std::string_view statement, std::source_location sourceLocation) const -> void {
+    if (mysql_real_query(this->handle, statement.data(), statement.size()) != 0)
+        throw Exception{Log{Log::Level::error, mysql_error(this->handle), sourceLocation}};
 }
 
-auto Database::getResult(std::source_location sourceLocation) -> MYSQL_RES * {
-    MYSQL_RES *const result{mysql_store_result(&this->handle)};
+auto Database::getResult(std::source_location sourceLocation) const -> MYSQL_RES * {
+    MYSQL_RES *const result{mysql_store_result(this->handle)};
 
     if (result == nullptr) {
-        std::string error{mysql_error(&this->handle)};
+        std::string error{mysql_error(this->handle)};
         if (!error.empty()) throw Exception{Log{Log::Level::error, std::move(error), sourceLocation}};
     }
 

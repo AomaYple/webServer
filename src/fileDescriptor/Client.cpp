@@ -2,16 +2,11 @@
 
 #include "../ring/Submission.hpp"
 
-Client::Client(int fileDescriptor, std::shared_ptr<Ring> ring, RingBuffer &&ringBuffer, unsigned long seconds) noexcept
-    : FileDescriptor{fileDescriptor, std::move(ring)}, ringBuffer{std::move(ringBuffer)}, seconds{seconds} {}
-
-auto Client::getReceivedData(unsigned short index, unsigned int dataSize) -> std::vector<std::byte> {
-    return this->ringBuffer.getData(index, dataSize);
-}
+Client::Client(int fileDescriptor, std::shared_ptr<Ring> ring, unsigned long seconds)
+    : FileDescriptor{fileDescriptor, std::move(ring)}, ringBuffer{1, 1024, fileDescriptor, this->getRing()},
+      seconds{seconds} {}
 
 auto Client::getSeconds() const noexcept -> unsigned long { return this->seconds; }
-
-auto Client::getBuffer() noexcept -> std::vector<std::byte> & { return this->buffer; }
 
 auto Client::receive() const -> void {
     const Submission submission{Event{Event::Type::receive, this->getFileDescriptor()},
@@ -20,8 +15,16 @@ auto Client::receive() const -> void {
     this->getRing()->submit(submission);
 }
 
-auto Client::send() const -> void {
+auto Client::getReceivedData(unsigned short index, unsigned int dataSize) -> std::vector<std::byte> {
+    return this->ringBuffer.getData(index, dataSize);
+}
+
+auto Client::send(std::vector<std::byte> &&data) -> void {
+    this->buffers.push(std::move(data));
+
     const Submission submission{Event{Event::Type::send, this->getFileDescriptor()}, IOSQE_FIXED_FILE,
-                                Submission::SendParameters{this->buffer, 0, 0}};
+                                Submission::SendParameters{this->buffers.back(), 0, 0}};
     this->getRing()->submit(submission);
 }
+
+auto Client::clearSentData() -> void { this->buffers.pop(); }

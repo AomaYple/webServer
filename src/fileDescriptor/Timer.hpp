@@ -18,7 +18,7 @@ public:
 
     ~Timer() = default;
 
-    [[nodiscard]] auto clearTimeout() -> std::vector<int>;
+    auto timing() -> void;
 
     auto add(int fileDescriptor, unsigned long seconds) -> void;
 
@@ -26,7 +26,7 @@ public:
 
     auto remove(int fileDescriptor) -> void;
 
-    auto timing() -> void;
+    [[nodiscard]] auto clearTimeout() -> std::vector<int>;
 
 private:
     [[nodiscard]] static auto

@@ -22,19 +22,21 @@ public:
 
     auto connect(std::string_view host, std::string_view user, std::string_view password, std::string_view database,
                  unsigned int port, std::string_view unixSocket, unsigned long clientFlag,
-                 std::source_location sourceLocation = std::source_location::current()) -> void;
+                 std::source_location sourceLocation = std::source_location::current()) const -> void;
 
-    auto inquire(std::string_view statement) -> std::vector<std::vector<std::string>>;
+    auto inquire(std::string_view statement) const -> std::vector<std::vector<std::string>>;
 
 private:
-    static auto initialize(std::source_location sourceLocation = std::source_location::current()) -> MYSQL;
+    [[nodiscard]] static auto initialize(std::source_location sourceLocation = std::source_location::current())
+            -> MYSQL *;
 
-    auto destroy() noexcept -> void;
+    auto close() const noexcept -> void;
 
-    auto query(std::string_view statement, std::source_location sourceLocation = std::source_location::current())
+    auto query(std::string_view statement, std::source_location sourceLocation = std::source_location::current()) const
             -> void;
 
-    [[nodiscard]] auto getResult(std::source_location sourceLocation = std::source_location::current()) -> MYSQL_RES *;
+    [[nodiscard]] auto getResult(std::source_location sourceLocation = std::source_location::current()) const
+            -> MYSQL_RES *;
 
     [[nodiscard]] static auto getColumnCount(MYSQL_RES *result) noexcept -> unsigned int;
 
@@ -44,5 +46,5 @@ private:
 
     static constinit std::mutex lock;
 
-    MYSQL handle{Database::initialize()};
+    MYSQL *handle{Database::initialize()};
 };
