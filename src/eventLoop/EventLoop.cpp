@@ -58,7 +58,6 @@ auto EventLoop::run() -> void {
     this->timer.timing();
 
     while (EventLoop::switcher.test(std::memory_order_relaxed)) {
-        this->ring->wait(1);
         this->ring->traverseCompletion([this](const Completion &completion) {
             const int result{completion.result}, fileDescriptor{completion.event.fileDescriptor};
             const unsigned int flags{completion.flags};

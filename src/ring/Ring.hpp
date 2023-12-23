@@ -51,8 +51,6 @@ public:
 
     auto submit(const Submission &submission) -> void;
 
-    auto wait(unsigned int count, std::source_location sourceLocation = std::source_location::current()) -> void;
-
     auto traverseCompletion(const std::function<auto(const Completion &completion)->void> &task) -> void;
 
 private:
@@ -63,6 +61,8 @@ private:
     auto destroy() noexcept -> void;
 
     [[nodiscard]] auto getSqe(std::source_location sourceLocation = std::source_location::current()) -> io_uring_sqe *;
+
+    auto wait(unsigned int count, std::source_location sourceLocation = std::source_location::current()) -> void;
 
     auto advanceCompletion(int count) noexcept -> void;
 

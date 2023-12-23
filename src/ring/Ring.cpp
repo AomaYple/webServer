@@ -123,12 +123,9 @@ auto Ring::submit(const Submission &submission) -> void {
     io_uring_sqe_set_flags(sqe, submission.flags);
 }
 
-auto Ring::wait(unsigned int count, std::source_location sourceLocation) -> void {
-    const int result{io_uring_submit_and_wait(&this->handle, count)};
-    if (result < 0) throw Exception{Log{Log::Level::error, std::strerror(std::abs(result)), sourceLocation}};
-}
-
 auto Ring::traverseCompletion(const std::function<auto(const Completion &completion)->void> &task) -> void {
+    this->wait(1);
+
     int count{0};
     unsigned int head;
 
@@ -159,6 +156,11 @@ auto Ring::getSqe(std::source_location sourceLocation) -> io_uring_sqe * {
     if (sqe == nullptr) throw Exception{Log{Log::Level::error, "no sqe available", sourceLocation}};
 
     return sqe;
+}
+
+auto Ring::wait(unsigned int count, std::source_location sourceLocation) -> void {
+    const int result{io_uring_submit_and_wait(&this->handle, count)};
+    if (result < 0) throw Exception{Log{Log::Level::error, std::strerror(std::abs(result)), sourceLocation}};
 }
 
 auto Ring::advanceCompletion(int count) noexcept -> void { io_uring_cq_advance(&this->handle, count); }
