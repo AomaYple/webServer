@@ -67,7 +67,7 @@ CREATE TABLE `users` (
 
 ## 环境
 
-gcc13以上，liburing2.4以上，linux内核6.1以上，cmake，ninja，brotli，mariadb
+gcc，liburing，cmake，ninja，brotli，mariadb
 
 ## 编译
 
