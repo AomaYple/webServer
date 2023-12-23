@@ -152,15 +152,18 @@ auto EventLoop::received(int fileDescriptor, int result, unsigned int flags, std
         -> void {
     if (result > 0 && (flags & IORING_CQE_F_MORE)) {
         Client &client{this->clients.at(fileDescriptor)};
+        std::vector<std::byte> &buffer{client.getBuffer()};
 
         std::vector<std::byte> receivedData{client.getReceivedData(flags >> IORING_CQE_BUFFER_SHIFT, result)};
+        buffer.insert(buffer.cend(), receivedData.cbegin(), receivedData.cend());
 
         if (!(flags & IORING_CQE_F_SOCK_NONEMPTY)) {
-            receivedData.emplace_back(std::byte{'\0'});
+            buffer.emplace_back(std::byte{'\0'});
 
             std::vector<std::byte> response{this->httpParse.parse(
-                    std::string_view{reinterpret_cast<const char *>(receivedData.data()), receivedData.size() - 1})};
-            client.send(std::move(response));
+                    std::string_view{reinterpret_cast<const char *>(buffer.data()), buffer.size() - 1})};
+            buffer = std::move(response);
+            client.send();
 
             this->timer.update(fileDescriptor, client.getSeconds());
         }
@@ -181,7 +184,7 @@ auto EventLoop::sent(int fileDescriptor, int result, unsigned int flags, std::so
 
         logger::push(Log{Log::Level::warn, std::strerror(std::abs(result)), sourceLocation});
     } else
-        this->clients.at(fileDescriptor).clearSentData();
+        this->clients.at(fileDescriptor).getBuffer().clear();
 }
 
 auto EventLoop::closed(int fileDescriptor, int result, std::source_location sourceLocation) -> void {

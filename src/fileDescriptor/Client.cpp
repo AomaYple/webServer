@@ -19,12 +19,10 @@ auto Client::getReceivedData(unsigned short index, unsigned int dataSize) -> std
     return this->ringBuffer.getData(index, dataSize);
 }
 
-auto Client::send(std::vector<std::byte> &&data) -> void {
-    this->buffers.push(std::move(data));
+auto Client::getBuffer() noexcept -> std::vector<std::byte> & { return this->buffer; }
 
+auto Client::send() -> void {
     const Submission submission{Event{Event::Type::send, this->getFileDescriptor()}, IOSQE_FIXED_FILE,
-                                Submission::SendParameters{this->buffers.back(), 0, 0}};
+                                Submission::SendParameters{this->buffer, 0, 0}};
     this->getRing()->submit(submission);
 }
-
-auto Client::clearSentData() -> void { this->buffers.pop(); }
