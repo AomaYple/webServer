@@ -4,7 +4,7 @@
 
 class Exception : public std::exception {
 public:
-    explicit Exception(Log &&log);
+    explicit Exception(Log &&log = Log{});
 
     Exception(const Exception &) = default;
 
