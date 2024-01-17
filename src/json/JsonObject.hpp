@@ -8,7 +8,7 @@ class JsonValue;
 class JsonObject {
     friend class JsonValue;
     friend class JsonArray;
-    
+
 public:
     explicit JsonObject(std::string_view json = std::string_view{});
 

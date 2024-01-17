@@ -32,7 +32,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/log/Exception.cpp
         src/log/Log.cpp
         src/log/logger.cpp
-        src/log/LogQueue.cpp
+        src/log/SafeQueue.cpp
 
         src/ring/Completion.cpp
         src/ring/Event.cpp
