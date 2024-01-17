@@ -12,7 +12,7 @@ class JsonValue {
 public:
     enum class Type : unsigned char { null, boolean, number, string, array, object };
 
-    explicit JsonValue(std::nullptr_t value) noexcept;
+    explicit JsonValue(std::nullptr_t value = nullptr) noexcept;
 
     explicit JsonValue(bool value) noexcept;
 
