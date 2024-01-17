@@ -35,7 +35,7 @@ auto HttpParse::parse(std::string_view request) -> std::vector<std::byte> {
 }
 
 auto HttpParse::clear() noexcept -> void {
-    this->httpRequest = HttpRequest{""};
+    this->httpRequest = HttpRequest{};
     this->httpResponse = HttpResponse{};
     this->body.clear();
     this->isWriteBody = true;

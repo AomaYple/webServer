@@ -10,9 +10,9 @@ public:
 
     auto operator=(const Exception &) -> Exception & = default;
 
-    Exception(Exception &&) noexcept = default;
+    Exception(Exception &&) = default;
 
-    auto operator=(Exception &&) noexcept -> Exception & = default;
+    auto operator=(Exception &&) -> Exception & = default;
 
     ~Exception() override = default;
 

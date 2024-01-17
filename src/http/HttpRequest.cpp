@@ -1,7 +1,7 @@
 #include "HttpRequest.hpp"
 
 HttpRequest::HttpRequest(std::string_view request) {
-    bool isParseLine{false}, isParseBody{false};
+    bool isParseLine{}, isParseBody{};
 
     for (unsigned long result{request.find("\r\n")}; result != std::string_view::npos && !isParseBody;
          result = request.find("\r\n")) {

@@ -12,9 +12,9 @@ public:
 
     auto operator=(const HttpParse &) -> HttpParse & = delete;
 
-    HttpParse(HttpParse &&) noexcept = default;
+    HttpParse(HttpParse &&) = default;
 
-    auto operator=(HttpParse &&) noexcept -> HttpParse & = default;
+    auto operator=(HttpParse &&) -> HttpParse & = default;
 
     ~HttpParse() = default;
 
@@ -36,9 +36,9 @@ private:
 
     auto brotli(std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    HttpRequest httpRequest{""};
+    HttpRequest httpRequest;
     HttpResponse httpResponse;
     Database database;
     std::vector<std::byte> body;
-    bool isWriteBody{true}, isBrotli{false};
+    bool isWriteBody{true}, isBrotli{};
 };
