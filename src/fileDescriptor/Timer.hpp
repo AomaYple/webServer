@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../coroutine/Awaiter.hpp"
+#include "../coroutine/Generator.hpp"
 #include "FileDescriptor.hpp"
 
 class Timer : public FileDescriptor {
@@ -12,13 +14,17 @@ public:
 
     auto operator=(const Timer &) -> Timer & = delete;
 
-    Timer(Timer &&) noexcept = default;
+    Timer(Timer &&) = default;
 
-    auto operator=(Timer &&) noexcept -> Timer & = default;
+    auto operator=(Timer &&) -> Timer & = default;
 
     ~Timer() = default;
 
-    auto timing() -> void;
+    auto setGenerator(Generator &&newGenerator) noexcept -> void;
+
+    auto resumeGenerator(Outcome outcome) -> void;
+
+    [[nodiscard]] auto timing() -> const Awaiter &;
 
     auto add(int fileDescriptor, unsigned long seconds) -> void;
 
@@ -36,6 +42,8 @@ private:
             -> void;
 
     unsigned long expireCount{}, now{};
-    std::array<std::unordered_map<int, unsigned long>, 61> wheel;
+    std::array<std::unordered_map<int, unsigned long>, 65> wheel;
     std::unordered_map<int, unsigned long> location;
+    Generator generator{nullptr};
+    Awaiter awaiter{};
 };

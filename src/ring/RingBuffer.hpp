@@ -31,6 +31,6 @@ private:
 
     io_uring_buf_ring *handle;
     std::vector<std::vector<std::byte>> buffers;
-    int id, mask, offset;
+    int id, mask, offset{0};
     std::shared_ptr<Ring> ring;
 };

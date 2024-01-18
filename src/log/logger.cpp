@@ -1,12 +1,12 @@
 #include "logger.hpp"
 
 #include "Exception.hpp"
-#include "SafeQueue.hpp"
+#include "LogQueue.hpp"
 
 #include <filesystem>
 #include <fstream>
 
-static constinit SafeQueue<Log> logQueue;
+static constinit LogQueue logQueue;
 static std::ofstream logFile;
 static constinit std::atomic_flag notice;
 static std::jthread worker;

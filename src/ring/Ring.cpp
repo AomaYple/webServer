@@ -84,30 +84,28 @@ auto Ring::submit(const Submission &submission) -> void {
 
     switch (submission.event.type) {
         case Event::Type::accept: {
-            const Submission::AcceptParameters &parameters{
-                    std::get<Submission::AcceptParameters>(submission.parameters)};
+            const Submission::Accept &parameters{std::get<Submission::Accept>(submission.parameters)};
             io_uring_prep_multishot_accept_direct(sqe, submission.event.fileDescriptor, parameters.address,
                                                   parameters.addressLength, parameters.flags);
 
             break;
         }
-        case Event::Type::timing: {
-            const Submission::ReadParameters &parameters{std::get<Submission::ReadParameters>(submission.parameters)};
+        case Event::Type::read: {
+            const Submission::Read &parameters{std::get<Submission::Read>(submission.parameters)};
             io_uring_prep_read(sqe, submission.event.fileDescriptor, parameters.buffer.data(), parameters.buffer.size(),
                                parameters.offset);
 
             break;
         }
         case Event::Type::receive: {
-            const Submission::ReceiveParameters &parameters{
-                    std::get<Submission::ReceiveParameters>(submission.parameters)};
+            const Submission::Receive &parameters{std::get<Submission::Receive>(submission.parameters)};
             io_uring_prep_recv_multishot(sqe, submission.event.fileDescriptor, nullptr, 0, parameters.flags);
             sqe->buf_group = parameters.ringBufferId;
 
             break;
         }
         case Event::Type::send: {
-            const Submission::SendParameters &parameters{std::get<Submission::SendParameters>(submission.parameters)};
+            const Submission::Send &parameters{std::get<Submission::Send>(submission.parameters)};
             io_uring_prep_send_zc(sqe, submission.event.fileDescriptor, parameters.buffer.data(),
                                   parameters.buffer.size(), parameters.flags, parameters.zeroCopyFlags);
 
@@ -131,7 +129,7 @@ auto Ring::traverseCompletion(const std::function<auto(const Completion &complet
 
     const io_uring_cqe *cqe;
     io_uring_for_each_cqe(&this->handle, head, cqe) {
-        task({std::bit_cast<Event>(io_uring_cqe_get_data64(cqe)), cqe->res, cqe->flags});
+        task({std::bit_cast<Event>(io_uring_cqe_get_data64(cqe)), Outcome{cqe->res, cqe->flags}});
         ++count;
     }
 

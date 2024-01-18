@@ -17,11 +17,19 @@ auto Timer::create() -> int {
 Timer::Timer(int fileDescriptor, std::shared_ptr<Ring> ring) noexcept
     : FileDescriptor{fileDescriptor, std::move(ring)} {}
 
-auto Timer::timing() -> void {
-    const Submission submission{
-            Event{Event::Type::timing, this->getFileDescriptor()}, IOSQE_FIXED_FILE,
-            Submission::ReadParameters{std::as_writable_bytes(std::span{&this->expireCount, 1}), 0}};
+auto Timer::setGenerator(Generator &&newGenerator) noexcept -> void { this->generator = std::move(newGenerator); }
+
+auto Timer::resumeGenerator(Outcome outcome) -> void {
+    this->awaiter.setOutcome(outcome);
+    this->generator.resume();
+}
+
+auto Timer::timing() -> const Awaiter & {
+    const Submission submission{Event{Event::Type::read, this->getFileDescriptor()}, IOSQE_FIXED_FILE,
+                                Submission::Read{std::as_writable_bytes(std::span{&this->expireCount, 1}), 0}};
     this->getRing()->submit(submission);
+
+    return this->awaiter;
 }
 
 auto Timer::add(int fileDescriptor, unsigned long seconds) -> void {

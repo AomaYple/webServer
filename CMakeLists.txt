@@ -12,9 +12,10 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 
 target_sources(${PROJECT_NAME} PRIVATE
-        src/database/Database.cpp
+        src/coroutine/Awaiter.cpp
+        src/coroutine/Generator.cpp
 
-        src/eventLoop/EventLoop.cpp
+        src/database/Database.cpp
 
         src/fileDescriptor/Client.cpp
         src/fileDescriptor/FileDescriptor.cpp
@@ -32,13 +33,16 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/log/Exception.cpp
         src/log/Log.cpp
         src/log/logger.cpp
-        src/log/SafeQueue.cpp
+        src/log/LogQueue.cpp
 
         src/ring/Completion.cpp
         src/ring/Event.cpp
+        src/ring/Outcome.cpp
         src/ring/Ring.cpp
         src/ring/RingBuffer.cpp
         src/ring/Submission.cpp
+
+        src/scheduler/Scheduler.cpp
 
         src/main.cpp
 )

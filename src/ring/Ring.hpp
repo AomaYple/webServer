@@ -6,8 +6,8 @@
 #include <source_location>
 #include <span>
 
-class Completion;
-class Submission;
+struct Completion;
+struct Submission;
 
 class Ring {
 public:

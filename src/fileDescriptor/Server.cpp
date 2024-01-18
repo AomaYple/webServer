@@ -24,11 +24,20 @@ auto Server::create(unsigned short port) -> int {
 
 Server::Server(int fileDescriptor, std::shared_ptr<Ring> ring) : FileDescriptor(fileDescriptor, std::move(ring)) {}
 
-auto Server::accept() const -> void {
+auto Server::setGenerator(Generator &&newGenerator) noexcept -> void { this->generator = std::move(newGenerator); }
+
+auto Server::resumeGenerator(Outcome outcome) -> void {
+    this->awaiter.setOutcome(outcome);
+    this->generator.resume();
+}
+
+auto Server::startAccept() const -> void {
     const Submission submission{Event{Event::Type::accept, this->getFileDescriptor()}, IOSQE_FIXED_FILE,
-                                Submission::AcceptParameters{nullptr, nullptr, 0}};
+                                Submission::Accept{nullptr, nullptr, 0}};
     this->getRing()->submit(submission);
 }
+
+auto Server::accept() const noexcept -> const Awaiter & { return this->awaiter; }
 
 auto Server::socket(std::source_location sourceLocation) -> int {
     const int fileDescriptor{::socket(AF_INET, SOCK_STREAM, 0)};

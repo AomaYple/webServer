@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Event.hpp"
+#include "Outcome.hpp"
 
 struct Completion {
     Event event;
-    int result;
-    unsigned int flags;
+    Outcome outcome;
 };

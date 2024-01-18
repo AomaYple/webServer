@@ -8,31 +8,31 @@
 #include <variant>
 
 struct Submission {
-    struct AcceptParameters {
+    struct Accept {
         sockaddr *address;
         socklen_t *addressLength;
         int flags;
     };
 
-    struct ReadParameters {
+    struct Read {
         std::span<std::byte> buffer;
         unsigned long offset;
     };
 
-    struct ReceiveParameters {
+    struct Receive {
         int flags;
         int ringBufferId;
     };
 
-    struct SendParameters {
+    struct Send {
         std::span<const std::byte> buffer;
         int flags;
         unsigned int zeroCopyFlags;
     };
 
-    struct CloseParameters {};
+    struct Close {};
 
     Event event;
     unsigned int flags;
-    std::variant<AcceptParameters, ReadParameters, ReceiveParameters, SendParameters, CloseParameters> parameters;
+    std::variant<Accept, Read, Receive, Send, Close> parameters;
 };
