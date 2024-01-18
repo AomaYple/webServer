@@ -8,6 +8,13 @@
             document.querySelector('form').addEventListener('submit', function (event) {
                 event.preventDefault();
 
+                const password = document.querySelector('input[name="password"]').value;
+                const repeatPassword = document.querySelector('input[name="repeatPassword"]').value;
+                if (password !== repeatPassword) {
+                    alert('两次输入的密码不一致');
+                    return
+                }
+
                 fetch('http://localhost:8080', {
                     method: 'POST',
                     headers: {
@@ -15,7 +22,7 @@
                     },
                     body: JSON.stringify({
                         method: 'register',
-                        password: document.querySelector('input[name="password"]').value
+                        password: password
                     })
                 }).then(function (response) {
                     if (response.ok) {
