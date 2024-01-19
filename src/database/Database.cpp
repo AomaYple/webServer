@@ -1,5 +1,7 @@
 #include "Database.hpp"
 
+#include "../log/Exception.hpp"
+
 #include <utility>
 
 Database::Database(Database &&other) noexcept : handle{std::exchange(other.handle, nullptr)} {}

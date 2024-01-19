@@ -1,9 +1,10 @@
 #pragma once
 
-#include "../log/Exception.hpp"
-
 #include <mysql/mysql.h>
 
+#include <mutex>
+#include <source_location>
+#include <string_view>
 #include <vector>
 
 class Database {
