@@ -121,7 +121,7 @@ auto Ring::submit(const Submission &submission) -> void {
     io_uring_sqe_set_flags(sqe, submission.flags);
 }
 
-auto Ring::traverseCompletion(const std::function<auto(const Completion &completion)->void> &task) -> void {
+auto Ring::poll(const std::function<auto(const Completion &completion)->void> &action) -> void {
     this->wait(1);
 
     int count{0};
@@ -129,7 +129,7 @@ auto Ring::traverseCompletion(const std::function<auto(const Completion &complet
 
     const io_uring_cqe *cqe;
     io_uring_for_each_cqe(&this->handle, head, cqe) {
-        task({std::bit_cast<Event>(io_uring_cqe_get_data64(cqe)), Outcome{cqe->res, cqe->flags}});
+        action({std::bit_cast<Event>(io_uring_cqe_get_data64(cqe)), Outcome{cqe->res, cqe->flags}});
         ++count;
     }
 

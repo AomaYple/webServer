@@ -1,6 +1,7 @@
 #include "Scheduler.hpp"
 
 #include "../fileDescriptor/Client.hpp"
+#include "../log/Exception.hpp"
 #include "../log/logger.hpp"
 #include "../ring/Completion.hpp"
 
@@ -56,7 +57,7 @@ auto Scheduler::run() -> void {
     this->timer.setGenerator(this->timing());
 
     while (Scheduler::switcher.test(std::memory_order::relaxed)) {
-        this->ring->traverseCompletion([this](const Completion &completion) {
+        this->ring->poll([this](const Completion &completion) {
             switch (completion.event.type) {
                 case Event::Type::accept:
                     this->server.resumeGenerator(completion.outcome);
@@ -183,12 +184,10 @@ auto Scheduler::receive(Client &client, std::source_location sourceLocation) -> 
 }
 
 auto Scheduler::send(Client &client, std::source_location sourceLocation) -> Generator {
-    const std::byte end{'\n'};
-    client.writeToBuffer(std::as_bytes(std::span{&end, 1}));
     const std::span<const std::byte> receivedData{client.readFromBuffer()};
-
     std::vector<std::byte> response{this->httpParse.parse(
-            std::string_view{reinterpret_cast<const char *>(receivedData.data()), receivedData.size() - 1})};
+            std::string_view{reinterpret_cast<const char *>(receivedData.data()), receivedData.size()})};
+
     client.clearBuffer();
     client.writeToBuffer(response);
 

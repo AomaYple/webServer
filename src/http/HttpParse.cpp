@@ -1,6 +1,7 @@
 #include "HttpParse.hpp"
 
 #include "../json/JsonValue.hpp"
+#include "../log/Exception.hpp"
 #include "../log/logger.hpp"
 
 #include <brotli/encode.h>

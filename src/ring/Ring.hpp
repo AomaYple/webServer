@@ -51,7 +51,7 @@ public:
 
     auto submit(const Submission &submission) -> void;
 
-    auto traverseCompletion(const std::function<auto(const Completion &completion)->void> &task) -> void;
+    auto poll(const std::function<auto(const Completion &completion)->void> &action) -> void;
 
 private:
     [[nodiscard]] static auto initialize(unsigned int entries, io_uring_params &params,

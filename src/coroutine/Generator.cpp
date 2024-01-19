@@ -19,7 +19,7 @@ auto Generator::operator=(Generator &&other) noexcept -> Generator & {
     return *this;
 }
 
-auto Generator::resume() const -> void { this->handle.resume(); }
+auto Generator::resume() const -> void { this->handle(); }
 
 auto Generator::destroy() const -> void {
     if (this->handle) this->handle.destroy();

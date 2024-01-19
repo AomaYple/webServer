@@ -5,15 +5,11 @@
 class Generator {
 public:
     struct promise_type {
-        auto get_return_object() -> Generator;
+        [[nodiscard]] auto get_return_object() -> Generator;
 
-        [[nodiscard]] constexpr auto initial_suspend() const noexcept -> std::suspend_never {
-            return std::suspend_never{};
-        }
+        [[nodiscard]] constexpr auto initial_suspend() const noexcept -> std::suspend_never { return {}; }
 
-        [[nodiscard]] constexpr auto final_suspend() const noexcept -> std::suspend_always {
-            return std::suspend_always{};
-        }
+        [[nodiscard]] constexpr auto final_suspend() const noexcept -> std::suspend_always { return {}; }
 
         auto unhandled_exception() const -> void;
     };
