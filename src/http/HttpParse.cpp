@@ -110,7 +110,7 @@ auto HttpParse::parsePath() -> void {
     } else if (url.ends_with("ico")) {
         this->httpResponse.addHeader("Content-Type: image/x-icon");
 
-        folder = "resources";
+        folder = "resources/images";
     } else if (url.ends_with("mp4")) {
         this->httpResponse.addHeader("Content-Type: video/mp4");
 
