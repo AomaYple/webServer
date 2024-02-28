@@ -103,7 +103,7 @@ auto HttpParse::parsePath() -> void {
         this->isBrotli = true;
 
         folder = "resources/web";
-    } else if (url.ends_with("jpg")) {
+    } else if (url.ends_with("png")) {
         this->httpResponse.addHeader("Content-Type: image/jpg");
 
         folder = "resources/images";
