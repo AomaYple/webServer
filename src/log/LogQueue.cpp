@@ -1,15 +1,5 @@
 #include "LogQueue.hpp"
 
-LogQueue::LogQueue(const LogQueue &other) : head{other.copy()} {}
-
-auto LogQueue::operator=(const LogQueue &other) -> LogQueue & {
-    this->clear();
-
-    this->head.store(other.copy(), std::memory_order::relaxed);
-
-    return *this;
-}
-
 LogQueue::LogQueue(LogQueue &&other) noexcept : head{other.head.exchange(nullptr, std::memory_order::relaxed)} {}
 
 auto LogQueue::operator=(LogQueue &&other) noexcept -> LogQueue & {
@@ -52,20 +42,6 @@ auto LogQueue::clear() noexcept -> void {
         node = node->next;
         delete oldNode;
     }
-}
-
-auto LogQueue::copy() const -> LogQueue::Node * {
-    Node *node{this->head.load(std::memory_order::relaxed)}, *newNode{};
-
-    for (Node *current{newNode}; node != nullptr; node = node->next) {
-        if (current == nullptr) current = newNode = new Node{node->log};
-        else {
-            current->next = new Node{node->log};
-            current = current->next;
-        }
-    }
-
-    return newNode;
 }
 
 auto LogQueue::invert() noexcept -> Node * {

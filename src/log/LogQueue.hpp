@@ -13,9 +13,9 @@ class LogQueue {
 public:
     constexpr LogQueue() noexcept = default;
 
-    LogQueue(const LogQueue &);
+    LogQueue(const LogQueue &) = delete;
 
-    auto operator=(const LogQueue &) -> LogQueue &;
+    auto operator=(const LogQueue &) -> LogQueue & = delete;
 
     LogQueue(LogQueue &&) noexcept;
 
@@ -30,8 +30,6 @@ public:
     auto clear() noexcept -> void;
 
 private:
-    [[nodiscard]] auto copy() const -> Node *;
-
     [[nodiscard]] auto invert() noexcept -> Node *;
 
     std::atomic<Node *> head;
