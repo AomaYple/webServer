@@ -109,7 +109,7 @@ auto Scheduler::initializeRing(std::source_location sourceLocation) -> std::shar
     Scheduler::instance = true;
 
     io_uring_params params{};
-    params.flags = IORING_SETUP_SUBMIT_ALL | IORING_SETUP_CLAMP | IORING_SETUP_COOP_TASKRUN |
+    params.flags = IORING_SETUP_CLAMP | IORING_SETUP_SUBMIT_ALL | IORING_SETUP_COOP_TASKRUN |
                    IORING_SETUP_TASKRUN_FLAG | IORING_SETUP_SINGLE_ISSUER | IORING_SETUP_DEFER_TASKRUN;
 
     const std::lock_guard lockGuard{Scheduler::lock};
