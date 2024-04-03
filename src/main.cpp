@@ -7,15 +7,15 @@ auto main() -> int {
     logger::start();
     Scheduler::registerSignal();
 
-    std::vector<std::jthread> works{std::jthread::hardware_concurrency() - 2};
-    for (auto &work: works)
-        work = std::jthread{[] {
-            Scheduler eventLoop;
-            eventLoop.run();
+    std::vector<std::jthread> workers{std::jthread::hardware_concurrency() - 2};
+    for (auto &worker: workers)
+        worker = std::jthread{[] {
+            Scheduler scheduler;
+            scheduler.run();
         }};
 
-    Scheduler eventLoop;
-    eventLoop.run();
+    Scheduler scheduler;
+    scheduler.run();
 
     logger::stop();
 

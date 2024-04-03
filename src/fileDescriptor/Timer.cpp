@@ -26,7 +26,7 @@ auto Timer::resumeGenerator(Outcome outcome) -> void {
 
 auto Timer::timing() -> const Awaiter & {
     const Submission submission{Event{Event::Type::read, this->getFileDescriptor()}, IOSQE_FIXED_FILE,
-                                Submission::Read{std::as_writable_bytes(std::span{&this->expireCount, 1}), 0}};
+                                Submission::Read{std::as_writable_bytes(std::span{&this->timeout, 1}), 0}};
     this->getRing()->submit(submission);
 
     return this->awaiter;
@@ -59,7 +59,7 @@ auto Timer::remove(int fileDescriptor) -> void {
 auto Timer::clearTimeout() -> std::vector<int> {
     std::vector<int> result;
 
-    while (this->expireCount > 0) {
+    while (this->timeout > 0) {
         {
             std::unordered_map<int, unsigned long> &wheelPoint{this->wheel[this->now]};
             for (auto element{wheelPoint.cbegin()}; element != wheelPoint.cend();) {
@@ -79,7 +79,7 @@ auto Timer::clearTimeout() -> std::vector<int> {
             for (auto &wheelPoint: this->wheel)
                 for (auto &element: wheelPoint) --element.second;
 
-        --this->expireCount;
+        --this->timeout;
     }
 
     return result;

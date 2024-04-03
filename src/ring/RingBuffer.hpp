@@ -6,7 +6,7 @@
 
 class RingBuffer {
 public:
-    RingBuffer(unsigned int entries, unsigned int bufferSize, int id, std::shared_ptr<Ring> ring);
+    RingBuffer(unsigned int entries, unsigned int size, int id, std::shared_ptr<Ring> ring);
 
     RingBuffer(const RingBuffer &) = delete;
 
@@ -20,14 +20,14 @@ public:
 
     [[nodiscard]] auto getId() const noexcept -> int;
 
-    [[nodiscard]] auto getData(unsigned short index, unsigned int dataSize) -> std::vector<std::byte>;
+    [[nodiscard]] auto readFromBuffer(unsigned short index, unsigned int size) -> std::vector<std::byte>;
 
 private:
     auto destroy() const -> void;
 
-    auto addBuffer(unsigned short index) noexcept -> void;
+    auto add(unsigned short index) -> void;
 
-    auto advanceBuffer() noexcept -> void;
+    auto advance() -> void;
 
     io_uring_buf_ring *handle;
     std::vector<std::vector<std::byte>> buffers;

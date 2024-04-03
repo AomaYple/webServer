@@ -35,8 +35,8 @@ auto Client::startReceive() const -> void {
 
 auto Client::receive() const noexcept -> const Awaiter & { return this->awaiter; }
 
-auto Client::getReceivedData(unsigned short index, unsigned int dataSize) -> std::vector<std::byte> {
-    return this->ringBuffer.getData(index, dataSize);
+auto Client::getReceivedData(unsigned short index, unsigned int size) -> std::vector<std::byte> {
+    return this->ringBuffer.readFromBuffer(index, size);
 }
 
 auto Client::writeToBuffer(std::span<const std::byte> data) -> void {

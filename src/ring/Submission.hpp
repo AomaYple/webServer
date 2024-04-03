@@ -34,5 +34,5 @@ struct Submission {
 
     Event event;
     unsigned int flags;
-    std::variant<Accept, Read, Receive, Send, Close> parameters;
+    std::variant<Accept, Read, Receive, Send, Close> parameter;
 };

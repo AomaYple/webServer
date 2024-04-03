@@ -33,7 +33,7 @@ public:
 
     [[nodiscard]] auto receive() const noexcept -> const Awaiter &;
 
-    [[nodiscard]] auto getReceivedData(unsigned short index, unsigned int dataSize) -> std::vector<std::byte>;
+    [[nodiscard]] auto getReceivedData(unsigned short index, unsigned int size) -> std::vector<std::byte>;
 
     auto writeToBuffer(std::span<const std::byte> data) -> void;
 

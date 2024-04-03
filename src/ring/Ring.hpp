@@ -58,13 +58,13 @@ private:
                                          std::source_location sourceLocation = std::source_location::current())
             -> io_uring;
 
-    auto destroy() noexcept -> void;
+    auto destroy() -> void;
 
     [[nodiscard]] auto getSqe(std::source_location sourceLocation = std::source_location::current()) -> io_uring_sqe *;
 
     auto wait(unsigned int count, std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto advanceCompletion(int count) noexcept -> void;
+    auto advance(int count) -> void;
 
     io_uring handle;
 };

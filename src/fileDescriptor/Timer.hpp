@@ -41,7 +41,7 @@ private:
     static auto setTime(int fileDescriptor, std::source_location sourceLocation = std::source_location::current())
             -> void;
 
-    unsigned long expireCount{}, now{};
+    unsigned long timeout{}, now{};
     std::array<std::unordered_map<int, unsigned long>, 65> wheel;
     std::unordered_map<int, unsigned long> location;
     Generator generator{nullptr};
