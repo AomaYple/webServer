@@ -18,7 +18,9 @@ public:
 
     ~HttpParse() = default;
 
-    [[nodiscard]] auto parse(std::string_view request) -> std::vector<std::byte>;
+    [[nodiscard]] auto parse(std::string_view request,
+                             std::source_location sourceLocation = std::source_location::current())
+            -> std::vector<std::byte>;
 
 private:
     auto clear() noexcept -> void;
@@ -35,6 +37,8 @@ private:
                       std::source_location sourceLocation = std::source_location::current()) -> void;
 
     auto brotli(std::source_location sourceLocation = std::source_location::current()) -> void;
+
+    auto handleException() -> void;
 
     HttpRequest httpRequest;
     HttpResponse httpResponse;

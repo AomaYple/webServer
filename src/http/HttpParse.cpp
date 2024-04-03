@@ -12,17 +12,16 @@
 
 HttpParse::HttpParse(Database &&database) noexcept : database{std::move(database)} {}
 
-auto HttpParse::parse(std::string_view request) -> std::vector<std::byte> {
-    this->httpRequest = HttpRequest{request};
-
+auto HttpParse::parse(std::string_view request, std::source_location sourceLocation) -> std::vector<std::byte> {
     try {
+        this->httpRequest = HttpRequest{request};
         this->parseVersion();
     } catch (Exception &exception) {
-        this->httpResponse.setStatusCode("500 Internal Server Error");
-        this->httpResponse.clearHeaders();
-        this->isWriteBody = false;
-
+        this->handleException();
         logger::push(std::move(exception.getLog()));
+    } catch (std::exception &exception) {
+        this->handleException();
+        logger::push(Log{Log::Level::warn, exception.what(), sourceLocation});
     }
 
     this->httpResponse.addHeader("Content-Length: " + std::to_string(this->body.size()));
@@ -201,4 +200,10 @@ auto HttpParse::brotli(std::source_location sourceLocation) -> void {
 
     encodedBody.resize(encodedSize);
     this->body = std::move(encodedBody);
+}
+
+auto HttpParse::handleException() -> void {
+    this->httpResponse.setStatusCode("500 Internal Server Error");
+    this->httpResponse.clearHeaders();
+    this->isWriteBody = false;
 }
