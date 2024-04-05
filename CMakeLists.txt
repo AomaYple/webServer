@@ -64,7 +64,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 )
 
 add_custom_command(TARGET ${PROJECT_NAME}
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/resources ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/resources
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/resources/images ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/resources/images
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/resources/videos ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/resources/videos
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/resources/web ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/resources/web
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources
         VERBATIM
 )

@@ -7,7 +7,7 @@
 Arch WSL
 8核16线程，16G内存  
 利用[wrk](https://github.com/wg/wrk)测试，测试结果如下  
-![image](test/test.png)
+![image](resources/test.png)
 
 RPS:172万（每秒处理的请求数量）
 
@@ -15,7 +15,7 @@ wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生�
 
 ## 登录注册演示
 
-![image](test/test.gif)
+![image](resources/show.gif)
 
 ## 并发模型
 
