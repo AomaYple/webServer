@@ -1,11 +1,10 @@
 ## 介绍
 
-本项目是一个基于c++23和io_uring的异步高并发Proactor模式服务器，利用io_uring的特性实现真正的异步收发
+本项目是linux上一个基于c++23和io_uring的异步高并发Proactor模式服务器，利用io_uring的特性实现真正的异步收发
 
 ## 性能测试
 
-Arch WSL
-8核16线程，16G内存  
+Arch WSL 8核  
 利用[wrk](https://github.com/wg/wrk)测试，测试结果如下  
 ![image](resources/test.png)
 
