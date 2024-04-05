@@ -17,10 +17,6 @@ wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生�
 
 ![image](resources/show.gif)
 
-## 并发模型
-
-模型是one loop per thread，各线程间相互独立，互不干扰
-
 ## 调度器
 
 每个调度器都持有一个io_uring实例，服务器实例，定时器实例和数据库连接,对产生的事件进行处理
