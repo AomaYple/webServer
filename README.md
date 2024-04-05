@@ -38,6 +38,10 @@
 
 程序会根据cpu核心数创建相应数量的调度器，每个调度器互相独立，互不干扰
 
+## 信号处理
+
+程序会处理SIGTERM和SIGINT信号，优雅地关闭服务器
+
 ## 环境
 
 kernel 6.1以上，gcc13以上，liburing，cmake，ninja，brotli，mariadb
