@@ -4,7 +4,7 @@
 
 ## 协程
 
-简单包装<coroutine>，实现了Awaiter和Generator
+简单包装coroutine，实现了Awaiter和Generator
 
 ## json
 
