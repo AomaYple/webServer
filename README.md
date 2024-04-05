@@ -1,72 +1,42 @@
 ## 介绍
 
-本项目是linux上一个基于c++23和io_uring的异步高并发Proactor模式服务器，利用io_uring的特性实现真正的异步收发
-
-## 性能测试
-
-Arch WSL 8核  
-利用[wrk](https://github.com/wg/wrk)测试，测试结果如下  
-![image](resources/test.png)
-
-RPS:172万（每秒处理的请求数量）
-
-wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生巨大的负载。它将多线程设计与可扩展的事件通知系统（如epoll和kqueue）相结合
-
-## 登录注册演示
-
-![image](resources/show.gif)
-
-## 调度器
-
-每个调度器都持有一个io_uring实例，服务器实例，定时器实例和数据库连接,对产生的事件进行处理
+本项目是linux上一个基于c++23和io_uring的异步高并发Proactor模式服务器
 
 ## 协程
 
-目前gcc还没有实现generator，所以简单包装了一下，实现了协程的功能
+简单地包装<coroutine>，实现了Awaiter和Generator
 
-## 异步日志
+## json
 
-日志利用异步的无锁队列实现，前端只需往队列中添加日志，后端会自动将日志写入到log.log文件，真正实现异步写入且线程安全
+基于递归下降实现了对json的解析和生成
+
+## 日志
+
+基于单例模式和无锁队列实现，前端只需往队列中添加日志，后端会自动将日志写入到log.log文件，并实现了一个简单的异常类
 
 ## io_uring
 
-使用RAII包装io_uring中的各个资源与函数，实现生命周期的良好管理
-
-## 数据库
-
-数据库使用mariadb，通过对mariadb c api的简单封装，实现了数据库的连接与断开，查询和插入，在运行前需要在mariadb中创建数据库和表，如下
-
-```shell
-create database webServer;
-
-use webServer;
-
-CREATE TABLE `users` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `password` varchar(32) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-```
-
-## 定时器
-
-利用时间轮实现定时器，定时器的精度为1s，会自动处理超时的文件描述符
+简单包装了liburing中的各种函数和资源
 
 ## 服务器与客户端
 
 简单对文件描述符进行封装，实现了对文件描述符的读写，关闭等操作
 
-## json解析
+## 定时器
 
-简单实现了json的解析，支持json的大部分语法
+基于时间轮实现定时器，定时器的精度为1s，会自动处理超时的文件描述符
 
-## http解析
+## http
 
-支持长连接，支持http1.1，支持GET和HEAD和POST请求，支持静态资源请求，支持br压缩，利用mariadb支持登陆与注册，支持网页，图片和视频的请求
+支持http1.1、长连接和br压缩，支持GET和HEAD和POST，支持静态资源请求，支持请求网页，图片、视频，支持登录和注册
+
+## 调度器
+
+每个调度器都持有一个io_uring实例，服务器实例，定时器实例和数据库连接，调度器将会调度协程的挂起、恢复和销毁
 
 ## 环境
 
-linux kernel 6.1以上，gcc13以上，liburing2.4以上，cmake，ninja，brotli，mariadb
+kernel 6.1以上，gcc13以上，liburing，cmake，ninja，brotli，mariadb
 
 ## 编译
 
@@ -82,3 +52,18 @@ ninja
 cd build/webServer
 ./webServer
 ```
+
+## 性能测试
+
+Arch WSL  
+8核  
+利用[wrk](https://github.com/wg/wrk)测试，测试结果如下  
+![image](resources/test.png)
+
+RPS:172万（每秒处理的请求数量）
+
+wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生巨大的负载。它将多线程设计与可扩展的事件通知系统（如epoll和kqueue）相结合
+
+## 演示
+
+![image](resources/show.gif)
