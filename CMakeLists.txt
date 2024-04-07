@@ -14,6 +14,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 target_sources(${PROJECT_NAME} PRIVATE
         src/coroutine/Awaiter.cpp
         src/coroutine/Generator.cpp
+        src/coroutine/Scheduler.cpp
 
         src/fileDescriptor/Client.cpp
         src/fileDescriptor/FileDescriptor.cpp
@@ -40,8 +41,6 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/ring/Ring.cpp
         src/ring/RingBuffer.cpp
         src/ring/Submission.cpp
-
-        src/scheduler/Scheduler.cpp
 
         src/main.cpp
 )
