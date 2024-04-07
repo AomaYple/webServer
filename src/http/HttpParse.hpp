@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../database/Database.hpp"
+#include "Database.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 
 class HttpParse {
 public:
-    explicit HttpParse(Database &&database) noexcept;
+    HttpParse();
 
     HttpParse(const HttpParse &) = delete;
 
@@ -44,5 +44,5 @@ private:
     HttpResponse httpResponse;
     Database database;
     std::vector<std::byte> body;
-    bool isWriteBody{true}, isBrotli{};
+    bool wroteBody{true}, isBrotli{};
 };

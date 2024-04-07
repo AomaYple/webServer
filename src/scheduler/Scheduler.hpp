@@ -28,8 +28,6 @@ private:
     [[nodiscard]] static auto initializeRing(std::source_location sourceLocation = std::source_location::current())
             -> std::shared_ptr<Ring>;
 
-    [[nodiscard]] static auto initializeHttpParse() -> HttpParse;
-
     [[nodiscard]] auto accept(std::source_location sourceLocation = std::source_location::current()) -> Generator;
 
     [[nodiscard]] auto timing(std::source_location sourceLocation = std::source_location::current()) -> Generator;
@@ -52,6 +50,6 @@ private:
     const std::shared_ptr<Ring> ring{Scheduler::initializeRing()};
     Server server{0, this->ring};
     Timer timer{1, this->ring};
-    HttpParse httpParse{Scheduler::initializeHttpParse()};
+    HttpParse httpParse;
     std::unordered_map<int, Client> clients;
 };

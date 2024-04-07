@@ -132,15 +132,6 @@ auto Scheduler::initializeRing(std::source_location sourceLocation) -> std::shar
     return ring;
 }
 
-auto Scheduler::initializeHttpParse() -> HttpParse {
-    Database database;
-    database.connect({}, "AomaYple", "38820233", "webServer", 0, {}, 0);
-
-    HttpParse httpParse{std::move(database)};
-
-    return httpParse;
-}
-
 auto Scheduler::accept(std::source_location sourceLocation) -> Generator {
     this->server.startAccept();
 

@@ -15,13 +15,12 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/coroutine/Awaiter.cpp
         src/coroutine/Generator.cpp
 
-        src/database/Database.cpp
-
         src/fileDescriptor/Client.cpp
         src/fileDescriptor/FileDescriptor.cpp
         src/fileDescriptor/Server.cpp
         src/fileDescriptor/Timer.cpp
 
+        src/http/Database.cpp
         src/http/HttpParse.cpp
         src/http/HttpRequest.cpp
         src/http/HttpResponse.cpp
