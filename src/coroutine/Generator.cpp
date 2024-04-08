@@ -19,6 +19,8 @@ auto Generator::operator=(Generator &&other) noexcept -> Generator & {
     return *this;
 }
 
+Generator::~Generator() { this->destroy(); }
+
 auto Generator::resume() const -> void { this->handle.resume(); }
 
 auto Generator::destroy() const -> void {

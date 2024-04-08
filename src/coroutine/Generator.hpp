@@ -24,6 +24,8 @@ public:
 
     auto operator=(Generator &&) noexcept -> Generator &;
 
+    ~Generator();
+
     auto resume() const -> void;
 
 private:
