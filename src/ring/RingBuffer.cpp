@@ -1,5 +1,7 @@
 #include "RingBuffer.hpp"
 
+#include "Ring.hpp"
+
 #include <utility>
 
 RingBuffer::RingBuffer(unsigned int entries, unsigned int size, int id, std::shared_ptr<Ring> ring)
@@ -47,9 +49,9 @@ auto RingBuffer::destroy() const -> void {
     if (this->handle != nullptr) this->ring->freeRingBuffer(this->handle, this->buffers.size(), this->id);
 }
 
-auto RingBuffer::add(unsigned short index) -> void {
+auto RingBuffer::add(unsigned short index) noexcept -> void {
     io_uring_buf_ring_add(this->handle, this->buffers[index].data(), this->buffers[index].size(), index, this->mask,
                           this->offset++);
 }
 
-auto RingBuffer::advance() -> void { io_uring_buf_ring_advance(this->handle, std::exchange(this->offset, 0)); }
+auto RingBuffer::advance() noexcept -> void { io_uring_buf_ring_advance(this->handle, std::exchange(this->offset, 0)); }

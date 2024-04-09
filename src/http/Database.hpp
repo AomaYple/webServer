@@ -13,7 +13,7 @@ public:
 
     Database(const Database &) = delete;
 
-    auto operator=(const Database &) -> Database & = delete;
+    auto operator=(const Database &) = delete;
 
     Database(Database &&) noexcept;
 

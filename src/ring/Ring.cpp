@@ -82,43 +82,44 @@ auto Ring::freeRingBuffer(io_uring_buf_ring *ringBufferHandle, unsigned int entr
 auto Ring::submit(const Submission &submission) -> void {
     io_uring_sqe *const sqe{this->getSqe()};
 
-    switch (submission.event.type) {
-        case Event::Type::accept: {
-            const Submission::Accept &parameter{std::get<Submission::Accept>(submission.parameter)};
-            io_uring_prep_multishot_accept_direct(sqe, submission.event.fileDescriptor, parameter.address,
+    switch (submission.parameter.index()) {
+        case 0: {
+            const Submission::Accept &parameter{std::get<0>(submission.parameter)};
+            io_uring_prep_multishot_accept_direct(sqe, submission.fileDescriptor, parameter.address,
                                                   parameter.addressLength, parameter.flags);
 
             break;
         }
-        case Event::Type::read: {
-            const Submission::Read &parameter{std::get<Submission::Read>(submission.parameter)};
-            io_uring_prep_read(sqe, submission.event.fileDescriptor, parameter.buffer.data(), parameter.buffer.size(),
+        case 1: {
+            const Submission::Read &parameter{std::get<1>(submission.parameter)};
+            io_uring_prep_read(sqe, submission.fileDescriptor, parameter.buffer.data(), parameter.buffer.size(),
                                parameter.offset);
 
             break;
         }
-        case Event::Type::receive: {
-            const Submission::Receive &parameter{std::get<Submission::Receive>(submission.parameter)};
-            io_uring_prep_recv_multishot(sqe, submission.event.fileDescriptor, nullptr, 0, parameter.flags);
+        case 2: {
+            const Submission::Receive &parameter{std::get<2>(submission.parameter)};
+            io_uring_prep_recv_multishot(sqe, submission.fileDescriptor, parameter.buffer.data(),
+                                         parameter.buffer.size(), parameter.flags);
             sqe->buf_group = parameter.ringBufferId;
 
             break;
         }
-        case Event::Type::send: {
-            const Submission::Send &parameter{std::get<Submission::Send>(submission.parameter)};
-            io_uring_prep_send_zc(sqe, submission.event.fileDescriptor, parameter.buffer.data(),
-                                  parameter.buffer.size(), parameter.flags, parameter.zeroCopyFlags);
+        case 3: {
+            const Submission::Send &parameter{std::get<3>(submission.parameter)};
+            io_uring_prep_send_zc(sqe, submission.fileDescriptor, parameter.buffer.data(), parameter.buffer.size(),
+                                  parameter.flags, parameter.zeroCopyFlags);
 
             break;
         }
-        case Event::Type::close:
-            io_uring_prep_close_direct(sqe, submission.event.fileDescriptor);
+        case 4:
+            io_uring_prep_close_direct(sqe, submission.fileDescriptor);
 
             break;
     }
 
-    io_uring_sqe_set_data64(sqe, std::bit_cast<unsigned long>(submission.event));
     io_uring_sqe_set_flags(sqe, submission.flags);
+    io_uring_sqe_set_data64(sqe, submission.userData);
 }
 
 auto Ring::poll(const std::function<auto(const Completion &completion)->void> &action) -> void {
@@ -129,7 +130,7 @@ auto Ring::poll(const std::function<auto(const Completion &completion)->void> &a
 
     const io_uring_cqe *cqe;
     io_uring_for_each_cqe(&this->handle, head, cqe) {
-        action({std::bit_cast<Event>(io_uring_cqe_get_data64(cqe)), Outcome{cqe->res, cqe->flags}});
+        action({io_uring_cqe_get_data64(cqe), {cqe->res, cqe->flags}});
         ++count;
     }
 
@@ -145,7 +146,7 @@ auto Ring::initialize(unsigned int entries, io_uring_params &params, std::source
     return handle;
 }
 
-auto Ring::destroy() -> void {
+auto Ring::destroy() noexcept -> void {
     if (this->handle.ring_fd != -1) io_uring_queue_exit(&this->handle);
 }
 
@@ -161,4 +162,4 @@ auto Ring::wait(unsigned int count, std::source_location sourceLocation) -> void
     if (result < 0) throw Exception{Log{Log::Level::error, std::strerror(std::abs(result)), sourceLocation}};
 }
 
-auto Ring::advance(int count) -> void { io_uring_cq_advance(&this->handle, count); }
+auto Ring::advance(int count) noexcept -> void { io_uring_cq_advance(&this->handle, count); }

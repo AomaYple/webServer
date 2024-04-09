@@ -1,19 +1,18 @@
 #pragma once
 
-#include "../ring/Outcome.hpp"
-
-#include <coroutine>
+#include "Task.hpp"
 
 class Awaiter {
 public:
-    [[nodiscard]] constexpr auto await_ready() const noexcept -> bool { return false; }
+    [[nodiscard]] constexpr auto await_ready() const noexcept { return false; }
 
-    constexpr auto await_suspend([[maybe_unused]] std::coroutine_handle<> handle) const noexcept -> void {}
+    auto await_suspend(std::coroutine_handle<Task::promise_type> newHandle) -> void;
 
-    [[nodiscard]] auto await_resume() const noexcept -> Outcome;
+    [[nodiscard]] auto await_resume() const -> Outcome;
 
-    auto setOutcome(Outcome newOutcome) noexcept -> void;
+    auto submit(const Submission &newSubmission) noexcept -> void;
 
 private:
-    Outcome outcome;
+    std::coroutine_handle<Task::promise_type> handle;
+    Submission submission;
 };

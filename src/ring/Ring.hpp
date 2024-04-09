@@ -18,7 +18,7 @@ public:
 
     Ring(const Ring &) = delete;
 
-    auto operator=(const Ring &) -> Ring & = delete;
+    auto operator=(const Ring &) = delete;
 
     Ring(Ring &&) noexcept;
 
@@ -58,13 +58,13 @@ private:
                                          std::source_location sourceLocation = std::source_location::current())
             -> io_uring;
 
-    auto destroy() -> void;
+    auto destroy() noexcept -> void;
 
     [[nodiscard]] auto getSqe(std::source_location sourceLocation = std::source_location::current()) -> io_uring_sqe *;
 
     auto wait(unsigned int count, std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    auto advance(int count) -> void;
+    auto advance(int count) noexcept -> void;
 
     io_uring handle;
 };

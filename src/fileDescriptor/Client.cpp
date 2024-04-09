@@ -1,39 +1,16 @@
 #include "Client.hpp"
 
-#include "../ring/Submission.hpp"
-
-Client::Client(int fileDescriptor, std::shared_ptr<Ring> ring, unsigned long seconds)
-    : FileDescriptor{fileDescriptor, std::move(ring)}, ringBuffer{1, 1024, fileDescriptor, this->getRing()},
-      seconds{seconds} {}
+Client::Client(int fileDescriptor, RingBuffer &&ringBuffer, unsigned long seconds) noexcept
+    : FileDescriptor{fileDescriptor}, ringBuffer{std::move(ringBuffer)}, seconds{seconds} {}
 
 auto Client::getSeconds() const noexcept -> unsigned long { return this->seconds; }
 
-auto Client::setFirstGenerator(Generator &&generator) noexcept -> void {
-    this->generators.first = std::move(generator);
+auto Client::startReceive() noexcept -> void {
+    this->getAwaiter().submit({this->getFileDescriptor(), Submission::Receive{{}, 0, this->ringBuffer.getId()},
+                               IOSQE_FIXED_FILE | IOSQE_BUFFER_SELECT, 0});
 }
 
-auto Client::resumeFirstGenerator(Outcome outcome) -> void {
-    this->setAwaiterOutcome(outcome);
-    this->generators.first.resume();
-}
-
-auto Client::setSecondGenerator(Generator &&generator) noexcept -> void {
-    this->generators.second = std::move(generator);
-}
-
-auto Client::resumeSecondGenerator(Outcome outcome) -> void {
-    this->setAwaiterOutcome(outcome);
-    this->generators.second.resume();
-}
-
-auto Client::startReceive() const -> void {
-    const Submission submission{Event{Event::Type::receive, this->getFileDescriptor()},
-                                IOSQE_FIXED_FILE | IOSQE_BUFFER_SELECT,
-                                Submission::Receive{0, this->ringBuffer.getId()}};
-    this->getRing()->submit(submission);
-}
-
-auto Client::receive() const noexcept -> const Awaiter & { return this->awaiter; }
+auto Client::receive() noexcept -> Awaiter & { return this->getAwaiter(); }
 
 auto Client::getReceivedData(unsigned short index, unsigned int size) -> std::vector<std::byte> {
     return this->ringBuffer.readFromBuffer(index, size);
@@ -47,12 +24,8 @@ auto Client::readFromBuffer() const noexcept -> std::span<const std::byte> { ret
 
 auto Client::clearBuffer() noexcept -> void { this->buffer.clear(); }
 
-auto Client::send() const -> const Awaiter & {
-    const Submission submission{Event{Event::Type::send, this->getFileDescriptor()}, IOSQE_FIXED_FILE,
-                                Submission::Send{this->buffer, 0, 0}};
-    this->getRing()->submit(submission);
+auto Client::send() noexcept -> Awaiter & {
+    this->getAwaiter().submit({this->getFileDescriptor(), Submission::Send{this->buffer, 0, 0}, IOSQE_FIXED_FILE, 0});
 
-    return this->awaiter;
+    return this->getAwaiter();
 }
-
-auto Client::setAwaiterOutcome(Outcome outcome) noexcept -> void { this->awaiter.setOutcome(outcome); }

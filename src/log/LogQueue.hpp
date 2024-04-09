@@ -15,7 +15,7 @@ public:
 
     LogQueue(const LogQueue &) = delete;
 
-    auto operator=(const LogQueue &) -> LogQueue & = delete;
+    auto operator=(const LogQueue &) = delete;
 
     LogQueue(LogQueue &&) noexcept;
 

@@ -10,7 +10,7 @@ public:
 
     HttpParse(const HttpParse &) = delete;
 
-    auto operator=(const HttpParse &) -> HttpParse & = delete;
+    auto operator=(const HttpParse &) = delete;
 
     HttpParse(HttpParse &&) = default;
 
@@ -44,5 +44,5 @@ private:
     HttpResponse httpResponse;
     Database database;
     std::vector<std::byte> body;
-    bool wroteBody{true}, isBrotli{};
+    bool isWriteBody{true}, isBrotli{};
 };

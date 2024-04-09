@@ -13,8 +13,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 target_sources(${PROJECT_NAME} PRIVATE
         src/coroutine/Awaiter.cpp
-        src/coroutine/Generator.cpp
         src/coroutine/Scheduler.cpp
+        src/coroutine/Task.cpp
 
         src/fileDescriptor/Client.cpp
         src/fileDescriptor/FileDescriptor.cpp
@@ -36,7 +36,6 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/log/LogQueue.cpp
 
         src/ring/Completion.cpp
-        src/ring/Event.cpp
         src/ring/Outcome.cpp
         src/ring/Ring.cpp
         src/ring/RingBuffer.cpp

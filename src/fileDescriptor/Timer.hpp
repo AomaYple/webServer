@@ -1,30 +1,18 @@
 #pragma once
 
-#include "../coroutine/Awaiter.hpp"
-#include "../coroutine/Generator.hpp"
 #include "FileDescriptor.hpp"
+
+#include <source_location>
+#include <unordered_map>
+#include <vector>
 
 class Timer : public FileDescriptor {
 public:
     [[nodiscard]] static auto create() -> int;
 
-    Timer(int fileDescriptor, std::shared_ptr<Ring> ring) noexcept;
+    explicit Timer(int fileDescriptor) noexcept;
 
-    Timer(const Timer &) = delete;
-
-    auto operator=(const Timer &) -> Timer & = delete;
-
-    Timer(Timer &&) = default;
-
-    auto operator=(Timer &&) -> Timer & = default;
-
-    ~Timer() = default;
-
-    auto setGenerator(Generator &&newGenerator) noexcept -> void;
-
-    auto resumeGenerator(Outcome outcome) -> void;
-
-    [[nodiscard]] auto timing() -> const Awaiter &;
+    [[nodiscard]] auto timing() noexcept -> Awaiter &;
 
     auto add(int fileDescriptor, unsigned long seconds) -> void;
 
@@ -44,6 +32,4 @@ private:
     unsigned long timeout{}, now{};
     std::array<std::unordered_map<int, unsigned long>, 65> wheel;
     std::unordered_map<int, unsigned long> location;
-    Generator generator{nullptr};
-    Awaiter awaiter{};
 };

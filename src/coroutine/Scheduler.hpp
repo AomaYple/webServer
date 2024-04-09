@@ -4,6 +4,9 @@
 #include "../fileDescriptor/Timer.hpp"
 #include "../http/HttpParse.hpp"
 
+#include <memory>
+
+class Ring;
 class Client;
 
 class Scheduler {
@@ -28,18 +31,20 @@ private:
     [[nodiscard]] static auto initializeRing(std::source_location sourceLocation = std::source_location::current())
             -> std::shared_ptr<Ring>;
 
-    [[nodiscard]] auto accept(std::source_location sourceLocation = std::source_location::current()) -> Generator;
+    auto submit(Task &&task) -> void;
 
-    [[nodiscard]] auto timing(std::source_location sourceLocation = std::source_location::current()) -> Generator;
+    [[nodiscard]] auto accept(std::source_location sourceLocation = std::source_location::current()) -> Task;
+
+    [[nodiscard]] auto timing(std::source_location sourceLocation = std::source_location::current()) -> Task;
 
     [[nodiscard]] auto receive(Client &client, std::source_location sourceLocation = std::source_location::current())
-            -> Generator;
+            -> Task;
 
     [[nodiscard]] auto send(Client &client, std::source_location sourceLocation = std::source_location::current())
-            -> Generator;
+            -> Task;
 
-    static auto closed(int fileDescriptor, int result,
-                       std::source_location sourceLocation = std::source_location::current()) -> void;
+    [[nodiscard]] auto close(int fileDescriptor, std::source_location sourceLocation = std::source_location::current())
+            -> Task;
 
     static constinit thread_local bool instance;
     static constinit std::mutex lock;
@@ -48,8 +53,9 @@ private:
     static constinit std::atomic_flag switcher;
 
     const std::shared_ptr<Ring> ring{Scheduler::initializeRing()};
-    Server server{0, this->ring};
-    Timer timer{1, this->ring};
+    Server server{0};
+    Timer timer{1};
     HttpParse httpParse;
     std::unordered_map<int, Client> clients;
+    std::unordered_map<unsigned long, Task> tasks;
 };

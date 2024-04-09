@@ -1,8 +1,8 @@
 #include "Timer.hpp"
 
 #include "../log/Exception.hpp"
-#include "../ring/Submission.hpp"
 
+#include <liburing.h>
 #include <sys/timerfd.h>
 
 #include <cstring>
@@ -14,22 +14,14 @@ auto Timer::create() -> int {
     return fileDescriptor;
 }
 
-Timer::Timer(int fileDescriptor, std::shared_ptr<Ring> ring) noexcept
-    : FileDescriptor{fileDescriptor, std::move(ring)} {}
+Timer::Timer(int fileDescriptor) noexcept : FileDescriptor{fileDescriptor} {}
 
-auto Timer::setGenerator(Generator &&newGenerator) noexcept -> void { this->generator = std::move(newGenerator); }
+auto Timer::timing() noexcept -> Awaiter & {
+    this->getAwaiter().submit({this->getFileDescriptor(),
+                               Submission::Read{std::as_writable_bytes(std::span{&this->timeout, 1}), 0},
+                               IOSQE_FIXED_FILE, 0});
 
-auto Timer::resumeGenerator(Outcome outcome) -> void {
-    this->awaiter.setOutcome(outcome);
-    this->generator.resume();
-}
-
-auto Timer::timing() -> const Awaiter & {
-    const Submission submission{Event{Event::Type::read, this->getFileDescriptor()}, IOSQE_FIXED_FILE,
-                                Submission::Read{std::as_writable_bytes(std::span{&this->timeout, 1}), 0}};
-    this->getRing()->submit(submission);
-
-    return this->awaiter;
+    return this->getAwaiter();
 }
 
 auto Timer::add(int fileDescriptor, unsigned long seconds) -> void {

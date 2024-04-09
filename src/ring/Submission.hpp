@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Event.hpp"
-
 #include <sys/socket.h>
 
 #include <span>
@@ -20,6 +18,7 @@ struct Submission {
     };
 
     struct Receive {
+        std::span<std::byte> buffer;
         int flags;
         int ringBufferId;
     };
@@ -32,7 +31,8 @@ struct Submission {
 
     struct Close {};
 
-    Event event;
-    unsigned int flags;
+    int fileDescriptor;
     std::variant<Accept, Read, Receive, Send, Close> parameter;
+    unsigned int flags;
+    unsigned long userData;
 };

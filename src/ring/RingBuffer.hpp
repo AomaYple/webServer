@@ -1,8 +1,11 @@
 #pragma once
 
-#include "Ring.hpp"
+#include <liburing.h>
 
 #include <memory>
+#include <vector>
+
+class Ring;
 
 class RingBuffer {
 public:
@@ -10,7 +13,7 @@ public:
 
     RingBuffer(const RingBuffer &) = delete;
 
-    auto operator=(const RingBuffer &) -> RingBuffer & = delete;
+    auto operator=(const RingBuffer &) = delete;
 
     RingBuffer(RingBuffer &&other) noexcept;
 
@@ -25,9 +28,9 @@ public:
 private:
     auto destroy() const -> void;
 
-    auto add(unsigned short index) -> void;
+    auto add(unsigned short index) noexcept -> void;
 
-    auto advance() -> void;
+    auto advance() noexcept -> void;
 
     io_uring_buf_ring *handle;
     std::vector<std::vector<std::byte>> buffers;

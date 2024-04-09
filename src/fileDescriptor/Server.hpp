@@ -1,34 +1,20 @@
 #pragma once
 
-#include "../coroutine/Awaiter.hpp"
-#include "../coroutine/Generator.hpp"
 #include "FileDescriptor.hpp"
 
 #include <netinet/in.h>
+
+#include <source_location>
 
 class Server : public FileDescriptor {
 public:
     [[nodiscard]] static auto create(unsigned short port) -> int;
 
-    Server(int fileDescriptor, std::shared_ptr<Ring> ring);
+    explicit Server(int fileDescriptor);
 
-    Server(const Server &) = delete;
+    auto startAccept() noexcept -> void;
 
-    auto operator=(const Server &) -> Server & = delete;
-
-    Server(Server &&) = default;
-
-    auto operator=(Server &&) -> Server & = default;
-
-    ~Server() = default;
-
-    auto setGenerator(Generator &&newGenerator) noexcept -> void;
-
-    auto resumeGenerator(Outcome outcome) -> void;
-
-    auto startAccept() const -> void;
-
-    [[nodiscard]] auto accept() const noexcept -> const Awaiter &;
+    [[nodiscard]] auto accept() noexcept -> Awaiter &;
 
 private:
     [[nodiscard]] static auto socket(std::source_location sourceLocation = std::source_location::current()) -> int;
@@ -44,7 +30,4 @@ private:
 
     static auto listen(int fileDescriptor, std::source_location sourceLocation = std::source_location::current())
             -> void;
-
-    Generator generator{nullptr};
-    Awaiter awaiter{};
 };

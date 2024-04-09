@@ -1,31 +1,29 @@
 #pragma once
 
-#include "../ring/Ring.hpp"
-
-#include <memory>
+#include "../coroutine/Awaiter.hpp"
 
 class FileDescriptor {
 public:
-    FileDescriptor(int fileDescriptor, std::shared_ptr<Ring> ring) noexcept;
+    explicit FileDescriptor(int fileDescriptor) noexcept;
 
     FileDescriptor(const FileDescriptor &) = delete;
 
-    auto operator=(const FileDescriptor &) -> FileDescriptor & = delete;
+    auto operator=(const FileDescriptor &) = delete;
 
-    FileDescriptor(FileDescriptor &&) noexcept;
+    FileDescriptor(FileDescriptor &&) noexcept = default;
 
-    auto operator=(FileDescriptor &&) noexcept -> FileDescriptor &;
+    auto operator=(FileDescriptor &&) noexcept -> FileDescriptor & = default;
 
-    ~FileDescriptor();
+    ~FileDescriptor() = default;
 
     [[nodiscard]] auto getFileDescriptor() const noexcept -> int;
 
+    [[nodiscard]] auto close() noexcept -> Awaiter &;
+
 protected:
-    [[nodiscard]] auto getRing() const noexcept -> std::shared_ptr<Ring>;
+    auto getAwaiter() noexcept -> Awaiter &;
 
 private:
-    auto close() const -> void;
-
     int fileDescriptor;
-    std::shared_ptr<Ring> ring;
+    Awaiter awaiter;
 };
