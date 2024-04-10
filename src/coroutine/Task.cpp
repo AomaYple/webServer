@@ -8,11 +8,13 @@ auto Task::promise_type::get_return_object() -> Task {
 
 auto Task::promise_type::unhandled_exception() const -> void { throw; }
 
-auto Task::promise_type::setSubmission(const Submission &newSubmission) noexcept -> void {
-    this->submission = newSubmission;
+auto Task::promise_type::setSubmission(std::shared_ptr<Submission> newSubmission) noexcept -> void {
+    this->submission = std::move(newSubmission);
 }
 
-auto Task::promise_type::getSubmission() const noexcept -> const Submission & { return this->submission; }
+auto Task::promise_type::getSubmission() const noexcept -> const std::shared_ptr<Submission> & {
+    return this->submission;
+}
 
 auto Task::promise_type::setOutcome(Outcome newOutcome) noexcept -> void { this->outcome = newOutcome; }
 
@@ -31,7 +33,9 @@ auto Task::operator=(Task &&other) noexcept -> Task & {
 
 Task::~Task() { this->destroy(); }
 
-auto Task::getSubmission() const -> const Submission & { return this->handle.promise().getSubmission(); }
+auto Task::getSubmission() const -> const std::shared_ptr<Submission> & {
+    return this->handle.promise().getSubmission();
+}
 
 auto Task::resume(Outcome outcome) -> void {
     this->handle.promise().setOutcome(outcome);
@@ -41,5 +45,3 @@ auto Task::resume(Outcome outcome) -> void {
 auto Task::destroy() const -> void {
     if (this->handle) this->handle.destroy();
 }
-
-auto Task::done() const noexcept -> bool { return this->handle.done(); }

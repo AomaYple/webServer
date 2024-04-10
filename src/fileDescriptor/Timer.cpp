@@ -1,6 +1,7 @@
 #include "Timer.hpp"
 
 #include "../log/Exception.hpp"
+#include "../ring/Submission.hpp"
 
 #include <liburing.h>
 #include <sys/timerfd.h>
@@ -17,9 +18,9 @@ auto Timer::create() -> int {
 Timer::Timer(int fileDescriptor) noexcept : FileDescriptor{fileDescriptor} {}
 
 auto Timer::timing() noexcept -> Awaiter & {
-    this->getAwaiter().submit({this->getFileDescriptor(),
-                               Submission::Read{std::as_writable_bytes(std::span{&this->timeout, 1}), 0},
-                               IOSQE_FIXED_FILE, 0});
+    this->getAwaiter().submit(std::make_shared<Submission>(
+            this->getFileDescriptor(), Submission::Read{std::as_writable_bytes(std::span{&this->timeout, 1}), 0},
+            IOSQE_FIXED_FILE));
 
     return this->getAwaiter();
 }
@@ -41,11 +42,8 @@ auto Timer::update(int fileDescriptor, unsigned long seconds) -> void {
 }
 
 auto Timer::remove(int fileDescriptor) -> void {
-    const auto result{this->location.find(fileDescriptor)};
-    if (result != this->location.cend()) {
-        this->wheel[result->second].erase(fileDescriptor);
-        this->location.erase(fileDescriptor);
-    }
+    this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
+    this->location.erase(fileDescriptor);
 }
 
 auto Timer::clearTimeout() -> std::vector<int> {

@@ -3,6 +3,8 @@
 #include "../ring/RingBuffer.hpp"
 #include "FileDescriptor.hpp"
 
+#include <span>
+
 class Client : public FileDescriptor {
 public:
     Client(int fileDescriptor, RingBuffer &&ringBuffer, unsigned long seconds) noexcept;

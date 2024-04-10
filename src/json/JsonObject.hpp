@@ -10,7 +10,7 @@ class JsonObject {
     friend class JsonArray;
 
 public:
-    explicit JsonObject(std::string_view json = std::string_view{});
+    explicit JsonObject(std::string_view json = {});
 
     auto add(std::string_view key, JsonValue &&value) -> void;
 

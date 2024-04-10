@@ -4,8 +4,6 @@
 #include "../fileDescriptor/Timer.hpp"
 #include "../http/HttpParse.hpp"
 
-#include <memory>
-
 class Ring;
 class Client;
 
@@ -31,7 +29,7 @@ private:
     [[nodiscard]] static auto initializeRing(std::source_location sourceLocation = std::source_location::current())
             -> std::shared_ptr<Ring>;
 
-    auto submit(Task &&task) -> void;
+    auto submit(Task &&task, bool multiShot = {}) -> void;
 
     [[nodiscard]] auto accept(std::source_location sourceLocation = std::source_location::current()) -> Task;
 

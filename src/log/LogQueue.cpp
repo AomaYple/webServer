@@ -3,9 +3,10 @@
 LogQueue::LogQueue(LogQueue &&other) noexcept : head{other.head.exchange(nullptr, std::memory_order::relaxed)} {}
 
 auto LogQueue::operator=(LogQueue &&other) noexcept -> LogQueue & {
-    this->clear();
-
-    this->head.store(other.head.exchange(nullptr, std::memory_order::relaxed), std::memory_order::relaxed);
+    if (this != &other) {
+        this->clear();
+        this->head.store(other.head.exchange(nullptr, std::memory_order::relaxed), std::memory_order::relaxed);
+    }
 
     return *this;
 }

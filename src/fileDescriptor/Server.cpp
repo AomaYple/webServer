@@ -1,6 +1,7 @@
 #include "Server.hpp"
 
 #include "../log/Exception.hpp"
+#include "../ring/Submission.hpp"
 
 #include <arpa/inet.h>
 #include <liburing.h>
@@ -25,7 +26,8 @@ auto Server::create(unsigned short port) -> int {
 Server::Server(int fileDescriptor) : FileDescriptor(fileDescriptor) {}
 
 auto Server::startAccept() noexcept -> void {
-    this->getAwaiter().submit({this->getFileDescriptor(), Submission::Accept{}, IOSQE_FIXED_FILE, 0});
+    this->getAwaiter().submit(
+            std::make_shared<Submission>(this->getFileDescriptor(), Submission::Accept{}, IOSQE_FIXED_FILE));
 }
 
 auto Server::accept() noexcept -> Awaiter & { return this->getAwaiter(); }

@@ -1,13 +1,16 @@
 #include "Client.hpp"
 
+#include "../ring/Submission.hpp"
+
 Client::Client(int fileDescriptor, RingBuffer &&ringBuffer, unsigned long seconds) noexcept
     : FileDescriptor{fileDescriptor}, ringBuffer{std::move(ringBuffer)}, seconds{seconds} {}
 
 auto Client::getSeconds() const noexcept -> unsigned long { return this->seconds; }
 
 auto Client::startReceive() noexcept -> void {
-    this->getAwaiter().submit({this->getFileDescriptor(), Submission::Receive{{}, 0, this->ringBuffer.getId()},
-                               IOSQE_FIXED_FILE | IOSQE_BUFFER_SELECT, 0});
+    this->getAwaiter().submit(std::make_shared<Submission>(this->getFileDescriptor(),
+                                                           Submission::Receive{{}, 0, this->ringBuffer.getId()},
+                                                           IOSQE_FIXED_FILE | IOSQE_BUFFER_SELECT));
 }
 
 auto Client::receive() noexcept -> Awaiter & { return this->getAwaiter(); }
@@ -25,7 +28,8 @@ auto Client::readFromBuffer() const noexcept -> std::span<const std::byte> { ret
 auto Client::clearBuffer() noexcept -> void { this->buffer.clear(); }
 
 auto Client::send() noexcept -> Awaiter & {
-    this->getAwaiter().submit({this->getFileDescriptor(), Submission::Send{this->buffer, 0, 0}, IOSQE_FIXED_FILE, 0});
+    this->getAwaiter().submit(std::make_shared<Submission>(this->getFileDescriptor(),
+                                                           Submission::Send{this->buffer, 0, 0}, IOSQE_FIXED_FILE));
 
     return this->getAwaiter();
 }

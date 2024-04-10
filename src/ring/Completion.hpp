@@ -3,6 +3,6 @@
 #include "Outcome.hpp"
 
 struct Completion {
-    unsigned long userData;
     Outcome outcome;
+    void *userData;
 };

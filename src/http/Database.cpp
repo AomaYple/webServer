@@ -7,9 +7,10 @@
 Database::Database(Database &&other) noexcept : handle{std::exchange(other.handle, nullptr)} {}
 
 auto Database::operator=(Database &&other) noexcept -> Database & {
-    this->close();
-
-    this->handle = std::exchange(other.handle, nullptr);
+    if (this != &other) {
+        this->close();
+        this->handle = std::exchange(other.handle, nullptr);
+    }
 
     return *this;
 }
@@ -78,7 +79,7 @@ auto Database::getRow(MYSQL_RES *result, unsigned int columnCount) -> std::vecto
     std::vector<std::string> row;
 
     const char *const *const rawRow{mysql_fetch_row(result)};
-    for (unsigned int i{0}; rawRow != nullptr && i < columnCount; ++i) row.emplace_back(rawRow[i]);
+    for (unsigned int i{}; rawRow != nullptr && i < columnCount; ++i) row.emplace_back(rawRow[i]);
 
     return row;
 }

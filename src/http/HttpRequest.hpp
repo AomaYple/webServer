@@ -5,7 +5,7 @@
 
 class HttpRequest {
 public:
-    explicit HttpRequest(std::string_view request = std::string_view{});
+    explicit HttpRequest(std::string_view request = {});
 
     [[nodiscard]] auto getVersion() const noexcept -> std::string_view;
 

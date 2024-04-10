@@ -5,6 +5,7 @@
 #include "../log/logger.hpp"
 #include "../ring/Completion.hpp"
 #include "../ring/Ring.hpp"
+#include "../ring/Submission.hpp"
 
 #include <cstring>
 
@@ -60,10 +61,9 @@ auto Scheduler::run() -> void {
     while (Scheduler::switcher.test(std::memory_order::relaxed)) {
         this->ring->poll([this](const Completion &completion) {
             if (completion.outcome.result != 0 || !(completion.outcome.flags & IORING_CQE_F_NOTIF)) {
-                Task &task{this->tasks.at(completion.userData)};
-                task.resume(completion.outcome);
-
-                if (task.done()) this->tasks.erase(completion.userData);
+                const unsigned long userData{*static_cast<unsigned long *>(completion.userData)};
+                this->tasks.at(userData).resume(completion.outcome);
+                this->tasks.erase(userData);
             }
         });
     }
@@ -98,28 +98,27 @@ auto Scheduler::initializeRing(std::source_location sourceLocation) -> std::shar
     return ring;
 }
 
-auto Scheduler::submit(Task &&task) -> void {
+auto Scheduler::submit(Task &&task, bool multiShot) -> void {
     task.resume({});
-    this->ring->submit(task.getSubmission());
-    this->tasks.emplace(task.getSubmission().userData, std::move(task));
+    if (!multiShot) this->ring->submit(*task.getSubmission());
+    this->tasks.emplace(*static_cast<unsigned long *>(task.getSubmission()->getUserData()), std::move(task));
 }
 
 auto Scheduler::accept(std::source_location sourceLocation) -> Task {
-    this->server.startAccept();
+    const Outcome outcome{co_await this->server.accept()};
+    if (outcome.result >= 0 && (outcome.flags & IORING_CQE_F_MORE)) {
+        this->clients.emplace(outcome.result,
+                              Client{outcome.result, RingBuffer{1, 1024, outcome.result, this->ring}, 60});
+        Client &client{this->clients.at(outcome.result)};
 
-    while (true) {
-        const Outcome outcome{co_await this->server.accept()};
-        if (outcome.result >= 0 && (outcome.flags & IORING_CQE_F_MORE)) {
-            this->clients.emplace(outcome.result,
-                                  Client{outcome.result, RingBuffer{1, 1024, outcome.result, this->ring}, 60});
-            Client &client{this->clients.at(outcome.result)};
+        client.startReceive();
+        this->submit(this->receive(client), true);
 
-            this->submit(this->receive(client));
+        this->timer.add(outcome.result, client.getSeconds());
 
-            this->timer.add(outcome.result, client.getSeconds());
-        } else
-            throw Exception{Log{Log::Level::error, std::strerror(std::abs(outcome.result)), sourceLocation}};
-    }
+        this->submit(this->accept());
+    } else
+        throw Exception{Log{Log::Level::error, std::strerror(std::abs(outcome.result)), sourceLocation}};
 }
 
 auto Scheduler::timing(std::source_location sourceLocation) -> Task {
@@ -133,25 +132,20 @@ auto Scheduler::timing(std::source_location sourceLocation) -> Task {
 }
 
 auto Scheduler::receive(Client &client, std::source_location sourceLocation) -> Task {
-    client.startReceive();
+    const Outcome outcome{co_await client.receive()};
+    if (outcome.result > 0 && (outcome.flags & IORING_CQE_F_MORE)) {
+        client.writeToBuffer(client.getReceivedData(outcome.flags >> IORING_CQE_BUFFER_SHIFT, outcome.result));
 
-    while (true) {
-        const Outcome outcome{co_await client.receive()};
-        if (outcome.result > 0 && (outcome.flags & IORING_CQE_F_MORE)) {
-            client.writeToBuffer(client.getReceivedData(outcome.flags >> IORING_CQE_BUFFER_SHIFT, outcome.result));
-
-            if (!(outcome.flags & IORING_CQE_F_SOCK_NONEMPTY)) {
-                this->timer.update(client.getFileDescriptor(), client.getSeconds());
-
-                this->submit(this->send(client));
-            }
-        } else {
-            logger::push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
-
-            this->timer.remove(client.getFileDescriptor());
-
-            this->submit(this->close(client.getFileDescriptor()));
+        if (outcome.flags & IORING_CQE_F_SOCK_NONEMPTY) this->submit(this->receive(client));
+        else {
+            this->timer.update(client.getFileDescriptor(), client.getSeconds());
+            this->submit(this->send(client));
         }
+    } else {
+        logger::push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
+
+        this->timer.remove(client.getFileDescriptor());
+        this->submit(this->close(client.getFileDescriptor()));
     }
 }
 
@@ -164,12 +158,13 @@ auto Scheduler::send(Client &client, std::source_location sourceLocation) -> Tas
     client.writeToBuffer(response);
 
     const Outcome outcome{co_await client.send()};
-    if (outcome.result > 0) client.clearBuffer();
-    else {
+    if (outcome.result > 0) {
+        client.clearBuffer();
+        this->submit(this->receive(client));
+    } else {
         logger::push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
 
         this->timer.remove(client.getFileDescriptor());
-
         this->submit(this->close(client.getFileDescriptor()));
     }
 }
@@ -182,7 +177,6 @@ auto Scheduler::close(int fileDescriptor, std::source_location sourceLocation) -
         outcome = co_await this->timer.close();
     else {
         outcome = co_await this->clients.at(fileDescriptor).close();
-
         this->clients.erase(fileDescriptor);
     }
 

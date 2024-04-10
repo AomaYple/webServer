@@ -5,7 +5,8 @@
 #include <span>
 #include <variant>
 
-struct Submission {
+class Submission {
+public:
     struct Accept {
         sockaddr *address;
         socklen_t *addressLength;
@@ -31,8 +32,31 @@ struct Submission {
 
     struct Close {};
 
+    Submission(int fileDescriptor, std::variant<Accept, Read, Receive, Send, Close> &&parameter, unsigned int flags);
+
+    Submission(const Submission &);
+
+    auto operator=(const Submission &) -> Submission &;
+
+    Submission(Submission &&) noexcept;
+
+    auto operator=(Submission &&) noexcept -> Submission &;
+
+    ~Submission();
+
+    [[nodiscard]] auto getFileDescriptor() const noexcept -> int;
+
+    [[nodiscard]] auto getParameter() const noexcept -> const std::variant<Accept, Read, Receive, Send, Close> &;
+
+    [[nodiscard]] auto getFlags() const noexcept -> unsigned int;
+
+    [[nodiscard]] auto getUserData() const noexcept -> void *;
+
+private:
+    auto destroy() const noexcept -> void;
+
     int fileDescriptor;
     std::variant<Accept, Read, Receive, Send, Close> parameter;
     unsigned int flags;
-    unsigned long userData;
+    void *userData{static_cast<void *>(new unsigned long)};
 };

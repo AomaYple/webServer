@@ -10,7 +10,9 @@
 #include <format>
 #include <fstream>
 
-HttpParse::HttpParse() { this->database.connect({}, "AomaYple", "38820233", "webServer", 0, {}, 0); }
+HttpParse::HttpParse() {
+    this->database.connect(std::string_view{}, "AomaYple", "38820233", "webServer", 0, std::string_view{}, 0);
+}
 
 auto HttpParse::parse(std::string_view request, std::source_location sourceLocation) -> std::vector<std::byte> {
     try {
@@ -182,7 +184,7 @@ auto HttpParse::readResource(const std::string &resourcePath, std::pair<long, lo
     file.seekg(range.first);
 
     const long size{range.second - range.first + 1};
-    this->body.resize(size, std::byte{0});
+    this->body.resize(size, std::byte{});
     if (!file.read(reinterpret_cast<char *>(this->body.data()), size))
         throw Exception{Log{Log::Level::error, "cannot read file: " + resourcePath, sourceLocation}};
 
@@ -192,7 +194,7 @@ auto HttpParse::readResource(const std::string &resourcePath, std::pair<long, lo
 auto HttpParse::brotli(std::source_location sourceLocation) -> void {
     unsigned long encodedSize{BrotliEncoderMaxCompressedSize(this->body.size())};
 
-    std::vector<std::byte> encodedBody(encodedSize, std::byte{0});
+    std::vector<std::byte> encodedBody(encodedSize, std::byte{});
     if (BrotliEncoderCompress(BROTLI_MAX_QUALITY, BROTLI_MAX_WINDOW_BITS, BROTLI_DEFAULT_MODE, this->body.size(),
                               reinterpret_cast<const unsigned char *>(this->body.data()), &encodedSize,
                               reinterpret_cast<unsigned char *>(encodedBody.data())) != BROTLI_TRUE)
