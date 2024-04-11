@@ -58,9 +58,9 @@ auto Scheduler::run() -> void {
     this->submit(this->timing());
 
     while (Scheduler::switcher.test(std::memory_order::relaxed)) {
-        this->ring->poll([this](const Completion& completion) {
+        this->ring->poll([this](const Completion &completion) {
             if (completion.outcome.result != 0 || !(completion.outcome.flags & IORING_CQE_F_NOTIF)) {
-                const unsigned long userData{*static_cast<unsigned long*>(completion.userData)};
+                const unsigned long userData{*static_cast<unsigned long *>(completion.userData)};
                 this->tasks.at(userData).resume(completion.outcome);
                 this->tasks.erase(userData);
             }
@@ -98,11 +98,11 @@ auto Scheduler::initializeRing(std::source_location sourceLocation) -> std::shar
     return ring;
 }
 
-auto Scheduler::submit(Task&& task, bool multiShot) -> void {
+auto Scheduler::submit(Task &&task, bool multiShot) -> void {
     task.resume(Outcome{});
     if (!multiShot)
         this->ring->submit(task.getSubmission());
-    this->tasks.emplace(*static_cast<unsigned long*>(task.getSubmission().userData), std::move(task));
+    this->tasks.emplace(*static_cast<unsigned long *>(task.getSubmission().userData), std::move(task));
 }
 
 auto Scheduler::accept(std::source_location sourceLocation) -> Task {
@@ -110,7 +110,7 @@ auto Scheduler::accept(std::source_location sourceLocation) -> Task {
     if (outcome.result >= 0 && (outcome.flags & IORING_CQE_F_MORE)) {
         this->clients.emplace(outcome.result,
                               Client{outcome.result, RingBuffer{1, 1024, outcome.result, this->ring}, 60});
-        Client& client{this->clients.at(outcome.result)};
+        Client &client{this->clients.at(outcome.result)};
 
         client.startReceive();
         this->submit(this->receive(client));
@@ -133,7 +133,7 @@ auto Scheduler::timing(std::source_location sourceLocation) -> Task {
         throw Exception{Log{Log::Level::error, std::strerror(std::abs(outcome.result)), sourceLocation}};
 }
 
-auto Scheduler::receive(Client& client, std::source_location sourceLocation) -> Task {
+auto Scheduler::receive(Client &client, std::source_location sourceLocation) -> Task {
     const Outcome outcome{co_await client.receive()};
     if (outcome.result > 0 && (outcome.flags & IORING_CQE_F_MORE)) {
         client.writeToBuffer(client.getReceivedData(outcome.flags >> IORING_CQE_BUFFER_SHIFT, outcome.result));
@@ -152,10 +152,10 @@ auto Scheduler::receive(Client& client, std::source_location sourceLocation) -> 
     }
 }
 
-auto Scheduler::send(Client& client, std::source_location sourceLocation) -> Task {
+auto Scheduler::send(Client &client, std::source_location sourceLocation) -> Task {
     const std::span<const std::byte> receivedData{client.readFromBuffer()};
     std::vector<std::byte> response{this->httpParse.parse(
-            std::string_view{reinterpret_cast<const char*>(receivedData.data()), receivedData.size()})};
+            std::string_view{reinterpret_cast<const char *>(receivedData.data()), receivedData.size()})};
 
     client.clearBuffer();
     client.writeToBuffer(response);
