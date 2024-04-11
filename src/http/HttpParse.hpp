@@ -33,7 +33,7 @@ private:
 
     auto parseResource(const std::string &resourcePath) -> void;
 
-    auto readResource(const std::string &resourcePath, std::pair<long, long> range,
+    auto readResource(const std::string &resourcePath, const std::pair<long, long> &range,
                       std::source_location sourceLocation = std::source_location::current()) -> void;
 
     auto brotli(std::source_location sourceLocation = std::source_location::current()) -> void;

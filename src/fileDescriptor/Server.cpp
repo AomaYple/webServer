@@ -1,7 +1,6 @@
 #include "Server.hpp"
 
 #include "../log/Exception.hpp"
-#include "../ring/Submission.hpp"
 
 #include <arpa/inet.h>
 #include <liburing.h>
@@ -27,14 +26,15 @@ Server::Server(int fileDescriptor) : FileDescriptor(fileDescriptor) {}
 
 auto Server::startAccept() noexcept -> void {
     this->getAwaiter().submit(
-            std::make_shared<Submission>(this->getFileDescriptor(), Submission::Accept{}, IOSQE_FIXED_FILE));
+            Submission{this->getFileDescriptor(), Submission::Accept{}, IOSQE_FIXED_FILE, new unsigned long});
 }
 
 auto Server::accept() noexcept -> Awaiter & { return this->getAwaiter(); }
 
 auto Server::socket(std::source_location sourceLocation) -> int {
     const int fileDescriptor{::socket(AF_INET, SOCK_STREAM, 0)};
-    if (fileDescriptor == -1) throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+    if (fileDescriptor == -1)
+        throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
 
     return fileDescriptor;
 }

@@ -1,11 +1,9 @@
 #pragma once
 
 #include "../ring/Outcome.hpp"
+#include "../ring/Submission.hpp"
 
 #include <coroutine>
-#include <memory>
-
-class Submission;
 
 class Task {
 public:
@@ -19,17 +17,17 @@ public:
 
         auto unhandled_exception() const -> void;
 
-        auto setSubmission(std::shared_ptr<Submission> newSubmission) noexcept -> void;
+        auto setSubmission(const Submission &newSubmission) noexcept -> void;
 
-        [[nodiscard]] auto getSubmission() const noexcept -> const std::shared_ptr<Submission> &;
+        [[nodiscard]] auto getSubmission() const noexcept -> const Submission &;
 
         auto setOutcome(Outcome newOutcome) noexcept -> void;
 
         [[nodiscard]] auto getOutcome() const noexcept -> Outcome;
 
     private:
-        std::shared_ptr<Submission> submission;
-        Outcome outcome;
+        Submission submission{};
+        Outcome outcome{};
     };
 
     explicit Task(std::coroutine_handle<promise_type> handle) noexcept;
@@ -44,7 +42,7 @@ public:
 
     ~Task();
 
-    [[nodiscard]] auto getSubmission() const -> const std::shared_ptr<Submission> &;
+    [[nodiscard]] auto getSubmission() const -> const Submission &;
 
     auto resume(Outcome outcome) -> void;
 

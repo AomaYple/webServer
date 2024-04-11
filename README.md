@@ -1,6 +1,6 @@
 ## 介绍
 
-本项目是linux上一个基于c++23和io_uring的异步高并发Proactor模式服务器
+本项目是linux上一个基于c++和io_uring的异步高并发Proactor模式服务器
 
 ## 协程
 
@@ -44,7 +44,7 @@
 
 ## 环境
 
-kernel 6.1以上，gcc13以上，liburing，cmake，ninja，brotli，mariadb
+gcc，cmake，ninja，liburing，brotli，mariadb
 
 ## 编译
 

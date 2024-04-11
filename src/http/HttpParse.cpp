@@ -18,10 +18,10 @@ auto HttpParse::parse(std::string_view request, std::source_location sourceLocat
     try {
         this->httpRequest = HttpRequest{request};
         this->parseVersion();
-    } catch (Exception &exception) {
+    } catch (Exception& exception) {
         this->handleException();
         logger::push(std::move(exception.getLog()));
-    } catch (std::exception &exception) {
+    } catch (std::exception& exception) {
         this->handleException();
         logger::push(Log{Log::Level::warn, exception.what(), sourceLocation});
     }
@@ -72,13 +72,13 @@ auto HttpParse::parseMethod() -> void {
         JsonObject jsonBody;
         if (static_cast<std::string_view>(requestBody["method"]) == "login") {
             const std::string_view id{requestBody["id"]};
-            const std::vector<std::vector<std::string>> result{this->database.inquire(
+            const std::vector<std::vector<std::string> > result{this->database.inquire(
                     std::format("select * from users where id = {} and password = '{}';", id, password))};
 
             jsonBody.add("success", JsonValue{!result.empty()});
         } else {
             this->database.inquire(std::format("insert into users (password) values ('{}');", password));
-            std::vector<std::vector<std::string>> result{this->database.inquire("select last_insert_id();")};
+            std::vector<std::vector<std::string> > result{this->database.inquire("select last_insert_id();")};
 
             jsonBody.add("id", JsonValue{std::move(result[0][0])});
         }
@@ -119,18 +119,19 @@ auto HttpParse::parsePath() -> void {
     }
 
     std::string resourcePath;
-    for (const auto &path: std::filesystem::directory_iterator(folder))
+    for (const auto& path : std::filesystem::directory_iterator(folder)) {
         if (path.path().filename() == url) {
             resourcePath = path.path().string();
             break;
         }
+    }
 
     if (resourcePath.empty()) this->httpResponse.setStatusCode("404 Not Found");
     else
         this->parseResource(resourcePath);
 }
 
-auto HttpParse::parseResource(const std::string &resourcePath) -> void {
+auto HttpParse::parseResource(const std::string& resourcePath) -> void {
     static constexpr unsigned int maxSize{1048576};
     const long resourceSize{static_cast<long>(std::filesystem::file_size(resourcePath))};
     std::pair<long, long> range;
@@ -176,7 +177,7 @@ auto HttpParse::parseResource(const std::string &resourcePath) -> void {
     this->readResource(resourcePath, range);
 }
 
-auto HttpParse::readResource(const std::string &resourcePath, std::pair<long, long> range,
+auto HttpParse::readResource(const std::string& resourcePath, const std::pair<long, long>& range,
                              std::source_location sourceLocation) -> void {
     std::ifstream file{resourcePath, std::ios::binary};
     if (!file) throw Exception{Log{Log::Level::error, "cannot open file: " + resourcePath, sourceLocation}};
@@ -185,7 +186,7 @@ auto HttpParse::readResource(const std::string &resourcePath, std::pair<long, lo
 
     const long size{range.second - range.first + 1};
     this->body.resize(size, std::byte{});
-    if (!file.read(reinterpret_cast<char *>(this->body.data()), size))
+    if (!file.read(reinterpret_cast<char*>(this->body.data()), size))
         throw Exception{Log{Log::Level::error, "cannot read file: " + resourcePath, sourceLocation}};
 
     if (this->isBrotli) this->brotli();
@@ -196,8 +197,8 @@ auto HttpParse::brotli(std::source_location sourceLocation) -> void {
 
     std::vector<std::byte> encodedBody(encodedSize, std::byte{});
     if (BrotliEncoderCompress(BROTLI_MAX_QUALITY, BROTLI_MAX_WINDOW_BITS, BROTLI_DEFAULT_MODE, this->body.size(),
-                              reinterpret_cast<const unsigned char *>(this->body.data()), &encodedSize,
-                              reinterpret_cast<unsigned char *>(encodedBody.data())) != BROTLI_TRUE)
+                              reinterpret_cast<const unsigned char*>(this->body.data()), &encodedSize,
+                              reinterpret_cast<unsigned char*>(encodedBody.data())) != BROTLI_TRUE)
         throw Exception{Log{Log::Level::error, "brotli compress failed", sourceLocation}};
 
     encodedBody.resize(encodedSize);

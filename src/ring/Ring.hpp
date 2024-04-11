@@ -31,7 +31,7 @@ public:
     auto registerSelfFileDescriptor(std::source_location sourceLocation = std::source_location::current()) -> void;
 
     auto registerCpu(unsigned short cpuCode, std::source_location sourceLocation = std::source_location::current())
-            -> void;
+        -> void;
 
     auto registerSparseFileDescriptor(unsigned int count,
                                       std::source_location sourceLocation = std::source_location::current()) -> void;
@@ -44,19 +44,19 @@ public:
 
     [[nodiscard]] auto setupRingBuffer(unsigned int entries, int id,
                                        std::source_location sourceLocation = std::source_location::current())
-            -> io_uring_buf_ring *;
+        -> io_uring_buf_ring *;
 
     auto freeRingBuffer(io_uring_buf_ring *ringBufferHandle, unsigned int entries, int id,
                         std::source_location sourceLocation = std::source_location::current()) -> void;
 
     auto submit(const Submission &submission) -> void;
 
-    auto poll(const std::function<auto(const Completion &completion)->void> &action) -> void;
+    auto poll(const std::function<auto(const Completion &completion) -> void> &action) -> void;
 
 private:
     [[nodiscard]] static auto initialize(unsigned int entries, io_uring_params &params,
                                          std::source_location sourceLocation = std::source_location::current())
-            -> io_uring;
+        -> io_uring;
 
     auto destroy() noexcept -> void;
 

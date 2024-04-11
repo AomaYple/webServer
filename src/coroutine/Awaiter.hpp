@@ -10,9 +10,9 @@ public:
 
     [[nodiscard]] auto await_resume() const -> Outcome;
 
-    auto submit(std::shared_ptr<Submission> &&newSubmission) noexcept -> void;
+    auto submit(const Submission &newSubmission) noexcept -> void;
 
 private:
     std::coroutine_handle<Task::promise_type> handle;
-    std::shared_ptr<Submission> submission;
+    Submission submission{};
 };

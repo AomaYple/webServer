@@ -1,7 +1,6 @@
 #include "Timer.hpp"
 
 #include "../log/Exception.hpp"
-#include "../ring/Submission.hpp"
 
 #include <liburing.h>
 #include <sys/timerfd.h>
@@ -15,12 +14,14 @@ auto Timer::create() -> int {
     return fileDescriptor;
 }
 
-Timer::Timer(int fileDescriptor) noexcept : FileDescriptor{fileDescriptor} {}
+Timer::Timer(int fileDescriptor) noexcept :
+    FileDescriptor{fileDescriptor} {
+}
 
 auto Timer::timing() noexcept -> Awaiter & {
-    this->getAwaiter().submit(std::make_shared<Submission>(
-            this->getFileDescriptor(), Submission::Read{std::as_writable_bytes(std::span{&this->timeout, 1}), 0},
-            IOSQE_FIXED_FILE));
+    this->getAwaiter().submit(Submission{this->getFileDescriptor(),
+                                         Submission::Read{std::as_writable_bytes(std::span{&this->timeout, 1}), 0},
+                                         IOSQE_FIXED_FILE, new unsigned long});
 
     return this->getAwaiter();
 }
@@ -65,9 +66,12 @@ auto Timer::clearTimeout() -> std::vector<int> {
 
         ++this->now;
         this->now %= this->wheel.size();
-        if (this->now == 0)
-            for (auto &wheelPoint: this->wheel)
-                for (auto &element: wheelPoint) --element.second;
+        if (this->now == 0) {
+            for (auto &wheelPoint: this->wheel) {
+                for (auto &element: wheelPoint)
+                    --element.second;
+            }
+        }
 
         --this->timeout;
     }
@@ -77,7 +81,8 @@ auto Timer::clearTimeout() -> std::vector<int> {
 
 auto Timer::createTimerFileDescriptor(std::source_location sourceLocation) -> int {
     const int fileDescriptor{timerfd_create(CLOCK_MONOTONIC, 0)};
-    if (fileDescriptor == -1) throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+    if (fileDescriptor == -1)
+        throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
 
     return fileDescriptor;
 }
