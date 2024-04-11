@@ -43,8 +43,9 @@ Scheduler::~Scheduler() {
     if (Scheduler::sharedRingFileDescriptor == this->ring->getFileDescriptor()) {
         Scheduler::sharedRingFileDescriptor = -1;
 
-        result = std::ranges::find_if(Scheduler::ringFileDescriptors,
-                                      [](const int fileDescriptor) noexcept { return fileDescriptor != -1; });
+        result = std::ranges::find_if(Scheduler::ringFileDescriptors, [](const int fileDescriptor) noexcept {
+            return fileDescriptor != -1;
+        });
         if (result != Scheduler::ringFileDescriptors.cend())
             Scheduler::sharedRingFileDescriptor = *result;
     }

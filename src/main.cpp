@@ -7,8 +7,8 @@ auto main() -> int {
     logger::start();
     Scheduler::registerSignal();
 
-    std::vector<std::jthread> workers{std::jthread::hardware_concurrency() - 2};
-    for (auto& worker : workers) {
+    std::vector<std::jthread> workers{0};
+    for (auto &worker : workers) {
         worker = std::jthread{[] {
             Scheduler scheduler;
             scheduler.run();
