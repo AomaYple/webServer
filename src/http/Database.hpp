@@ -13,9 +13,9 @@ public:
 
     Database(const Database &) = delete;
 
-    auto operator=(const Database &) = delete;
-
     Database(Database &&) noexcept;
+
+    auto operator=(const Database &) = delete;
 
     auto operator=(Database &&) noexcept -> Database &;
 
@@ -25,19 +25,19 @@ public:
                  unsigned int port, std::string_view unixSocket, unsigned long clientFlag,
                  std::source_location sourceLocation = std::source_location::current()) const -> void;
 
-    auto inquire(std::string_view statement) const -> std::vector<std::vector<std::string>>;
+    auto inquire(std::string_view statement) const -> std::vector<std::vector<std::string> >;
 
 private:
     [[nodiscard]] static auto initialize(std::source_location sourceLocation = std::source_location::current())
-            -> MYSQL *;
+        -> MYSQL *;
 
     auto close() const noexcept -> void;
 
     auto query(std::string_view statement, std::source_location sourceLocation = std::source_location::current()) const
-            -> void;
+        -> void;
 
     [[nodiscard]] auto getResult(std::source_location sourceLocation = std::source_location::current()) const
-            -> MYSQL_RES *;
+        -> MYSQL_RES *;
 
     [[nodiscard]] static auto getColumnCount(MYSQL_RES *result) noexcept -> unsigned int;
 

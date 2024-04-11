@@ -18,10 +18,10 @@ auto HttpParse::parse(std::string_view request, std::source_location sourceLocat
     try {
         this->httpRequest = HttpRequest{request};
         this->parseVersion();
-    } catch (Exception& exception) {
+    } catch (Exception &exception) {
         this->handleException();
         logger::push(std::move(exception.getLog()));
-    } catch (std::exception& exception) {
+    } catch (std::exception &exception) {
         this->handleException();
         logger::push(Log{Log::Level::warn, exception.what(), sourceLocation});
     }
@@ -119,7 +119,7 @@ auto HttpParse::parsePath() -> void {
     }
 
     std::string resourcePath;
-    for (const auto& path : std::filesystem::directory_iterator(folder)) {
+    for (const auto &path : std::filesystem::directory_iterator(folder)) {
         if (path.path().filename() == url) {
             resourcePath = path.path().string();
             break;
@@ -131,7 +131,7 @@ auto HttpParse::parsePath() -> void {
         this->parseResource(resourcePath);
 }
 
-auto HttpParse::parseResource(const std::string& resourcePath) -> void {
+auto HttpParse::parseResource(const std::string &resourcePath) -> void {
     static constexpr unsigned int maxSize{1048576};
     const long resourceSize{static_cast<long>(std::filesystem::file_size(resourcePath))};
     std::pair<long, long> range;
@@ -177,7 +177,7 @@ auto HttpParse::parseResource(const std::string& resourcePath) -> void {
     this->readResource(resourcePath, range);
 }
 
-auto HttpParse::readResource(const std::string& resourcePath, const std::pair<long, long>& range,
+auto HttpParse::readResource(const std::string &resourcePath, const std::pair<long, long> &range,
                              std::source_location sourceLocation) -> void {
     std::ifstream file{resourcePath, std::ios::binary};
     if (!file) throw Exception{Log{Log::Level::error, "cannot open file: " + resourcePath, sourceLocation}};
@@ -186,7 +186,7 @@ auto HttpParse::readResource(const std::string& resourcePath, const std::pair<lo
 
     const long size{range.second - range.first + 1};
     this->body.resize(size, std::byte{});
-    if (!file.read(reinterpret_cast<char*>(this->body.data()), size))
+    if (!file.read(reinterpret_cast<char *>(this->body.data()), size))
         throw Exception{Log{Log::Level::error, "cannot read file: " + resourcePath, sourceLocation}};
 
     if (this->isBrotli) this->brotli();
@@ -197,8 +197,8 @@ auto HttpParse::brotli(std::source_location sourceLocation) -> void {
 
     std::vector<std::byte> encodedBody(encodedSize, std::byte{});
     if (BrotliEncoderCompress(BROTLI_MAX_QUALITY, BROTLI_MAX_WINDOW_BITS, BROTLI_DEFAULT_MODE, this->body.size(),
-                              reinterpret_cast<const unsigned char*>(this->body.data()), &encodedSize,
-                              reinterpret_cast<unsigned char*>(encodedBody.data())) != BROTLI_TRUE)
+                              reinterpret_cast<const unsigned char *>(this->body.data()), &encodedSize,
+                              reinterpret_cast<unsigned char *>(encodedBody.data())) != BROTLI_TRUE)
         throw Exception{Log{Log::Level::error, "brotli compress failed", sourceLocation}};
 
     encodedBody.resize(encodedSize);

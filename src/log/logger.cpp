@@ -20,7 +20,7 @@ auto logger::start(std::source_location sourceLocation) -> void {
             notice.wait(false, std::memory_order::relaxed);
             notice.clear(std::memory_order::relaxed);
 
-            for (const Log &log: logQueue.popAll()) logFile << log.toString();
+            for (const Log &log : logQueue.popAll()) logFile << log.toString();
         }
 
         logQueue.clear();

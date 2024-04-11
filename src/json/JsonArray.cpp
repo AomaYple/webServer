@@ -72,9 +72,10 @@ auto JsonArray::remove(long index) -> void { this->values.erase(this->values.cbe
 
 auto JsonArray::toString() const -> std::string {
     std::string result{'['};
-    for (const auto &value: this->values) result += value.toString() + ',';
+    for (const auto &value : this->values) result += value.toString() + ',';
 
     if (result.back() == ',') result.pop_back();
+
     result += ']';
 
     return result;
@@ -84,7 +85,7 @@ auto JsonArray::stringSize() const -> unsigned long {
     unsigned long size{2};
     if (this->values.size() > 1) size += this->values.size() - 1;
 
-    for (const auto &value: this->values) size += value.stringSize();
+    for (const auto &value : this->values) size += value.stringSize();
 
     return size;
 }

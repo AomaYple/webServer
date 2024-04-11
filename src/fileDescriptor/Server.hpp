@@ -29,5 +29,5 @@ private:
                      std::source_location sourceLocation = std::source_location::current()) -> void;
 
     static auto listen(int fileDescriptor, std::source_location sourceLocation = std::source_location::current())
-            -> void;
+        -> void;
 };

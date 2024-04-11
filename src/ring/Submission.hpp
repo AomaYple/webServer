@@ -35,5 +35,5 @@ struct Submission {
     int fileDescriptor;
     std::variant<Accept, Read, Receive, Send, Close> parameter;
     unsigned int flags;
-    void *userData;
+    void *userData{};
 };

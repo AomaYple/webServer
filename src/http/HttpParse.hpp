@@ -10,9 +10,9 @@ public:
 
     HttpParse(const HttpParse &) = delete;
 
-    auto operator=(const HttpParse &) = delete;
-
     HttpParse(HttpParse &&) = default;
+
+    auto operator=(const HttpParse &) = delete;
 
     auto operator=(HttpParse &&) -> HttpParse & = default;
 
@@ -20,7 +20,7 @@ public:
 
     [[nodiscard]] auto parse(std::string_view request,
                              std::source_location sourceLocation = std::source_location::current())
-            -> std::vector<std::byte>;
+        -> std::vector<std::byte>;
 
 private:
     auto clear() noexcept -> void;

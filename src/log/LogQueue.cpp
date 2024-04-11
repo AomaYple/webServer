@@ -3,10 +3,10 @@
 LogQueue::LogQueue(LogQueue &&other) noexcept : head{other.head.exchange(nullptr, std::memory_order::relaxed)} {}
 
 auto LogQueue::operator=(LogQueue &&other) noexcept -> LogQueue & {
-    if (this != &other) {
-        this->clear();
-        this->head.store(other.head.exchange(nullptr, std::memory_order::relaxed), std::memory_order::relaxed);
-    }
+    if (this == &other) return *this;
+
+    this->clear();
+    this->head.store(other.head.exchange(nullptr, std::memory_order::relaxed), std::memory_order::relaxed);
 
     return *this;
 }
@@ -17,8 +17,7 @@ auto LogQueue::push(Log &&log) -> void {
     Node *const newHead{new Node{std::move(log), this->head.load(std::memory_order::relaxed)}};
 
     while (!this->head.compare_exchange_weak(newHead->next, newHead, std::memory_order::relaxed,
-                                             std::memory_order::relaxed))
-        ;
+                                             std::memory_order::relaxed));
 }
 
 auto LogQueue::popAll() -> std::vector<Log> {

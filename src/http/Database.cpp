@@ -7,10 +7,10 @@
 Database::Database(Database &&other) noexcept : handle{std::exchange(other.handle, nullptr)} {}
 
 auto Database::operator=(Database &&other) noexcept -> Database & {
-    if (this != &other) {
-        this->close();
-        this->handle = std::exchange(other.handle, nullptr);
-    }
+    if (this == &other) return *this;
+
+    this->close();
+    this->handle = std::exchange(other.handle, nullptr);
 
     return *this;
 }
@@ -25,8 +25,8 @@ auto Database::connect(std::string_view host, std::string_view user, std::string
         throw Exception{Log{Log::Level::error, mysql_error(this->handle), sourceLocation}};
 }
 
-auto Database::inquire(std::string_view statement) const -> std::vector<std::vector<std::string>> {
-    std::vector<std::vector<std::string>> outcome;
+auto Database::inquire(std::string_view statement) const -> std::vector<std::vector<std::string> > {
+    std::vector<std::vector<std::string> > outcome;
 
     this->query(statement);
 
@@ -53,9 +53,7 @@ auto Database::initialize(std::source_location sourceLocation) -> MYSQL * {
     return handle;
 }
 
-auto Database::close() const noexcept -> void {
-    if (this->handle != nullptr) mysql_close(this->handle);
-}
+auto Database::close() const noexcept -> void { if (this->handle != nullptr) mysql_close(this->handle); }
 
 auto Database::query(std::string_view statement, std::source_location sourceLocation) const -> void {
     if (mysql_real_query(this->handle, statement.data(), statement.size()) != 0)

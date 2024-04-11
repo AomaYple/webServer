@@ -8,9 +8,9 @@ public:
 
     FileDescriptor(const FileDescriptor &) = delete;
 
-    auto operator=(const FileDescriptor &) = delete;
-
     FileDescriptor(FileDescriptor &&) noexcept = default;
+
+    auto operator=(const FileDescriptor &) = delete;
 
     auto operator=(FileDescriptor &&) noexcept -> FileDescriptor & = default;
 

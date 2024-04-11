@@ -25,8 +25,7 @@ auto Server::create(unsigned short port) -> int {
 Server::Server(int fileDescriptor) : FileDescriptor(fileDescriptor) {}
 
 auto Server::startAccept() noexcept -> void {
-    this->getAwaiter().submit(
-            Submission{this->getFileDescriptor(), Submission::Accept{}, IOSQE_FIXED_FILE, new unsigned long});
+    this->getAwaiter().submit(Submission{this->getFileDescriptor(), Submission::Accept{}, IOSQE_FIXED_FILE});
 }
 
 auto Server::accept() noexcept -> Awaiter & { return this->getAwaiter(); }

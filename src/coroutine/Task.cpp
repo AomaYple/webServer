@@ -18,15 +18,13 @@ auto Task::promise_type::setOutcome(Outcome newOutcome) noexcept -> void { this-
 
 auto Task::promise_type::getOutcome() const noexcept -> Outcome { return this->outcome; }
 
-Task::Task(std::coroutine_handle<promise_type> handle) noexcept :
-    handle{handle} {
-}
+Task::Task(std::coroutine_handle<promise_type> handle) noexcept : handle{handle} {}
 
-Task::Task(Task &&other) noexcept :
-    handle{std::exchange(other.handle, nullptr)} {
-}
+Task::Task(Task &&other) noexcept : handle{std::exchange(other.handle, nullptr)} {}
 
 auto Task::operator=(Task &&other) noexcept -> Task & {
+    if (this == &other) return *this;
+
     this->destroy();
     this->handle = std::exchange(other.handle, nullptr);
 
@@ -42,7 +40,4 @@ auto Task::resume(Outcome outcome) -> void {
     this->handle.resume();
 }
 
-auto Task::destroy() const -> void {
-    if (this->handle)
-        this->handle.destroy();
-}
+auto Task::destroy() const -> void { if (this->handle) this->handle.destroy(); }

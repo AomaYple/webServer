@@ -18,9 +18,9 @@ public:
 
     Ring(const Ring &) = delete;
 
-    auto operator=(const Ring &) = delete;
-
     Ring(Ring &&) noexcept;
+
+    auto operator=(const Ring &) = delete;
 
     auto operator=(Ring &&) noexcept -> Ring &;
 

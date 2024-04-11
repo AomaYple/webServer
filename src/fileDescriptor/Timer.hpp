@@ -27,7 +27,7 @@ private:
     createTimerFileDescriptor(std::source_location sourceLocation = std::source_location::current()) -> int;
 
     static auto setTime(int fileDescriptor, std::source_location sourceLocation = std::source_location::current())
-            -> void;
+        -> void;
 
     unsigned long timeout{}, now{};
     std::array<std::unordered_map<int, unsigned long>, 65> wheel;

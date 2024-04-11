@@ -13,9 +13,9 @@ public:
 
     RingBuffer(const RingBuffer &) = delete;
 
-    auto operator=(const RingBuffer &) = delete;
-
     RingBuffer(RingBuffer &&other) noexcept;
+
+    auto operator=(const RingBuffer &) = delete;
 
     auto operator=(RingBuffer &&other) noexcept -> RingBuffer &;
 
@@ -33,7 +33,7 @@ private:
     auto advance() noexcept -> void;
 
     io_uring_buf_ring *handle;
-    std::vector<std::vector<std::byte>> buffers;
+    std::vector<std::vector<std::byte> > buffers;
     int id, mask, offset{};
     std::shared_ptr<Ring> ring;
 };
