@@ -4,5 +4,5 @@
 
 struct Completion {
     Outcome outcome;
-    void *userData;
+    unsigned long userData;
 };

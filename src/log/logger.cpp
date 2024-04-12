@@ -13,7 +13,11 @@ static std::jthread worker;
 
 auto logger::start(std::source_location sourceLocation) -> void {
     logFile.open(std::filesystem::current_path().string() + "/log.log", std::ios::app);
-    if (!logFile) throw Exception{Log{Log::Level::fatal, "failed to open log file", sourceLocation}};
+    if (!logFile) {
+        throw Exception{
+            Log{Log::Level::fatal, "failed to open log file", sourceLocation}
+        };
+    }
 
     worker = std::jthread([](std::stop_token stopToken) {
         while (!stopToken.stop_requested()) {

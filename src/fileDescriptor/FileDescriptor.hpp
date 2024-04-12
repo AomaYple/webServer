@@ -18,12 +18,10 @@ public:
 
     [[nodiscard]] auto getFileDescriptor() const noexcept -> int;
 
-    [[nodiscard]] auto close() noexcept -> Awaiter &;
+    [[nodiscard]] auto cancel() const noexcept -> Awaiter;
 
-protected:
-    auto getAwaiter() noexcept -> Awaiter &;
+    [[nodiscard]] auto close() const noexcept -> Awaiter;
 
 private:
     int fileDescriptor;
-    Awaiter awaiter;
 };

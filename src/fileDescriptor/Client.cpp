@@ -1,17 +1,19 @@
 #include "Client.hpp"
 
-Client::Client(int fileDescriptor, RingBuffer &&ringBuffer, unsigned long seconds) noexcept : FileDescriptor
-    {fileDescriptor}, ringBuffer{std::move(ringBuffer)}, seconds{seconds} {}
+Client::Client(int fileDescriptor, RingBuffer &&ringBuffer, unsigned long seconds) noexcept :
+    FileDescriptor{fileDescriptor}, ringBuffer{std::move(ringBuffer)}, seconds{seconds} {}
 
 auto Client::getSeconds() const noexcept -> unsigned long { return this->seconds; }
 
-auto Client::startReceive() noexcept -> void {
-    this->getAwaiter().submit(Submission{this->getFileDescriptor(),
-                                         Submission::Receive{{}, 0, this->ringBuffer.getId()},
-                                         IOSQE_FIXED_FILE | IOSQE_BUFFER_SELECT});
-}
+auto Client::receive() const noexcept -> Awaiter {
+    Awaiter awaiter;
+    awaiter.setSubmission(Submission{
+        this->getFileDescriptor(), Submission::Receive{{}, 0, this->ringBuffer.getId()},
+        IOSQE_FIXED_FILE | IOSQE_BUFFER_SELECT, 0
+    });
 
-auto Client::receive() noexcept -> Awaiter & { return this->getAwaiter(); }
+    return awaiter;
+}
 
 auto Client::getReceivedData(unsigned short index, unsigned int size) -> std::vector<std::byte> {
     return this->ringBuffer.readFromBuffer(index, size);
@@ -25,9 +27,12 @@ auto Client::readFromBuffer() const noexcept -> std::span<const std::byte> { ret
 
 auto Client::clearBuffer() noexcept -> void { this->buffer.clear(); }
 
-auto Client::send() noexcept -> Awaiter & {
-    this->getAwaiter().submit(Submission{this->getFileDescriptor(), Submission::Send{this->buffer, 0, 0},
-                                         IOSQE_FIXED_FILE});
+auto Client::send() const noexcept -> Awaiter {
+    Awaiter awaiter;
+    awaiter.setSubmission(Submission{
+        this->getFileDescriptor(), Submission::Send{this->buffer, 0, 0},
+         IOSQE_FIXED_FILE, 0
+    });
 
-    return this->getAwaiter();
+    return awaiter;
 }

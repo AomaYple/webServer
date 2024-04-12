@@ -9,9 +9,7 @@ public:
 
     [[nodiscard]] auto getSeconds() const noexcept -> unsigned long;
 
-    auto startReceive() noexcept -> void;
-
-    [[nodiscard]] auto receive() noexcept -> Awaiter &;
+    [[nodiscard]] auto receive() const noexcept -> Awaiter;
 
     [[nodiscard]] auto getReceivedData(unsigned short index, unsigned int size) -> std::vector<std::byte>;
 
@@ -21,7 +19,7 @@ public:
 
     auto clearBuffer() noexcept -> void;
 
-    [[nodiscard]] auto send() noexcept -> Awaiter &;
+    [[nodiscard]] auto send() const noexcept -> Awaiter;
 
 private:
     RingBuffer ringBuffer;

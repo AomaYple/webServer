@@ -44,7 +44,7 @@ public:
 
     [[nodiscard]] auto getSubmission() const -> const Submission &;
 
-    auto resume(Outcome outcome) -> void;
+    auto resume(Outcome outcome) const -> void;
 
 private:
     auto destroy() const -> void;

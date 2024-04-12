@@ -16,7 +16,6 @@ AllowAllParametersOfDeclarationOnNextLine: true
 AllowBreakBeforeNoexceptSpecifier: Always
 AllowShortBlocksOnASingleLine: Always
 AllowShortCaseLabelsOnASingleLine: false
-AllowShortCompoundRequirementOnASingleLine: true
 AllowShortEnumsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: AllIfsAndElse
@@ -26,7 +25,6 @@ AlwaysBreakBeforeMultilineStrings: true
 BinPackArguments: true
 BinPackParameters: true
 BitFieldColonSpacing: After
-BreakAdjacentStringLiterals: true
 BreakAfterAttributes: Never
 BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Attach
@@ -38,7 +36,7 @@ BreakStringLiterals: true
 ColumnLimit: 120
 CompactNamespaces: false
 ConstructorInitializerIndentWidth: 4
-ContinuationIndentWidth: 8
+ContinuationIndentWidth: 4
 Cpp11BracedListStyle: true
 DerivePointerAlignment: false
 DisableFormat: false
@@ -62,7 +60,7 @@ KeepEmptyLinesAtTheStartOfBlocks: false
 Language: Cpp
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: All
-PackConstructorInitializers: NextLine
+PackConstructorInitializers: BinPack
 PointerAlignment: Right
 ReferenceAlignment: Pointer
 ReflowComments: true

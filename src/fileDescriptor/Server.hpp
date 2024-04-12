@@ -3,7 +3,6 @@
 #include "FileDescriptor.hpp"
 
 #include <netinet/in.h>
-
 #include <source_location>
 
 class Server : public FileDescriptor {
@@ -12,9 +11,7 @@ public:
 
     explicit Server(int fileDescriptor);
 
-    auto startAccept() noexcept -> void;
-
-    [[nodiscard]] auto accept() noexcept -> Awaiter &;
+    [[nodiscard]] auto accept() const noexcept -> Awaiter;
 
 private:
     [[nodiscard]] static auto socket(std::source_location sourceLocation = std::source_location::current()) -> int;

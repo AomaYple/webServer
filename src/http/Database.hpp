@@ -1,8 +1,7 @@
 #pragma once
 
-#include <mysql/mysql.h>
-
 #include <mutex>
+#include <mysql/mysql.h>
 #include <source_location>
 #include <string_view>
 #include <vector>
@@ -25,7 +24,7 @@ public:
                  unsigned int port, std::string_view unixSocket, unsigned long clientFlag,
                  std::source_location sourceLocation = std::source_location::current()) const -> void;
 
-    auto inquire(std::string_view statement) const -> std::vector<std::vector<std::string> >;
+    auto inquire(std::string_view statement) const -> std::vector<std::vector<std::string>>;
 
 private:
     [[nodiscard]] static auto initialize(std::source_location sourceLocation = std::source_location::current())

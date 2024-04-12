@@ -3,9 +3,9 @@
 #include <chrono>
 
 Log::Log(Log::Level level, std::string &&text, std::source_location sourceLocation,
-         std::chrono::system_clock::time_point timestamp, std::jthread::id joinThreadId) noexcept
-    : level{level}, timestamp{timestamp}, joinThreadId{joinThreadId}, sourceLocation{sourceLocation},
-      text{std::move(text)} {}
+         std::chrono::system_clock::time_point timestamp, std::jthread::id joinThreadId) noexcept :
+    level{level}, timestamp{timestamp}, joinThreadId{joinThreadId}, sourceLocation{sourceLocation},
+    text{std::move(text)} {}
 
 auto Log::toString() const -> std::string {
     static constexpr std::array<const std::string_view, 4> levels{"info", "warn", "error", "fatal"};

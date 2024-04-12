@@ -4,23 +4,24 @@
 
 #include <utility>
 
-RingBuffer::RingBuffer(unsigned int entries, unsigned int size, int id, std::shared_ptr<Ring> ring)
-    : handle{ring->setupRingBuffer(entries, id)},
-      buffers{std::vector<std::vector<std::byte> >(entries, std::vector<std::byte>(size, std::byte{}))}, id{id},
-      mask{io_uring_buf_ring_mask(entries)}, ring{std::move(ring)} {
+RingBuffer::RingBuffer(unsigned int entries, unsigned int size, int id, std::shared_ptr<Ring> ring) :
+    handle{ring->setupRingBuffer(entries, id)},
+    buffers{std::vector<std::vector<std::byte>>(entries, std::vector<std::byte>(size, std::byte{}))}, id{id},
+    mask{io_uring_buf_ring_mask(entries)}, ring{std::move(ring)} {
     for (unsigned short i{}; i < static_cast<unsigned short>(this->buffers.size()); ++i) this->add(i);
 
     this->advance();
 }
 
-RingBuffer::RingBuffer(RingBuffer &&other) noexcept
-    : handle{std::exchange(other.handle, nullptr)}, buffers{std::move(other.buffers)}, id{other.id}, mask{other.mask},
-      offset{other.offset}, ring{std::move(other.ring)} {}
+RingBuffer::RingBuffer(RingBuffer &&other) noexcept :
+    handle{std::exchange(other.handle, nullptr)}, buffers{std::move(other.buffers)}, id{other.id}, mask{other.mask},
+    offset{other.offset}, ring{std::move(other.ring)} {}
 
 auto RingBuffer::operator=(RingBuffer &&other) noexcept -> RingBuffer & {
     if (this == &other) return *this;
 
     this->destroy();
+
     this->handle = std::exchange(other.handle, nullptr);
     this->buffers = std::move(other.buffers);
     this->id = other.id;

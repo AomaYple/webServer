@@ -1,8 +1,7 @@
 #pragma once
 
-#include <sys/socket.h>
-
 #include <span>
+#include <sys/socket.h>
 #include <variant>
 
 struct Submission {
@@ -29,11 +28,14 @@ struct Submission {
         unsigned int zeroCopyFlags;
     };
 
-    struct Close {
+    struct Cancel {
+        int flags;
     };
 
+    struct Close {};
+
     int fileDescriptor;
-    std::variant<Accept, Read, Receive, Send, Close> parameter;
+    std::variant<Accept, Read, Receive, Send, Cancel, Close> parameter;
     unsigned int flags;
-    void *userData{};
+    unsigned long userData;
 };

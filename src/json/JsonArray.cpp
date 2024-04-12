@@ -26,38 +26,40 @@ JsonArray::JsonArray(std::string_view json) {
                 point += 5;
 
                 break;
-            case '"': {
-                auto nextPoint{json.cbegin() + json.find('"', point - json.cbegin() + 1)};
-                this->values.emplace_back(std::string{point + 1, nextPoint});
-                point = nextPoint + 1;
+            case '"':
+                {
+                    auto nextPoint{json.cbegin() + json.find('"', point - json.cbegin() + 1)};
+                    this->values.emplace_back(std::string{point + 1, nextPoint});
+                    point = nextPoint + 1;
 
-                break;
-            }
-            case '[': {
-                JsonArray array{json.substr(point - json.cbegin())};
-                point += array.stringSize();
+                    break;
+                }
+            case '[':
+                {
+                    JsonArray array{json.substr(point - json.cbegin())};
+                    point += array.stringSize();
+                    this->values.emplace_back(std::move(array));
 
-                this->values.emplace_back(std::move(array));
+                    break;
+                }
+            case '{':
+                {
+                    JsonObject object{json.substr(point - json.cbegin())};
+                    point += object.stringSize();
+                    this->values.emplace_back(std::move(object));
 
-                break;
-            }
-            case '{': {
-                JsonObject object{json.substr(point - json.cbegin())};
-                point += object.stringSize();
+                    break;
+                }
+            default:
+                {
+                    auto nextPoint{point + 1};
+                    while (*nextPoint != ',' && *nextPoint != ']') ++nextPoint;
 
-                this->values.emplace_back(std::move(object));
+                    this->values.emplace_back(std::stod(std::string{point, nextPoint}));
+                    point = nextPoint;
 
-                break;
-            }
-            default: {
-                auto nextPoint{point + 1};
-                while (*nextPoint != ',' && *nextPoint != ']') ++nextPoint;
-
-                this->values.emplace_back(std::stod(std::string{point, nextPoint}));
-                point = nextPoint;
-
-                break;
-            }
+                    break;
+                }
         }
     }
 }
@@ -75,7 +77,6 @@ auto JsonArray::toString() const -> std::string {
     for (const auto &value : this->values) result += value.toString() + ',';
 
     if (result.back() == ',') result.pop_back();
-
     result += ']';
 
     return result;

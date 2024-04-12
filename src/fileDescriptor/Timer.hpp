@@ -12,7 +12,7 @@ public:
 
     explicit Timer(int fileDescriptor) noexcept;
 
-    [[nodiscard]] auto timing() noexcept -> Awaiter &;
+    [[nodiscard]] auto timing() noexcept -> Awaiter;
 
     auto add(int fileDescriptor, unsigned long seconds) -> void;
 
@@ -24,7 +24,7 @@ public:
 
 private:
     [[nodiscard]] static auto
-    createTimerFileDescriptor(std::source_location sourceLocation = std::source_location::current()) -> int;
+        createTimerFileDescriptor(std::source_location sourceLocation = std::source_location::current()) -> int;
 
     static auto setTime(int fileDescriptor, std::source_location sourceLocation = std::source_location::current())
         -> void;

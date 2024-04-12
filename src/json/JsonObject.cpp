@@ -31,26 +31,25 @@ JsonObject::JsonObject(std::string_view json) {
             case '"':
                 nextPoint = json.cbegin() + json.find('"', point - json.cbegin() + 1);
                 this->values.emplace(key, std::string{point + 1, nextPoint});
-
                 point = nextPoint + 1;
 
                 break;
-            case '[': {
-                JsonArray array{json.substr(point - json.cbegin())};
-                point += array.stringSize();
+            case '[':
+                {
+                    JsonArray array{json.substr(point - json.cbegin())};
+                    point += array.stringSize();
+                    this->values.emplace(key, std::move(array));
 
-                this->values.emplace(key, std::move(array));
+                    break;
+                }
+            case '{':
+                {
+                    JsonObject object{json.substr(point - json.cbegin())};
+                    point += object.stringSize();
+                    this->values.emplace(key, std::move(object));
 
-                break;
-            }
-            case '{': {
-                JsonObject object{json.substr(point - json.cbegin())};
-                point += object.stringSize();
-
-                this->values.emplace(key, std::move(object));
-
-                break;
-            }
+                    break;
+                }
             default:
                 nextPoint = point + 1;
                 while (*nextPoint != ',' && *nextPoint != '}') ++nextPoint;
@@ -76,7 +75,6 @@ auto JsonObject::toString() const -> std::string {
     for (const auto &value : this->values) result += '"' + value.first + "\":" + value.second.toString() + ',';
 
     if (result.back() == ',') result.pop_back();
-
     result += '}';
 
     return result;

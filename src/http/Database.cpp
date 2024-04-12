@@ -21,12 +21,15 @@ auto Database::connect(std::string_view host, std::string_view user, std::string
                        std::string_view database, unsigned int port, std::string_view unixSocket,
                        unsigned long clientFlag, std::source_location sourceLocation) const -> void {
     if (mysql_real_connect(this->handle, host.data(), user.data(), password.data(), database.data(), port,
-                           unixSocket.data(), clientFlag) == nullptr)
-        throw Exception{Log{Log::Level::error, mysql_error(this->handle), sourceLocation}};
+                           unixSocket.data(), clientFlag) == nullptr) {
+        throw Exception{
+            Log{Log::Level::error, mysql_error(this->handle), sourceLocation}
+        };
+    }
 }
 
-auto Database::inquire(std::string_view statement) const -> std::vector<std::vector<std::string> > {
-    std::vector<std::vector<std::string> > outcome;
+auto Database::inquire(std::string_view statement) const -> std::vector<std::vector<std::string>> {
+    std::vector<std::vector<std::string>> outcome;
 
     this->query(statement);
 
@@ -47,17 +50,25 @@ auto Database::initialize(std::source_location sourceLocation) -> MYSQL * {
     const std::lock_guard lockGuard{Database::lock};
 
     MYSQL *handle{mysql_init(nullptr)};
-    if (handle == nullptr)
-        throw Exception{Log{Log::Level::fatal, "initialization of Database handle failed", sourceLocation}};
+    if (handle == nullptr) {
+        throw Exception{
+            Log{Log::Level::fatal, "initialization of Database handle failed", sourceLocation}
+        };
+    }
 
     return handle;
 }
 
-auto Database::close() const noexcept -> void { if (this->handle != nullptr) mysql_close(this->handle); }
+auto Database::close() const noexcept -> void {
+    if (this->handle != nullptr) mysql_close(this->handle);
+}
 
 auto Database::query(std::string_view statement, std::source_location sourceLocation) const -> void {
-    if (mysql_real_query(this->handle, statement.data(), statement.size()) != 0)
-        throw Exception{Log{Log::Level::error, mysql_error(this->handle), sourceLocation}};
+    if (mysql_real_query(this->handle, statement.data(), statement.size()) != 0) {
+        throw Exception{
+            Log{Log::Level::error, mysql_error(this->handle), sourceLocation}
+        };
+    }
 }
 
 auto Database::getResult(std::source_location sourceLocation) const -> MYSQL_RES * {
@@ -65,7 +76,11 @@ auto Database::getResult(std::source_location sourceLocation) const -> MYSQL_RES
 
     if (result == nullptr) {
         std::string error{mysql_error(this->handle)};
-        if (!error.empty()) throw Exception{Log{Log::Level::error, std::move(error), sourceLocation}};
+        if (!error.empty()) {
+            throw Exception{
+                Log{Log::Level::error, std::move(error), sourceLocation}
+            };
+        }
     }
 
     return result;

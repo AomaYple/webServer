@@ -1,8 +1,7 @@
 #pragma once
 
-#include <liburing.h>
-
 #include <functional>
+#include <liburing.h>
 #include <source_location>
 #include <span>
 
@@ -12,7 +11,7 @@ struct Submission;
 class Ring {
 public:
     [[nodiscard]] static auto
-    getFileDescriptorLimit(std::source_location sourceLocation = std::source_location::current()) -> unsigned long;
+        getFileDescriptorLimit(std::source_location sourceLocation = std::source_location::current()) -> unsigned long;
 
     Ring(unsigned int entries, io_uring_params &params);
 
@@ -51,7 +50,7 @@ public:
 
     auto submit(const Submission &submission) -> void;
 
-    auto poll(const std::function<auto(const Completion &completion) -> void> &action) -> void;
+    auto poll(const std::function<auto(const Completion &completion)->void> &action) -> void;
 
 private:
     [[nodiscard]] static auto initialize(unsigned int entries, io_uring_params &params,

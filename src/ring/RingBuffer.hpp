@@ -1,7 +1,6 @@
 #pragma once
 
 #include <liburing.h>
-
 #include <memory>
 #include <vector>
 
@@ -33,7 +32,7 @@ private:
     auto advance() noexcept -> void;
 
     io_uring_buf_ring *handle;
-    std::vector<std::vector<std::byte> > buffers;
+    std::vector<std::vector<std::byte>> buffers;
     int id, mask, offset{};
     std::shared_ptr<Ring> ring;
 };

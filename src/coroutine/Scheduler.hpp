@@ -31,21 +31,24 @@ private:
     [[nodiscard]] static auto initializeRing(std::source_location sourceLocation = std::source_location::current())
         -> std::shared_ptr<Ring>;
 
-    auto submit(Task &&task, bool multiShot = {}) -> void;
+    auto submit(std::shared_ptr<Task> &&task) -> void;
+
+    auto eraseCurrentTask() -> void;
 
     [[nodiscard]] auto accept(std::source_location sourceLocation = std::source_location::current()) -> Task;
 
     [[nodiscard]] auto timing(std::source_location sourceLocation = std::source_location::current()) -> Task;
 
-    [[nodiscard]] auto receive(Client &client,
-                               std::source_location sourceLocation = std::source_location::current())
+    [[nodiscard]] auto receive(Client &client, std::source_location sourceLocation = std::source_location::current())
         -> Task;
 
     [[nodiscard]] auto send(Client &client, std::source_location sourceLocation = std::source_location::current())
         -> Task;
 
-    [[nodiscard]] auto close(int fileDescriptor,
-                             std::source_location sourceLocation = std::source_location::current())
+    [[nodiscard]] auto cancel(const Client &client,
+                              std::source_location sourceLocation = std::source_location::current()) -> Task;
+
+    [[nodiscard]] auto close(int fileDescriptor, std::source_location sourceLocation = std::source_location::current())
         -> Task;
 
     static constinit thread_local bool instance;
@@ -59,5 +62,6 @@ private:
     Timer timer{1};
     HttpParse httpParse;
     std::unordered_map<int, Client> clients;
-    std::unordered_map<unsigned long, Task> tasks;
+    std::unordered_map<unsigned long, std::shared_ptr<Task>> tasks;
+    unsigned long currentUserData{};
 };

@@ -4,7 +4,7 @@
 
 ## 协程
 
-简单包装coroutine，实现了Awaiter和Generator
+简单包装coroutine，实现了Awaiter和Task
 
 ## json
 
@@ -25,6 +25,22 @@
 ## 定时器
 
 基于时间轮实现定时器，定时器的精度为1s，会自动处理超时的文件描述符
+
+## 数据库
+
+数据库使用mariadb，通过对mariadb c api的简单封装，实现了数据库的连接与断开，查询和插入，在运行前需要在mariadb中创建数据库和表，如下
+
+```sql'
+create database webServer;
+
+use webServer;
+
+CREATE TABLE `users` (
+`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+`password` varchar(32) NOT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
 
 ## http
 

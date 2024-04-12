@@ -26,6 +26,7 @@ auto Task::operator=(Task &&other) noexcept -> Task & {
     if (this == &other) return *this;
 
     this->destroy();
+
     this->handle = std::exchange(other.handle, nullptr);
 
     return *this;
@@ -35,9 +36,11 @@ Task::~Task() { this->destroy(); }
 
 auto Task::getSubmission() const -> const Submission & { return this->handle.promise().getSubmission(); }
 
-auto Task::resume(Outcome outcome) -> void {
+auto Task::resume(Outcome outcome) const -> void {
     this->handle.promise().setOutcome(outcome);
     this->handle.resume();
 }
 
-auto Task::destroy() const -> void { if (this->handle) this->handle.destroy(); }
+auto Task::destroy() const -> void {
+    if (this->handle) this->handle.destroy();
+}

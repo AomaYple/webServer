@@ -2,10 +2,9 @@
 
 #include "../log/Exception.hpp"
 
+#include <cstring>
 #include <liburing.h>
 #include <sys/timerfd.h>
-
-#include <cstring>
 
 auto Timer::create() -> int {
     const int fileDescriptor{Timer::createTimerFileDescriptor()};
@@ -16,12 +15,14 @@ auto Timer::create() -> int {
 
 Timer::Timer(int fileDescriptor) noexcept : FileDescriptor{fileDescriptor} {}
 
-auto Timer::timing() noexcept -> Awaiter & {
-    this->getAwaiter().submit(Submission{this->getFileDescriptor(),
-                                         Submission::Read{std::as_writable_bytes(std::span{&this->timeout, 1}), 0},
-                                         IOSQE_FIXED_FILE});
+auto Timer::timing() noexcept -> Awaiter {
+    Awaiter awaiter;
+    awaiter.setSubmission(Submission{
+        this->getFileDescriptor(), Submission::Read{std::as_writable_bytes(std::span{&this->timeout, 1}), 0},
+        IOSQE_FIXED_FILE, 0
+    });
 
-    return this->getAwaiter();
+    return awaiter;
 }
 
 auto Timer::add(int fileDescriptor, unsigned long seconds) -> void {
@@ -41,8 +42,11 @@ auto Timer::update(int fileDescriptor, unsigned long seconds) -> void {
 }
 
 auto Timer::remove(int fileDescriptor) -> void {
-    this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
-    this->location.erase(fileDescriptor);
+    const auto result{this->location.find(fileDescriptor)};
+    if (result != this->location.cend()) {
+        this->wheel[result->second].erase(fileDescriptor);
+        this->location.erase(result);
+    }
 }
 
 auto Timer::clearTimeout() -> std::vector<int> {
@@ -63,7 +67,10 @@ auto Timer::clearTimeout() -> std::vector<int> {
 
         ++this->now;
         this->now %= this->wheel.size();
-        if (this->now == 0) for (auto &wheelPoint : this->wheel) for (auto &element : wheelPoint) --element.second;
+        if (this->now == 0) {
+            for (auto &wheelPoint : this->wheel)
+                for (auto &element : wheelPoint) --element.second;
+        }
 
         --this->timeout;
     }
@@ -73,13 +80,23 @@ auto Timer::clearTimeout() -> std::vector<int> {
 
 auto Timer::createTimerFileDescriptor(std::source_location sourceLocation) -> int {
     const int fileDescriptor{timerfd_create(CLOCK_MONOTONIC, 0)};
-    if (fileDescriptor == -1) throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+    if (fileDescriptor == -1) {
+        throw Exception{
+            Log{Log::Level::fatal, std::strerror(errno), sourceLocation}
+        };
+    }
 
     return fileDescriptor;
 }
 
 auto Timer::setTime(int fileDescriptor, std::source_location sourceLocation) -> void {
-    static constexpr itimerspec time{{1, 0}, {1, 0}};
-    if (timerfd_settime(fileDescriptor, 0, &time, nullptr) == -1)
-        throw Exception{Log{Log::Level::fatal, std::strerror(errno), sourceLocation}};
+    static constexpr itimerspec time{
+        {1, 0},
+        {1, 0}
+    };
+    if (timerfd_settime(fileDescriptor, 0, &time, nullptr) == -1) {
+        throw Exception{
+            Log{Log::Level::fatal, std::strerror(errno), sourceLocation}
+        };
+    }
 }
