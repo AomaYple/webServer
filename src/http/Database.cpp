@@ -10,6 +10,7 @@ auto Database::operator=(Database &&other) noexcept -> Database & {
     if (this == &other) return *this;
 
     this->close();
+
     this->handle = std::exchange(other.handle, nullptr);
 
     return *this;
@@ -29,11 +30,10 @@ auto Database::connect(std::string_view host, std::string_view user, std::string
 }
 
 auto Database::inquire(std::string_view statement) const -> std::vector<std::vector<std::string>> {
-    std::vector<std::vector<std::string>> outcome;
-
     this->query(statement);
-
     MYSQL_RES *const result{this->getResult()};
+
+    std::vector<std::vector<std::string>> outcome;
     if (result == nullptr) return outcome;
 
     const unsigned int columnCount{Database::getColumnCount(result)};

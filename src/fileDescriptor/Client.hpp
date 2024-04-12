@@ -13,16 +13,9 @@ public:
 
     [[nodiscard]] auto getReceivedData(unsigned short index, unsigned int size) -> std::vector<std::byte>;
 
-    auto writeToBuffer(std::span<const std::byte> data) -> void;
-
-    [[nodiscard]] auto readFromBuffer() const noexcept -> std::span<const std::byte>;
-
-    auto clearBuffer() noexcept -> void;
-
-    [[nodiscard]] auto send() const noexcept -> Awaiter;
+    [[nodiscard]] auto send(std::span<const std::byte> data) const noexcept -> Awaiter;
 
 private:
     RingBuffer ringBuffer;
     unsigned long seconds;
-    std::vector<std::byte> buffer;
 };

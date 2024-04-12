@@ -155,19 +155,26 @@ auto Scheduler::timing(std::source_location sourceLocation) -> Task {
 }
 
 auto Scheduler::receive(Client &client, std::source_location sourceLocation) -> Task {
+    std::vector<std::byte> buffer;
+
     while (true) {
         const Outcome outcome{co_await client.receive()};
         if (outcome.result > 0 && (outcome.flags & IORING_CQE_F_MORE)) {
-            client.writeToBuffer(client.getReceivedData(outcome.flags >> IORING_CQE_BUFFER_SHIFT, outcome.result));
+            const std::vector<std::byte> receivedData{
+                client.getReceivedData(outcome.flags >> IORING_CQE_BUFFER_SHIFT, outcome.result)};
+            buffer.insert(buffer.cend(), receivedData.cbegin(), receivedData.cend());
 
             if (!(outcome.flags & IORING_CQE_F_SOCK_NONEMPTY)) {
                 this->timer.update(client.getFileDescriptor(), client.getSeconds());
-                this->submit(std::make_shared<Task>(this->send(client)));
+
+                this->submit(std::make_shared<Task>(this->send(client, std::move(buffer))));
+                buffer = std::vector<std::byte>{};
             }
         } else {
             logger::push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
 
             this->timer.remove(client.getFileDescriptor());
+
             this->submit(std::make_shared<Task>(this->close(client.getFileDescriptor())));
 
             this->eraseCurrentTask();
@@ -175,17 +182,12 @@ auto Scheduler::receive(Client &client, std::source_location sourceLocation) -> 
     }
 }
 
-auto Scheduler::send(Client &client, std::source_location sourceLocation) -> Task {
-    const std::span<const std::byte> receivedData{client.readFromBuffer()};
-    std::vector<std::byte> response{this->httpParse.parse(
-        std::string_view{reinterpret_cast<const char *>(receivedData.data()), receivedData.size()})};
+auto Scheduler::send(Client &client, std::vector<std::byte> &&data, std::source_location sourceLocation) -> Task {
+    const std::vector<std::byte> response{
+        this->httpParse.parse(std::string_view{reinterpret_cast<const char *>(data.data()), data.size()})};
 
-    client.clearBuffer();
-    client.writeToBuffer(response);
-
-    const Outcome outcome{co_await client.send()};
-    if (outcome.result > 0) client.clearBuffer();
-    else {
+    const Outcome outcome{co_await client.send(response)};
+    if (outcome.result <= 0) {
         logger::push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
 
         this->timer.remove(client.getFileDescriptor());

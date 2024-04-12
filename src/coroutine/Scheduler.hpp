@@ -42,8 +42,8 @@ private:
     [[nodiscard]] auto receive(Client &client, std::source_location sourceLocation = std::source_location::current())
         -> Task;
 
-    [[nodiscard]] auto send(Client &client, std::source_location sourceLocation = std::source_location::current())
-        -> Task;
+    [[nodiscard]] auto send(Client &client, std::vector<std::byte> &&data,
+                            std::source_location sourceLocation = std::source_location::current()) -> Task;
 
     [[nodiscard]] auto cancel(const Client &client,
                               std::source_location sourceLocation = std::source_location::current()) -> Task;

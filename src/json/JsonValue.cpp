@@ -12,7 +12,7 @@ JsonValue::JsonValue(JsonArray &&value) noexcept : type{Type::array}, value{std:
 
 JsonValue::JsonValue(JsonObject &&value) noexcept : type{Type::object}, value{std::move(value)} {}
 
-auto JsonValue::getType() const noexcept -> enum JsonValue::Type { return this->type; }
+auto JsonValue::getType() const noexcept -> Type { return this->type; }
 
 JsonValue::operator std::nullptr_t() const noexcept { return nullptr; }
 

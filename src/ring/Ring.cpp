@@ -89,7 +89,7 @@ auto Ring::updateFileDescriptors(unsigned int offset, std::span<const int> fileD
 }
 
 auto Ring::setupRingBuffer(unsigned int entries, int id, std::source_location sourceLocation) -> io_uring_buf_ring * {
-    int result;
+    int result{};
     io_uring_buf_ring *const ringBufferHandle{io_uring_setup_buf_ring(&this->handle, entries, id, 0, &result)};
     if (ringBufferHandle == nullptr) {
         throw Exception{
@@ -167,7 +167,7 @@ auto Ring::submit(const Submission &submission) -> void {
 auto Ring::poll(const std::function<auto(const Completion &completion)->void> &action) -> void {
     this->wait(1);
 
-    int count{0};
+    int count{};
     unsigned int head;
 
     const io_uring_cqe *cqe;

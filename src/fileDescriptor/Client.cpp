@@ -19,18 +19,10 @@ auto Client::getReceivedData(unsigned short index, unsigned int size) -> std::ve
     return this->ringBuffer.readFromBuffer(index, size);
 }
 
-auto Client::writeToBuffer(std::span<const std::byte> data) -> void {
-    this->buffer.insert(this->buffer.cend(), data.cbegin(), data.cend());
-}
-
-auto Client::readFromBuffer() const noexcept -> std::span<const std::byte> { return this->buffer; }
-
-auto Client::clearBuffer() noexcept -> void { this->buffer.clear(); }
-
-auto Client::send() const noexcept -> Awaiter {
+auto Client::send(std::span<const std::byte> data) const noexcept -> Awaiter {
     Awaiter awaiter;
     awaiter.setSubmission(Submission{
-        this->getFileDescriptor(), Submission::Send{this->buffer, 0, 0},
+        this->getFileDescriptor(), Submission::Send{data, 0, 0},
          IOSQE_FIXED_FILE, 0
     });
 

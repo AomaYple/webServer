@@ -44,5 +44,5 @@ private:
     HttpResponse httpResponse;
     Database database;
     std::vector<std::byte> body;
-    bool isWriteBody{true}, isBrotli{};
+    bool wroteBody{true}, isBrotli{};
 };
