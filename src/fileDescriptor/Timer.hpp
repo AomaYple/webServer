@@ -30,6 +30,6 @@ private:
         -> void;
 
     unsigned long timeout{}, now{};
-    std::array<std::unordered_map<int, unsigned long>, 65> wheel;
+    std::array<std::unordered_map<int, unsigned long>, 61> wheel;
     std::unordered_map<int, unsigned long> location;
 };
