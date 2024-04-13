@@ -40,7 +40,7 @@ auto RingBuffer::readFromBuffer(unsigned short index, unsigned int size) -> std:
     std::vector<std::byte> &buffer{this->buffers[index]};
     std::vector<std::byte> data{buffer.cbegin(), buffer.cbegin() + size};
 
-    buffer.resize(size * 2);
+    buffer.resize(size);
 
     this->add(index);
     this->advance();
