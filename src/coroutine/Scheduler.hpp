@@ -61,7 +61,7 @@ private:
     Server server{0};
     Timer timer{1};
     HttpParse httpParse;
-    std::unordered_map<int, Client> clients;
     std::unordered_map<unsigned long, std::shared_ptr<Task>> tasks;
     unsigned long currentUserData{};
+    std::unordered_map<int, Client> clients;
 };
