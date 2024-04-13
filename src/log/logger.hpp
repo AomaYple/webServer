@@ -10,4 +10,4 @@ namespace logger {
     auto stop() noexcept -> void;
 
     auto push(Log &&log) -> void;
-}    // namespace logger
+}  // namespace logger
