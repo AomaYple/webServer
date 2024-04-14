@@ -82,7 +82,7 @@ cd build/webServer
 Arch WSL  
 8核  
 利用[wrk](https://github.com/wg/wrk)测试，测试结果如下  
-![image](test/test.png)
+![image](show/test.png)
 
 RPS:168万（每秒处理的请求数量）
 
@@ -90,4 +90,4 @@ wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生�
 
 ## 演示
 
-![image](test/show.gif)
+![image](show/show.gif)
