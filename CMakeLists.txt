@@ -4,11 +4,13 @@ project(webServer)
 
 add_executable(${PROJECT_NAME})
 
+set(BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME})
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
         CXX_STANDARD 23
         CXX_STANDARD_REQUIRED ON
         COMPILE_WARNING_AS_ERROR ON
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}
+        RUNTIME_OUTPUT_DIRECTORY ${BINARY_DIR}
 )
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
@@ -34,7 +36,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 add_custom_command(TARGET ${PROJECT_NAME}
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/resources
-        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/resources
+        ${BINARY_DIR}/resources
 
         VERBATIM
 )
