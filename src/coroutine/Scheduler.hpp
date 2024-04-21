@@ -58,7 +58,7 @@ private:
     static constinit std::atomic_flag switcher;
 
     const std::shared_ptr<Ring> ring{Scheduler::initializeRing()};
-    Server server{0};
+    const Server server{0};
     Timer timer{1};
     HttpParse httpParse;
     std::unordered_map<int, Client> clients;
