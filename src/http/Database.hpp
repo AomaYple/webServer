@@ -8,7 +8,7 @@
 
 class Database {
 public:
-    Database() = default;
+    constexpr Database() = default;
 
     Database(const Database &) = delete;
 

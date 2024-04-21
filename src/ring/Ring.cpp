@@ -18,7 +18,19 @@ auto Ring::getFileDescriptorLimit(std::source_location sourceLocation) -> unsign
     return limit.rlim_cur;
 }
 
-Ring::Ring(unsigned int entries, io_uring_params &params) : handle{Ring::initialize(entries, params)} {}
+Ring::Ring(unsigned int entries, io_uring_params &params) :
+    handle{[entries, &params](std::source_location sourceLocation = std::source_location::current()) {
+        io_uring handle{};
+
+        const int result{io_uring_queue_init_params(entries, &handle, &params)};
+        if (result != 0) {
+            throw Exception{
+                Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}
+            };
+        }
+
+        return handle;
+    }()} {}
 
 Ring::Ring(Ring &&other) noexcept : handle{other.handle} { other.handle.ring_fd = -1; }
 
@@ -126,7 +138,7 @@ auto Ring::submit(const Submission &submission) -> void {
             {
                 const Submission::Open &parameter{std::get<1>(submission.parameter)};
                 io_uring_prep_openat2_direct(sqe, parameter.directoryFileDescriptor, parameter.path.data(),
-                                             parameter.flags, parameter.mode, parameter.fileDescriptorIndex);
+                                             parameter.openHow, parameter.fileDescriptorIndex);
 
                 break;
             }
@@ -172,7 +184,7 @@ auto Ring::submit(const Submission &submission) -> void {
     io_uring_sqe_set_data64(sqe, submission.userData);
 }
 
-auto Ring::poll(const std::function<auto(const Completion &completion)->void> &action) -> void {
+auto Ring::poll(const std::function<auto(const Completion &completion)->void> &action) -> int {
     this->wait(1);
 
     int count{};
@@ -187,20 +199,11 @@ auto Ring::poll(const std::function<auto(const Completion &completion)->void> &a
         ++count;
     }
 
-    this->advance(count);
+    return count;
 }
 
-auto Ring::initialize(unsigned int entries, io_uring_params &params, std::source_location sourceLocation) -> io_uring {
-    io_uring handle{};
-
-    const int result{io_uring_queue_init_params(entries, &handle, &params)};
-    if (result != 0) {
-        throw Exception{
-            Log{Log::Level::fatal, std::strerror(std::abs(result)), sourceLocation}
-        };
-    }
-
-    return handle;
+auto Ring::advance(io_uring_buf_ring *ringBuffer, int completionCount, int ringBufferCount) noexcept -> void {
+    __io_uring_buf_ring_cq_advance(&this->handle, ringBuffer, completionCount, ringBufferCount);
 }
 
 auto Ring::destroy() noexcept -> void {
@@ -226,5 +229,3 @@ auto Ring::wait(unsigned int count, std::source_location sourceLocation) -> void
         };
     }
 }
-
-auto Ring::advance(int count) noexcept -> void { io_uring_cq_advance(&this->handle, count); }

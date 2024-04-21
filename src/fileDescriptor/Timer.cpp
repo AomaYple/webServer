@@ -3,7 +3,8 @@
 #include "../log/Exception.hpp"
 
 #include <cstring>
-#include <liburing.h>
+#include <liburing/io_uring.h>
+#include <ranges>
 #include <sys/timerfd.h>
 
 auto Timer::create() -> int {
@@ -69,7 +70,7 @@ auto Timer::clearTimeout() -> std::vector<int> {
         this->now %= this->wheel.size();
         if (this->now == 0) {
             for (auto &wheelPoint : this->wheel)
-                for (auto &element : wheelPoint) --element.second;
+                for (unsigned long &level : wheelPoint | std::views::values) --level;
         }
 
         --this->timeout;
@@ -90,7 +91,7 @@ auto Timer::createTimerFileDescriptor(std::source_location sourceLocation) -> in
 }
 
 auto Timer::setTime(int fileDescriptor, std::source_location sourceLocation) -> void {
-    static constexpr itimerspec time{
+    constexpr itimerspec time{
         {1, 0},
         {1, 0}
     };

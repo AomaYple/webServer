@@ -1,5 +1,6 @@
 #pragma once
 
+#include <linux/openat2.h>
 #include <span>
 #include <string_view>
 #include <sys/socket.h>
@@ -15,8 +16,8 @@ struct Submission {
     struct Open {
         int directoryFileDescriptor;
         std::string_view path;
-        int flags;
-        unsigned int mode, fileDescriptorIndex;
+        open_how *openHow;
+        unsigned int fileDescriptorIndex;
     };
 
     struct Write {

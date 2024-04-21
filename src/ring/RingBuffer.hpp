@@ -1,6 +1,6 @@
 #pragma once
 
-#include <liburing.h>
+#include <liburing/io_uring.h>
 #include <memory>
 #include <vector>
 
@@ -20,16 +20,18 @@ public:
 
     ~RingBuffer();
 
+    [[nodiscard]] auto getHandle() const noexcept -> io_uring_buf_ring *;
+
     [[nodiscard]] auto getId() const noexcept -> int;
 
     [[nodiscard]] auto readFromBuffer(unsigned short index, unsigned int size) -> std::vector<std::byte>;
+
+    auto getAdvanceBufferCount() noexcept -> int;
 
 private:
     auto destroy() const -> void;
 
     auto add(unsigned short index) noexcept -> void;
-
-    auto advance() noexcept -> void;
 
     io_uring_buf_ring *handle;
     std::vector<std::vector<std::byte>> buffers;

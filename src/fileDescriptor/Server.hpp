@@ -7,7 +7,7 @@
 
 class Server : public FileDescriptor {
 public:
-    [[nodiscard]] static auto create(unsigned short port) -> int;
+    [[nodiscard]] static auto create() -> int;
 
     explicit Server(int fileDescriptor);
 

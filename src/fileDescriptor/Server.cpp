@@ -4,16 +4,15 @@
 
 #include <arpa/inet.h>
 #include <cstring>
-#include <liburing.h>
+#include <liburing/io_uring.h>
 
-auto Server::create(unsigned short port) -> int {
+auto Server::create() -> int {
     const int fileDescriptor{Server::socket()};
-    Server::setSocketOption(fileDescriptor);
 
+    Server::setSocketOption(fileDescriptor);
     sockaddr_in address{};
     address.sin_family = AF_INET;
-    address.sin_port = htons(port);
-
+    address.sin_port = htons(8080);
     Server::translateIpAddress(address.sin_addr);
     Server::bind(fileDescriptor, address);
     Server::listen(fileDescriptor);
@@ -42,7 +41,7 @@ auto Server::socket(std::source_location sourceLocation) -> int {
 }
 
 auto Server::setSocketOption(int fileDescriptor, std::source_location sourceLocation) -> void {
-    static constexpr int option{1};
+    constexpr int option{1};
     if (setsockopt(fileDescriptor, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(option)) == -1) {
         throw Exception{
             Log{Log::Level::fatal, std::strerror(errno), sourceLocation}

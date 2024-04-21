@@ -3,10 +3,8 @@
 #include "../fileDescriptor/Server.hpp"
 #include "../fileDescriptor/Timer.hpp"
 #include "../http/HttpParse.hpp"
+#include "../ring/RingBuffer.hpp"
 
-#include <memory>
-
-class Ring;
 class Client;
 
 class Scheduler {
@@ -39,10 +37,10 @@ private:
 
     [[nodiscard]] auto timing(std::source_location sourceLocation = std::source_location::current()) -> Task;
 
-    [[nodiscard]] auto receive(Client &client, std::source_location sourceLocation = std::source_location::current())
-        -> Task;
+    [[nodiscard]] auto receive(const Client &client,
+                               std::source_location sourceLocation = std::source_location::current()) -> Task;
 
-    [[nodiscard]] auto send(Client &client, std::vector<std::byte> &&data,
+    [[nodiscard]] auto send(const Client &client, std::vector<std::byte> &&data,
                             std::source_location sourceLocation = std::source_location::current()) -> Task;
 
     [[nodiscard]] auto cancel(const Client &client,
@@ -50,6 +48,8 @@ private:
 
     [[nodiscard]] auto close(int fileDescriptor, std::source_location sourceLocation = std::source_location::current())
         -> Task;
+
+    auto closeAll(std::source_location sourceLocation = std::source_location::current()) -> void;
 
     static constinit thread_local bool instance;
     static constinit std::mutex lock;
@@ -61,7 +61,9 @@ private:
     Server server{0};
     Timer timer{1};
     HttpParse httpParse;
+    std::unordered_map<int, Client> clients;
+    RingBuffer ringBuffer{static_cast<unsigned int>(std::bit_ceil(1024 / Scheduler::ringFileDescriptors.size())), 1024,
+                          0, this->ring};
     std::unordered_map<unsigned long, std::shared_ptr<Task>> tasks;
     unsigned long currentUserData{};
-    std::unordered_map<int, Client> clients;
 };

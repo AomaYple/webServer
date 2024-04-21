@@ -1,22 +1,19 @@
 #include "Client.hpp"
 
-Client::Client(int fileDescriptor, RingBuffer &&ringBuffer, unsigned long seconds) noexcept :
-    FileDescriptor{fileDescriptor}, ringBuffer{std::move(ringBuffer)}, seconds{seconds} {}
+#include <liburing/io_uring.h>
+
+Client::Client(int fileDescriptor, unsigned long seconds) noexcept : FileDescriptor{fileDescriptor}, seconds{seconds} {}
 
 auto Client::getSeconds() const noexcept -> unsigned long { return this->seconds; }
 
-auto Client::receive() const noexcept -> Awaiter {
+auto Client::receive(int ringBufferId) const noexcept -> Awaiter {
     Awaiter awaiter;
     awaiter.setSubmission(Submission{
-        this->getFileDescriptor(), Submission::Receive{{}, 0, this->ringBuffer.getId()},
+        this->getFileDescriptor(), Submission::Receive{std::span<std::byte>{}, 0, ringBufferId},
         IOSQE_FIXED_FILE | IOSQE_BUFFER_SELECT, 0
     });
 
     return awaiter;
-}
-
-auto Client::getReceivedData(unsigned short index, unsigned int size) -> std::vector<std::byte> {
-    return this->ringBuffer.readFromBuffer(index, size);
 }
 
 auto Client::send(std::span<const std::byte> data) const noexcept -> Awaiter {

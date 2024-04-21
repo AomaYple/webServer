@@ -10,11 +10,11 @@ public:
 
     HttpParse(const HttpParse &) = delete;
 
-    HttpParse(HttpParse &&) = default;
+    HttpParse(HttpParse &&) noexcept = default;
 
     auto operator=(const HttpParse &) = delete;
 
-    auto operator=(HttpParse &&) -> HttpParse & = default;
+    auto operator=(HttpParse &&) noexcept -> HttpParse & = default;
 
     ~HttpParse() = default;
 
