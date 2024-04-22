@@ -1,15 +1,15 @@
 #include "HttpParse.hpp"
 
+#include "../fileDescriptor/Logger.hpp"
 #include "../json/JsonValue.hpp"
 #include "../log/Exception.hpp"
-#include "../log/logger.hpp"
 
 #include <brotli/encode.h>
 #include <filesystem>
 #include <format>
 #include <fstream>
 
-HttpParse::HttpParse() {
+HttpParse::HttpParse(std::shared_ptr<Logger> logger) : logger{std::move(logger)} {
     this->database.connect(std::string_view{}, "AomaYple", "38820233", "webServer", 0, std::string_view{}, 0);
 }
 
@@ -19,10 +19,10 @@ auto HttpParse::parse(std::string_view request, std::source_location sourceLocat
         this->parseVersion();
     } catch (Exception &exception) {
         this->handleException();
-        logger::push(std::move(exception.getLog()));
+        this->logger->push(std::move(exception.getLog()));
     } catch (std::exception &exception) {
         this->handleException();
-        logger::push(Log{Log::Level::warn, exception.what(), sourceLocation});
+        this->logger->push(Log{Log::Level::warn, exception.what(), sourceLocation});
     }
 
     this->httpResponse.addHeader("Content-Length: " + std::to_string(this->body.size()));
@@ -186,7 +186,7 @@ auto HttpParse::readResource(const std::string &resourcePath, const std::pair<lo
     file.seekg(range.first);
 
     const long size{range.second - range.first + 1};
-    this->body.resize(size, std::byte{});
+    this->body.resize(size);
     if (!file.read(reinterpret_cast<char *>(this->body.data()), size)) {
         throw Exception{
             Log{Log::Level::error, "cannot read file: " + resourcePath, sourceLocation}
@@ -199,7 +199,7 @@ auto HttpParse::readResource(const std::string &resourcePath, const std::pair<lo
 auto HttpParse::brotli(std::source_location sourceLocation) -> void {
     unsigned long encodedSize{BrotliEncoderMaxCompressedSize(this->body.size())};
 
-    std::vector<std::byte> encodedBody(encodedSize, std::byte{});
+    std::vector<std::byte> encodedBody{encodedSize};
     if (BrotliEncoderCompress(BROTLI_MAX_QUALITY, BROTLI_MAX_WINDOW_BITS, BROTLI_DEFAULT_MODE, this->body.size(),
                               reinterpret_cast<const unsigned char *>(this->body.data()), &encodedSize,
                               reinterpret_cast<unsigned char *>(encodedBody.data())) != BROTLI_TRUE) {

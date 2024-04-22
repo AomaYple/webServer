@@ -27,7 +27,6 @@ auto HttpResponse::clearHeaders() noexcept -> void { this->headers.clear(); }
 
 auto HttpResponse::setBody(std::span<const std::byte> newBody) -> void {
     this->body = {std::byte{'\r'}, std::byte{'\n'}};
-
     this->body.insert(this->body.cend(), newBody.cbegin(), newBody.cend());
 }
 

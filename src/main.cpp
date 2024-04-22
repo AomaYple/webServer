@@ -1,13 +1,9 @@
 #include "coroutine/Scheduler.hpp"
-#include "log/logger.hpp"
-
-#include <thread>
 
 auto main() -> int {
-    logger::start();
     Scheduler::registerSignal();
 
-    std::vector<std::jthread> workers{std::jthread::hardware_concurrency() - 2};
+    std::vector<std::jthread> workers{std::jthread::hardware_concurrency() - 1};
     for (auto &worker : workers) {
         worker = std::jthread{[] {
             Scheduler scheduler;
@@ -17,8 +13,6 @@ auto main() -> int {
 
     Scheduler scheduler;
     scheduler.run();
-
-    logger::stop();
 
     return 0;
 }

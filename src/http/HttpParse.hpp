@@ -4,9 +4,13 @@
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 
+#include <memory>
+
+class Logger;
+
 class HttpParse {
 public:
-    HttpParse();
+    explicit HttpParse(std::shared_ptr<Logger> logger);
 
     HttpParse(const HttpParse &) = delete;
 
@@ -45,4 +49,5 @@ private:
     Database database;
     std::vector<std::byte> body;
     bool wroteBody{true}, isBrotli{};
+    std::shared_ptr<Logger> logger;
 };

@@ -2,6 +2,7 @@
 
 #include <source_location>
 #include <thread>
+#include <vector>
 
 class Log {
 public:
@@ -14,10 +15,12 @@ public:
 
     [[nodiscard]] auto toString() const -> std::string;
 
+    [[nodiscard]] auto toBytes() const -> std::vector<std::byte>;
+
 private:
     Level level;
+    std::string text;
+    std::source_location sourceLocation;
     std::chrono::system_clock::time_point timestamp;
     std::jthread::id joinThreadId;
-    std::source_location sourceLocation;
-    std::string text;
 };

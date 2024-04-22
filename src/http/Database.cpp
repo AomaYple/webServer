@@ -10,7 +10,6 @@ auto Database::operator=(Database &&other) noexcept -> Database & {
     if (this == &other) return *this;
 
     this->close();
-
     this->handle = std::exchange(other.handle, nullptr);
 
     return *this;

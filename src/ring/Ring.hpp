@@ -50,7 +50,7 @@ public:
 
     auto submit(const Submission &submission) -> void;
 
-    auto poll(const std::function<auto(const Completion &completion)->void> &action) -> int;
+    auto poll(unsigned int waitCount, const std::function<auto(const Completion &completion)->void> &action) -> int;
 
     auto advance(io_uring_buf_ring *ringBuffer, int completionCount, int ringBufferCount) noexcept -> void;
 

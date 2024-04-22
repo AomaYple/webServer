@@ -2,11 +2,11 @@
 
 #include "../fileDescriptor/Client.hpp"
 #include "../log/Exception.hpp"
-#include "../log/logger.hpp"
 #include "../ring/Completion.hpp"
 #include "../ring/Ring.hpp"
 
 #include <cstring>
+#include <ranges>
 
 auto Scheduler::registerSignal(std::source_location sourceLocation) -> void {
     struct sigaction signalAction {};
@@ -39,11 +39,19 @@ Scheduler::Scheduler() {
     this->ring->registerSparseFileDescriptor(Ring::getFileDescriptorLimit());
     this->ring->allocateFileDescriptorRange(2, Ring::getFileDescriptorLimit() - 2);
 
-    const std::array<int, 2> fileDescriptors{Server::create(), Timer::create()};
+    const std::array<int, 3> fileDescriptors{Logger::create(), Server::create(), Timer::create()};
     this->ring->updateFileDescriptors(0, fileDescriptors);
 }
 
 Scheduler::~Scheduler() {
+    for (const Client &client : this->clients | std::views::values)
+        this->submit(std::make_shared<Task>(this->close(client.getFileDescriptor())));
+    this->submit(std::make_shared<Task>(this->close(this->timer.getFileDescriptor())));
+    this->submit(std::make_shared<Task>(this->close(this->server.getFileDescriptor())));
+    this->submit(std::make_shared<Task>(this->close(this->logger->getFileDescriptor())));
+
+    this->frame(3 + this->clients.size());
+
     const std::lock_guard lockGuard{Scheduler::lock};
 
     auto result{std::ranges::find(Scheduler::ringFileDescriptors, this->ring->getFileDescriptor())};
@@ -65,15 +73,9 @@ auto Scheduler::run() -> void {
     this->submit(std::make_shared<Task>(this->timing()));
 
     while (Scheduler::switcher.test(std::memory_order::relaxed)) {
-        const int completionCount{this->ring->poll([this](const Completion &completion) {
-            if (completion.outcome.result != 0 || !(completion.outcome.flags & IORING_CQE_F_NOTIF)) {
-                this->currentUserData = completion.userData;
-                const std::shared_ptr<Task> task{this->tasks.at(this->currentUserData)};
-                task->resume(completion.outcome);
-            }
-        })};
+        if (this->logger->writable()) this->submit(std::make_shared<Task>(this->write()));
 
-        this->ring->advance(this->ringBuffer.getHandle(), completionCount, this->ringBuffer.getAdvanceBufferCount());
+        this->frame(1);
     }
 }
 
@@ -111,6 +113,17 @@ auto Scheduler::initializeRing(std::source_location sourceLocation) -> std::shar
     return ring;
 }
 
+auto Scheduler::frame(unsigned int waitCount) -> void {
+    const int completionCount{this->ring->poll(waitCount, [this](const Completion &completion) {
+        if (completion.outcome.result != 0 || !(completion.outcome.flags & IORING_CQE_F_NOTIF)) {
+            this->currentUserData = completion.userData;
+            const std::shared_ptr<Task> task{this->tasks.at(this->currentUserData)};
+            task->resume(completion.outcome);
+        }
+    })};
+    this->ring->advance(this->ringBuffer.getHandle(), completionCount, this->ringBuffer.getAdvanceBufferCount());
+}
+
 auto Scheduler::submit(std::shared_ptr<Task> &&task) -> void {
     task->resume(Outcome{});
     this->ring->submit(task->getSubmission());
@@ -119,16 +132,31 @@ auto Scheduler::submit(std::shared_ptr<Task> &&task) -> void {
 
 auto Scheduler::eraseCurrentTask() -> void { this->tasks.erase(this->currentUserData); }
 
+auto Scheduler::write(std::source_location sourceLocation) -> Task {
+    const Outcome outcome{co_await this->logger->write()};
+    if (outcome.result < 0) {
+        throw Exception{
+            Log{Log::Level::error, std::strerror(std::abs(outcome.result)), sourceLocation}
+        };
+    }
+    this->logger->wrote();
+
+    this->eraseCurrentTask();
+}
+
 auto Scheduler::accept(std::source_location sourceLocation) -> Task {
     while (true) {
         const Outcome outcome{co_await this->server.accept()};
-        if (outcome.result >= 0 && (outcome.flags & IORING_CQE_F_MORE)) {
+        if (outcome.result >= 0 && outcome.flags & IORING_CQE_F_MORE) {
             this->clients.emplace(outcome.result, Client{outcome.result, 60});
+
             const Client &client{this->clients.at(outcome.result)};
+            this->timer.add(outcome.result, client.getSeconds());
 
             this->submit(std::make_shared<Task>(this->receive(client)));
-            this->timer.add(outcome.result, client.getSeconds());
         } else {
+            this->eraseCurrentTask();
+
             throw Exception{
                 Log{Log::Level::error, std::strerror(std::abs(outcome.result)), sourceLocation}
             };
@@ -140,7 +168,7 @@ auto Scheduler::timing(std::source_location sourceLocation) -> Task {
     const Outcome outcome{co_await this->timer.timing()};
     if (outcome.result == sizeof(unsigned long)) {
         for (const int fileDescriptor : this->timer.clearTimeout())
-            this->submit(std::make_shared<Task>(this->cancel(this->clients.at(fileDescriptor))));
+            this->submit(std::make_shared<Task>(this->cancel(fileDescriptor)));
 
         this->submit(std::make_shared<Task>(this->timing()));
     } else {
@@ -156,27 +184,29 @@ auto Scheduler::receive(const Client &client, std::source_location sourceLocatio
     std::vector<std::byte> buffer;
 
     while (true) {
-        const Outcome outcome{co_await client.receive(ringBuffer.getId())};
-        if (outcome.result > 0 && (outcome.flags & IORING_CQE_F_MORE)) {
+        const Outcome outcome{co_await client.receive(this->ringBuffer.getId())};
+        if (outcome.result > 0 && outcome.flags & IORING_CQE_F_MORE) {
             const std::vector<std::byte> receivedData{
                 this->ringBuffer.readFromBuffer(outcome.flags >> IORING_CQE_BUFFER_SHIFT, outcome.result)};
             buffer.insert(buffer.cend(), receivedData.cbegin(), receivedData.cend());
 
             if (!(outcome.flags & IORING_CQE_F_SOCK_NONEMPTY)) {
                 this->timer.update(client.getFileDescriptor(), client.getSeconds());
-
                 this->submit(std::make_shared<Task>(this->send(client, std::move(buffer))));
+
                 buffer = std::vector<std::byte>{};
             }
         } else {
-            logger::push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
+            this->logger->push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
 
             this->timer.remove(client.getFileDescriptor());
             this->submit(std::make_shared<Task>(this->close(client.getFileDescriptor())));
 
-            this->eraseCurrentTask();
+            break;
         }
     }
+
+    this->eraseCurrentTask();
 }
 
 auto Scheduler::send(const Client &client, std::vector<std::byte> &&data, std::source_location sourceLocation) -> Task {
@@ -184,8 +214,9 @@ auto Scheduler::send(const Client &client, std::vector<std::byte> &&data, std::s
         this->httpParse.parse(std::string_view{reinterpret_cast<const char *>(data.data()), data.size()})};
 
     const Outcome outcome{co_await client.send(response)};
+
     if (outcome.result <= 0) {
-        logger::push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
+        this->logger->push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
 
         this->timer.remove(client.getFileDescriptor());
         this->submit(std::make_shared<Task>(this->close(client.getFileDescriptor())));
@@ -194,10 +225,16 @@ auto Scheduler::send(const Client &client, std::vector<std::byte> &&data, std::s
     this->eraseCurrentTask();
 }
 
-auto Scheduler::cancel(const Client &client, std::source_location sourceLocation) -> Task {
-    const Outcome outcome{co_await client.cancel()};
+auto Scheduler::cancel(int fileDescriptor, std::source_location sourceLocation) -> Task {
+    Outcome outcome;
+
+    if (fileDescriptor == this->logger->getFileDescriptor()) outcome = co_await this->logger->cancel();
+    else if (fileDescriptor == this->server.getFileDescriptor()) outcome = co_await this->server.cancel();
+    else if (fileDescriptor == this->timer.getFileDescriptor()) outcome = co_await this->timer.cancel();
+    else outcome = co_await this->clients.at(fileDescriptor).cancel();
+
     if (outcome.result < 0)
-        logger::push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
+        this->logger->push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
 
     this->eraseCurrentTask();
 }
@@ -205,17 +242,16 @@ auto Scheduler::cancel(const Client &client, std::source_location sourceLocation
 auto Scheduler::close(int fileDescriptor, std::source_location sourceLocation) -> Task {
     Outcome outcome;
 
-    if (fileDescriptor == this->server.getFileDescriptor()) outcome = co_await this->server.close();
+    if (fileDescriptor == this->logger->getFileDescriptor()) outcome = co_await this->logger->close();
+    else if (fileDescriptor == this->server.getFileDescriptor()) outcome = co_await this->server.close();
     else if (fileDescriptor == this->timer.getFileDescriptor()) outcome = co_await this->timer.close();
     else {
         outcome = co_await this->clients.at(fileDescriptor).close();
         this->clients.erase(fileDescriptor);
     }
-    if (outcome.result < 0) {
-        logger::push(Log{Log::Level::warn,
-                         std::to_string(fileDescriptor) + ": " + std::strerror(std::abs(outcome.result)),
-                         sourceLocation});
-    }
+
+    if (outcome.result < 0)
+        this->logger->push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
 
     this->eraseCurrentTask();
 }
@@ -223,5 +259,5 @@ auto Scheduler::close(int fileDescriptor, std::source_location sourceLocation) -
 constinit thread_local bool Scheduler::instance{};
 constinit std::mutex Scheduler::lock;
 constinit int Scheduler::sharedRingFileDescriptor{-1};
-std::vector<int> Scheduler::ringFileDescriptors{std::vector<int>(std::thread::hardware_concurrency() - 1, -1)};
+std::vector<int> Scheduler::ringFileDescriptors{std::vector<int>(std::thread::hardware_concurrency(), -1)};
 constinit std::atomic_flag Scheduler::switcher{true};
