@@ -50,7 +50,9 @@ public:
 
     auto submit(const Submission &submission) -> void;
 
-    auto poll(unsigned int waitCount, const std::function<auto(const Completion &completion)->void> &action) -> int;
+    auto wait(unsigned int count, std::source_location sourceLocation = std::source_location::current()) -> void;
+
+    auto poll(const std::function<auto(const Completion &completion)->void> &action) const -> int;
 
     auto advance(io_uring_buf_ring *ringBuffer, int completionCount, int ringBufferCount) noexcept -> void;
 
@@ -58,8 +60,6 @@ private:
     auto destroy() noexcept -> void;
 
     [[nodiscard]] auto getSqe(std::source_location sourceLocation = std::source_location::current()) -> io_uring_sqe *;
-
-    auto wait(unsigned int count, std::source_location sourceLocation = std::source_location::current()) -> void;
 
     io_uring handle;
 };

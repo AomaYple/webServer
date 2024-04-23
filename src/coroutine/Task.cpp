@@ -26,6 +26,7 @@ auto Task::operator=(Task &&other) noexcept -> Task & {
     if (this == &other) return *this;
 
     this->destroy();
+
     this->handle = std::exchange(other.handle, nullptr);
 
     return *this;

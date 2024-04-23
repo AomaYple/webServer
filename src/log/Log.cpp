@@ -18,9 +18,9 @@ auto Log::toString() const -> std::string {
                        this->sourceLocation.column(), this->sourceLocation.function_name(), this->text);
 }
 
-auto Log::toBytes() const -> std::vector<std::byte> {
+auto Log::toByte() const -> std::vector<std::byte> {
     const std::string stringLog{this->toString()};
     const std::span<const std::byte> spanLog{std::as_bytes(std::span{stringLog})};
 
-    return std::vector<std::byte>{spanLog.cbegin(), spanLog.cend()};
+    return {spanLog.cbegin(), spanLog.cend()};
 }

@@ -2,6 +2,7 @@
 
 #include <liburing/io_uring.h>
 #include <memory>
+#include <span>
 #include <vector>
 
 class Ring;
@@ -24,7 +25,7 @@ public:
 
     [[nodiscard]] auto getId() const noexcept -> int;
 
-    [[nodiscard]] auto readFromBuffer(unsigned short index, unsigned int size) -> std::vector<std::byte>;
+    [[nodiscard]] auto readFromBuffer(unsigned short index, unsigned int size) -> std::span<const std::byte>;
 
     auto getAdvanceBufferCount() noexcept -> int;
 

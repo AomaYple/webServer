@@ -44,13 +44,7 @@ Scheduler::Scheduler() {
 }
 
 Scheduler::~Scheduler() {
-    for (const Client &client : this->clients | std::views::values)
-        this->submit(std::make_shared<Task>(this->close(client.getFileDescriptor())));
-    this->submit(std::make_shared<Task>(this->close(this->timer.getFileDescriptor())));
-    this->submit(std::make_shared<Task>(this->close(this->server.getFileDescriptor())));
-    this->submit(std::make_shared<Task>(this->close(this->logger->getFileDescriptor())));
-
-    this->frame(3 + this->clients.size());
+    this->closeAll();
 
     const std::lock_guard lockGuard{Scheduler::lock};
 
@@ -75,7 +69,8 @@ auto Scheduler::run() -> void {
     while (Scheduler::switcher.test(std::memory_order::relaxed)) {
         if (this->logger->writable()) this->submit(std::make_shared<Task>(this->write()));
 
-        this->frame(1);
+        this->ring->wait(1);
+        this->frame();
     }
 }
 
@@ -113,8 +108,8 @@ auto Scheduler::initializeRing(std::source_location sourceLocation) -> std::shar
     return ring;
 }
 
-auto Scheduler::frame(unsigned int waitCount) -> void {
-    const int completionCount{this->ring->poll(waitCount, [this](const Completion &completion) {
+auto Scheduler::frame() -> void {
+    const int completionCount{this->ring->poll([this](const Completion &completion) {
         if (completion.outcome.result != 0 || !(completion.outcome.flags & IORING_CQE_F_NOTIF)) {
             this->currentUserData = completion.userData;
             const std::shared_ptr<Task> task{this->tasks.at(this->currentUserData)};
@@ -151,8 +146,8 @@ auto Scheduler::accept(std::source_location sourceLocation) -> Task {
             this->clients.emplace(outcome.result, Client{outcome.result, 60});
 
             const Client &client{this->clients.at(outcome.result)};
-            this->timer.add(outcome.result, client.getSeconds());
 
+            this->timer.add(outcome.result, client.getSeconds());
             this->submit(std::make_shared<Task>(this->receive(client)));
         } else {
             this->eraseCurrentTask();
@@ -186,15 +181,14 @@ auto Scheduler::receive(const Client &client, std::source_location sourceLocatio
     while (true) {
         const Outcome outcome{co_await client.receive(this->ringBuffer.getId())};
         if (outcome.result > 0 && outcome.flags & IORING_CQE_F_MORE) {
-            const std::vector<std::byte> receivedData{
+            const std::span<const std::byte> receivedData{
                 this->ringBuffer.readFromBuffer(outcome.flags >> IORING_CQE_BUFFER_SHIFT, outcome.result)};
             buffer.insert(buffer.cend(), receivedData.cbegin(), receivedData.cend());
 
             if (!(outcome.flags & IORING_CQE_F_SOCK_NONEMPTY)) {
                 this->timer.update(client.getFileDescriptor(), client.getSeconds());
                 this->submit(std::make_shared<Task>(this->send(client, std::move(buffer))));
-
-                buffer = std::vector<std::byte>{};
+                buffer = {};
             }
         } else {
             this->logger->push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
@@ -214,7 +208,6 @@ auto Scheduler::send(const Client &client, std::vector<std::byte> &&data, std::s
         this->httpParse.parse(std::string_view{reinterpret_cast<const char *>(data.data()), data.size()})};
 
     const Outcome outcome{co_await client.send(response)};
-
     if (outcome.result <= 0) {
         this->logger->push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
 
@@ -227,7 +220,6 @@ auto Scheduler::send(const Client &client, std::vector<std::byte> &&data, std::s
 
 auto Scheduler::cancel(int fileDescriptor, std::source_location sourceLocation) -> Task {
     Outcome outcome;
-
     if (fileDescriptor == this->logger->getFileDescriptor()) outcome = co_await this->logger->cancel();
     else if (fileDescriptor == this->server.getFileDescriptor()) outcome = co_await this->server.cancel();
     else if (fileDescriptor == this->timer.getFileDescriptor()) outcome = co_await this->timer.cancel();
@@ -241,7 +233,6 @@ auto Scheduler::cancel(int fileDescriptor, std::source_location sourceLocation) 
 
 auto Scheduler::close(int fileDescriptor, std::source_location sourceLocation) -> Task {
     Outcome outcome;
-
     if (fileDescriptor == this->logger->getFileDescriptor()) outcome = co_await this->logger->close();
     else if (fileDescriptor == this->server.getFileDescriptor()) outcome = co_await this->server.close();
     else if (fileDescriptor == this->timer.getFileDescriptor()) outcome = co_await this->timer.close();
@@ -254,6 +245,17 @@ auto Scheduler::close(int fileDescriptor, std::source_location sourceLocation) -
         this->logger->push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
 
     this->eraseCurrentTask();
+}
+
+auto Scheduler::closeAll() -> void {
+    for (const Client &client : this->clients | std::views::values)
+        this->submit(std::make_shared<Task>(this->close(client.getFileDescriptor())));
+    this->submit(std::make_shared<Task>(this->close(this->timer.getFileDescriptor())));
+    this->submit(std::make_shared<Task>(this->close(this->server.getFileDescriptor())));
+    this->submit(std::make_shared<Task>(this->close(this->logger->getFileDescriptor())));
+
+    this->ring->wait(3 + this->clients.size());
+    this->frame();
 }
 
 constinit thread_local bool Scheduler::instance{};

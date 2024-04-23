@@ -30,7 +30,7 @@ private:
     [[nodiscard]] static auto initializeRing(std::source_location sourceLocation = std::source_location::current())
         -> std::shared_ptr<Ring>;
 
-    auto frame(unsigned int waitCount) -> void;
+    auto frame() -> void;
 
     auto submit(std::shared_ptr<Task> &&task) -> void;
 
@@ -53,6 +53,8 @@ private:
 
     [[nodiscard]] auto close(int fileDescriptor, std::source_location sourceLocation = std::source_location::current())
         -> Task;
+
+    auto closeAll() -> void;
 
     static constinit thread_local bool instance;
     static constinit std::mutex lock;

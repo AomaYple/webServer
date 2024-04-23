@@ -1,17 +1,17 @@
 #include "HttpRequest.hpp"
 
 HttpRequest::HttpRequest(std::string_view request) {
-    bool parsedLine{}, parsedBody{};
+    bool lineParsed{}, bodyParsed{};
 
-    for (unsigned long result{request.find("\r\n")}; result != std::string_view::npos && !parsedBody;
+    for (unsigned long result{request.find("\r\n")}; result != std::string_view::npos && !bodyParsed;
          result = request.find("\r\n")) {
-        if (!parsedLine) {
-            parsedLine = true;
+        if (!lineParsed) {
+            lineParsed = true;
             this->parseLine(request.substr(0, result));
 
             request.remove_prefix(result + 2);
         } else if (result == 0) {
-            parsedBody = true;
+            bodyParsed = true;
             this->body = request.substr(2);
         } else {
             this->parseHeader(request.substr(0, result));

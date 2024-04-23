@@ -21,7 +21,6 @@ auto Ring::getFileDescriptorLimit(std::source_location sourceLocation) -> unsign
 Ring::Ring(unsigned int entries, io_uring_params &params) :
     handle{[entries, &params](std::source_location sourceLocation = std::source_location::current()) {
         io_uring handle{};
-
         const int result{io_uring_queue_init_params(entries, &handle, &params)};
         if (result != 0) {
             throw Exception{
@@ -101,7 +100,7 @@ auto Ring::updateFileDescriptors(unsigned int offset, std::span<const int> fileD
 }
 
 auto Ring::setupRingBuffer(unsigned int entries, int id, std::source_location sourceLocation) -> io_uring_buf_ring * {
-    int result{};
+    int result;
     io_uring_buf_ring *const ringBufferHandle{io_uring_setup_buf_ring(&this->handle, entries, id, 0, &result)};
     if (ringBufferHandle == nullptr) {
         throw Exception{
@@ -184,9 +183,16 @@ auto Ring::submit(const Submission &submission) -> void {
     io_uring_sqe_set_data64(sqe, submission.userData);
 }
 
-auto Ring::poll(unsigned int waitCount, const std::function<auto(const Completion &completion)->void> &action) -> int {
-    this->wait(waitCount);
+auto Ring::wait(unsigned int count, std::source_location sourceLocation) -> void {
+    const int result{io_uring_submit_and_wait(&this->handle, count)};
+    if (result < 0) {
+        throw Exception{
+            Log{Log::Level::error, std::strerror(std::abs(result)), sourceLocation}
+        };
+    }
+}
 
+auto Ring::poll(const std::function<auto(const Completion &completion)->void> &action) const -> int {
     int count{};
     unsigned int head;
 
@@ -219,13 +225,4 @@ auto Ring::getSqe(std::source_location sourceLocation) -> io_uring_sqe * {
     }
 
     return sqe;
-}
-
-auto Ring::wait(unsigned int count, std::source_location sourceLocation) -> void {
-    const int result{io_uring_submit_and_wait(&this->handle, count)};
-    if (result < 0) {
-        throw Exception{
-            Log{Log::Level::error, std::strerror(std::abs(result)), sourceLocation}
-        };
-    }
 }

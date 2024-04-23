@@ -10,6 +10,7 @@ auto Database::operator=(Database &&other) noexcept -> Database & {
     if (this == &other) return *this;
 
     this->close();
+
     this->handle = std::exchange(other.handle, nullptr);
 
     return *this;
@@ -72,7 +73,6 @@ auto Database::query(std::string_view statement, std::source_location sourceLoca
 
 auto Database::getResult(std::source_location sourceLocation) const -> MYSQL_RES * {
     MYSQL_RES *const result{mysql_store_result(this->handle)};
-
     if (result == nullptr) {
         std::string error{mysql_error(this->handle)};
         if (!error.empty()) {
@@ -89,7 +89,6 @@ auto Database::getColumnCount(MYSQL_RES *result) noexcept -> unsigned int { retu
 
 auto Database::getRow(MYSQL_RES *result, unsigned int columnCount) -> std::vector<std::string> {
     std::vector<std::string> row;
-
     const char *const *const rawRow{mysql_fetch_row(result)};
     for (unsigned int i{}; rawRow != nullptr && i < columnCount; ++i) row.emplace_back(rawRow[i]);
 

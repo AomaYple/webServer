@@ -15,7 +15,7 @@ public:
 
     [[nodiscard]] auto toString() const -> std::string;
 
-    [[nodiscard]] auto toBytes() const -> std::vector<std::byte>;
+    [[nodiscard]] auto toByte() const -> std::vector<std::byte>;
 
 private:
     Level level;

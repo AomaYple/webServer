@@ -26,10 +26,11 @@ auto HttpParse::parse(std::string_view request, std::source_location sourceLocat
     }
 
     this->httpResponse.addHeader("Content-Length: " + std::to_string(this->body.size()));
+
     if (!this->wroteBody) this->body.clear();
     this->httpResponse.setBody(this->body);
 
-    std::vector<std::byte> response{this->httpResponse.toBytes()};
+    std::vector<std::byte> response{this->httpResponse.toByte()};
     this->clear();
 
     return response;
@@ -198,8 +199,8 @@ auto HttpParse::readResource(const std::string &resourcePath, const std::pair<lo
 
 auto HttpParse::brotli(std::source_location sourceLocation) -> void {
     unsigned long encodedSize{BrotliEncoderMaxCompressedSize(this->body.size())};
-
     std::vector<std::byte> encodedBody{encodedSize};
+
     if (BrotliEncoderCompress(BROTLI_MAX_QUALITY, BROTLI_MAX_WINDOW_BITS, BROTLI_DEFAULT_MODE, this->body.size(),
                               reinterpret_cast<const unsigned char *>(this->body.data()), &encodedSize,
                               reinterpret_cast<unsigned char *>(encodedBody.data())) != BROTLI_TRUE) {

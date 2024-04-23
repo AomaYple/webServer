@@ -8,7 +8,7 @@ class HttpResponse {
 public:
     constexpr HttpResponse() noexcept = default;
 
-    auto setVersion(std::string_view element) -> void;
+    auto setVersion(std::string_view newVersion) -> void;
 
     auto setStatusCode(std::string_view newStatusCode) -> void;
 
@@ -18,7 +18,7 @@ public:
 
     auto setBody(std::span<const std::byte> newBody) -> void;
 
-    [[nodiscard]] auto toBytes() const -> std::vector<std::byte>;
+    [[nodiscard]] auto toByte() const -> std::vector<std::byte>;
 
 private:
     std::vector<std::byte> version, statusCode, headers, body;
