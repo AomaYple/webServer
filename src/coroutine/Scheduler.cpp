@@ -187,8 +187,12 @@ auto Scheduler::receive(const Client &client, std::source_location sourceLocatio
 
             if (!(outcome.flags & IORING_CQE_F_SOCK_NONEMPTY)) {
                 this->timer.update(client.getFileDescriptor(), client.getSeconds());
-                this->submit(std::make_shared<Task>(this->send(client, std::move(buffer))));
-                buffer = {};
+
+                std::vector<std::byte> response{this->httpParse.parse(
+                    std::string_view{reinterpret_cast<const char *>(buffer.data()), buffer.size()})};
+                buffer.clear();
+
+                this->submit(std::make_shared<Task>(this->send(client, std::move(response))));
             }
         } else {
             this->logger->push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
@@ -204,9 +208,7 @@ auto Scheduler::receive(const Client &client, std::source_location sourceLocatio
 }
 
 auto Scheduler::send(const Client &client, std::vector<std::byte> &&data, std::source_location sourceLocation) -> Task {
-    const std::vector<std::byte> response{
-        this->httpParse.parse(std::string_view{reinterpret_cast<const char *>(data.data()), data.size()})};
-
+    const std::vector<std::byte> response{std::move(data)};
     const Outcome outcome{co_await client.send(response)};
     if (outcome.result <= 0) {
         this->logger->push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});

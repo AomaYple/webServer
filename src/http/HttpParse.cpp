@@ -5,6 +5,7 @@
 #include "../log/Exception.hpp"
 
 #include <brotli/encode.h>
+#include <cmath>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -131,7 +132,7 @@ auto HttpParse::parsePath() -> void {
 }
 
 auto HttpParse::parseResource(const std::string &resourcePath) -> void {
-    static constexpr unsigned int maxSize{1048576};
+    static constexpr unsigned int maxSize{static_cast<unsigned int>(std::pow(2, 20))};
     const long resourceSize{static_cast<long>(std::filesystem::file_size(resourcePath))};
     std::pair<long, long> range;
 
