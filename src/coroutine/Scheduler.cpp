@@ -116,7 +116,7 @@ auto Scheduler::frame() -> void {
             task->resume(completion.outcome);
         }
     })};
-    this->ring->advance(this->ringBuffer.getHandle(), completionCount, this->ringBuffer.getAdvanceBufferCount());
+    this->ring->advance(this->ringBuffer.getHandle(), completionCount, this->ringBuffer.getAddedBufferCount());
 }
 
 auto Scheduler::submit(std::shared_ptr<Task> &&task) -> void {

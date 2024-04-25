@@ -4,29 +4,29 @@
 
 #include <utility>
 
-RingBuffer::RingBuffer(unsigned int entries, unsigned int size, int id, std::shared_ptr<Ring> ring) :
-    handle{ring->setupRingBuffer(entries, id)}, buffers{entries, std::vector<std::byte>{size}}, id{id},
-    mask{io_uring_buf_ring_mask(entries)}, ring{std::move(ring)} {
+RingBuffer::RingBuffer(std::shared_ptr<Ring> ring, unsigned int entries, unsigned int size, int id) :
+    ring{std::move(ring)}, handle{this->ring->setupRingBuffer(entries, id)},
+    buffers{entries, std::vector<std::byte>{size}}, id{id}, mask{io_uring_buf_ring_mask(entries)} {
     for (unsigned short i{}; i < static_cast<unsigned short>(this->buffers.size()); ++i) this->add(i);
 
     this->ring->advance(this->getHandle(), 0, std::exchange(this->offset, 0));
 }
 
 RingBuffer::RingBuffer(RingBuffer &&other) noexcept :
-    handle{std::exchange(other.handle, nullptr)}, buffers{std::move(other.buffers)}, id{other.id}, mask{other.mask},
-    offset{other.offset}, ring{std::move(other.ring)} {}
+    ring{std::move(other.ring)}, handle{std::exchange(other.handle, nullptr)}, buffers{std::move(other.buffers)},
+    id{other.id}, mask{other.mask}, offset{other.offset} {}
 
 auto RingBuffer::operator=(RingBuffer &&other) noexcept -> RingBuffer & {
     if (this == &other) return *this;
 
     this->destroy();
 
+    this->ring = std::move(other.ring);
     this->handle = std::exchange(other.handle, nullptr);
     this->buffers = std::move(other.buffers);
     this->id = other.id;
     this->mask = other.mask;
     this->offset = other.offset;
-    this->ring = std::move(other.ring);
 
     return *this;
 }
@@ -46,7 +46,7 @@ auto RingBuffer::readFromBuffer(unsigned short index, unsigned int size) -> std:
     return {buffer.cbegin(), buffer.cbegin() + size};
 }
 
-auto RingBuffer::getAdvanceBufferCount() noexcept -> int { return std::exchange(this->offset, 0); }
+auto RingBuffer::getAddedBufferCount() noexcept -> int { return std::exchange(this->offset, 0); }
 
 auto RingBuffer::destroy() const -> void {
     if (this->handle != nullptr) this->ring->freeRingBuffer(this->handle, this->buffers.size(), this->id);

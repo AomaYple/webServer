@@ -68,8 +68,8 @@ private:
     Timer timer{2};
     HttpParse httpParse{this->logger};
     std::unordered_map<int, Client> clients;
-    RingBuffer ringBuffer{static_cast<unsigned int>(std::bit_ceil(2048 / Scheduler::ringFileDescriptors.size())), 1024,
-                          0, this->ring};
+    RingBuffer ringBuffer{
+        this->ring, static_cast<unsigned int>(std::bit_ceil(2048 / Scheduler::ringFileDescriptors.size())), 1024, 0};
     std::unordered_map<unsigned long, std::shared_ptr<Task>> tasks;
     unsigned long currentUserData{};
 };
