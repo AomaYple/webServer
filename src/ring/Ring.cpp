@@ -127,7 +127,7 @@ auto Ring::submit(const Submission &submission) -> void {
     switch (submission.parameter.index()) {
         case 0:
             {
-                const Submission::Write &parameter{std::get<Submission::Write>(submission.parameter)};
+                const auto &parameter{std::get<Submission::Write>(submission.parameter)};
                 io_uring_prep_write(sqe, submission.fileDescriptor, parameter.buffer.data(), parameter.buffer.size(),
                                     parameter.offset);
 
@@ -135,7 +135,7 @@ auto Ring::submit(const Submission &submission) -> void {
             }
         case 1:
             {
-                const Submission::Accept &parameter{std::get<Submission::Accept>(submission.parameter)};
+                const auto &parameter{std::get<Submission::Accept>(submission.parameter)};
                 io_uring_prep_multishot_accept_direct(sqe, submission.fileDescriptor, parameter.address,
                                                       parameter.addressLength, parameter.flags);
 
@@ -143,7 +143,7 @@ auto Ring::submit(const Submission &submission) -> void {
             }
         case 2:
             {
-                const Submission::Read &parameter{std::get<Submission::Read>(submission.parameter)};
+                const auto &parameter{std::get<Submission::Read>(submission.parameter)};
                 io_uring_prep_read(sqe, submission.fileDescriptor, parameter.buffer.data(), parameter.buffer.size(),
                                    parameter.offset);
 
@@ -151,7 +151,7 @@ auto Ring::submit(const Submission &submission) -> void {
             }
         case 3:
             {
-                const Submission::Receive &parameter{std::get<Submission::Receive>(submission.parameter)};
+                const auto &parameter{std::get<Submission::Receive>(submission.parameter)};
                 io_uring_prep_recv_multishot(sqe, submission.fileDescriptor, parameter.buffer.data(),
                                              parameter.buffer.size(), parameter.flags);
                 sqe->buf_group = parameter.ringBufferId;
@@ -160,7 +160,7 @@ auto Ring::submit(const Submission &submission) -> void {
             }
         case 4:
             {
-                const Submission::Send &parameter{std::get<Submission::Send>(submission.parameter)};
+                const auto &parameter{std::get<Submission::Send>(submission.parameter)};
                 io_uring_prep_send_zc(sqe, submission.fileDescriptor, parameter.buffer.data(), parameter.buffer.size(),
                                       parameter.flags, parameter.zeroCopyFlags);
 
@@ -168,7 +168,7 @@ auto Ring::submit(const Submission &submission) -> void {
             }
         case 5:
             {
-                const Submission::Cancel &parameter{std::get<Submission::Cancel>(submission.parameter)};
+                const auto &parameter{std::get<Submission::Cancel>(submission.parameter)};
                 io_uring_prep_cancel_fd(sqe, submission.fileDescriptor, parameter.flags);
 
                 break;

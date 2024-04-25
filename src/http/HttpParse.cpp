@@ -84,14 +84,14 @@ auto HttpParse::parseMethod() -> void {
             jsonBody.add("id", JsonValue{std::move(result[0][0])});
         }
 
-        const std::string stringBody{jsonBody.toString()};
-        const std::span<const std::byte> spanBody{std::as_bytes(std::span{stringBody})};
+        const auto stringBody{jsonBody.toString()};
+        const auto spanBody{std::as_bytes(std::span{stringBody})};
         this->body = {spanBody.cbegin(), spanBody.cend()};
     } else this->httpResponse.setStatusCode("405 Method Not Allowed");
 }
 
 auto HttpParse::parsePath() -> void {
-    const std::string_view url{this->httpRequest.getUrl().substr(1)};
+    const auto url{this->httpRequest.getUrl().substr(1)};
     if (url.empty()) {
         this->httpResponse.setStatusCode("200 OK");
         return;
@@ -119,7 +119,7 @@ auto HttpParse::parsePath() -> void {
     }
 
     std::string resourcePath;
-    for (const auto &path : std::filesystem::directory_iterator(folder)) {
+    for (const std::filesystem::directory_entry &path : std::filesystem::directory_iterator(folder)) {
         if (path.path().filename() == url) {
             resourcePath = path.path().string();
 
@@ -132,12 +132,12 @@ auto HttpParse::parsePath() -> void {
 }
 
 auto HttpParse::parseResource(const std::string &resourcePath) -> void {
-    static constexpr unsigned int maxSize{static_cast<unsigned int>(std::pow(2, 20))};
-    const long resourceSize{static_cast<long>(std::filesystem::file_size(resourcePath))};
+    static constexpr auto maxSize{static_cast<unsigned int>(std::pow(2, 20))};
+    const auto resourceSize{static_cast<long>(std::filesystem::file_size(resourcePath))};
     std::pair<long, long> range;
 
     if (this->httpRequest.containsHeader("Range")) {
-        const std::string_view rangeHeader{this->httpRequest.getHeaderValue("Range").substr(6)};
+        const auto rangeHeader{this->httpRequest.getHeaderValue("Range").substr(6)};
         const unsigned long splitPoint{rangeHeader.find('-')};
 
         const std::string stringStart{rangeHeader.cbegin(), rangeHeader.cbegin() + splitPoint};

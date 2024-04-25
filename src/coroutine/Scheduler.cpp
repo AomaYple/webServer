@@ -93,7 +93,7 @@ auto Scheduler::initializeRing(std::source_location sourceLocation) -> std::shar
         params.flags |= IORING_SETUP_ATTACH_WQ;
     }
 
-    std::shared_ptr<Ring> ring{std::make_shared<Ring>(2048 / Scheduler::ringFileDescriptors.size(), params)};
+    auto ring{std::make_shared<Ring>(2048 / Scheduler::ringFileDescriptors.size(), params)};
 
     if (Scheduler::sharedRingFileDescriptor == -1) Scheduler::sharedRingFileDescriptor = ring->getFileDescriptor();
 

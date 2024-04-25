@@ -43,7 +43,7 @@ auto RingBuffer::readFromBuffer(unsigned short index, unsigned int size) -> std:
     buffer.resize(size * 2);
     this->add(index);
 
-    return {buffer.cbegin(), buffer.cbegin() + size};
+    return std::span<const std::byte>{buffer.cbegin(), buffer.cbegin() + size};
 }
 
 auto RingBuffer::getAddedBufferCount() noexcept -> int { return std::exchange(this->offset, 0); }

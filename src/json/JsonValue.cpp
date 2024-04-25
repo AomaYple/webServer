@@ -113,7 +113,7 @@ auto JsonValue::stringSize() const -> unsigned long {
 }
 
 auto JsonValue::numberToString() const -> std::string {
-    std::string result{std::to_string(std::get<double>(this->value))};
+    auto result{std::to_string(std::get<double>(this->value))};
     result.erase(result.find_last_not_of('0') + 1, std::string::npos);
     result.erase(result.find_last_not_of('.') + 1, std::string::npos);
 
