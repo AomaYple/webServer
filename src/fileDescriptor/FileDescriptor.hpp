@@ -12,7 +12,7 @@ public:
 
     auto operator=(const FileDescriptor &) = delete;
 
-    constexpr auto operator=(FileDescriptor &&) noexcept -> FileDescriptor & = default;
+    auto operator=(FileDescriptor &&) = delete;
 
     ~FileDescriptor() = default;
 
