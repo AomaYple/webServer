@@ -27,14 +27,16 @@ auto Timer::timing() noexcept -> Awaiter {
 }
 
 auto Timer::add(int fileDescriptor, unsigned long seconds) -> void {
-    const unsigned long level{seconds / (this->wheel.size() - 1)}, point{seconds % (this->wheel.size() - 1)};
+    const unsigned long level{seconds / (this->wheel.size() - 1)};
+    const unsigned char point{static_cast<unsigned char>(seconds % (this->wheel.size() - 1))};
 
     this->wheel[point].emplace(fileDescriptor, level);
     this->location.emplace(fileDescriptor, point);
 }
 
 auto Timer::update(int fileDescriptor, unsigned long seconds) -> void {
-    const unsigned long level{seconds / (this->wheel.size() - 1)}, point{seconds % (this->wheel.size() - 1)};
+    const unsigned long level{seconds / (this->wheel.size() - 1)};
+    const unsigned char point{static_cast<unsigned char>(seconds % (this->wheel.size() - 1))};
 
     this->wheel[this->location.at(fileDescriptor)].erase(fileDescriptor);
     this->wheel[point].emplace(fileDescriptor, level);

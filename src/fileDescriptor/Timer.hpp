@@ -29,7 +29,8 @@ private:
     static auto setTime(int fileDescriptor, std::source_location sourceLocation = std::source_location::current())
         -> void;
 
-    unsigned long timeout{}, now{};
+    unsigned long timeout{};
+    unsigned char now{};
     std::array<std::unordered_map<int, unsigned long>, 61> wheel;
-    std::unordered_map<int, unsigned long> location;
+    std::unordered_map<int, unsigned char> location;
 };
