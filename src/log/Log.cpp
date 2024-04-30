@@ -1,6 +1,7 @@
 #include "Log.hpp"
 
 #include <chrono>
+#include <utility>
 
 Log::Log(Log::Level level, std::string &&text, std::source_location sourceLocation,
          std::chrono::system_clock::time_point timestamp, std::jthread::id joinThreadId) noexcept :
@@ -13,7 +14,7 @@ auto Log::toString() const -> std::string {
     std::ostringstream stream;
     stream << this->joinThreadId;
 
-    return std::format("{} {} {} {}:{}:{}:{} {}\n", levels[static_cast<unsigned char>(this->level)], this->timestamp,
+    return std::format("{} {} {} {}:{}:{}:{} {}\n", levels[std::to_underlying(this->level)], this->timestamp,
                        stream.str(), this->sourceLocation.file_name(), this->sourceLocation.line(),
                        this->sourceLocation.column(), this->sourceLocation.function_name(), this->text);
 }
