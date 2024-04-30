@@ -40,7 +40,7 @@ struct Submission {
     struct Close {};
 
     int fileDescriptor;
-    std::variant<Write, Accept, Read, Receive, Send, Cancel, Close> parameter;
     unsigned int flags;
     unsigned long userData;
+    std::variant<Write, Accept, Read, Receive, Send, Cancel, Close> parameter;
 };

@@ -8,15 +8,15 @@ auto FileDescriptor::getFileDescriptor() const noexcept -> int { return this->fi
 
 auto FileDescriptor::cancel() const noexcept -> Awaiter {
     Awaiter awaiter;
-    awaiter.setSubmission(Submission{this->fileDescriptor,
-                                     Submission::Cancel{IORING_ASYNC_CANCEL_ALL | IORING_ASYNC_CANCEL_FD_FIXED}, 0, 0});
+    awaiter.setSubmission(Submission{this->fileDescriptor, 0, 0,
+                                     Submission::Cancel{IORING_ASYNC_CANCEL_ALL | IORING_ASYNC_CANCEL_FD_FIXED}});
 
     return awaiter;
 }
 
 auto FileDescriptor::close() const noexcept -> Awaiter {
     Awaiter awaiter;
-    awaiter.setSubmission(Submission{this->fileDescriptor, Submission::Close{}, 0, 0});
+    awaiter.setSubmission(Submission{this->fileDescriptor, 0, 0, Submission::Close{}});
 
     return awaiter;
 }

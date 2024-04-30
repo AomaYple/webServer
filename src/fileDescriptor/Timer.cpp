@@ -19,8 +19,10 @@ Timer::Timer(int fileDescriptor) noexcept : FileDescriptor{fileDescriptor} {}
 auto Timer::timing() noexcept -> Awaiter {
     Awaiter awaiter;
     awaiter.setSubmission(Submission{
-        this->getFileDescriptor(), Submission::Read{std::as_writable_bytes(std::span{&this->timeout, 1}), 0},
-        IOSQE_FIXED_FILE, 0
+        this->getFileDescriptor(),
+        IOSQE_FIXED_FILE,
+        0,
+        Submission::Read{std::as_writable_bytes(std::span{&this->timeout, 1}), 0},
     });
 
     return awaiter;

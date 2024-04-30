@@ -9,8 +9,10 @@ auto Client::getSeconds() const noexcept -> unsigned long { return this->seconds
 auto Client::receive(int ringBufferId) const noexcept -> Awaiter {
     Awaiter awaiter;
     awaiter.setSubmission(Submission{
-        this->getFileDescriptor(), Submission::Receive{std::span<std::byte>{}, 0, ringBufferId},
-        IOSQE_FIXED_FILE | IOSQE_BUFFER_SELECT, 0
+        this->getFileDescriptor(),
+        IOSQE_FIXED_FILE | IOSQE_BUFFER_SELECT,
+        0,
+        Submission::Receive{std::span<std::byte>{}, 0, ringBufferId},
     });
 
     return awaiter;
@@ -19,8 +21,10 @@ auto Client::receive(int ringBufferId) const noexcept -> Awaiter {
 auto Client::send(std::span<const std::byte> data) const noexcept -> Awaiter {
     Awaiter awaiter;
     awaiter.setSubmission(Submission{
-        this->getFileDescriptor(), Submission::Send{data, 0, 0},
-         IOSQE_FIXED_FILE, 0
+        this->getFileDescriptor(),
+        IOSQE_FIXED_FILE,
+        0,
+        Submission::Send{data, 0, 0},
     });
 
     return awaiter;

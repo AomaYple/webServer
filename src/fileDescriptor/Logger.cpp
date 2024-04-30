@@ -32,8 +32,7 @@ auto Logger::write() -> Awaiter {
 
     Awaiter awaiter;
     awaiter.setSubmission(Submission{
-        this->getFileDescriptor(), Submission::Write{this->data, 0},
-         IOSQE_FIXED_FILE, 0
+        this->getFileDescriptor(), IOSQE_FIXED_FILE, 0, Submission::Write{this->data, 0}
     });
 
     return awaiter;
