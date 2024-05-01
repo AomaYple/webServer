@@ -225,7 +225,7 @@ auto Scheduler::cancel(int fileDescriptor, std::source_location sourceLocation) 
     if (fileDescriptor == this->logger->getFileDescriptor()) outcome = co_await this->logger->cancel();
     else if (fileDescriptor == this->server.getFileDescriptor()) outcome = co_await this->server.cancel();
     else if (fileDescriptor == this->timer.getFileDescriptor()) outcome = co_await this->timer.cancel();
-    else outcome = co_await this->clients.at(fileDescriptor).cancel();
+    else [[likely]] outcome = co_await this->clients.at(fileDescriptor).cancel();
 
     if (outcome.result < 0)
         this->logger->push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
@@ -238,7 +238,7 @@ auto Scheduler::close(int fileDescriptor, std::source_location sourceLocation) -
     if (fileDescriptor == this->logger->getFileDescriptor()) outcome = co_await this->logger->close();
     else if (fileDescriptor == this->server.getFileDescriptor()) outcome = co_await this->server.close();
     else if (fileDescriptor == this->timer.getFileDescriptor()) outcome = co_await this->timer.close();
-    else {
+    else [[likely]] {
         outcome = co_await this->clients.at(fileDescriptor).close();
         this->clients.erase(fileDescriptor);
     }

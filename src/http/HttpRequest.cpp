@@ -10,7 +10,7 @@ HttpRequest::HttpRequest(std::string_view request) {
             this->parseLine(request.substr(0, result));
 
             request.remove_prefix(result + 2);
-        } else if (result == 0) {
+        } else [[unlikely]] if (result == 0) {
             bodyParsed = true;
             this->body = request.substr(2);
         } else {

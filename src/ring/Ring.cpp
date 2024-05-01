@@ -158,7 +158,7 @@ auto Ring::submit(const Submission &submission) -> void {
 
                 break;
             }
-        case 4:
+        [[likely]] case 4:
             {
                 const auto &parameter{std::get<Submission::Send>(submission.parameter)};
                 io_uring_prep_send_zc(sqe, submission.fileDescriptor, parameter.buffer.data(), parameter.buffer.size(),

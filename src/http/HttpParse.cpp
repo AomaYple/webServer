@@ -47,13 +47,13 @@ auto HttpParse::clear() noexcept -> void {
 
 auto HttpParse::parseVersion() -> void {
     const std::string_view version{this->httpRequest.getVersion()};
-    if (version != "HTTP/1.1") {
-        this->httpResponse.setVersion("HTTP/1.1");
-        this->httpResponse.setStatusCode("505 HTTP Version Not Supported");
-    } else {
+    if (version == "HTTP/1.1") {
         this->httpResponse.setVersion(version);
 
         this->parseMethod();
+    } else {
+        this->httpResponse.setVersion("HTTP/1.1");
+        this->httpResponse.setStatusCode("505 HTTP Version Not Supported");
     }
 }
 
@@ -156,7 +156,7 @@ auto HttpParse::parseResource(const std::string &resourcePath) -> void {
             this->httpResponse.clearHeaders();
 
             return;
-        } else {
+        } else [[likely]] {
             this->httpResponse.setStatusCode("206 Partial Content");
             this->httpResponse.addHeader("Content-Range: bytes " + stringStart + '-' + stringEnd + '/' +
                                          std::to_string(resourceSize));
@@ -167,7 +167,7 @@ auto HttpParse::parseResource(const std::string &resourcePath) -> void {
                                      std::to_string(resourceSize));
 
         range = {0, maxSize - 1};
-    } else {
+    } else [[likely]] {
         this->httpResponse.setStatusCode("200 OK");
 
         range = {0, resourceSize - 1};
