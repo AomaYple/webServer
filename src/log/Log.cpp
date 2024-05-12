@@ -11,11 +11,8 @@ Log::Log(Log::Level level, std::string &&text, std::source_location sourceLocati
 auto Log::toString() const -> std::string {
     static constexpr std::array<const std::string_view, 4> levels{"info", "warn", "error", "fatal"};
 
-    std::ostringstream stream;
-    stream << this->joinThreadId;
-
     return std::format("{} {} {} {}:{}:{}:{} {}\n", levels[std::to_underlying(this->level)], this->timestamp,
-                       stream.str(), this->sourceLocation.file_name(), this->sourceLocation.line(),
+                       this->joinThreadId, this->sourceLocation.file_name(), this->sourceLocation.line(),
                        this->sourceLocation.column(), this->sourceLocation.function_name(), this->text);
 }
 
