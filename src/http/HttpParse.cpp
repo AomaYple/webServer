@@ -7,7 +7,6 @@
 #include <brotli/encode.h>
 #include <cmath>
 #include <filesystem>
-#include <format>
 #include <fstream>
 
 HttpParse::HttpParse(std::shared_ptr<Logger> logger) : logger{std::move(logger)} {

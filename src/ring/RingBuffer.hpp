@@ -2,7 +2,6 @@
 
 #include <liburing/io_uring.h>
 #include <memory>
-#include <span>
 #include <vector>
 
 class Ring;
@@ -13,11 +12,11 @@ public:
 
     RingBuffer(const RingBuffer &) = delete;
 
-    RingBuffer(RingBuffer &&other) noexcept;
+    RingBuffer(RingBuffer &&) noexcept;
 
     auto operator=(const RingBuffer &) = delete;
 
-    auto operator=(RingBuffer &&other) noexcept -> RingBuffer &;
+    auto operator=(RingBuffer &&) noexcept -> RingBuffer &;
 
     ~RingBuffer();
 
