@@ -4,6 +4,20 @@
 
 #include <utility>
 
+Database::Database(std::source_location sourceLocation) :
+    handle{[sourceLocation] {
+        const std::lock_guard lockGuard{Database::lock};
+
+        MYSQL *handle{mysql_init(nullptr)};
+        if (handle == nullptr) {
+            throw Exception{
+                Log{Log::Level::fatal, "initialization of Database handle failed", sourceLocation}
+            };
+        }
+
+        return handle;
+    }()} {}
+
 Database::Database(Database &&other) noexcept : handle{std::exchange(other.handle, nullptr)} {}
 
 auto Database::operator=(Database &&other) noexcept -> Database & {
@@ -44,19 +58,6 @@ auto Database::inquire(std::string_view statement) const -> std::vector<std::vec
     Database::freeResult(result);
 
     return outcome;
-}
-
-auto Database::initialize(std::source_location sourceLocation) -> MYSQL * {
-    const std::lock_guard lockGuard{Database::lock};
-
-    MYSQL *handle{mysql_init(nullptr)};
-    if (handle == nullptr) {
-        throw Exception{
-            Log{Log::Level::fatal, "initialization of Database handle failed", sourceLocation}
-        };
-    }
-
-    return handle;
 }
 
 auto Database::close() const noexcept -> void {

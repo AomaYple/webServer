@@ -54,7 +54,7 @@ public:
 
     auto poll(const std::function<auto(const Completion &completion)->void> &action) const -> int;
 
-    auto advance(io_uring_buf_ring *ringBuffer, int completionCount, int addedRingBufferCount) noexcept -> void;
+    auto advance(io_uring_buf_ring *ringBuffer, int completionCount, int ringBufferCount) noexcept -> void;
 
 private:
     auto destroy() noexcept -> void;

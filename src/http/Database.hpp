@@ -8,7 +8,7 @@
 
 class Database {
 public:
-    constexpr Database() = default;
+    explicit Database(std::source_location sourceLocation = std::source_location::current());
 
     Database(const Database &) = delete;
 
@@ -27,9 +27,6 @@ public:
     auto inquire(std::string_view statement) const -> std::vector<std::vector<std::string>>;
 
 private:
-    [[nodiscard]] static auto initialize(std::source_location sourceLocation = std::source_location::current())
-        -> MYSQL *;
-
     auto close() const noexcept -> void;
 
     auto query(std::string_view statement, std::source_location sourceLocation = std::source_location::current()) const
@@ -46,5 +43,5 @@ private:
 
     static constinit std::mutex lock;
 
-    MYSQL *handle{Database::initialize()};
+    MYSQL *handle;
 };
