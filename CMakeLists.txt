@@ -13,41 +13,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${BINARY_DIR}
 )
 
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 target_sources(${PROJECT_NAME} PRIVATE
-        src/coroutine/Awaiter.cpp
-        src/coroutine/Scheduler.cpp
-        src/coroutine/Task.cpp
-
-        src/fileDescriptor/Client.cpp
-        src/fileDescriptor/FileDescriptor.cpp
-        src/fileDescriptor/Logger.cpp
-        src/fileDescriptor/Server.cpp
-        src/fileDescriptor/Timer.cpp
-
-        src/http/Database.cpp
-        src/http/HttpParse.cpp
-        src/http/HttpRequest.cpp
-        src/http/HttpResponse.cpp
-
-        src/json/JsonArray.cpp
-        src/json/JsonObject.cpp
-        src/json/JsonValue.cpp
-
-        src/log/Exception.cpp
-        src/log/Log.cpp
-
-        src/ring/Completion.cpp
-        src/ring/Outcome.cpp
-        src/ring/Ring.cpp
-        src/ring/RingBuffer.cpp
-        src/ring/Submission.cpp
-
-        src/main.cpp
-)
-
-target_sources(${PROJECT_NAME} PRIVATE
-        FILE_SET CXX_MODULES FILES
-        src/coroutine/Scheduler.cpp
+        ${SOURCES}
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE
