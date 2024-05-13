@@ -4,7 +4,6 @@
 
 #include <cstring>
 #include <linux/io_uring.h>
-#include <ranges>
 #include <sys/timerfd.h>
 
 auto Timer::create() -> int {
@@ -58,25 +57,21 @@ auto Timer::clearTimeout() -> std::vector<int> {
     std::vector<int> result;
 
     while (this->timeout > 0) {
-        {
-            std::unordered_map<int, unsigned long> &wheelPoint{this->wheel[this->now]};
-            for (auto element{wheelPoint.cbegin()}; element != wheelPoint.cend();) {
-                if (element->second == 0) {
-                    result.emplace_back(element->first);
-                    this->location.erase(element->first);
+        std::unordered_map<int, unsigned long> &wheelPoint{this->wheel[this->now]};
+        for (auto element{wheelPoint.begin()}; element != wheelPoint.end();) {
+            if (element->second == 0) {
+                result.emplace_back(element->first);
+                this->location.erase(element->first);
 
-                    element = wheelPoint.erase(element);
-                } else ++element;
+                element = wheelPoint.erase(element);
+            } else {
+                --element->second;
+                ++element;
             }
         }
 
         ++this->now;
         this->now %= this->wheel.size();
-        if (this->now == 0) {
-            for (auto &wheelPoint : this->wheel)
-                for (unsigned long &level : wheelPoint | std::views::values) --level;
-        }
-
         --this->timeout;
     }
 
