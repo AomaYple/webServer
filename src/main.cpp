@@ -1,4 +1,8 @@
-#include "coroutine/Scheduler.hpp"
+#include <memory>
+#include <thread>
+#include <vector>
+
+import Scheduler;
 
 auto main() -> int {
     Scheduler::registerSignal();
