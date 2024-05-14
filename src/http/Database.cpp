@@ -46,8 +46,6 @@ auto Database::inquire(std::string_view statement) const -> std::vector<std::vec
     return outcome;
 }
 
-auto Database::close(MYSQL *handle) noexcept -> void { mysql_close(handle); }
-
 auto Database::query(std::string_view statement, std::source_location sourceLocation) const -> void {
     if (mysql_real_query(this->handle.get(), statement.data(), statement.size()) != 0) {
         throw Exception{

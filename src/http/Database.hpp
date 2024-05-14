@@ -30,8 +30,6 @@ public:
     auto inquire(std::string_view statement) const -> std::vector<std::vector<std::string>>;
 
 private:
-    static auto close(MYSQL *handle) noexcept -> void;
-
     auto query(std::string_view statement, std::source_location sourceLocation = std::source_location::current()) const
         -> void;
 
