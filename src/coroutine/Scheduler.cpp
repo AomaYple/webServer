@@ -37,7 +37,7 @@ Scheduler::Scheduler() {
     }
 
     this->ring->registerSparseFileDescriptor(Ring::getFileDescriptorLimit());
-    this->ring->allocateFileDescriptorRange(2, Ring::getFileDescriptorLimit() - 2);
+    this->ring->allocateFileDescriptorRange(3, Ring::getFileDescriptorLimit() - 3);
 
     const std::array<int, 3> fileDescriptors{Logger::create(), Server::create(), Timer::create()};
     this->ring->updateFileDescriptors(0, fileDescriptors);
