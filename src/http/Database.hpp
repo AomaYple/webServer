@@ -6,6 +6,10 @@
 #include <vector>
 
 class Database {
+    struct Deleter {
+        auto operator()(MYSQL *handle) const noexcept -> void;
+    };
+
 public:
     explicit Database(std::source_location sourceLocation = std::source_location::current());
 
@@ -42,5 +46,5 @@ private:
 
     static constinit std::mutex lock;
 
-    std::unique_ptr<MYSQL, decltype(&Database::close)> handle;
+    std::unique_ptr<MYSQL, Deleter> handle;
 };

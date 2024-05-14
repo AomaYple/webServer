@@ -2,6 +2,8 @@
 
 #include "../log/Exception.hpp"
 
+auto Database::Deleter::operator()(MYSQL *handle) const noexcept -> void { mysql_close(handle); }
+
 Database::Database(std::source_location sourceLocation) :
     handle{[sourceLocation] {
         const std::lock_guard lockGuard{Database::lock};
@@ -13,9 +15,7 @@ Database::Database(std::source_location sourceLocation) :
             };
         }
 
-        std::unique_ptr<MYSQL, decltype(&Database::close)> handle{mysqlHandle, Database::close};
-
-        return handle;
+        return std::unique_ptr<MYSQL, Deleter>{mysqlHandle};
     }()} {}
 
 auto Database::connect(std::string_view host, std::string_view user, std::string_view password,
