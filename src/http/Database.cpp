@@ -2,43 +2,29 @@
 
 #include "../log/Exception.hpp"
 
-#include <utility>
-
 Database::Database(std::source_location sourceLocation) :
     handle{[sourceLocation] {
         const std::lock_guard lockGuard{Database::lock};
 
-        MYSQL *handle{mysql_init(nullptr)};
-        if (handle == nullptr) {
+        MYSQL *const mysqlHandle{mysql_init(nullptr)};
+        if (mysqlHandle == nullptr) {
             throw Exception{
                 Log{Log::Level::fatal, "initialization of Database handle failed", sourceLocation}
             };
         }
 
+        std::unique_ptr<MYSQL, decltype(&Database::close)> handle{mysqlHandle, Database::close};
+
         return handle;
     }()} {}
-
-Database::Database(Database &&other) noexcept : handle{std::exchange(other.handle, nullptr)} {}
-
-auto Database::operator=(Database &&other) noexcept -> Database & {
-    if (this == &other) return *this;
-
-    this->close();
-
-    this->handle = std::exchange(other.handle, nullptr);
-
-    return *this;
-}
-
-Database::~Database() { this->close(); }
 
 auto Database::connect(std::string_view host, std::string_view user, std::string_view password,
                        std::string_view database, unsigned int port, std::string_view unixSocket,
                        unsigned long clientFlag, std::source_location sourceLocation) const -> void {
-    if (mysql_real_connect(this->handle, host.data(), user.data(), password.data(), database.data(), port,
+    if (mysql_real_connect(this->handle.get(), host.data(), user.data(), password.data(), database.data(), port,
                            unixSocket.data(), clientFlag) == nullptr) {
         throw Exception{
-            Log{Log::Level::error, mysql_error(this->handle), sourceLocation}
+            Log{Log::Level::error, mysql_error(this->handle.get()), sourceLocation}
         };
     }
 }
@@ -60,22 +46,20 @@ auto Database::inquire(std::string_view statement) const -> std::vector<std::vec
     return outcome;
 }
 
-auto Database::close() const noexcept -> void {
-    if (this->handle != nullptr) mysql_close(this->handle);
-}
+auto Database::close(MYSQL *handle) noexcept -> void { mysql_close(handle); }
 
 auto Database::query(std::string_view statement, std::source_location sourceLocation) const -> void {
-    if (mysql_real_query(this->handle, statement.data(), statement.size()) != 0) {
+    if (mysql_real_query(this->handle.get(), statement.data(), statement.size()) != 0) {
         throw Exception{
-            Log{Log::Level::error, mysql_error(this->handle), sourceLocation}
+            Log{Log::Level::error, mysql_error(this->handle.get()), sourceLocation}
         };
     }
 }
 
 auto Database::getResult(std::source_location sourceLocation) const -> MYSQL_RES * {
-    MYSQL_RES *const result{mysql_store_result(this->handle)};
+    MYSQL_RES *const result{mysql_store_result(this->handle.get())};
     if (result == nullptr) {
-        std::string error{mysql_error(this->handle)};
+        std::string error{mysql_error(this->handle.get())};
         if (!error.empty()) {
             throw Exception{
                 Log{Log::Level::error, std::move(error), sourceLocation}
