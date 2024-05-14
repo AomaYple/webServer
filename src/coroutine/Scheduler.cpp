@@ -11,7 +11,7 @@
 auto Scheduler::registerSignal(std::source_location sourceLocation) -> void {
     struct sigaction signalAction {};
 
-    signalAction.sa_handler = [](int) noexcept { Scheduler::switcher.clear(std::memory_order_relaxed); };
+    signalAction.sa_handler = [](int) noexcept { switcher.clear(std::memory_order_relaxed); };
 
     if (sigaction(SIGTERM, &signalAction, nullptr) == -1) {
         throw Exception{
@@ -30,10 +30,10 @@ Scheduler::Scheduler() {
     this->ring->registerSelfFileDescriptor();
 
     {
-        const std::lock_guard lockGuard{Scheduler::lock};
+        const std::lock_guard lockGuard{lock};
 
-        const auto result{std::ranges::find(Scheduler::ringFileDescriptors, this->ring->getFileDescriptor())};
-        this->ring->registerCpu(std::distance(Scheduler::ringFileDescriptors.begin(), result));
+        const auto result{std::ranges::find(ringFileDescriptors, this->ring->getFileDescriptor())};
+        this->ring->registerCpu(std::distance(ringFileDescriptors.begin(), result));
     }
 
     this->ring->registerSparseFileDescriptor(Ring::getFileDescriptorLimit());
@@ -46,27 +46,27 @@ Scheduler::Scheduler() {
 Scheduler::~Scheduler() {
     this->closeAll();
 
-    const std::lock_guard lockGuard{Scheduler::lock};
+    const std::lock_guard lockGuard{lock};
 
-    auto result{std::ranges::find(Scheduler::ringFileDescriptors, this->ring->getFileDescriptor())};
+    auto result{std::ranges::find(ringFileDescriptors, this->ring->getFileDescriptor())};
     *result = -1;
 
-    if (Scheduler::sharedRingFileDescriptor == this->ring->getFileDescriptor()) {
-        Scheduler::sharedRingFileDescriptor = -1;
+    if (sharedRingFileDescriptor == this->ring->getFileDescriptor()) {
+        sharedRingFileDescriptor = -1;
 
-        result = std::ranges::find_if(Scheduler::ringFileDescriptors,
+        result = std::ranges::find_if(ringFileDescriptors,
                                       [](const int fileDescriptor) noexcept { return fileDescriptor != -1; });
-        if (result != Scheduler::ringFileDescriptors.cend()) Scheduler::sharedRingFileDescriptor = *result;
+        if (result != ringFileDescriptors.cend()) sharedRingFileDescriptor = *result;
     }
 
-    Scheduler::instance = false;
+    instance = false;
 }
 
 auto Scheduler::run() -> void {
     this->submit(std::make_shared<Task>(this->accept()));
     this->submit(std::make_shared<Task>(this->timing()));
 
-    while (Scheduler::switcher.test(std::memory_order::relaxed)) {
+    while (switcher.test(std::memory_order::relaxed)) {
         if (this->logger->writable()) this->submit(std::make_shared<Task>(this->write()));
 
         this->ring->wait(1);
@@ -75,30 +75,30 @@ auto Scheduler::run() -> void {
 }
 
 auto Scheduler::initializeRing(std::source_location sourceLocation) -> std::shared_ptr<Ring> {
-    if (Scheduler::instance) {
+    if (instance) {
         throw Exception{
             Log{Log::Level::fatal, "one thread can only have one Scheduler", sourceLocation}
         };
     }
-    Scheduler::instance = true;
+    instance = true;
 
     io_uring_params params{};
     params.flags = IORING_SETUP_CLAMP | IORING_SETUP_SUBMIT_ALL | IORING_SETUP_COOP_TASKRUN |
                    IORING_SETUP_TASKRUN_FLAG | IORING_SETUP_SINGLE_ISSUER | IORING_SETUP_DEFER_TASKRUN;
 
-    const std::lock_guard lockGuard{Scheduler::lock};
+    const std::lock_guard lockGuard{lock};
 
-    if (Scheduler::sharedRingFileDescriptor != -1) {
-        params.wq_fd = Scheduler::sharedRingFileDescriptor;
+    if (sharedRingFileDescriptor != -1) {
+        params.wq_fd = sharedRingFileDescriptor;
         params.flags |= IORING_SETUP_ATTACH_WQ;
     }
 
-    auto ring{std::make_shared<Ring>(2048 / Scheduler::ringFileDescriptors.size(), params)};
+    auto ring{std::make_shared<Ring>(2048 / ringFileDescriptors.size(), params)};
 
-    if (Scheduler::sharedRingFileDescriptor == -1) Scheduler::sharedRingFileDescriptor = ring->getFileDescriptor();
+    if (sharedRingFileDescriptor == -1) sharedRingFileDescriptor = ring->getFileDescriptor();
 
-    const auto result{std::ranges::find(Scheduler::ringFileDescriptors, -1)};
-    if (result != Scheduler::ringFileDescriptors.cend()) *result = ring->getFileDescriptor();
+    const auto result{std::ranges::find(ringFileDescriptors, -1)};
+    if (result != ringFileDescriptors.cend()) *result = ring->getFileDescriptor();
     else {
         throw Exception{
             Log{Log::Level::fatal, "too many Scheduler", sourceLocation}
@@ -163,7 +163,7 @@ auto Scheduler::timing(std::source_location sourceLocation) -> Task {
     const Outcome outcome{co_await this->timer.timing()};
     if (outcome.result == sizeof(unsigned long)) {
         for (const int fileDescriptor : this->timer.clearTimeout())
-            this->submit(std::make_shared<Task>(this->cancel(fileDescriptor)));
+            this->submit(std::make_shared<Task>(this->cancel(this->clients.at(fileDescriptor))));
 
         this->submit(std::make_shared<Task>(this->timing()));
     } else {
@@ -220,13 +220,8 @@ auto Scheduler::send(const Client &client, std::vector<std::byte> &&data, std::s
     this->eraseCurrentTask();
 }
 
-auto Scheduler::cancel(int fileDescriptor, std::source_location sourceLocation) -> Task {
-    Outcome outcome;
-    if (fileDescriptor == this->logger->getFileDescriptor()) outcome = co_await this->logger->cancel();
-    else if (fileDescriptor == this->server.getFileDescriptor()) outcome = co_await this->server.cancel();
-    else if (fileDescriptor == this->timer.getFileDescriptor()) outcome = co_await this->timer.cancel();
-    else [[likely]] outcome = co_await this->clients.at(fileDescriptor).cancel();
-
+auto Scheduler::cancel(const Client &client, std::source_location sourceLocation) -> Task {
+    const Outcome outcome{co_await client.cancel()};
     if (outcome.result < 0)
         this->logger->push(Log{Log::Level::warn, std::strerror(std::abs(outcome.result)), sourceLocation});
 

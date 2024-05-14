@@ -7,15 +7,17 @@
 #include <linux/io_uring.h>
 
 auto Server::create() -> int {
-    const int fileDescriptor{Server::socket()};
+    const int fileDescriptor{socket()};
 
-    Server::setSocketOption(fileDescriptor);
+    setSocketOption(fileDescriptor);
+
     sockaddr_in address{};
     address.sin_family = AF_INET;
     address.sin_port = htons(8080);
-    Server::translateIpAddress(address.sin_addr);
-    Server::bind(fileDescriptor, address);
-    Server::listen(fileDescriptor);
+    translateIpAddress(address.sin_addr);
+
+    bind(fileDescriptor, address);
+    listen(fileDescriptor);
 
     return fileDescriptor;
 }

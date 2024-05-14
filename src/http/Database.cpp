@@ -6,7 +6,7 @@ auto Database::Deleter::operator()(MYSQL *handle) const noexcept -> void { mysql
 
 Database::Database(std::source_location sourceLocation) :
     handle{[sourceLocation] {
-        const std::lock_guard lockGuard{Database::lock};
+        const std::lock_guard lockGuard{lock};
 
         MYSQL *const mysqlHandle{mysql_init(nullptr)};
         if (mysqlHandle == nullptr) {
@@ -36,12 +36,12 @@ auto Database::inquire(std::string_view statement) const -> std::vector<std::vec
     std::vector<std::vector<std::string>> outcome;
     if (result == nullptr) return outcome;
 
-    const unsigned int columnCount{Database::getColumnCount(result)};
-    for (std::vector<std::string> row{Database::getRow(result, columnCount)}; !row.empty();
-         row = Database::getRow(result, columnCount))
+    const unsigned int columnCount{getColumnCount(result)};
+    for (std::vector<std::string> row{getRow(result, columnCount)}; !row.empty();
+         row = getRow(result, columnCount))
         outcome.emplace_back(std::move(row));
 
-    Database::freeResult(result);
+    freeResult(result);
 
     return outcome;
 }

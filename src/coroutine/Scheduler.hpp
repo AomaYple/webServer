@@ -48,8 +48,8 @@ private:
     [[nodiscard]] auto send(const Client &client, std::vector<std::byte> &&data,
                             std::source_location sourceLocation = std::source_location::current()) -> Task;
 
-    [[nodiscard]] auto cancel(int fileDescriptor, std::source_location sourceLocation = std::source_location::current())
-        -> Task;
+    [[nodiscard]] auto cancel(const Client &client,
+                              std::source_location sourceLocation = std::source_location::current()) -> Task;
 
     [[nodiscard]] auto close(int fileDescriptor, std::source_location sourceLocation = std::source_location::current())
         -> Task;
@@ -62,14 +62,14 @@ private:
     static std::vector<int> ringFileDescriptors;
     static constinit std::atomic_flag switcher;
 
-    const std::shared_ptr<Ring> ring{Scheduler::initializeRing()};
+    const std::shared_ptr<Ring> ring{initializeRing()};
     const std::shared_ptr<Logger> logger{std::make_shared<Logger>(0)};
     const Server server{1};
     Timer timer{2};
     HttpParse httpParse{this->logger};
     std::unordered_map<int, Client> clients;
     RingBuffer ringBuffer{
-        this->ring, static_cast<unsigned int>(std::bit_ceil(2048 / Scheduler::ringFileDescriptors.size())), 1024, 0};
+        this->ring, static_cast<unsigned int>(std::bit_ceil(2048 / ringFileDescriptors.size())), 1024, 0};
     std::unordered_map<unsigned long, std::shared_ptr<Task>> tasks;
     unsigned long currentUserData{};
 };

@@ -7,8 +7,8 @@
 #include <sys/timerfd.h>
 
 auto Timer::create() -> int {
-    const int fileDescriptor{Timer::createTimerFileDescriptor()};
-    Timer::setTime(fileDescriptor);
+    const int fileDescriptor{createTimerFileDescriptor()};
+    setTime(fileDescriptor);
 
     return fileDescriptor;
 }
