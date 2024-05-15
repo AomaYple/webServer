@@ -6,7 +6,7 @@
 
 class HttpResponse {
 public:
-    constexpr HttpResponse() noexcept = default;
+    HttpResponse() noexcept = default;
 
     auto setVersion(std::string_view newVersion) -> void;
 
