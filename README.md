@@ -4,15 +4,15 @@
 
 ## 协程
 
-简单包装coroutine，实现了Awaiter和Task
+简单包装c++20协程的coroutine，实现了Awaiter和Task
 
 ## json
 
-基于递归下降实现了对json的解析和生成
+基于递归下降实现了对json的解析和生成，支持近乎所有的json格式
 
 ## 日志
 
-前端只需push日志，后端会自动利用io_uring的特性异步写入日志文件，利用linux的O_APPEND特性，不会出现日志错乱的情况
+利用io_uring的异步io和linux O_APPEND特性实现了高性能的日志系统，支持多种日志级别和详细的日志信息
 
 ## io_uring
 
@@ -44,7 +44,7 @@ PRIMARY KEY (`id`)
 
 ## http
 
-支持http1.1、长连接和br压缩，支持GET、HEAD和POST，支持请求网页、图片和视频，支持登录和注册
+支持http1.1、长连接和br压缩，支持GET、HEAD和POST请求，支持请求网页、图片和视频，支持登录和注册
 
 ## 调度器
 
