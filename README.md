@@ -84,7 +84,7 @@ Arch WSL
 利用[wrk](https://github.com/wg/wrk)测试，测试结果如下  
 ![image](show/test.png)
 
-RPS:154万（每秒处理的请求数量）
+RPS:167万（每秒处理的请求数量）
 
 wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生巨大的负载。它将多线程设计与可扩展的事件通知系统（如epoll和kqueue）相结合
 
