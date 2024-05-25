@@ -1,14 +1,14 @@
 #include "HttpResponse.hpp"
 
-auto HttpResponse::setVersion(std::string_view newVersion) -> void {
-    const auto spanNewVersion{std::as_bytes(std::span{newVersion})};
+auto HttpResponse::setVersion(std::string_view version) -> void {
+    const auto spanNewVersion{std::as_bytes(std::span{version})};
 
     this->version = {spanNewVersion.cbegin(), spanNewVersion.cend()};
     this->version.emplace_back(std::byte{' '});
 }
 
-auto HttpResponse::setStatusCode(std::string_view newStatusCode) -> void {
-    const auto spanNewStatusCode{std::as_bytes(std::span{newStatusCode})};
+auto HttpResponse::setStatusCode(std::string_view statusCode) -> void {
+    const auto spanNewStatusCode{std::as_bytes(std::span{statusCode})};
 
     this->statusCode = {spanNewStatusCode.cbegin(), spanNewStatusCode.cend()};
     this->statusCode.emplace_back(std::byte{'\r'});
@@ -25,9 +25,9 @@ auto HttpResponse::addHeader(std::string_view header) -> void {
 
 auto HttpResponse::clearHeaders() noexcept -> void { this->headers.clear(); }
 
-auto HttpResponse::setBody(std::span<const std::byte> newBody) -> void {
+auto HttpResponse::setBody(std::span<const std::byte> body) -> void {
     this->body = {std::byte{'\r'}, std::byte{'\n'}};
-    this->body.insert(this->body.cend(), newBody.cbegin(), newBody.cend());
+    this->body.insert(this->body.cend(), body.cbegin(), body.cend());
 }
 
 auto HttpResponse::toByte() const -> std::vector<std::byte> {

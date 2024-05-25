@@ -17,11 +17,11 @@ public:
 
         auto unhandled_exception() const -> void;
 
-        auto setSubmission(const Submission &newSubmission) noexcept -> void;
+        auto setSubmission(const Submission &submission) noexcept -> void;
 
         [[nodiscard]] auto getSubmission() const noexcept -> const Submission &;
 
-        auto setOutcome(Outcome newOutcome) noexcept -> void;
+        auto setOutcome(Outcome outcome) noexcept -> void;
 
         [[nodiscard]] auto getOutcome() const noexcept -> Outcome;
 

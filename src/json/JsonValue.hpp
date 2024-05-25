@@ -44,17 +44,17 @@ public:
 
     explicit operator JsonObject &();
 
-    auto operator=(std::nullptr_t newValue) noexcept -> JsonValue &;
+    auto operator=(std::nullptr_t value) noexcept -> JsonValue &;
 
-    auto operator=(bool newValue) noexcept -> JsonValue &;
+    auto operator=(bool value) noexcept -> JsonValue &;
 
-    auto operator=(double newValue) noexcept -> JsonValue &;
+    auto operator=(double value) noexcept -> JsonValue &;
 
-    auto operator=(std::string &&newValue) noexcept -> JsonValue &;
+    auto operator=(std::string &&value) noexcept -> JsonValue &;
 
-    auto operator=(JsonArray &&newValue) noexcept -> JsonValue &;
+    auto operator=(JsonArray &&value) noexcept -> JsonValue &;
 
-    auto operator=(JsonObject &&newValue) noexcept -> JsonValue &;
+    auto operator=(JsonObject &&value) noexcept -> JsonValue &;
 
     [[nodiscard]] auto toString() const -> std::string;
 

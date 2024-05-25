@@ -8,15 +8,15 @@ class HttpResponse {
 public:
     HttpResponse() = default;
 
-    auto setVersion(std::string_view newVersion) -> void;
+    auto setVersion(std::string_view version) -> void;
 
-    auto setStatusCode(std::string_view newStatusCode) -> void;
+    auto setStatusCode(std::string_view statusCode) -> void;
 
     auto addHeader(std::string_view header) -> void;
 
     auto clearHeaders() noexcept -> void;
 
-    auto setBody(std::span<const std::byte> newBody) -> void;
+    auto setBody(std::span<const std::byte> body) -> void;
 
     [[nodiscard]] auto toByte() const -> std::vector<std::byte>;
 
