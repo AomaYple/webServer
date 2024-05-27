@@ -16,9 +16,9 @@ public:
 
     Scheduler(const Scheduler &) = delete;
 
-    auto operator=(const Scheduler &) -> Scheduler & = delete;
-
     Scheduler(Scheduler &&) = delete;
+
+    auto operator=(const Scheduler &) -> Scheduler & = delete;
 
     auto operator=(Scheduler &&) -> Scheduler & = delete;
 
@@ -68,8 +68,8 @@ private:
     Timer timer{2};
     HttpParse httpParse{this->logger};
     std::unordered_map<int, Client> clients;
-    RingBuffer ringBuffer{
-        this->ring, static_cast<unsigned int>(std::bit_ceil(2048 / ringFileDescriptors.size())), 1024, 0};
+    RingBuffer ringBuffer{this->ring, static_cast<unsigned int>(std::bit_ceil(2048 / ringFileDescriptors.size())), 1024,
+                          0};
     std::unordered_map<unsigned long, std::shared_ptr<Task>> tasks;
     unsigned long currentUserData{};
 };

@@ -17,7 +17,7 @@ public:
 
     Database(Database &&) = default;
 
-    auto operator=(const Database &) = delete;
+    auto operator=(const Database &) -> Database & = delete;
 
     auto operator=(Database &&) -> Database & = default;
 

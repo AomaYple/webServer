@@ -16,7 +16,7 @@ public:
 
     HttpParse(HttpParse &&) = default;
 
-    auto operator=(const HttpParse &) = delete;
+    auto operator=(const HttpParse &) -> HttpParse & = delete;
 
     auto operator=(HttpParse &&) -> HttpParse & = default;
 
