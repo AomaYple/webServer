@@ -196,9 +196,9 @@ auto Scheduler::receive(const Client &client, std::source_location sourceLocatio
                 this->submit(std::make_shared<Task>(this->send(client, std::move(response))));
             }
         } else {
-            const std::string error{outcome.result == 0 ? "connection closed" :
+            std::string error{outcome.result == 0 ? "connection closed" :
                                                           std::strerror(std::abs(outcome.result))};
-            this->logger->push(Log{Log::Level::warn, error, sourceLocation});
+            this->logger->push(Log{Log::Level::warn, std::move(error), sourceLocation});
 
             this->timer.remove(client.getFileDescriptor());
             this->submit(std::make_shared<Task>(this->close(client.getFileDescriptor())));
@@ -214,8 +214,9 @@ auto Scheduler::send(const Client &client, std::vector<std::byte> &&data, std::s
     const std::vector<std::byte> response{std::move(data)};
     const Outcome outcome{co_await client.send(response)};
     if (outcome.result <= 0) {
-        const std::string error{outcome.result == 0 ? "connection closed" : std::strerror(std::abs(outcome.result))};
-        this->logger->push(Log{Log::Level::warn, error, sourceLocation});
+        std::string error{outcome.result == 0 ? "connection closed" :
+                                                          std::strerror(std::abs(outcome.result))};
+        this->logger->push(Log{Log::Level::warn, std::move(error), sourceLocation});
 
         this->timer.remove(client.getFileDescriptor());
         this->submit(std::make_shared<Task>(this->close(client.getFileDescriptor())));
