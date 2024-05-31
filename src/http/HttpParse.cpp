@@ -118,7 +118,7 @@ auto HttpParse::parsePath() -> void {
     }
 
     std::string resourcePath;
-    for (const std::filesystem::directory_entry &path : std::filesystem::directory_iterator(folder)) {
+    for (const auto &path : std::filesystem::directory_iterator(folder)) {
         if (path.path().filename() == url) {
             resourcePath = path.path().string();
 

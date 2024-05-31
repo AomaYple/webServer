@@ -163,7 +163,7 @@ auto Scheduler::accept(std::source_location sourceLocation) -> Task {
 auto Scheduler::timing(std::source_location sourceLocation) -> Task {
     const Outcome outcome{co_await this->timer.timing()};
     if (outcome.result == sizeof(unsigned long)) {
-        for (const int fileDescriptor : this->timer.clearTimeout())
+        for (const auto fileDescriptor : this->timer.clearTimeout())
             this->submit(std::make_shared<Task>(this->cancel(this->clients.at(fileDescriptor))));
 
         this->submit(std::make_shared<Task>(this->timing()));
@@ -248,7 +248,7 @@ auto Scheduler::close(int fileDescriptor, std::source_location sourceLocation) -
 }
 
 auto Scheduler::closeAll() -> void {
-    for (const Client &client : this->clients | std::views::values)
+    for (const auto &client : this->clients | std::views::values)
         this->submit(std::make_shared<Task>(this->close(client.getFileDescriptor())));
     this->submit(std::make_shared<Task>(this->close(this->timer.getFileDescriptor())));
     this->submit(std::make_shared<Task>(this->close(this->server.getFileDescriptor())));

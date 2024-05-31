@@ -72,7 +72,7 @@ auto JsonObject::remove(const std::string &key) -> void { this->values.erase(key
 
 auto JsonObject::toString() const -> std::string {
     std::string result{'{'};
-    for (const std::pair<const std::string, JsonValue> &value : this->values)
+    for (const auto &value : this->values)
         result += '"' + value.first + "\":" + value.second.toString() + ',';
 
     if (result.back() == ',') result.pop_back();
@@ -85,7 +85,7 @@ auto JsonObject::stringSize() const -> unsigned long {
     unsigned long size{2};
     if (this->values.size() > 1) size += this->values.size() - 1;
 
-    for (const std::pair<const std::string, JsonValue> &value : this->values)
+    for (const auto &value : this->values)
         size += value.first.size() + 3 + value.second.stringSize();
 
     return size;
