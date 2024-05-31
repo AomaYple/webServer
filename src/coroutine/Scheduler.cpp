@@ -38,7 +38,7 @@ Scheduler::Scheduler() {
 
     this->ring->registerSparseFileDescriptor(Ring::getFileDescriptorLimit());
 
-    const std::array<int, 3> fileDescriptors{Logger::create(), Server::create(), Timer::create()};
+    const std::array fileDescriptors{Logger::create(), Server::create(), Timer::create()};
     this->ring->allocateFileDescriptorRange(fileDescriptors.size(),
                                             Ring::getFileDescriptorLimit() - fileDescriptors.size());
     this->ring->updateFileDescriptors(0, fileDescriptors);
@@ -113,7 +113,7 @@ auto Scheduler::frame() -> void {
     const int completionCount{this->ring->poll([this](const Completion &completion) {
         if (completion.outcome.result != 0 || !(completion.outcome.flags & IORING_CQE_F_NOTIF)) {
             this->currentUserData = completion.userData;
-            const std::shared_ptr<Task> task{this->tasks.at(this->currentUserData)};
+            const std::shared_ptr task{this->tasks.at(this->currentUserData)};
             task->resume(completion.outcome);
         }
     })};
@@ -182,14 +182,14 @@ auto Scheduler::receive(const Client &client, std::source_location sourceLocatio
     while (true) {
         const Outcome outcome{co_await client.receive(this->ringBuffer.getId())};
         if (outcome.result > 0 && outcome.flags & IORING_CQE_F_MORE) {
-            const std::span<const std::byte> receivedData{
+            const std::span receivedData{
                 this->ringBuffer.readFromBuffer(outcome.flags >> IORING_CQE_BUFFER_SHIFT, outcome.result)};
             buffer.insert(buffer.cend(), receivedData.cbegin(), receivedData.cend());
 
             if (!(outcome.flags & IORING_CQE_F_SOCK_NONEMPTY)) {
                 this->timer.update(client.getFileDescriptor(), client.getSeconds());
 
-                std::vector<std::byte> response{this->httpParse.parse(
+                std::vector response{this->httpParse.parse(
                     std::string_view{reinterpret_cast<const char *>(buffer.data()), buffer.size()})};
                 buffer.clear();
 
@@ -210,7 +210,7 @@ auto Scheduler::receive(const Client &client, std::source_location sourceLocatio
 }
 
 auto Scheduler::send(const Client &client, std::vector<std::byte> &&data, std::source_location sourceLocation) -> Task {
-    const std::vector<std::byte> response{std::move(data)};
+    const std::vector response{std::move(data)};
     const Outcome outcome{co_await client.send(response)};
     if (outcome.result <= 0) {
         std::string error{outcome.result == 0 ? "connection closed" : std::strerror(std::abs(outcome.result))};

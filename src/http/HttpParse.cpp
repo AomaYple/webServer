@@ -30,7 +30,7 @@ auto HttpParse::parse(std::string_view request, std::source_location sourceLocat
     if (!this->wroteBody) this->body.clear();
     this->httpResponse.setBody(this->body);
 
-    std::vector<std::byte> response{this->httpResponse.toByte()};
+    std::vector response{this->httpResponse.toByte()};
     this->clear();
 
     return response;
@@ -72,13 +72,13 @@ auto HttpParse::parseMethod() -> void {
         JsonObject jsonBody;
         if (static_cast<std::string_view>(requestBody["method"]) == "login") {
             const std::string_view id{requestBody["id"]};
-            const std::vector<std::vector<std::string>> result{this->database.inquire(
+            const std::vector result{this->database.inquire(
                 std::format("select * from users where id = {} and password = '{}';", id, password))};
 
             jsonBody.add("success", JsonValue{!result.empty()});
         } else {
             this->database.inquire(std::format("insert into users (password) values ('{}');", password));
-            std::vector<std::vector<std::string>> result{this->database.inquire("select last_insert_id();")};
+            std::vector result{this->database.inquire("select last_insert_id();")};
 
             jsonBody.add("id", JsonValue{std::move(result[0][0])});
         }
@@ -155,11 +155,11 @@ auto HttpParse::parseResource(const std::string &resourcePath) -> void {
             this->httpResponse.clearHeaders();
 
             return;
-        } else [[likely]] {
-            this->httpResponse.setStatusCode("206 Partial Content");
-            this->httpResponse.addHeader("Content-Range: bytes " + stringStart + '-' + stringEnd + '/' +
-                                         std::to_string(resourceSize));
         }
+
+        this->httpResponse.setStatusCode("206 Partial Content");
+        this->httpResponse.addHeader("Content-Range: bytes " + stringStart + '-' + stringEnd + '/' +
+                                     std::to_string(resourceSize));
     } else if (resourceSize > maxSize) {
         this->httpResponse.setStatusCode("206 Partial Content");
         this->httpResponse.addHeader("Content-Range: bytes 0-" + std::to_string(maxSize - 1) + '/' +

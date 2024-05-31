@@ -37,8 +37,7 @@ auto Database::inquire(std::string_view statement) const -> std::vector<std::vec
     if (result == nullptr) return outcome;
 
     const unsigned int columnCount{getColumnCount(result)};
-    for (std::vector<std::string> row{getRow(result, columnCount)}; !row.empty();
-         row = getRow(result, columnCount))
+    for (std::vector row{getRow(result, columnCount)}; !row.empty(); row = getRow(result, columnCount))
         outcome.emplace_back(std::move(row));
 
     freeResult(result);
