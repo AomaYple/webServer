@@ -2,33 +2,29 @@
 
 本项目是linux上一个基于c++和io_uring的异步高并发Proactor模式服务器
 
-## 协程
+## 日志
 
-简单包装c++20协程的coroutine，实现了Awaiter和Task
+利用io_uring的异步io和linux O_APPEND特性实现了异步且线程安全的高性能日志系统，支持多种日志级别和提供详细的日志信息
 
 ## json
 
 基于递归下降实现了对json的解析和生成，支持近乎所有的json格式，用于支持http请求和响应的解析和生成
 
-## 日志
+## 协程
 
-利用io_uring的异步io和linux O_APPEND特性实现了高性能的日志系统，支持多种日志级别和详细的日志信息
+包装c++20协程的coroutine，实现了Awaiter和Task，简化异步编程
 
 ## io_uring
 
-简单包装了io_uring中的各种函数和资源
-
-## 服务器与客户端
-
-简单对文件描述符进行封装，实现了对文件描述符的收发，关闭等操作
+利用io_uring实现了高性能的异步io，支持多个io操作的批量提交，减少系统调用次数，提高性能
 
 ## 定时器
 
-基于层级时间轮实现定时器，定时器的精度为1s，会自动处理超时的文件描述符，可支持极大时间范围
+基于层级时间轮实现定时器，定时器的精度为1s，支持极大时间范围，会自动处理超时的文件描述符，节省服务器资源
 
 ## 数据库
 
-数据库使用mariadb，通过对mariadb c api的简单封装，实现了数据库的连接与断开，查询和插入，在运行前需要在mariadb中创建数据库和表，如下
+数据库使用mariadb存储用户的信息，使用前需要创建数据库和表，如下：
 
 ```sql'
 create database webServer;
@@ -48,7 +44,7 @@ PRIMARY KEY (`id`)
 
 ## 调度器
 
-每个调度器都持有一个io_uring实例，日志实例，服务器实例，定时器实例和http解析器实例，调度器将会调度协程的挂起、恢复和销毁
+基于协程实现了一个简单的调度器，支持协程的创建、销毁、挂起和唤醒
 
 ## 并发模型
 
@@ -60,7 +56,7 @@ PRIMARY KEY (`id`)
 
 ## 环境
 
-gcc，cmake，ninja，liburing，brotli，mariadb
+gcc14以上，cmake，ninja，liburing2.4以上，brotli，mariadb
 
 ## 编译
 
