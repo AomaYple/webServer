@@ -144,7 +144,7 @@ auto Scheduler::accept(std::source_location sourceLocation) -> Task {
     while (true) {
         const Outcome outcome{co_await this->server.accept()};
         if (outcome.result >= 0 && outcome.flags & IORING_CQE_F_MORE) {
-            this->clients.emplace(outcome.result, Client{outcome.result, 60});
+            this->clients.emplace(outcome.result, Client{outcome.result, std::chrono::seconds{3}});
 
             const Client &client{this->clients.at(outcome.result)};
 

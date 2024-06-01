@@ -2,9 +2,10 @@
 
 #include <linux/io_uring.h>
 
-Client::Client(int fileDescriptor, unsigned long seconds) noexcept : FileDescriptor{fileDescriptor}, seconds{seconds} {}
+Client::Client(int fileDescriptor, std::chrono::seconds seconds) noexcept :
+    FileDescriptor{fileDescriptor}, seconds{seconds} {}
 
-auto Client::getSeconds() const noexcept -> unsigned long { return this->seconds; }
+auto Client::getSeconds() const noexcept -> std::chrono::seconds { return this->seconds; }
 
 auto Client::receive(int ringBufferId) const noexcept -> Awaiter {
     Awaiter awaiter;
