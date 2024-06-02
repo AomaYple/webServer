@@ -38,7 +38,7 @@ auto HttpParse::parse(std::string_view request, std::source_location sourceLocat
 
 auto HttpParse::clear() noexcept -> void {
     this->httpRequest = HttpRequest{};
-    this->httpResponse = HttpResponse{};
+    this->httpResponse = {};
     this->body.clear();
     this->wroteBody = true;
     this->isBrotli = false;
