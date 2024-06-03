@@ -142,7 +142,7 @@ auto Scheduler::write(const std::source_location sourceLocation) -> Task {
 auto Scheduler::accept(const std::source_location sourceLocation) -> Task {
     while (true) {
         if (const auto [result, flags]{co_await this->server.accept()}; result >= 0 && flags & IORING_CQE_F_MORE) {
-            this->clients.emplace(result, Client{result, std::chrono::seconds{3}});
+            this->clients.emplace(result, Client{result, std::chrono::seconds{60}});
 
             const Client &client{this->clients.at(result)};
 
