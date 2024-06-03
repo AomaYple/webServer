@@ -27,9 +27,11 @@ auto HttpRequest::getMethod() const noexcept -> std::string_view { return this->
 
 auto HttpRequest::getUrl() const noexcept -> std::string_view { return this->url; }
 
-auto HttpRequest::containsHeader(std::string_view filed) const -> bool { return this->headers.contains(filed); }
+auto HttpRequest::containsHeader(const std::string_view filed) const -> bool { return this->headers.contains(filed); }
 
-auto HttpRequest::getHeaderValue(std::string_view filed) const -> std::string_view { return this->headers.at(filed); }
+auto HttpRequest::getHeaderValue(const std::string_view filed) const -> std::string_view {
+    return this->headers.at(filed);
+}
 
 auto HttpRequest::getBody() const noexcept -> std::string_view { return this->body; }
 
@@ -48,7 +50,7 @@ auto HttpRequest::parseLine(std::string_view line) noexcept -> void {
     this->version = line;
 }
 
-auto HttpRequest::parseHeader(std::string_view header) -> void {
+auto HttpRequest::parseHeader(const std::string_view header) -> void {
     const auto point{header.cbegin() + header.find(": ")};
     const std::string_view key{header.cbegin(), point}, value{point + 2, header.cend()};
 

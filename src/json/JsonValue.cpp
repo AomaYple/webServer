@@ -1,10 +1,10 @@
 #include "JsonValue.hpp"
 
-JsonValue::JsonValue(std::nullptr_t value) noexcept : type{Type::null}, value{value} {}
+JsonValue::JsonValue(const std::nullptr_t value) noexcept : type{Type::null}, value{value} {}
 
-JsonValue::JsonValue(bool value) noexcept : type{Type::boolean}, value{value} {}
+JsonValue::JsonValue(const bool value) noexcept : type{Type::boolean}, value{value} {}
 
-JsonValue::JsonValue(double value) noexcept : type{Type::number}, value{value} {}
+JsonValue::JsonValue(const double value) noexcept : type{Type::number}, value{value} {}
 
 JsonValue::JsonValue(std::string &&value) noexcept : type{Type::string}, value{std::move(value)} {}
 
@@ -32,21 +32,21 @@ JsonValue::operator const JsonObject &() const { return std::get<JsonObject>(thi
 
 JsonValue::operator JsonObject &() { return std::get<JsonObject>(this->value); }
 
-auto JsonValue::operator=(std::nullptr_t value) noexcept -> JsonValue & {
+auto JsonValue::operator=(const std::nullptr_t value) noexcept -> JsonValue & {
     this->type = Type::null;
     this->value = value;
 
     return *this;
 }
 
-auto JsonValue::operator=(bool value) noexcept -> JsonValue & {
+auto JsonValue::operator=(const bool value) noexcept -> JsonValue & {
     this->type = Type::boolean;
     this->value = value;
 
     return *this;
 }
 
-auto JsonValue::operator=(double value) noexcept -> JsonValue & {
+auto JsonValue::operator=(const double value) noexcept -> JsonValue & {
     this->type = Type::number;
     this->value = value;
 

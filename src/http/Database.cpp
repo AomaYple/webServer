@@ -2,9 +2,9 @@
 
 #include "../log/Exception.hpp"
 
-auto Database::Deleter::operator()(MYSQL *handle) const noexcept -> void { mysql_close(handle); }
+auto Database::Deleter::operator()(MYSQL *const handle) const noexcept -> void { mysql_close(handle); }
 
-Database::Database(std::source_location sourceLocation) :
+Database::Database(const std::source_location sourceLocation) :
     handle{[sourceLocation] {
         const std::lock_guard lockGuard{lock};
 
@@ -18,9 +18,9 @@ Database::Database(std::source_location sourceLocation) :
         return std::unique_ptr<MYSQL, Deleter>{mysqlHandle};
     }()} {}
 
-auto Database::connect(std::string_view host, std::string_view user, std::string_view password,
-                       std::string_view database, unsigned int port, std::string_view unixSocket,
-                       unsigned long clientFlag, std::source_location sourceLocation) const -> void {
+auto Database::connect(const std::string_view host, const std::string_view user, const std::string_view password,
+                       const std::string_view database, const unsigned int port, const std::string_view unixSocket,
+                       const unsigned long clientFlag, const std::source_location sourceLocation) const -> void {
     if (mysql_real_connect(this->handle.get(), host.data(), user.data(), password.data(), database.data(), port,
                            unixSocket.data(), clientFlag) == nullptr) {
         throw Exception{
@@ -29,7 +29,7 @@ auto Database::connect(std::string_view host, std::string_view user, std::string
     }
 }
 
-auto Database::inquire(std::string_view statement) const -> std::vector<std::vector<std::string>> {
+auto Database::inquire(const std::string_view statement) const -> std::vector<std::vector<std::string>> {
     this->query(statement);
     MYSQL_RES *const result{this->getResult()};
 
@@ -45,7 +45,7 @@ auto Database::inquire(std::string_view statement) const -> std::vector<std::vec
     return outcome;
 }
 
-auto Database::query(std::string_view statement, std::source_location sourceLocation) const -> void {
+auto Database::query(const std::string_view statement, const std::source_location sourceLocation) const -> void {
     if (mysql_real_query(this->handle.get(), statement.data(), statement.size()) != 0) {
         throw Exception{
             Log{Log::Level::error, mysql_error(this->handle.get()), sourceLocation}
@@ -53,11 +53,10 @@ auto Database::query(std::string_view statement, std::source_location sourceLoca
     }
 }
 
-auto Database::getResult(std::source_location sourceLocation) const -> MYSQL_RES * {
+auto Database::getResult(const std::source_location sourceLocation) const -> MYSQL_RES * {
     MYSQL_RES *const result{mysql_store_result(this->handle.get())};
     if (result == nullptr) {
-        std::string error{mysql_error(this->handle.get())};
-        if (!error.empty()) {
+        if (std::string error{mysql_error(this->handle.get())}; !error.empty()) {
             throw Exception{
                 Log{Log::Level::error, std::move(error), sourceLocation}
             };
@@ -67,9 +66,9 @@ auto Database::getResult(std::source_location sourceLocation) const -> MYSQL_RES
     return result;
 }
 
-auto Database::getColumnCount(MYSQL_RES *result) noexcept -> unsigned int { return mysql_num_fields(result); }
+auto Database::getColumnCount(MYSQL_RES *const result) noexcept -> unsigned int { return mysql_num_fields(result); }
 
-auto Database::getRow(MYSQL_RES *result, unsigned int columnCount) -> std::vector<std::string> {
+auto Database::getRow(MYSQL_RES *const result, const unsigned int columnCount) -> std::vector<std::string> {
     std::vector<std::string> row;
     const char *const *const rawRow{mysql_fetch_row(result)};
     for (unsigned int i{}; rawRow != nullptr && i < columnCount; ++i) row.emplace_back(rawRow[i]);
@@ -77,6 +76,6 @@ auto Database::getRow(MYSQL_RES *result, unsigned int columnCount) -> std::vecto
     return row;
 }
 
-auto Database::freeResult(MYSQL_RES *result) noexcept -> void { mysql_free_result(result); }
+auto Database::freeResult(MYSQL_RES *const result) noexcept -> void { mysql_free_result(result); }
 
 constinit std::mutex Database::lock;

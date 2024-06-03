@@ -2,7 +2,7 @@
 
 #include "JsonValue.hpp"
 
-JsonArray::JsonArray(std::string_view json) {
+JsonArray::JsonArray(const std::string_view json) {
     if (json.empty()) return;
 
     for (auto point{json.cbegin() + 1}; *point != ']';) {
@@ -28,7 +28,7 @@ JsonArray::JsonArray(std::string_view json) {
                 break;
             case '"':
                 {
-                    auto nextPoint{json.cbegin() + json.find('"', point - json.cbegin() + 1)};
+                    const auto nextPoint{json.cbegin() + json.find('"', point - json.cbegin() + 1)};
                     this->values.emplace_back(std::string{point + 1, nextPoint});
                     point = nextPoint + 1;
 
@@ -66,11 +66,13 @@ JsonArray::JsonArray(std::string_view json) {
 
 auto JsonArray::add(JsonValue &&value) -> void { this->values.emplace_back(std::move(value)); }
 
-auto JsonArray::operator[](unsigned long index) const noexcept -> const JsonValue & { return this->values[index]; }
+auto JsonArray::operator[](const unsigned long index) const noexcept -> const JsonValue & {
+    return this->values[index];
+}
 
-auto JsonArray::operator[](unsigned long index) noexcept -> JsonValue & { return this->values[index]; }
+auto JsonArray::operator[](const unsigned long index) noexcept -> JsonValue & { return this->values[index]; }
 
-auto JsonArray::remove(long index) -> void { this->values.erase(this->values.cbegin() + index); }
+auto JsonArray::remove(const long index) -> void { this->values.erase(this->values.cbegin() + index); }
 
 auto JsonArray::toString() const -> std::string {
     std::string result{'['};

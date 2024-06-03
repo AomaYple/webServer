@@ -13,7 +13,7 @@ auto Timer::create() -> int {
     return fileDescriptor;
 }
 
-Timer::Timer(int fileDescriptor) noexcept : FileDescriptor{fileDescriptor} {}
+Timer::Timer(const int fileDescriptor) noexcept : FileDescriptor{fileDescriptor} {}
 
 auto Timer::timing() noexcept -> Awaiter {
     Awaiter awaiter;
@@ -27,7 +27,7 @@ auto Timer::timing() noexcept -> Awaiter {
     return awaiter;
 }
 
-auto Timer::add(int fileDescriptor, std::chrono::seconds seconds) -> void {
+auto Timer::add(const int fileDescriptor, const std::chrono::seconds seconds) -> void {
     const unsigned long level{(seconds / (this->wheel.size() - 1)).count()};
     const auto point{static_cast<decltype(this->now)>(seconds % (this->wheel.size() - 1))};
 
@@ -35,7 +35,7 @@ auto Timer::add(int fileDescriptor, std::chrono::seconds seconds) -> void {
     this->location.emplace(fileDescriptor, point);
 }
 
-auto Timer::update(int fileDescriptor, std::chrono::seconds seconds) -> void {
+auto Timer::update(const int fileDescriptor, const std::chrono::seconds seconds) -> void {
     const unsigned long level{(seconds / (this->wheel.size() - 1)).count()};
     const auto point{static_cast<decltype(this->now)>(seconds % (this->wheel.size() - 1))};
 
@@ -45,9 +45,8 @@ auto Timer::update(int fileDescriptor, std::chrono::seconds seconds) -> void {
     this->location.at(fileDescriptor) = point;
 }
 
-auto Timer::remove(int fileDescriptor) -> void {
-    const auto result{this->location.find(fileDescriptor)};
-    if (result != this->location.cend()) {
+auto Timer::remove(const int fileDescriptor) -> void {
+    if (const auto result{this->location.find(fileDescriptor)}; result != this->location.cend()) {
         this->wheel[result->second.count()].erase(fileDescriptor);
         this->location.erase(result);
     }
@@ -78,7 +77,7 @@ auto Timer::clearTimeout() -> std::vector<int> {
     return result;
 }
 
-auto Timer::createTimerFileDescriptor(std::source_location sourceLocation) -> int {
+auto Timer::createTimerFileDescriptor(const std::source_location sourceLocation) -> int {
     const int fileDescriptor{timerfd_create(CLOCK_MONOTONIC, 0)};
     if (fileDescriptor == -1) {
         throw Exception{
@@ -89,7 +88,7 @@ auto Timer::createTimerFileDescriptor(std::source_location sourceLocation) -> in
     return fileDescriptor;
 }
 
-auto Timer::setTime(int fileDescriptor, std::source_location sourceLocation) -> void {
+auto Timer::setTime(const int fileDescriptor, const std::source_location sourceLocation) -> void {
     constexpr itimerspec time{
         {1, 0},
         {1, 0}

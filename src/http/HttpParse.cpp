@@ -13,7 +13,8 @@ HttpParse::HttpParse(std::shared_ptr<Logger> logger) : logger{std::move(logger)}
     this->database.connect(std::string_view{}, "AomaYple", "38820233", "webServer", 0, std::string_view{}, 0);
 }
 
-auto HttpParse::parse(std::string_view request, std::source_location sourceLocation) -> std::vector<std::byte> {
+auto HttpParse::parse(const std::string_view request, const std::source_location sourceLocation)
+    -> std::vector<std::byte> {
     try {
         this->httpRequest = HttpRequest{request};
         this->parseVersion();
@@ -45,8 +46,7 @@ auto HttpParse::clear() noexcept -> void {
 }
 
 auto HttpParse::parseVersion() -> void {
-    const std::string_view version{this->httpRequest.getVersion()};
-    if (version == "HTTP/1.1") {
+    if (const std::string_view version{this->httpRequest.getVersion()}; version == "HTTP/1.1") {
         this->httpResponse.setVersion(version);
 
         this->parseMethod();
@@ -57,8 +57,7 @@ auto HttpParse::parseVersion() -> void {
 }
 
 auto HttpParse::parseMethod() -> void {
-    const std::string_view method{this->httpRequest.getMethod()};
-    if (method == "GET" || method == "HEAD") {
+    if (const std::string_view method{this->httpRequest.getMethod()}; method == "GET" || method == "HEAD") {
         if (method == "HEAD") this->wroteBody = false;
 
         this->parsePath();
@@ -176,7 +175,7 @@ auto HttpParse::parseResource(const std::string &resourcePath) -> void {
 }
 
 auto HttpParse::readResource(const std::string &resourcePath, const std::pair<long, long> &range,
-                             std::source_location sourceLocation) -> void {
+                             const std::source_location sourceLocation) -> void {
     std::ifstream file{resourcePath, std::ios::binary};
     if (!file) {
         throw Exception{
@@ -197,7 +196,7 @@ auto HttpParse::readResource(const std::string &resourcePath, const std::pair<lo
     if (this->isBrotli) this->brotli();
 }
 
-auto HttpParse::brotli(std::source_location sourceLocation) -> void {
+auto HttpParse::brotli(const std::source_location sourceLocation) -> void {
     unsigned long encodedSize{BrotliEncoderMaxCompressedSize(this->body.size())};
     std::vector<std::byte> encodedBody{encodedSize};
 
