@@ -261,5 +261,5 @@ auto Scheduler::closeAll() -> void {
 constinit thread_local bool Scheduler::instance{};
 constinit std::mutex Scheduler::lock;
 constinit int Scheduler::sharedRingFileDescriptor{-1};
-std::vector<int> Scheduler::ringFileDescriptors{std::vector<int>(std::thread::hardware_concurrency(), -1)};
+std::vector<int> Scheduler::ringFileDescriptors{std::vector(std::thread::hardware_concurrency(), -1)};
 constinit std::atomic_flag Scheduler::switcher{true};
