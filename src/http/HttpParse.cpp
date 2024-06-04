@@ -70,16 +70,15 @@ auto HttpParse::parseMethod() -> void {
 
         JsonObject jsonBody;
         if (static_cast<std::string_view>(requestBody["method"]) == "login") {
-            const std::string_view id{requestBody["id"]};
-            const std::vector result{this->database.inquire(
-                std::format("select * from users where id = {} and password = '{}';", id, password))};
-
-            jsonBody.add("success", JsonValue{!result.empty()});
+            jsonBody.add("success",
+                         JsonValue{!this->database
+                                        .inquire(std::format("select * from users where id = {} and password = '{}';",
+                                                             std::string_view{requestBody["id"]}, password))
+                                        .empty()});
         } else {
             this->database.inquire(std::format("insert into users (password) values ('{}');", password));
-            std::vector result{this->database.inquire("select last_insert_id();")};
 
-            jsonBody.add("id", JsonValue{std::move(result[0][0])});
+            jsonBody.add("id", JsonValue{std::move(this->database.inquire("select last_insert_id();")[0][0])});
         }
 
         const auto stringBody{jsonBody.toString()};

@@ -158,12 +158,10 @@ auto Ring::submit(const Submission &submission) -> void {
                 break;
             }
         case 5:
-            {
-                const auto &[flags]{std::get<Submission::Cancel>(submission.parameter)};
-                io_uring_prep_cancel_fd(sqe, submission.fileDescriptor, flags);
+            io_uring_prep_cancel_fd(sqe, submission.fileDescriptor,
+                                    std::get<Submission::Cancel>(submission.parameter).flags);
 
-                break;
-            }
+            break;
         case 6:
             io_uring_prep_close_direct(sqe, submission.fileDescriptor);
 

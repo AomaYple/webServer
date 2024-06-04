@@ -52,7 +52,6 @@ auto HttpRequest::parseLine(std::string_view line) noexcept -> void {
 
 auto HttpRequest::parseHeader(const std::string_view header) -> void {
     const auto point{header.cbegin() + header.find(": ")};
-    const std::string_view key{header.cbegin(), point}, value{point + 2, header.cend()};
 
-    this->headers.emplace(key, value);
+    this->headers.emplace(std::string_view{header.cbegin(), point}, std::string_view{point + 2, header.cend()});
 }
