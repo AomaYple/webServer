@@ -119,29 +119,29 @@ auto Ring::freeRingBuffer(io_uring_buf_ring *const ringBufferHandle, const unsig
 auto Ring::submit(const Submission &submission) -> void {
     io_uring_sqe *const sqe{this->getSqe()};
 
-    switch (submission.parameter.index()) {
-        case 0:
+    switch (submission.type) {
+        case Submission::Type::write:
             {
                 const auto &[buffer, offset]{std::get<Submission::Write>(submission.parameter)};
                 io_uring_prep_write(sqe, submission.fileDescriptor, buffer.data(), buffer.size(), offset);
 
                 break;
             }
-        case 1:
+        case Submission::Type::accept:
             {
                 const auto &[address, addressLength, flags]{std::get<Submission::Accept>(submission.parameter)};
                 io_uring_prep_multishot_accept_direct(sqe, submission.fileDescriptor, address, addressLength, flags);
 
                 break;
             }
-        case 2:
+        case Submission::Type::read:
             {
                 const auto &[buffer, offset]{std::get<Submission::Read>(submission.parameter)};
                 io_uring_prep_read(sqe, submission.fileDescriptor, buffer.data(), buffer.size(), offset);
 
                 break;
             }
-        case 3:
+        case Submission::Type::receive:
             {
                 const auto &[buffer, flags, ringBufferId]{std::get<Submission::Receive>(submission.parameter)};
                 io_uring_prep_recv_multishot(sqe, submission.fileDescriptor, buffer.data(), buffer.size(), flags);
@@ -149,7 +149,7 @@ auto Ring::submit(const Submission &submission) -> void {
 
                 break;
             }
-        [[likely]] case 4:
+        [[likely]] case Submission::Type::send:
             {
                 const auto &[buffer, flags, zeroCopyFlags]{std::get<Submission::Send>(submission.parameter)};
                 io_uring_prep_send_zc(sqe, submission.fileDescriptor, buffer.data(), buffer.size(), flags,
@@ -157,12 +157,12 @@ auto Ring::submit(const Submission &submission) -> void {
 
                 break;
             }
-        case 5:
+        case Submission::Type::cancel:
             io_uring_prep_cancel_fd(sqe, submission.fileDescriptor,
                                     std::get<Submission::Cancel>(submission.parameter).flags);
 
             break;
-        case 6:
+        case Submission::Type::close:
             io_uring_prep_close_direct(sqe, submission.fileDescriptor);
 
             break;
