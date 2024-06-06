@@ -122,28 +122,28 @@ auto Ring::submit(const Submission &submission) -> void {
     switch (submission.type) {
         case Submission::Type::write:
             {
-                const auto &[buffer, offset]{std::get<Submission::Write>(submission.parameter)};
+                const auto [buffer, offset]{std::get<Submission::Write>(submission.parameter)};
                 io_uring_prep_write(sqe, submission.fileDescriptor, buffer.data(), buffer.size(), offset);
 
                 break;
             }
         case Submission::Type::accept:
             {
-                const auto &[address, addressLength, flags]{std::get<Submission::Accept>(submission.parameter)};
+                const auto [address, addressLength, flags]{std::get<Submission::Accept>(submission.parameter)};
                 io_uring_prep_multishot_accept_direct(sqe, submission.fileDescriptor, address, addressLength, flags);
 
                 break;
             }
         case Submission::Type::read:
             {
-                const auto &[buffer, offset]{std::get<Submission::Read>(submission.parameter)};
+                const auto [buffer, offset]{std::get<Submission::Read>(submission.parameter)};
                 io_uring_prep_read(sqe, submission.fileDescriptor, buffer.data(), buffer.size(), offset);
 
                 break;
             }
         case Submission::Type::receive:
             {
-                const auto &[buffer, flags, ringBufferId]{std::get<Submission::Receive>(submission.parameter)};
+                const auto [buffer, flags, ringBufferId]{std::get<Submission::Receive>(submission.parameter)};
                 io_uring_prep_recv_multishot(sqe, submission.fileDescriptor, buffer.data(), buffer.size(), flags);
                 sqe->buf_group = ringBufferId;
 
@@ -151,7 +151,7 @@ auto Ring::submit(const Submission &submission) -> void {
             }
         [[likely]] case Submission::Type::send:
             {
-                const auto &[buffer, flags, zeroCopyFlags]{std::get<Submission::Send>(submission.parameter)};
+                const auto [buffer, flags, zeroCopyFlags]{std::get<Submission::Send>(submission.parameter)};
                 io_uring_prep_send_zc(sqe, submission.fileDescriptor, buffer.data(), buffer.size(), flags,
                                       zeroCopyFlags);
 
