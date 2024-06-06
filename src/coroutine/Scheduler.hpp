@@ -12,7 +12,7 @@ class Scheduler {
 public:
     static auto registerSignal(std::source_location sourceLocation = std::source_location::current()) -> void;
 
-    Scheduler();
+    Scheduler(int sharedFileDescriptor, unsigned int cpuCode);
 
     Scheduler(const Scheduler &) = delete;
 
@@ -24,12 +24,11 @@ public:
 
     ~Scheduler();
 
+    [[nodiscard]] auto getRingFileDescriptor() const noexcept -> int;
+
     auto run() -> void;
 
 private:
-    [[nodiscard]] static auto initializeRing(std::source_location sourceLocation = std::source_location::current())
-        -> std::shared_ptr<Ring>;
-
     auto frame() -> void;
 
     auto submit(std::shared_ptr<Task> &&task) -> void;
@@ -54,22 +53,15 @@ private:
     [[nodiscard]] auto close(int fileDescriptor, std::source_location sourceLocation = std::source_location::current())
         -> Task;
 
-    auto closeAll() -> void;
-
-    static constinit thread_local bool instance;
-    static constinit std::mutex lock;
-    static constinit int sharedRingFileDescriptor;
-    static std::vector<int> ringFileDescriptors;
     static constinit std::atomic_flag switcher;
 
-    const std::shared_ptr<Ring> ring{initializeRing()};
+    const std::shared_ptr<Ring> ring;
     const std::shared_ptr<Logger> logger{std::make_shared<Logger>(0)};
     const Server server{1};
     Timer timer{2};
     HttpParse httpParse{this->logger};
     std::unordered_map<int, Client> clients;
-    RingBuffer ringBuffer{this->ring, static_cast<unsigned int>(std::bit_ceil(2048 / ringFileDescriptors.size())), 1024,
-                          0};
+    RingBuffer ringBuffer{this->ring, std::bit_ceil(2048 / std::thread::hardware_concurrency()), 1024, 0};
     std::unordered_map<unsigned long, std::shared_ptr<Task>> tasks;
     unsigned long currentUserData{};
 };

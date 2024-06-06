@@ -3,15 +3,17 @@
 auto main() -> int {
     Scheduler::registerSignal();
 
+    std::atomic<unsigned int> cpuCode;
+    Scheduler scheduler{-1, cpuCode};
+
     std::vector<std::jthread> workers{std::jthread::hardware_concurrency() - 1};
-    for (auto &worker : workers) {
-        worker = std::jthread{[] {
-            Scheduler scheduler;
-            scheduler.run();
+    for (const int sharedFileDescriptor{scheduler.getRingFileDescriptor()}; auto &worker : workers) {
+        worker = std::jthread{[sharedFileDescriptor, &cpuCode] {
+            Scheduler otherScheduler{sharedFileDescriptor, cpuCode++};
+            otherScheduler.run();
         }};
     }
 
-    Scheduler scheduler;
     scheduler.run();
 
     return 0;
