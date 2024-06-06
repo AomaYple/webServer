@@ -3,7 +3,7 @@
 auto main() -> int {
     Scheduler::registerSignal();
 
-    std::atomic<unsigned int> cpuCode;
+    std::atomic_uint cpuCode;
     Scheduler scheduler{-1, cpuCode};
 
     std::vector<std::jthread> workers{std::jthread::hardware_concurrency() - 1};
