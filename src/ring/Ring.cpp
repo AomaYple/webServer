@@ -55,7 +55,7 @@ auto Ring::registerSelfFileDescriptor(const std::source_location sourceLocation)
     }
 }
 
-auto Ring::registerCpu(const unsigned short cpuCode, const std::source_location sourceLocation) -> void {
+auto Ring::registerCpu(const unsigned int cpuCode, const std::source_location sourceLocation) -> void {
     constexpr cpu_set_t cpuSet{};
     CPU_SET(cpuCode, &cpuSet);
 
