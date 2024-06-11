@@ -73,13 +73,16 @@ cd build/webServer
 
 Arch WSL  
 8核  
-利用[wrk](https://github.com/wg/wrk)测试，测试结果如下  
-![image](show/test.png)
+利用[wrk](https://github.com/wg/wrk)测试
 
-RPS:167万（每秒处理的请求数量）
+RPS:167万（每秒处理的http请求数量）
+![image](test/test0.png)
+
+RPS:25万（每秒处理的数据库查询数量）
+![image](test/test1.png)
 
 wrk是一款现代HTTP基准测试工具，在单核CPU上运行时能够产生巨大的负载。它将多线程设计与可扩展的事件通知系统（如epoll和kqueue）相结合
 
 ## 演示
 
-![image](show/show.gif)
+![image](test/show.gif)
