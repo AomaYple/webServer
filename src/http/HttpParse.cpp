@@ -69,16 +69,16 @@ auto HttpParse::parseMethod() -> void {
         const std::string_view password{requestBody["password"]};
 
         JsonObject jsonBody;
-        if (static_cast<std::string_view>(requestBody["method"]) == "login") {
+        if (std::string_view{requestBody["method"]} == "login") {
             jsonBody.add("success",
                          JsonValue{!this->mysql
-                                        .inquire(std::format("select * from users where id = {} and password = '{}';",
+                                        .inquire(std::format("SELECT * FROM users WHERE id = {} AND password = '{}';",
                                                              std::string_view{requestBody["id"]}, password))
                                         .empty()});
         } else {
-            this->mysql.inquire(std::format("insert into users (password) values ('{}');", password));
+            this->mysql.inquire(std::format("INSERT INTO users (password) VALUES ('{}');", password));
 
-            jsonBody.add("id", JsonValue{std::move(this->mysql.inquire("select last_insert_id();")[0][0])});
+            jsonBody.add("id", JsonValue{std::move(this->mysql.inquire("SELECT LAST_INSERT_ID();")[0][0])});
         }
 
         const auto stringBody{jsonBody.toString()};

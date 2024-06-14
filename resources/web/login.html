@@ -37,8 +37,7 @@
                         const reader = response.body.getReader();
 
                         reader.read().then(function (result) {
-                            const body = JSON.parse(new TextDecoder('utf-8').decode(result.value));
-                            if (body.success) {
+                            if (JSON.parse(new TextDecoder('utf-8').decode(result.value)).success) {
                                 window.location.href = 'http://localhost:8080/index.html'
                             } else {
                                 alert('登录失败，账号或密码错误');
