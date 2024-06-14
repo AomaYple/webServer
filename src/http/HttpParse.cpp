@@ -10,7 +10,7 @@
 #include <fstream>
 
 HttpParse::HttpParse(std::shared_ptr<Logger> logger) : logger{std::move(logger)} {
-    this->mysql.connect(std::string_view{}, "AomaYple", "38820233", "webServer", 0, std::string_view{}, 0);
+    this->database.connect(std::string_view{}, "AomaYple", "38820233", "webServer", 0, std::string_view{}, 0);
 }
 
 auto HttpParse::parse(const std::string_view request, const std::source_location sourceLocation)
@@ -71,14 +71,14 @@ auto HttpParse::parseMethod() -> void {
         JsonObject jsonBody;
         if (std::string_view{requestBody["method"]} == "login") {
             jsonBody.add("success",
-                         JsonValue{!this->mysql
+                         JsonValue{!this->database
                                         .inquire(std::format("SELECT * FROM users WHERE id = {} AND password = '{}';",
                                                              std::string_view{requestBody["id"]}, password))
                                         .empty()});
         } else {
-            this->mysql.inquire(std::format("INSERT INTO users (password) VALUES ('{}');", password));
+            this->database.inquire(std::format("INSERT INTO users (password) VALUES ('{}');", password));
 
-            jsonBody.add("id", JsonValue{std::move(this->mysql.inquire("SELECT LAST_INSERT_ID();")[0][0])});
+            jsonBody.add("id", JsonValue{std::move(this->database.inquire("SELECT LAST_INSERT_ID();")[0][0])});
         }
 
         const auto stringBody{jsonBody.toString()};

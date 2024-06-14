@@ -5,7 +5,7 @@
 #include <source_location>
 #include <vector>
 
-class Mysql {
+class Database {
     struct Deleter {
         auto operator()(MYSQL *handle) const noexcept -> void;
     };
@@ -16,7 +16,7 @@ class Mysql {
         };
 
     public:
-        explicit Result(const std::unique_ptr<MYSQL, Mysql::Deleter> &mysqlHandle,
+        explicit Result(const std::unique_ptr<MYSQL, Database::Deleter> &databaseHandle,
                         std::source_location sourceLocation = std::source_location::current());
 
         Result(const Result &) = delete;
@@ -40,17 +40,17 @@ class Mysql {
     };
 
 public:
-    explicit Mysql(std::source_location sourceLocation = std::source_location::current());
+    explicit Database(std::source_location sourceLocation = std::source_location::current());
 
-    Mysql(const Mysql &) = delete;
+    Database(const Database &) = delete;
 
-    Mysql(Mysql &&) = default;
+    Database(Database &&) = default;
 
-    auto operator=(const Mysql &) -> Mysql & = delete;
+    auto operator=(const Database &) -> Database & = delete;
 
-    auto operator=(Mysql &&) -> Mysql & = default;
+    auto operator=(Database &&) -> Database & = default;
 
-    ~Mysql() = default;
+    ~Database() = default;
 
     auto connect(std::string_view host, std::string_view user, std::string_view password, std::string_view database,
                  unsigned int port, std::string_view unixSocket, unsigned long clientFlag,

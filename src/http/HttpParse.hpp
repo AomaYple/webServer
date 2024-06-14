@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../database/Mysql.hpp"
+#include "Database.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 
@@ -46,7 +46,7 @@ private:
 
     HttpRequest httpRequest;
     HttpResponse httpResponse;
-    Mysql mysql;
+    Database database;
     std::vector<std::byte> body;
     bool wroteBody{true}, isBrotli{};
     std::shared_ptr<Logger> logger;
