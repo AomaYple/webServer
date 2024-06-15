@@ -8,6 +8,16 @@ class Client : public FileDescriptor {
 public:
     Client(int fileDescriptor, std::chrono::seconds seconds) noexcept;
 
+    Client(const Client &) = delete;
+
+    Client(Client &&) = default;
+
+    auto operator=(const Client &) -> Client & = delete;
+
+    auto operator=(Client &&) -> Client & = delete;
+
+    ~Client() = default;
+
     [[nodiscard]] auto getSeconds() const noexcept -> std::chrono::seconds;
 
     [[nodiscard]] auto receive(int ringBufferId) const noexcept -> Awaiter;
