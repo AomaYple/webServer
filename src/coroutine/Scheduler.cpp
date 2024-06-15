@@ -45,7 +45,7 @@ Scheduler::Scheduler(const int sharedFileDescriptor, const unsigned int cpuCode)
     this->ring->registerCpu(cpuCode);
     this->ring->registerSparseFileDescriptor(Ring::getFileDescriptorLimit());
 
-    const std::array fileDescriptors{Logger::create(), Server::create(), Timer::create()};
+    const std::array fileDescriptors{Logger::create("log.log"), Server::create(), Timer::create()};
     this->ring->allocateFileDescriptorRange(fileDescriptors.size(),
                                             Ring::getFileDescriptorLimit() - fileDescriptors.size());
     this->ring->updateFileDescriptors(0, fileDescriptors);
