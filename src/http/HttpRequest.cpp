@@ -3,20 +3,20 @@
 HttpRequest::HttpRequest(std::string_view request) {
     bool lineParsed{}, bodyParsed{};
 
-    for (unsigned long result{request.find("\r\n")}; result != std::string_view::npos && !bodyParsed;
-         result = request.find("\r\n")) {
+    for (unsigned long lineBreak{request.find("\r\n")}; lineBreak != std::string_view::npos && !bodyParsed;
+         lineBreak = request.find("\r\n")) {
         if (!lineParsed) {
             lineParsed = true;
-            this->parseLine(request.substr(0, result));
+            this->parseLine(request.substr(0, lineBreak));
 
-            request.remove_prefix(result + 2);
-        } else [[unlikely]] if (result == 0) {
+            request.remove_prefix(lineBreak + 2);
+        } else [[unlikely]] if (lineBreak == 0) {
             bodyParsed = true;
             this->body = request.substr(2);
         } else {
-            this->parseHeader(request.substr(0, result));
+            this->parseHeader(request.substr(0, lineBreak));
 
-            request.remove_prefix(result + 2);
+            request.remove_prefix(lineBreak + 2);
         }
     }
 }
@@ -51,7 +51,8 @@ auto HttpRequest::parseLine(std::string_view line) noexcept -> void {
 }
 
 auto HttpRequest::parseHeader(const std::string_view header) -> void {
-    const auto point{header.cbegin() + header.find(": ")};
+    const auto splitPoint{header.cbegin() + header.find(": ")};
 
-    this->headers.emplace(std::string_view{header.cbegin(), point}, std::string_view{point + 2, header.cend()});
+    this->headers.emplace(std::string_view{header.cbegin(), splitPoint},
+                          std::string_view{splitPoint + 2, header.cend()});
 }
