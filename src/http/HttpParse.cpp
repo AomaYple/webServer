@@ -82,8 +82,8 @@ auto HttpParse::parseMethod() -> void {
         }
 
         const auto stringBody{jsonBody.toString()};
-        const auto spanBody{std::as_bytes(std::span{stringBody})};
-        this->body = {spanBody.cbegin(), spanBody.cend()};
+        const auto bytes{std::as_bytes(std::span{stringBody})};
+        this->body = {bytes.cbegin(), bytes.cend()};
     } else this->httpResponse.setStatusCode("405 Method Not Allowed");
 }
 

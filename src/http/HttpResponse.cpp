@@ -1,24 +1,24 @@
 #include "HttpResponse.hpp"
 
 auto HttpResponse::setVersion(const std::string_view version) -> void {
-    const auto spanNewVersion{std::as_bytes(std::span{version})};
+    const auto bytes{std::as_bytes(std::span{version})};
 
-    this->version = {spanNewVersion.cbegin(), spanNewVersion.cend()};
+    this->version = {bytes.cbegin(), bytes.cend()};
     this->version.emplace_back(std::byte{' '});
 }
 
 auto HttpResponse::setStatusCode(const std::string_view statusCode) -> void {
-    const auto spanNewStatusCode{std::as_bytes(std::span{statusCode})};
+    const auto bytes{std::as_bytes(std::span{statusCode})};
 
-    this->statusCode = {spanNewStatusCode.cbegin(), spanNewStatusCode.cend()};
+    this->statusCode = {bytes.cbegin(), bytes.cend()};
     this->statusCode.emplace_back(std::byte{'\r'});
     this->statusCode.emplace_back(std::byte{'\n'});
 }
 
 auto HttpResponse::addHeader(const std::string_view header) -> void {
-    const auto spanHeader{std::as_bytes(std::span{header})};
+    const auto bytes{std::as_bytes(std::span{header})};
 
-    this->headers.insert(this->headers.cend(), spanHeader.cbegin(), spanHeader.cend());
+    this->headers.insert(this->headers.cend(), bytes.cbegin(), bytes.cend());
     this->headers.emplace_back(std::byte{'\r'});
     this->headers.emplace_back(std::byte{'\n'});
 }
