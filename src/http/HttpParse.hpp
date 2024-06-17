@@ -48,6 +48,6 @@ private:
     HttpResponse httpResponse;
     Database database;
     std::vector<std::byte> body;
-    bool wroteBody{true}, isBrotli{};
+    bool isWroteBody{true}, isBrotli{};
     std::shared_ptr<Logger> logger;
 };

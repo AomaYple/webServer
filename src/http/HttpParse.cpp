@@ -28,7 +28,7 @@ auto HttpParse::parse(const std::string_view request, const std::source_location
 
     this->httpResponse.addHeader("Content-Length: " + std::to_string(this->body.size()));
 
-    if (!this->wroteBody) this->body.clear();
+    if (!this->isWroteBody) this->body.clear();
     this->httpResponse.setBody(this->body);
 
     std::vector response{this->httpResponse.toByte()};
@@ -41,7 +41,7 @@ auto HttpParse::clear() noexcept -> void {
     this->httpRequest = HttpRequest{};
     this->httpResponse = {};
     this->body.clear();
-    this->wroteBody = true;
+    this->isWroteBody = true;
     this->isBrotli = false;
 }
 
@@ -58,7 +58,7 @@ auto HttpParse::parseVersion() -> void {
 
 auto HttpParse::parseMethod() -> void {
     if (const std::string_view method{this->httpRequest.getMethod()}; method == "GET" || method == "HEAD") {
-        if (method == "HEAD") this->wroteBody = false;
+        if (method == "HEAD") this->isWroteBody = false;
 
         this->parsePath();
     } else if (method == "POST") {
@@ -214,5 +214,5 @@ auto HttpParse::brotli(const std::source_location sourceLocation) -> void {
 auto HttpParse::handleException() -> void {
     this->httpResponse.setStatusCode("500 Internal Server Error");
     this->httpResponse.clearHeaders();
-    this->wroteBody = false;
+    this->isWroteBody = false;
 }
