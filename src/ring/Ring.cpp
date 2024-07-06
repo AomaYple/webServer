@@ -180,7 +180,7 @@ auto Ring::wait(const unsigned int count, const std::source_location sourceLocat
     }
 }
 
-auto Ring::poll(const std::function<auto(const Completion &completion)->void> &action) const -> int {
+auto Ring::poll(std::move_only_function<auto(const Completion &completion)->void> &&action) const -> int {
     int count{};
     unsigned int head;
 
