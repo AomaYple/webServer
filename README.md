@@ -2,6 +2,10 @@
 
 本项目是linux上一个基于c++和io_uring的异步高并发Proactor模式服务器
 
+## io_uring
+
+利用io_uring实现了高性能的异步io，支持多个io操作的批量提交，减少系统调用次数，提高性能
+
 ## 日志
 
 利用io_uring的异步io和linux O_APPEND特性实现了异步且线程安全的高性能日志系统，支持多种日志级别和提供详细的日志信息
@@ -14,13 +18,13 @@
 
 封装c++20协程的coroutine，实现了Awaiter和Task，简化异步编程
 
-## io_uring
-
-利用io_uring实现了高性能的异步io，支持多个io操作的批量提交，减少系统调用次数，提高性能
-
 ## 定时器
 
 基于层级时间轮实现定时器，定时器的精度为1s，支持极大时间范围，会自动处理超时的连接，节省服务器资源
+
+## http
+
+支持http1.1、长连接和br压缩，支持GET、HEAD和POST请求，支持请求网页、图片和视频，支持登录和注册
 
 ## 数据库
 
@@ -37,10 +41,6 @@ CREATE TABLE `users` (
 PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
-
-## http
-
-支持http1.1、长连接和br压缩，支持GET、HEAD和POST请求，支持请求网页、图片和视频，支持登录和注册
 
 ## 调度器
 
