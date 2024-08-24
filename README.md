@@ -28,7 +28,7 @@
 
 ## 数据库
 
-数据库使用mariadb存储用户的信息，使用前需要创建数据库和表，如下：
+数据库使用mariadb（mysql的开源实现）存储用户的信息，使用前需要创建数据库和表，如下：
 
 ```sql'
 create database webServer;
