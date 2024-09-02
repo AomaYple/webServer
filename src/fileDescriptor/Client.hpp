@@ -10,7 +10,7 @@ public:
 
     Client(const Client &) = delete;
 
-    Client(Client &&) = default;
+    Client(Client &&) noexcept = default;
 
     auto operator=(const Client &) -> Client & = delete;
 

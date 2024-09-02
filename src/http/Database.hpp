@@ -21,11 +21,11 @@ class Database {
 
         Result(const Result &) = delete;
 
-        Result(Result &&) = default;
+        Result(Result &&) noexcept = default;
 
         auto operator=(const Result &) -> Result & = delete;
 
-        auto operator=(Result &&) -> Result & = default;
+        auto operator=(Result &&) noexcept -> Result & = default;
 
         ~Result() = default;
 
@@ -44,11 +44,11 @@ public:
 
     Database(const Database &) = delete;
 
-    Database(Database &&) = default;
+    Database(Database &&) noexcept = default;
 
     auto operator=(const Database &) -> Database & = delete;
 
-    auto operator=(Database &&) -> Database & = default;
+    auto operator=(Database &&) noexcept -> Database & = default;
 
     ~Database() = default;
 
