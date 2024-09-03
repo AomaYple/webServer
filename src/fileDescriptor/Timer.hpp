@@ -6,7 +6,7 @@
 #include <source_location>
 #include <unordered_map>
 
-class Timer : public FileDescriptor {
+class Timer final : public FileDescriptor {
 public:
     [[nodiscard]] static auto create() -> int;
 
@@ -20,7 +20,7 @@ public:
 
     auto operator=(Timer &&) noexcept-> Timer & = delete;
 
-    ~Timer() = default;
+    ~Timer() override = default;
 
     [[nodiscard]] auto timing() noexcept -> Awaiter;
 

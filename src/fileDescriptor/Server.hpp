@@ -6,7 +6,7 @@
 #include <source_location>
 #include <string_view>
 
-class Server : public FileDescriptor {
+class Server final : public FileDescriptor {
 public:
     [[nodiscard]] static auto create(std::string_view host, unsigned short port) -> int;
 
@@ -20,7 +20,7 @@ public:
 
     auto operator=(Server &&)noexcept -> Server & = delete;
 
-    ~Server() = default;
+    ~Server() override = default;
 
     [[nodiscard]] auto accept() const noexcept -> Awaiter;
 

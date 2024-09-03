@@ -5,7 +5,7 @@
 
 #include <queue>
 
-class Logger : public FileDescriptor {
+class Logger final : public FileDescriptor {
 public:
     [[nodiscard]] static auto create(std::string_view filename,
                                      std::source_location sourceLocation = std::source_location::current()) -> int;
@@ -20,7 +20,7 @@ public:
 
     auto operator=(Logger &&) noexcept -> Logger & = delete;
 
-    ~Logger() = default;
+    ~Logger() override = default;
 
     auto push(Log &&log) -> void;
 

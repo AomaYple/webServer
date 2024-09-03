@@ -14,7 +14,7 @@ public:
 
     auto operator=(FileDescriptor &&) noexcept -> FileDescriptor & = delete;
 
-    ~FileDescriptor() = default;
+    virtual ~FileDescriptor() = default;
 
     [[nodiscard]] auto getFileDescriptor() const noexcept -> int;
 

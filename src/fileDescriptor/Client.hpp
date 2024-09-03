@@ -4,7 +4,7 @@
 
 #include <chrono>
 
-class Client : public FileDescriptor {
+class Client final : public FileDescriptor {
 public:
     Client(int fileDescriptor, std::chrono::seconds seconds) noexcept;
 
@@ -16,7 +16,7 @@ public:
 
     auto operator=(Client &&) noexcept -> Client & = delete;
 
-    ~Client() = default;
+    ~Client() override = default;
 
     [[nodiscard]] auto getSeconds() const noexcept -> std::chrono::seconds;
 
