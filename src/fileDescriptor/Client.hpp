@@ -14,7 +14,7 @@ public:
 
     auto operator=(const Client &) -> Client & = delete;
 
-    auto operator=(Client &&) -> Client & = delete;
+    auto operator=(Client &&) noexcept -> Client & = delete;
 
     ~Client() = default;
 

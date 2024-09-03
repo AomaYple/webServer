@@ -18,7 +18,7 @@ public:
 
     auto operator=(const Logger &) -> Logger & = delete;
 
-    auto operator=(Logger &&) -> Logger & = delete;
+    auto operator=(Logger &&) noexcept -> Logger & = delete;
 
     ~Logger() = default;
 

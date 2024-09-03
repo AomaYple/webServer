@@ -18,7 +18,7 @@ public:
 
     auto operator=(const Server &) -> Server & = delete;
 
-    auto operator=(Server &&) -> Server & = delete;
+    auto operator=(Server &&)noexcept -> Server & = delete;
 
     ~Server() = default;
 

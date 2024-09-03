@@ -18,7 +18,7 @@ public:
 
     auto operator=(const Timer &) -> Timer & = delete;
 
-    auto operator=(Timer &&) -> Timer & = delete;
+    auto operator=(Timer &&) noexcept-> Timer & = delete;
 
     ~Timer() = default;
 
