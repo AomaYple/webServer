@@ -77,7 +77,7 @@ auto Scheduler::run() -> void {
 
 auto Scheduler::frame() -> void {
     const int completionCount{this->ring->poll([this](const Completion &completion) {
-        if (completion.outcome.result != 0 || !(completion.outcome.flags & IORING_CQE_F_NOTIF)) {
+        if (completion.outcome.result != 0 || (completion.outcome.flags & IORING_CQE_F_NOTIF) == 0) {
             this->currentUserData = completion.userData;
             const std::shared_ptr task{this->tasks.at(this->currentUserData)};
             task->resume(completion.outcome);
@@ -108,7 +108,8 @@ auto Scheduler::write(const std::source_location sourceLocation) -> Task {
 
 auto Scheduler::accept(const std::source_location sourceLocation) -> Task {
     while (true) {
-        if (const auto [result, flags]{co_await this->server.accept()}; result >= 0 && flags & IORING_CQE_F_MORE) {
+        if (const auto [result, flags]{co_await this->server.accept()};
+            result >= 0 && (flags & IORING_CQE_F_MORE) != 0) {
             this->clients.emplace(result, Client{result, std::chrono::seconds{60}});
 
             const Client &client{this->clients.at(result)};
@@ -147,11 +148,11 @@ auto Scheduler::receive(const Client &client, const std::source_location sourceL
 
     while (true) {
         if (const auto [result, flags]{co_await client.receive(this->ringBuffer.getId())};
-            result > 0 && flags & IORING_CQE_F_MORE) {
+            result > 0 && (flags & IORING_CQE_F_MORE) != 0) {
             const std::span receivedData{this->ringBuffer.readFromBuffer(flags >> IORING_CQE_BUFFER_SHIFT, result)};
             buffer.insert(buffer.cend(), receivedData.cbegin(), receivedData.cend());
 
-            if (!(flags & IORING_CQE_F_SOCK_NONEMPTY)) {
+            if ((flags & IORING_CQE_F_SOCK_NONEMPTY) == 0) {
                 this->timer.update(client.getFileDescriptor(), client.getSeconds());
 
                 std::vector response{this->httpParse.parse(
