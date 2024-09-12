@@ -21,13 +21,13 @@ class Database {
 
         Result(const Result &) = delete;
 
-        Result(Result &&) noexcept = default;
+        constexpr Result(Result &&) noexcept = default;
 
         auto operator=(const Result &) -> Result & = delete;
 
-        auto operator=(Result &&) noexcept -> Result & = default;
+        constexpr auto operator=(Result &&) noexcept -> Result & = default;
 
-        ~Result() = default;
+        constexpr ~Result() = default;
 
         [[nodiscard]] auto get() const -> std::vector<std::vector<std::string>>;
 
@@ -44,13 +44,13 @@ public:
 
     Database(const Database &) = delete;
 
-    Database(Database &&) noexcept = default;
+    constexpr Database(Database &&) noexcept = default;
 
     auto operator=(const Database &) -> Database & = delete;
 
-    auto operator=(Database &&) noexcept -> Database & = default;
+    constexpr auto operator=(Database &&) noexcept -> Database & = default;
 
-    ~Database() = default;
+    constexpr ~Database() = default;
 
     auto connect(std::string_view host, std::string_view user, std::string_view password, std::string_view database,
                  unsigned int port, std::string_view unixSocket, unsigned long clientFlag,

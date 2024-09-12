@@ -6,7 +6,7 @@
 
 class HttpResponse {
 public:
-    HttpResponse() = default;
+    constexpr HttpResponse() = default;
 
     auto setVersion(std::string_view version) -> void;
 
