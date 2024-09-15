@@ -1,34 +1,34 @@
 ## 介绍
 
-本项目是linux上一个基于c++和io_uring的异步高并发Proactor模式服务器
+本项目是Linux上一个基于C++和io_uring的异步高并发Proactor模式服务器
 
 ## io_uring
 
-利用io_uring实现了高性能的异步io，支持多个io操作的批量提交，减少系统调用次数，提高性能
+利用io_uring实现了高性能的异步IO，支持多个IO操作的批量提交，减少系统调用次数，提高性能
 
 ## 日志
 
-利用io_uring的异步io和linux O_APPEND特性实现了异步且线程安全的高性能日志系统，支持多种日志级别和提供详细的日志信息
+利用io_uring的异步io和Linux O_APPEND特性实现了异步且线程安全的高性能日志系统，支持多种日志级别和提供详细的日志信息
 
-## json
+## JSON
 
-基于递归下降实现了对json的解析和生成，支持近乎所有的json格式，用于支持http请求和响应的解析和生成
+基于递归下降实现了对JSON的解析和生成，支持近乎所有的JSON格式，用于支持HTTP请求和响应的解析和生成
 
 ## 协程
 
-封装c++20协程的coroutine，实现了Awaiter和Task，简化异步编程
+封装C++20协程的coroutine，实现了Awaiter和Task，简化异步编程
 
 ## 定时器
 
 基于层级时间轮实现定时器，定时器的精度为1s，支持极大时间范围，会自动处理超时的连接，节省服务器资源
 
-## http
+## HTTP
 
-支持http1.1、长连接和br压缩，支持GET、HEAD和POST请求，支持请求网页、图片和视频，支持登录和注册
+支持HTTP1.1、长连接和br压缩，支持GET、HEAD和POST请求，支持请求网页、图片和视频，支持登录和注册
 
 ## 数据库
 
-数据库使用mariadb（mysql的开源实现）存储用户的信息，使用前需要创建数据库和表，如下：
+数据库使用MariaDB（MySQL的开源实现）存储用户的信息，使用前需要创建数据库和表，如下：
 
 ```sql'
 create database webServer;
@@ -44,7 +44,7 @@ PRIMARY KEY (`id`)
 
 ## 调度器
 
-基于协程实现了一个简单的调度器，支持协程的创建、销毁、挂起和唤醒，程序会根据cpu核心数创建相应数量的调度器，每个调度器互相独立，互不干扰
+基于协程实现了一个简单的调度器，支持协程的创建、销毁、挂起和唤醒，程序会根据CPU核心数创建相应数量的调度器，每个调度器互相独立，互不干扰
 
 ## 信号处理
 
@@ -52,7 +52,7 @@ PRIMARY KEY (`id`)
 
 ## 环境
 
-gcc14以上，cmake，ninja，liburing2.4以上，brotli，mariadb
+GCC14以上，CMake，Ninja，liburing2.4以上，Brotli，MariaDB
 
 ## 编译
 
