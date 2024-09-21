@@ -75,7 +75,7 @@ Arch WSL
 8核  
 利用[wrk](https://github.com/wg/wrk)测试
 
-RPS:167万（每秒处理的http请求数量）
+RPS:132万（每秒处理的http请求数量）
 ![image](show/test.png)
 
 RPS:25万（每秒处理的数据库查询数量）
