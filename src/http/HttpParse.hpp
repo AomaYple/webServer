@@ -10,7 +10,7 @@ class Logger;
 
 class HttpParse {
 public:
-    explicit HttpParse(std::shared_ptr<Logger> logger);
+    explicit HttpParse(const std::shared_ptr<Logger> &logger);
 
     HttpParse(const HttpParse &) = delete;
 

@@ -6,6 +6,18 @@
 #include "../ring/Ring.hpp"
 
 #include <ranges>
+#include <sys/resource.h>
+
+auto Scheduler::getFileDescriptorLimit(const std::source_location sourceLocation) -> unsigned long {
+    rlimit limit{};
+    if (getrlimit(RLIMIT_NOFILE, &limit) == -1) {
+        throw Exception{
+            Log{Log::Level::fatal, std::error_code{errno, std::generic_category()}.message(), sourceLocation}
+        };
+    }
+
+    return limit.rlim_cur;
+}
 
 auto Scheduler::registerSignal(const std::source_location sourceLocation) -> void {
     struct sigaction signalAction {};
@@ -40,13 +52,14 @@ Scheduler::Scheduler(const int sharedFileDescriptor, const unsigned int cpuCode)
 
         return ring;
     }()} {
+    const unsigned long fileDescriptorLimit{getFileDescriptorLimit()};
+
     this->ring->registerSelfFileDescriptor();
     this->ring->registerCpu(cpuCode);
-    this->ring->registerSparseFileDescriptor(Ring::getFileDescriptorLimit());
+    this->ring->registerSparseFileDescriptor(fileDescriptorLimit);
 
     const std::array fileDescriptors{Logger::create("log.log"), Server::create("127.0.0.1", 8080), Timer::create()};
-    this->ring->allocateFileDescriptorRange(fileDescriptors.size(),
-                                            Ring::getFileDescriptorLimit() - fileDescriptors.size());
+    this->ring->allocateFileDescriptorRange(fileDescriptors.size(), fileDescriptorLimit - fileDescriptors.size());
     this->ring->updateFileDescriptors(0, fileDescriptors);
 }
 

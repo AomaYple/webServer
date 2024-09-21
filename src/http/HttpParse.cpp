@@ -9,7 +9,7 @@
 #include <filesystem>
 #include <fstream>
 
-HttpParse::HttpParse(std::shared_ptr<Logger> logger) : logger{std::move(logger)} {
+HttpParse::HttpParse(const std::shared_ptr<Logger> &logger) : logger{logger} {
     this->database.connect(std::string_view{}, "AomaYple", "38820233", "webServer", 0, std::string_view{}, 0);
 }
 
