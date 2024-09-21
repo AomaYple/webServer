@@ -8,7 +8,7 @@ RingBuffer::RingBuffer(const std::shared_ptr<Ring> &ring, const unsigned int ent
                        const int id) :
     ring{ring}, handle{this->ring->setupRingBuffer(entries, id)}, buffer{entries * subBufferSize},
     subBufferSize{subBufferSize}, id{id}, mask{io_uring_buf_ring_mask(entries)} {
-    for (unsigned int i{}; i != entries; ++i) this->add(i);
+    for (unsigned short i{}; i != entries; ++i) this->add(i);
 
     this->ring->advance(this->getHandle(), 0, this->getAddedBufferCount());
 }
