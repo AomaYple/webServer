@@ -52,7 +52,7 @@ PRIMARY KEY (`id`)
 
 ## 环境
 
-GCC14以上，CMake，Ninja，liburing2.4以上，Brotli，MariaDB
+GCC14及以上，CMake，Ninja，liburing2.7及以上，Brotli，MariaDB
 
 ## 编译
 
