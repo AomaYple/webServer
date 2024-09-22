@@ -27,7 +27,7 @@ public:
         -> std::vector<std::byte>;
 
 private:
-    auto clear() noexcept -> void;
+    auto clear() -> void;
 
     auto parseVersion() -> void;
 

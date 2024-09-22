@@ -37,9 +37,9 @@ auto HttpParse::parse(const std::string_view request, const std::source_location
     return response;
 }
 
-auto HttpParse::clear() noexcept -> void {
+auto HttpParse::clear() -> void {
     this->httpRequest = HttpRequest{};
-    this->httpResponse = {};
+    this->httpResponse = HttpResponse{};
     this->body.clear();
     this->isWroteBody = true;
     this->isBrotli = false;
