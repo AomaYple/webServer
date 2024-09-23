@@ -3,7 +3,6 @@
 #include "FileDescriptor.hpp"
 
 #include <chrono>
-#include <source_location>
 #include <unordered_map>
 
 class Timer final : public FileDescriptor {
@@ -33,12 +32,6 @@ public:
     [[nodiscard]] auto clearTimeout() -> std::vector<int>;
 
 private:
-    [[nodiscard]] static auto
-        createTimerFileDescriptor(std::source_location sourceLocation = std::source_location::current()) -> int;
-
-    static auto setTime(int fileDescriptor, std::source_location sourceLocation = std::source_location::current())
-        -> void;
-
     unsigned long timeout{};
     std::chrono::seconds now{};
     std::array<std::unordered_map<int, unsigned long>, 61> wheel;

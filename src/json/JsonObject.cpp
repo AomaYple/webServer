@@ -37,7 +37,7 @@ JsonObject::JsonObject(const std::string_view json) {
             case '[':
                 {
                     JsonArray array{json.substr(point - json.cbegin())};
-                    point += array.stringSize();
+                    point += array.toStringSize();
                     this->values.emplace(key, std::move(array));
 
                     break;
@@ -45,7 +45,7 @@ JsonObject::JsonObject(const std::string_view json) {
             case '{':
                 {
                     JsonObject object{json.substr(point - json.cbegin())};
-                    point += object.stringSize();
+                    point += object.toStringSize();
                     this->values.emplace(key, std::move(object));
 
                     break;
@@ -62,7 +62,7 @@ JsonObject::JsonObject(const std::string_view json) {
     }
 }
 
-auto JsonObject::add(const std::string_view key, JsonValue &&value) -> void {
+auto JsonObject::insert(const std::string_view key, JsonValue &&value) -> void {
     this->values.emplace(key, std::move(value));
 }
 
@@ -70,7 +70,7 @@ auto JsonObject::operator[](const std::string &key) const -> const JsonValue & {
 
 auto JsonObject::operator[](const std::string &key) -> JsonValue & { return this->values.at(key); }
 
-auto JsonObject::remove(const std::string &key) -> void { this->values.erase(key); }
+auto JsonObject::erase(const std::string &key) -> void { this->values.erase(key); }
 
 auto JsonObject::toString() const -> std::string {
     std::string result{'{'};
@@ -82,11 +82,11 @@ auto JsonObject::toString() const -> std::string {
     return result;
 }
 
-auto JsonObject::stringSize() const -> unsigned long {
+auto JsonObject::toStringSize() const -> unsigned long {
     unsigned long size{2};
     if (this->values.size() > 1) size += this->values.size() - 1;
 
-    for (const auto &[key, value] : this->values) size += key.size() + 3 + value.stringSize();
+    for (const auto &[key, value] : this->values) size += key.size() + 3 + value.toStringSize();
 
     return size;
 }

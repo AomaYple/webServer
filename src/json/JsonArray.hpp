@@ -12,18 +12,18 @@ class JsonArray {
 public:
     explicit JsonArray(std::string_view json = {});
 
-    auto add(JsonValue &&value) -> void;
+    auto pushBack(JsonValue &&value) -> void;
 
     [[nodiscard]] auto operator[](unsigned long index) const noexcept -> const JsonValue &;
 
     [[nodiscard]] auto operator[](unsigned long index) noexcept -> JsonValue &;
 
-    auto remove(long index) -> void;
+    auto erase(long index) -> void;
 
     [[nodiscard]] auto toString() const -> std::string;
 
 private:
-    [[nodiscard]] auto stringSize() const -> unsigned long;
+    [[nodiscard]] auto toStringSize() const -> unsigned long;
 
     std::vector<JsonValue> values;
 };

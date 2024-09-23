@@ -93,7 +93,7 @@ auto JsonValue::toString() const -> std::string {
     return "";
 }
 
-auto JsonValue::stringSize() const -> unsigned long {
+auto JsonValue::toStringSize() const -> unsigned long {
     switch (this->type) {
         case Type::null:
             return 4;
@@ -104,9 +104,9 @@ auto JsonValue::stringSize() const -> unsigned long {
         case Type::string:
             return std::get<std::string>(this->value).size() + 2;
         case Type::array:
-            return std::get<JsonArray>(this->value).stringSize();
+            return std::get<JsonArray>(this->value).toStringSize();
         case Type::object:
-            return std::get<JsonObject>(this->value).stringSize();
+            return std::get<JsonObject>(this->value).toStringSize();
     }
 
     return 0;

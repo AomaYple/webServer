@@ -59,7 +59,7 @@ public:
     [[nodiscard]] auto toString() const -> std::string;
 
 private:
-    [[nodiscard]] auto stringSize() const -> unsigned long;
+    [[nodiscard]] auto toStringSize() const -> unsigned long;
 
     [[nodiscard]] auto numberToString() const -> std::string;
 

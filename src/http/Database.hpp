@@ -56,12 +56,10 @@ public:
                  unsigned int port, std::string_view unixSocket, unsigned long clientFlag,
                  std::source_location sourceLocation = std::source_location::current()) const -> void;
 
-    auto inquire(std::string_view statement) const -> std::vector<std::vector<std::string>>;
+    auto query(std::string_view statement, std::source_location sourceLocation = std::source_location::current()) const
+        -> std::vector<std::vector<std::string>>;
 
 private:
-    auto query(std::string_view statement, std::source_location sourceLocation = std::source_location::current()) const
-        -> void;
-
     static constinit std::mutex lock;
 
     std::unique_ptr<MYSQL, Deleter> handle;

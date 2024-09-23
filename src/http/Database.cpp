@@ -71,18 +71,15 @@ auto Database::connect(const std::string_view host, const std::string_view user,
     }
 }
 
-auto Database::inquire(const std::string_view statement) const -> std::vector<std::vector<std::string>> {
-    this->query(statement);
-
-    return Result{this->handle}.get();
-}
-
-auto Database::query(const std::string_view statement, const std::source_location sourceLocation) const -> void {
+auto Database::query(const std::string_view statement, const std::source_location sourceLocation) const
+    -> std::vector<std::vector<std::string>> {
     if (mysql_real_query(this->handle.get(), statement.data(), statement.size()) != 0) {
         throw Exception{
             Log{Log::Level::error, mysql_error(this->handle.get()), sourceLocation}
         };
     }
+
+    return Result{this->handle}.get();
 }
 
 constinit std::mutex Database::lock;

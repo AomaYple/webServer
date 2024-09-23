@@ -70,15 +70,15 @@ auto HttpParse::parseMethod() -> void {
 
         JsonObject jsonBody;
         if (std::string_view{requestBody["method"]} == "login") {
-            jsonBody.add("success",
-                         JsonValue{!this->database
-                                        .inquire(std::format("SELECT * FROM users WHERE id = {} AND password = '{}';",
-                                                             std::string_view{requestBody["id"]}, password))
-                                        .empty()});
+            jsonBody.insert("success",
+                            JsonValue{!this->database
+                                           .query(std::format("SELECT * FROM users WHERE id = {} AND password = '{}';",
+                                                              std::string_view{requestBody["id"]}, password))
+                                           .empty()});
         } else {
-            this->database.inquire(std::format("INSERT INTO users (password) VALUES ('{}');", password));
+            this->database.query(std::format("INSERT INTO users (password) VALUES ('{}');", password));
 
-            jsonBody.add("id", JsonValue{std::move(this->database.inquire("SELECT LAST_INSERT_ID();")[0][0])});
+            jsonBody.insert("id", JsonValue{std::move(this->database.query("SELECT LAST_INSERT_ID();")[0][0])});
         }
 
         const auto stringBody{jsonBody.toString()};
@@ -91,6 +91,7 @@ auto HttpParse::parsePath() -> void {
     const auto url{this->httpRequest.getUrl().substr(1)};
     if (url.empty()) {
         this->httpResponse.setStatusCode("200 OK");
+
         return;
     }
 
