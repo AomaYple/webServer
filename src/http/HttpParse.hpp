@@ -4,8 +4,6 @@
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 
-#include <memory>
-
 class Logger;
 
 class HttpParse {
