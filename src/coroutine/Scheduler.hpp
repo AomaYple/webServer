@@ -4,6 +4,7 @@
 #include "../fileDescriptor/Server.hpp"
 #include "../fileDescriptor/Timer.hpp"
 #include "../http/HttpParse.hpp"
+#include "../ring/BufferGroup.hpp"
 #include "../ring/RingBuffer.hpp"
 
 class Client;
@@ -57,6 +58,7 @@ private:
         -> Task;
 
     static constinit std::atomic_flag switcher;
+    static const unsigned int entries;
 
     const std::shared_ptr<Ring> ring;
     const std::shared_ptr<Logger> logger{std::make_shared<Logger>(0)};
@@ -64,10 +66,8 @@ private:
     Timer timer{2};
     HttpParse httpParse{this->logger};
     std::unordered_map<int, Client> clients;
-    RingBuffer ringBuffer{
-        this->ring,
-        std::bit_ceil(static_cast<unsigned int>(getFileDescriptorLimit()) / std::thread::hardware_concurrency()) * 2,
-        1024, 0};
+    RingBuffer ringBuffer{this->ring, entries, 0};
+    BufferGroup bufferGroup{entries};
     std::unordered_map<unsigned long, std::shared_ptr<Task>> tasks;
     unsigned long currentUserData{};
 };

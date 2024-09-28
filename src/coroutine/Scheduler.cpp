@@ -61,6 +61,8 @@ Scheduler::Scheduler(const int sharedFileDescriptor, const unsigned int cpuCode)
     const std::array fileDescriptors{Logger::create("log.log"), Server::create("127.0.0.1", 8080), Timer::create()};
     this->ring->allocateFileDescriptorRange(fileDescriptors.size(), fileDescriptorLimit - fileDescriptors.size());
     this->ring->updateFileDescriptors(0, fileDescriptors);
+
+    for (unsigned int i{}; i != entries; ++i) this->ringBuffer.addBuffer(this->bufferGroup.getBuffer(i), i);
 }
 
 Scheduler::~Scheduler() {
@@ -158,20 +160,23 @@ auto Scheduler::timing(const std::source_location sourceLocation) -> Task {
 }
 
 auto Scheduler::receive(const Client &client, const std::source_location sourceLocation) -> Task {
-    std::vector<std::byte> buffer;
+    std::vector<std::byte> receiveBuffer;
 
     while (true) {
         if (const auto [result, flags]{co_await client.receive(this->ringBuffer.getId())};
             result > 0 && (flags & IORING_CQE_F_MORE) != 0) {
-            const std::span receivedData{this->ringBuffer.readFromBuffer(flags >> IORING_CQE_BUFFER_SHIFT, result)};
-            buffer.insert(buffer.cend(), receivedData.cbegin(), receivedData.cend());
+            const auto index{static_cast<unsigned short>(flags >> IORING_CQE_BUFFER_SHIFT)};
+            const std::span buffer{this->bufferGroup.getBuffer(index)}, receivedData{buffer.subspan(0, result)};
+            this->ringBuffer.addBuffer(buffer, index);
+
+            receiveBuffer.insert(receiveBuffer.cend(), receivedData.cbegin(), receivedData.cend());
 
             if ((flags & IORING_CQE_F_SOCK_NONEMPTY) == 0) {
                 this->timer.update(client.getFileDescriptor(), client.getSeconds());
 
                 std::vector response{this->httpParse.parse(
-                    std::string_view{reinterpret_cast<const char *>(buffer.data()), buffer.size()})};
-                buffer.clear();
+                    std::string_view{reinterpret_cast<const char *>(receiveBuffer.data()), receiveBuffer.size()})};
+                receiveBuffer.clear();
 
                 this->submit(std::make_shared<Task>(this->send(client, std::move(response))));
             }
@@ -245,3 +250,5 @@ auto Scheduler::close(const int fileDescriptor, const std::source_location sourc
 }
 
 constinit std::atomic_flag Scheduler::switcher{true};
+const unsigned int Scheduler::entries{
+    std::bit_ceil(static_cast<unsigned int>(getFileDescriptorLimit()) / std::thread::hardware_concurrency()) * 2};
