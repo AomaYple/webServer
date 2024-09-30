@@ -21,14 +21,14 @@ auto HttpParse::parse(const std::string_view request, const std::source_location
     } catch (Exception &exception) {
         this->handleException();
         this->logger->push(std::move(exception.getLog()));
-    } catch (std::exception &exception) {
+    } catch (const std::exception &exception) {
         this->handleException();
         this->logger->push(Log{Log::Level::warn, exception.what(), sourceLocation});
     }
 
     this->httpResponse.addHeader("Content-Length: " + std::to_string(this->body.size()));
 
-    if (!this->isWroteBody) this->body.clear();
+    if (!this->isWriteBody) this->body.clear();
     this->httpResponse.setBody(this->body);
 
     std::vector response{this->httpResponse.toByte()};
@@ -41,7 +41,7 @@ auto HttpParse::clear() -> void {
     this->httpRequest = HttpRequest{};
     this->httpResponse = HttpResponse{};
     this->body.clear();
-    this->isWroteBody = true;
+    this->isWriteBody = true;
     this->isBrotli = false;
 }
 
@@ -58,7 +58,7 @@ auto HttpParse::parseVersion() -> void {
 
 auto HttpParse::parseMethod() -> void {
     if (const std::string_view method{this->httpRequest.getMethod()}; method == "GET" || method == "HEAD") {
-        if (method == "HEAD") this->isWroteBody = false;
+        if (method == "HEAD") this->isWriteBody = false;
 
         this->parsePath();
     } else if (method == "POST") {
@@ -117,7 +117,7 @@ auto HttpParse::parsePath() -> void {
     }
 
     std::string resourcePath;
-    for (const auto &path : std::filesystem::directory_iterator(folder)) {
+    for (const auto &path : std::filesystem::directory_iterator{folder}) {
         if (path.path().filename() == url) {
             resourcePath = path.path().string();
 
@@ -215,5 +215,5 @@ auto HttpParse::brotli(const std::source_location sourceLocation) -> void {
 auto HttpParse::handleException() -> void {
     this->httpResponse.setStatusCode("500 Internal Server Error");
     this->httpResponse.clearHeaders();
-    this->isWroteBody = false;
+    this->isWriteBody = false;
 }
