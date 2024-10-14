@@ -83,7 +83,7 @@ auto HttpParse::parseMethod() -> void {
 
         const auto stringBody{jsonBody.toString()};
         const auto bytes{std::as_bytes(std::span{stringBody})};
-        this->body = {bytes.cbegin(), bytes.cend()};
+        this->body = std::vector<std::byte>{bytes.cbegin(), bytes.cend()};
     } else this->httpResponse.setStatusCode("405 Method Not Allowed");
 }
 
@@ -164,11 +164,11 @@ auto HttpParse::parseResource(const std::string &resourcePath) -> void {
         this->httpResponse.addHeader("Content-Range: bytes 0-" + std::to_string(maxSize - 1) + '/' +
                                      std::to_string(resourceSize));
 
-        range = {0, maxSize - 1};
+        range = std::pair{0, maxSize - 1};
     } else [[likely]] {
         this->httpResponse.setStatusCode("200 OK");
 
-        range = {0, resourceSize - 1};
+        range = std::pair{0, resourceSize - 1};
     }
 
     this->readResource(resourcePath, range);

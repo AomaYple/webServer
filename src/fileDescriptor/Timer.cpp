@@ -83,7 +83,7 @@ auto Timer::clearTimeout() -> std::vector<int> {
                 this->location.erase(element->first);
 
                 element = wheelPoint.erase(element);
-            } else {
+            } else [[likely]] {
                 --element->second;
                 ++element;
             }

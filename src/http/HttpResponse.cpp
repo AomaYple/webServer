@@ -3,14 +3,14 @@
 auto HttpResponse::setVersion(const std::string_view version) -> void {
     const auto bytes{std::as_bytes(std::span{version})};
 
-    this->version = {bytes.cbegin(), bytes.cend()};
+    this->version = std::vector<std::byte>{bytes.cbegin(), bytes.cend()};
     this->version.emplace_back(std::byte{' '});
 }
 
 auto HttpResponse::setStatusCode(const std::string_view statusCode) -> void {
     const auto bytes{std::as_bytes(std::span{statusCode})};
 
-    this->statusCode = {bytes.cbegin(), bytes.cend()};
+    this->statusCode = std::vector<std::byte>{bytes.cbegin(), bytes.cend()};
     this->statusCode.emplace_back(std::byte{'\r'});
     this->statusCode.emplace_back(std::byte{'\n'});
 }
@@ -26,7 +26,7 @@ auto HttpResponse::addHeader(const std::string_view header) -> void {
 auto HttpResponse::clearHeaders() noexcept -> void { this->headers.clear(); }
 
 auto HttpResponse::setBody(const std::span<const std::byte> body) -> void {
-    this->body = {std::byte{'\r'}, std::byte{'\n'}};
+    this->body = std::vector{std::byte{'\r'}, std::byte{'\n'}};
     this->body.insert(this->body.cend(), body.cbegin(), body.cend());
 }
 

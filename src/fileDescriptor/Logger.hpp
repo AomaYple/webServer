@@ -3,8 +3,6 @@
 #include "../log/Log.hpp"
 #include "FileDescriptor.hpp"
 
-#include <queue>
-
 class Logger final : public FileDescriptor {
 public:
     [[nodiscard]] static auto create(std::string_view filename,
@@ -31,6 +29,6 @@ public:
     auto wrote() noexcept -> void;
 
 private:
-    std::queue<Log> logs;
-    std::vector<std::byte> data;
+    std::vector<Log> logs;
+    std::vector<std::byte> buffer;
 };
