@@ -1,6 +1,6 @@
 ## 介绍
 
-本项目是Linux上一个基于C++和io_uring的异步高并发Proactor模式服务器
+本项目是Linux上一个基于协程和io_uring的C++异步高并发Proactor模式服务器
 
 ## io_uring
 
