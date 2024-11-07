@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30.5)
+cmake_minimum_required(VERSION 3.24)
 
 project(webServer)
 
@@ -10,34 +10,39 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
         CXX_STANDARD 26
         CXX_STANDARD_REQUIRED ON
         COMPILE_WARNING_AS_ERROR ON
-        RUNTIME_OUTPUT_DIRECTORY ${BINARY_DIR}
         INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
+        RUNTIME_OUTPUT_DIRECTORY ${BINARY_DIR}
 )
 
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
-target_sources(${PROJECT_NAME} PRIVATE
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
+        src/*.cpp
+)
+target_sources(${PROJECT_NAME}
+        PRIVATE
         ${SOURCES}
 )
 
-target_compile_options(${PROJECT_NAME} PRIVATE
+target_compile_options(${PROJECT_NAME}
+        PRIVATE
         -Wall -Wextra -Wpedantic
         $<$<CONFIG:Debug>:-Og -fsanitize=address>
         $<$<CONFIG:Release>:-Ofast -march=native>
 )
 
-target_link_options(${PROJECT_NAME} PRIVATE
+target_link_options(${PROJECT_NAME}
+        PRIVATE
         $<$<CONFIG:Debug>:-fsanitize=address>
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(${PROJECT_NAME}
+        PRIVATE
         uring
         brotlienc
         mariadb
 )
 
 add_custom_command(TARGET ${PROJECT_NAME}
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/resources
-        ${BINARY_DIR}/resources
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/resources ${BINARY_DIR}/resources
 
         VERBATIM
 )
