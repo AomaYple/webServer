@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.30)
 
 project(webServer)
 
@@ -7,7 +7,7 @@ add_executable(${PROJECT_NAME})
 set(BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
-        CXX_STANDARD 26
+        CXX_STANDARD ${CMAKE_CXX_STANDARD_LATEST}
         CXX_STANDARD_REQUIRED ON
         COMPILE_WARNING_AS_ERROR ON
         INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
@@ -42,7 +42,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 add_custom_command(TARGET ${PROJECT_NAME}
+        POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/resources ${BINARY_DIR}/resources
-
         VERBATIM
 )
