@@ -25,13 +25,13 @@ target_sources(${PROJECT_NAME}
 target_compile_options(${PROJECT_NAME}
         PRIVATE
         -Wall -Wextra -Wpedantic
-        $<$<CONFIG:Debug>:-Og -fsanitize=address>
-        $<$<CONFIG:Release>:-Ofast -march=native>
+        $<$<CONFIG:Debug>:-Og -fsanitize=address -fsanitize=leak -fsanitize=undefined>
+        $<$<CONFIG:Release>:-Ofast>
 )
 
 target_link_options(${PROJECT_NAME}
         PRIVATE
-        $<$<CONFIG:Debug>:-fsanitize=address>
+        $<$<CONFIG:Debug>:-fsanitize=address -fsanitize=leak -fsanitize=undefined>
 )
 
 target_link_libraries(${PROJECT_NAME}
